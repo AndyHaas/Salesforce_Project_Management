@@ -62,7 +62,6 @@ This is an unmanaged package. To install:
 
 ## Documentation
 
-- [Implementation Summary](./IMPLEMENTATION_SUMMARY.md)
 - [Review Workflow Documentation](./REVIEW_WORKFLOW_DOCUMENTATION.md)
 - [GitHub Wiki](https://github.com/AndyHaas/Salesforce_Project_Management/wiki) - Comprehensive documentation
 
