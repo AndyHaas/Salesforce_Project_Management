@@ -3,11 +3,11 @@
   "title" : "Scoped Header and Footer",
   "contentBody" : {
     "component" : {
-      "attributes" : {
-        "hideThemeFooter" : false,
-        "showThemeFooterAtBottom" : true,
-        "stickyThemeHeader" : false
-      },
+        "attributes" : {
+          "hideThemeFooter" : false,
+          "showThemeFooterAtBottom" : true,
+          "stickyThemeHeader" : true
+        },
       "children" : [ {
         "children" : [ {
           "attributes" : {

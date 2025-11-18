@@ -155,3 +155,198 @@ select:focus {
 .mc-font-primary {
     font-family: var(--mc-font-primary);
 }
+
+/* ============================================
+   Header Styles - Matching milestoneconsulting.tech
+   ============================================ */
+
+/* Header Container */
+[data-region-name="header"],
+[data-region-name="headerSection"],
+.community_builder\:customizableHeader,
+[class*="header"] {
+    background-color: var(--mc-bg-primary) !important;
+    box-shadow: var(--mc-shadow-sm) !important;
+    border-bottom: 1px solid var(--mc-gray-200) !important;
+    padding: var(--mc-spacing-md) var(--mc-spacing-xl) !important;
+    position: relative;
+    z-index: 1000;
+}
+
+/* Header Section Container */
+[data-region-name="headerSection"] > *,
+.community_layout\:section[data-region-name="headerSection"] {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* Logo Styling */
+[data-region-name="siteLogo"],
+.dxp_content_layout\:siteLogo,
+[class*="siteLogo"] {
+    display: flex;
+    align-items: center;
+}
+
+[data-region-name="siteLogo"] img,
+.dxp_content_layout\:siteLogo img {
+    max-height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Navigation Menu Container */
+[data-region-name="navigation"],
+.community_navigation\:customizableNavigationMenu,
+[class*="navigation"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+/* Navigation Links */
+.community_navigation\:customizableNavigationBarContainer a,
+.community_navigation\:customizableNavigationBarContainer [role="link"],
+nav a,
+[class*="navigation"] a {
+    color: var(--mc-text-primary) !important;
+    font-family: var(--mc-font-primary) !important;
+    font-weight: 500 !important;
+    font-size: 1rem !important;
+    text-decoration: none !important;
+    padding: var(--mc-spacing-sm) var(--mc-spacing-md) !important;
+    margin: 0 var(--mc-spacing-xs) !important;
+    border-radius: var(--mc-radius-md) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: var(--mc-spacing-xs) !important;
+}
+
+/* Navigation Link Hover States */
+.community_navigation\:customizableNavigationBarContainer a:hover,
+.community_navigation\:customizableNavigationBarContainer a:focus,
+nav a:hover,
+nav a:focus,
+[class*="navigation"] a:hover {
+    color: var(--mc-primary-blue) !important;
+    background-color: var(--mc-gray-100) !important;
+    text-decoration: none !important;
+}
+
+/* Active Navigation Link */
+.community_navigation\:customizableNavigationBarContainer a[aria-current="page"],
+nav a[aria-current="page"],
+[class*="navigation"] a[aria-current="page"] {
+    color: var(--mc-primary-blue) !important;
+    font-weight: 600 !important;
+    background-color: transparent !important;
+}
+
+/* Navigation Icons */
+.community_navigation\:customizableNavigationBarContainer img,
+nav img[class*="icon"] {
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+}
+
+/* Header Button (Get Started / Login) */
+[data-region-name="actions"] button,
+[data-region-name="actions"] .dxp_base\:button,
+[data-region-name="actions"] [role="button"] {
+    background-color: var(--mc-primary-blue) !important;
+    color: var(--mc-text-light) !important;
+    font-family: var(--mc-font-primary) !important;
+    font-weight: 500 !important;
+    font-size: 1rem !important;
+    padding: var(--mc-spacing-sm) var(--mc-spacing-lg) !important;
+    border-radius: var(--mc-radius-md) !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: var(--mc-spacing-xs) !important;
+    box-shadow: var(--mc-shadow-sm) !important;
+}
+
+[data-region-name="actions"] button:hover,
+[data-region-name="actions"] button:focus {
+    background-color: var(--mc-secondary-blue) !important;
+    box-shadow: var(--mc-shadow-md) !important;
+    transform: translateY(-1px);
+}
+
+/* Customizable Header Layout */
+.community_builder\:customizableHeader {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: var(--mc-spacing-lg) !important;
+}
+
+/* Header Spacing Between Elements */
+.community_builder\:customizableHeader > [data-region-name="siteLogo"],
+.community_builder\:customizableHeader > [data-region-name="navigation"],
+.community_builder\:customizableHeader > [data-region-name="actions"] {
+    flex: 0 0 auto;
+}
+
+.community_builder\:customizableHeader > [data-region-name="navigation"] {
+    flex: 1 1 auto;
+    justify-content: center;
+}
+
+/* Mobile Navigation (Hamburger Menu) */
+.community_navigation\:customizableNavigationHamburgerMenuContainer {
+    background-color: var(--mc-bg-primary) !important;
+}
+
+.community_navigation\:customizableNavigationHamburgerMenuContainer button {
+    color: var(--mc-text-primary) !important;
+    font-family: var(--mc-font-primary) !important;
+}
+
+.community_navigation\:customizableNavigationHamburgerMenuContainer a {
+    color: var(--mc-text-primary) !important;
+    font-family: var(--mc-font-primary) !important;
+    padding: var(--mc-spacing-md) !important;
+}
+
+.community_navigation\:customizableNavigationHamburgerMenuContainer a:hover {
+    color: var(--mc-primary-blue) !important;
+    background-color: var(--mc-gray-100) !important;
+}
+
+/* Responsive Header Styles */
+@media (max-width: 768px) {
+    [data-region-name="header"],
+    [data-region-name="headerSection"] {
+        padding: var(--mc-spacing-sm) var(--mc-spacing-md) !important;
+    }
+    
+    [data-region-name="siteLogo"] img {
+        max-height: 40px;
+    }
+    
+    .community_builder\:customizableHeader {
+        gap: var(--mc-spacing-sm) !important;
+    }
+    
+    [data-region-name="actions"] button {
+        padding: var(--mc-spacing-xs) var(--mc-spacing-md) !important;
+        font-size: 0.875rem !important;
+    }
+}
+
+/* Sticky Header Support */
+[data-region-name="header"][data-sticky="true"],
+.stickyThemeHeader {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+}
