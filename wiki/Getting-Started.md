@@ -29,7 +29,11 @@ The Milestone Task Management System is a Salesforce-based tool that helps teams
 
 ### Step 2: Navigate to Tasks
 - From the Project Management app, click on **"Project Tasks"** in the navigation menu
-- You'll see a list of all tasks (or filtered tasks based on your permissions)
+- You'll see the Project Tasks page with the dashboard and task list
+
+![Project Management App Page](images/05-project-management-app-page.png)
+
+*The Project Management app page showing the Project Tasks navigation item and the main dashboard interface*
 
 ![Main Dashboard](images/01-main-dashboard.png)
 
