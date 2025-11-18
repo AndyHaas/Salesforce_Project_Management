@@ -8,10 +8,4 @@
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
     </targets>
-    <targetConfigs>
-        <targetConfig targets="lightningCommunity__Page,lightningCommunity__Default">
-            <property name="showEmailStep" type="Boolean" default="true" label="Show Email Step" description="Show the email input step"/>
-            <property name="showOTPStep" type="Boolean" default="true" label="Show OTP Step" description="Show the OTP verification step"/>
-        </targetConfig>
-    </targetConfigs>
 </LightningComponentBundle>
