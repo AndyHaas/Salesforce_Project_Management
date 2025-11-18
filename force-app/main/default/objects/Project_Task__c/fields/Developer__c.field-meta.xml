@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Developer__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Developer assigned to work on this task. The user responsible for implementing the task.</description>
+    <inlineHelpText>Select the Developer who is assigned to work on this task. This field is typically left blank for parent tasks and populated for subtasks.</inlineHelpText>
+    <label>Developer</label>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>Developer Tasks</relationshipLabel>
+    <relationshipName>Developer_Tasks</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

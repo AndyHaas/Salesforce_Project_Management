@@ -1,0 +1,141 @@
+<template>
+    <lightning-card title="Hours Metrics" icon-name="utility:clock">
+        <div slot="actions" class="slds-p-horizontal_small">
+            <lightning-input 
+                type="checkbox" 
+                label="Show Chart" 
+                checked={currentShowChart}
+                onchange={handleChartToggle}
+                class="chart-toggle-checkbox">
+            </lightning-input>
+        </div>
+        <template if:true={hasData}>
+            <div class="slds-card__body slds-card__body_inner">
+                <template if:true={currentShowChart}>
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-3">
+                            <div class="chart-container">
+                                <canvas class="hoursChart" lwc:dom="manual"></canvas>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                            <div class="metrics-summary">
+                                <div class="metric-item">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Total Estimated Hours</span>
+                                        <lightning-helptext content="Sum of all Estimated Hours fields across all project tasks. This represents the planned hours for completing all tasks." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class="metric-value">{totalEstimated}</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Total Actual Hours</span>
+                                        <lightning-helptext content="Sum of all Actual Hours fields across all project tasks. This represents the hours actually spent completing the tasks." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class="metric-value">{totalActual}</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Variance</span>
+                                        <lightning-helptext content="Difference between Estimated and Actual hours. Formula: Estimated Hours - Actual Hours. Positive (green) = favorable (under budget). Negative (red) = unfavorable (over budget)." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class={varianceClass}>{variance}</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Variance %</span>
+                                        <lightning-helptext content="Variance expressed as a percentage of Estimated Hours. Formula: ((Estimated - Actual) / Estimated) × 100. Positive % = under budget, Negative % = over budget." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class={varianceClass}>{variancePercentage}%</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Total Estimated (with Subtasks)</span>
+                                        <lightning-helptext content="Sum of Total Estimated Hours fields, which includes parent task estimated hours plus all subtask estimated hours. Provides a complete view of estimated work including subtasks." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class="metric-value">{totalEstimatedWithSubtasks}</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Total Actual (with Subtasks)</span>
+                                        <lightning-helptext content="Sum of Total Actual Hours fields, which includes parent task actual hours plus all subtask actual hours. Provides a complete view of actual work including subtasks." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class="metric-value">{totalActualWithSubtasks}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <template if:false={currentShowChart}>
+                    <div class="metrics-grid">
+                        <div class="slds-grid slds-gutters slds-wrap">
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                <div class="metric-item-grid">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Total Estimated Hours</span>
+                                        <lightning-helptext content="Sum of all Estimated Hours fields across all project tasks. This represents the planned hours for completing all tasks." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class="metric-value">{totalEstimated}</div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                <div class="metric-item-grid">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Total Actual Hours</span>
+                                        <lightning-helptext content="Sum of all Actual Hours fields across all project tasks. This represents the hours actually spent completing the tasks." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class="metric-value">{totalActual}</div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                <div class="metric-item-grid">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Variance</span>
+                                        <lightning-helptext content="Difference between Estimated and Actual hours. Formula: Estimated Hours - Actual Hours. Positive (green) = favorable (under budget). Negative (red) = unfavorable (over budget)." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class={varianceClass}>{variance}</div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                <div class="metric-item-grid">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Variance %</span>
+                                        <lightning-helptext content="Variance expressed as a percentage of Estimated Hours. Formula: ((Estimated - Actual) / Estimated) × 100. Positive % = under budget, Negative % = over budget." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class={varianceClass}>{variancePercentage}%</div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                <div class="metric-item-grid">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Total Estimated (with Subtasks)</span>
+                                        <lightning-helptext content="Sum of Total Estimated Hours fields, which includes parent task estimated hours plus all subtask estimated hours. Provides a complete view of estimated work including subtasks." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class="metric-value">{totalEstimatedWithSubtasks}</div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                <div class="metric-item-grid">
+                                    <div class="metric-label-container">
+                                        <span class="metric-label">Total Actual (with Subtasks)</span>
+                                        <lightning-helptext content="Sum of Total Actual Hours fields, which includes parent task actual hours plus all subtask actual hours. Provides a complete view of actual work including subtasks." icon-name="utility:info"></lightning-helptext>
+                                    </div>
+                                    <div class="metric-value">{totalActualWithSubtasks}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+        <template if:false={hasData}>
+            <div class="slds-card__body slds-card__body_inner no-data-message">
+                <div class="slds-text-align_center slds-p-around_medium">
+                    <lightning-icon icon-name="utility:info" size="small" class="slds-m-bottom_x-small"></lightning-icon>
+                    <p class="slds-text-body_regular">No hours data available for the selected account.</p>
+                </div>
+            </div>
+        </template>
+    </lightning-card>
+</template>
+

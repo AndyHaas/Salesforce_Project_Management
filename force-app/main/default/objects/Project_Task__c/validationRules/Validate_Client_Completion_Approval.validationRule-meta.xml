@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validate_Client_Completion_Approval</fullName>
+    <active>true</active>
+    <description>Client Approved for Completion can only be true when Status is Completed. This checkbox is set automatically by the approval workflow when client approves an In Review task.</description>
+    <errorConditionFormula>AND(
+    Client_Approved_for_Completion__c = TRUE,
+    TEXT(Status__c) != &quot;Completed&quot;
+)</errorConditionFormula>
+    <errorDisplayField>Client_Approved_for_Completion__c</errorDisplayField>
+    <errorMessage>Client Approved for Completion can only be true when Status is Completed. This checkbox is set automatically by the approval workflow when an In Review task is approved.</errorMessage>
+</ValidationRule>

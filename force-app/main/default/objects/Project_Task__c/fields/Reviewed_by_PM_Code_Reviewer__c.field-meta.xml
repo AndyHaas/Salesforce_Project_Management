@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Reviewed_by_PM_Code_Reviewer__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Checkbox indicating that the task has been reviewed and approved by the PM/Code Reviewer. Set automatically by the approval workflow.</description>
+    <inlineHelpText>This checkbox is automatically set to true when the PM/Code Reviewer approves the task during the review process. Once approved, the task moves to client completion approval.</inlineHelpText>
+    <label>Reviewed by PM/Code Reviewer</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

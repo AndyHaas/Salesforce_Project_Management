@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Review_Status_Icons__c</fullName>
+    <description>Visual review status indicators showing approval workflow status. Formula field that displays review status icons based on task status and approval flags.</description>
+    <externalId>false</externalId>
+    <formula>IF(TEXT(Status__c) = &quot;In Review&quot;, 
+&quot;PM Review: &quot; + IF(Reviewed_by_PM_Code_Reviewer__c, &quot;Approved ✅&quot;, &quot;Pending ⏳&quot;) + &quot; → Client Completion: &quot; + IF(Client_Approved_for_Completion__c, &quot;Approved ✅&quot;, IF(Reviewed_by_PM_Code_Reviewer__c, &quot;Pending ⏳&quot;, &quot;Waiting&quot;)), 
+IF(TEXT(Status__c) = &quot;Backlog&quot;, 
+IF(Ready_for_Client_Review__c, &quot;Ready for Review 📋 → Client Development: &quot; + IF(Client_Approved_for_Development__c, &quot;Approved ✅&quot;, &quot;Pending ⏳&quot;), &quot;&quot;), 
+&quot;&quot;))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>This formula field displays review status with descriptive text and icons showing the approval workflow progress. For In Review tasks: Shows PM Review status and Client Completion Approval status. For Backlog tasks: Shows if ready for review and Client Development Approval status. Used for quick visual identification of review workflow progress in list views.</inlineHelpText>
+    <label>Review Status Icons</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

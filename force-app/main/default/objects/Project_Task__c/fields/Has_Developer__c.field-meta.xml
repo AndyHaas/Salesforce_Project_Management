@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Has_Developer__c</fullName>
+    <description>Formula checkbox indicating if a Developer is assigned to this task. Returns true when Developer__c is populated.</description>
+    <formula>NOT(ISBLANK(Developer__c))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>This formula field automatically returns true when a Developer is assigned to this task. Used for visibility rules to show/hide developer-related notifications on the record page.</inlineHelpText>
+    <label>Has Developer</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

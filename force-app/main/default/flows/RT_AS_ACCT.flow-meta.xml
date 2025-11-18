@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>Creates the account folder and links to record</description>
+        <name>Create_Account_Folder</name>
+        <label>Create Account Folder</label>
+        <locationX>50</locationX>
+        <locationY>455</locationY>
+        <actionName>driveconnect__automateDrive</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>data</name>
+            <value>
+                <stringValue>{&quot;recordId&quot;:&quot;{!$Record.Id}&quot;,&quot;operations&quot;:[{&quot;key&quot;:&quot;1639583987052&quot;,&quot;type&quot;:{&quot;value&quot;:&quot;folder&quot;,&quot;supportsChildOperations&quot;:true},&quot;config&quot;:{&quot;folderName&quot;:&quot;{!$Record.Name}&quot;,&quot;destinationFolder&quot;:{&quot;value&quot;:&quot;select&quot;,&quot;selection&quot;:{&quot;label&quot;:&quot;Clients&quot;,&quot;value&quot;:&quot;196dm2nu28UlqUeg6h_RDBXQmodBduOe5&quot;,&quot;mimeType&quot;:&quot;application/vnd.google-apps.folder&quot;,&quot;url&quot;:&quot;https://drive.google.com/drive/folders/196dm2nu28UlqUeg6h_RDBXQmodBduOe5&quot;}},&quot;linkFolder&quot;:true,&quot;setDefault&quot;:true},&quot;childOperations&quot;:[]}]}</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>driveconnect__automateDrive</nameSegment>
+    </actionCalls>
+    <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Is_New_Account</name>
+        <label>Is New Account</label>
+        <locationX>182</locationX>
+        <locationY>335</locationY>
+        <defaultConnectorLabel>Existing Account</defaultConnectorLabel>
+        <rules>
+            <name>New_Account</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Id</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Account_Folder</targetReference>
+            </connector>
+            <label>New Account</label>
+        </rules>
+    </decisions>
+    <description>Right now it is just creating the Record Folder from Drive Connect.</description>
+    <interviewLabel>RT- {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>RT-AS-ACCT</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Is_New_Account</targetReference>
+        </connector>
+        <object>Account</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

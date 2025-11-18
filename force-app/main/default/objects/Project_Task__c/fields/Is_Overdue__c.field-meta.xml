@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Overdue__c</fullName>
+    <description>Formula checkbox indicating if the task is overdue (Due Date is in the past and task is not Completed or Closed)</description>
+    <formula>AND(
+    NOT(ISBLANK(Due_Date__c)),
+    Due_Date__c &lt; TODAY(),
+    TEXT(Status__c) != &quot;Completed&quot;,
+    TEXT(Status__c) != &quot;Closed&quot;
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Automatically checked when Due Date is in the past and task status is not Completed or Closed. Used for filtering and reporting on overdue tasks.</inlineHelpText>
+    <label>Is Overdue</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

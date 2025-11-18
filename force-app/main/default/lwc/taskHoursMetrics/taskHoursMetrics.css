@@ -1,0 +1,91 @@
+:host {
+    display: block;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    min-height: 200px;
+    width: 100%;
+}
+
+.metrics-summary {
+    padding: 1rem;
+}
+
+.metric-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #d8dde6;
+}
+
+.metric-item:last-child {
+    border-bottom: none;
+}
+
+.metric-label-container {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: #706e6b;
+    text-transform: uppercase;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #080707;
+}
+
+.metric-value.variance-favorable {
+    color: #32CD32 !important; /* Green for favorable (under budget) */
+}
+
+.metric-value.variance-unfavorable {
+    color: #FF0000 !important; /* Red for unfavorable (over budget) */
+}
+
+.no-data-message {
+    padding: 1rem;
+}
+
+.no-data-message p {
+    color: #706e6b;
+    margin: 0;
+}
+
+.chart-toggle-checkbox {
+    display: inline-block;
+}
+
+.metrics-grid {
+    padding: 0.5rem 0;
+}
+
+.metric-item-grid {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #d8dde6;
+    border-radius: 0.25rem;
+    background-color: #fafaf9;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.metric-item-grid .metric-label-container {
+    margin-bottom: 0.5rem;
+}
+
+.metric-item-grid .metric-value {
+    margin-top: auto;
+}
+

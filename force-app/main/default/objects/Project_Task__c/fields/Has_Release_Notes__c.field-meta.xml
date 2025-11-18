@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Has_Release_Notes__c</fullName>
+    <description>Formula checkbox indicating if this task is linked to Release Notes. Returns true when Release Notes field is populated.</description>
+    <formula>NOT(ISBLANK(Release_Notes__c))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>This formula field automatically returns true when Release Notes are linked to this task. Used for filtering and visibility rules to show/hide release notes sections on the record page.</inlineHelpText>
+    <label>Has Release Notes</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

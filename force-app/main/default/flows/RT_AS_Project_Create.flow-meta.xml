@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Create_Project_Folder</name>
+        <label>Create Project Folder</label>
+        <locationX>176</locationX>
+        <locationY>335</locationY>
+        <actionName>driveconnect__automateDrive</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>data</name>
+            <value>
+                <stringValue>{&quot;recordId&quot;:&quot;{!$Record.Id}&quot;,&quot;operations&quot;:[{&quot;key&quot;:&quot;1640200766564&quot;,&quot;type&quot;:{&quot;value&quot;:&quot;folder&quot;,&quot;supportsChildOperations&quot;:true},&quot;config&quot;:{&quot;folderName&quot;:&quot;{!$Record.Name}&quot;,&quot;destinationFolder&quot;:{&quot;value&quot;:&quot;defaultParent&quot;,&quot;lookupObject&quot;:&quot;Project__c&quot;,&quot;lookup&quot;:&quot;Account__r&quot;,&quot;recordId&quot;:&quot;{!$Record.Account__c}&quot;},&quot;linkFolder&quot;:true,&quot;setDefault&quot;:true},&quot;childOperations&quot;:[]}]}</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>driveconnect__automateDrive</nameSegment>
+    </actionCalls>
+    <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <interviewLabel>RT {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>RT-AS-Project-Create Root Drive Folder</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Create_Project_Folder</targetReference>
+        </connector>
+        <object>Project__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

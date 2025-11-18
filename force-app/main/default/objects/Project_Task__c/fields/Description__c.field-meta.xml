@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Description__c</fullName>
+    <description>Detailed description of the project task. Provides context, requirements, and implementation details.</description>
+    <inlineHelpText>Enter a detailed description of the task, including requirements, acceptance criteria, and any relevant context for developers and reviewers.</inlineHelpText>
+    <label>Description</label>
+    <length>131072</length>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>

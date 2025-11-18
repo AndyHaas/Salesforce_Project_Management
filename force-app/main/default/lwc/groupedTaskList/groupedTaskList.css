@@ -1,0 +1,106 @@
+.status-group {
+    margin-bottom: 1.5rem;
+}
+
+.status-header {
+    border-radius: 0.25rem 0.25rem 0 0;
+    font-weight: 600;
+}
+
+.column-headers {
+    background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
+    font-weight: 600;
+    border-bottom: 2px solid var(--slds-g-color-border-base-4, #e5e5e5);
+}
+
+.column-headers .task-details > div {
+    text-align: right;
+}
+
+.task-item {
+    transition: background-color 0.2s ease;
+}
+
+.task-item:hover {
+    background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
+}
+
+.task-row {
+    min-height: 2.5rem;
+}
+
+.task-name-link,
+.subtask-name-link {
+    font-weight: 500;
+    text-decoration: none;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+}
+
+.task-name-link:hover,
+.subtask-name-link:hover {
+    text-decoration: underline;
+}
+
+.subtasks-container {
+    background-color: var(--slds-g-color-neutral-base-99, #fafaf9);
+    border-left: 3px solid var(--slds-g-color-brand-base-50, #0176d3);
+    margin-left: 1rem;
+}
+
+.subtask-item {
+    background-color: var(--slds-g-color-neutral-base-100, #ffffff);
+    margin-left: 0.5rem;
+}
+
+.subtask-item:last-child {
+    border-bottom: none;
+}
+
+.task-details,
+.subtask-details {
+    min-width: 20rem;
+    flex-wrap: nowrap;
+}
+
+.task-details > div,
+.subtask-details > div {
+    min-width: 5rem;
+    text-align: right;
+}
+
+.no-data-message {
+    min-height: 5rem;
+}
+
+.account-filter-combobox {
+    min-width: 200px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .task-row,
+    .subtask-item > div {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .task-details,
+    .subtask-details {
+        width: 100%;
+        margin-top: 0.5rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .task-details > div,
+    .subtask-details > div {
+        margin-right: 1rem;
+        margin-bottom: 0.25rem;
+        text-align: left;
+        min-width: auto;
+    }
+}
+

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Relationship_Type__c</fullName>
+    <description>Type of relationship between this task and the Related Task. Defines whether the dependency is blocking or non-blocking.</description>
+    <inlineHelpText>Select the type of relationship: Related = tasks are related but not dependent. Blocking Dependency = this task cannot proceed until the related task is completed. Epic/Feature Parent = this task is part of a larger epic or feature.</inlineHelpText>
+    <label>Relationship Type</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Related</fullName>
+                <default>false</default>
+                <label>Related</label>
+            </value>
+            <value>
+                <fullName>Blocking Dependency</fullName>
+                <default>false</default>
+                <label>Blocking Dependency</label>
+            </value>
+            <value>
+                <fullName>Epic/Feature Parent</fullName>
+                <default>false</default>
+                <label>Epic/Feature Parent</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

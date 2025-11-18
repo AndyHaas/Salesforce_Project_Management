@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Client_Approved_for_Development__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Checkbox indicating that the client has approved this backlog task for development. Set automatically by the approval workflow.</description>
+    <inlineHelpText>This checkbox is automatically set to true when the client approves a backlog task. Once approved, the task status changes to Pending and development can begin.</inlineHelpText>
+    <label>Client Approved for Development</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

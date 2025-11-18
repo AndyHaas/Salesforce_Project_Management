@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validate_RelType_Not_For_Subtasks</fullName>
+    <active>true</active>
+    <description>Relationship Type can only be set when Related Task is set. Subtasks can have dependencies (Related Task + Relationship Type), but Relationship Type cannot be set without a Related Task.</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Parent_Task__c)),
+    ISBLANK(Related_Task__c),
+    NOT(ISBLANK(TEXT(Relationship_Type__c)))
+)</errorConditionFormula>
+    <errorDisplayField>Relationship_Type__c</errorDisplayField>
+    <errorMessage>Relationship Type cannot be set without a Related Task. If this is a subtask, you can add a dependency by selecting a Related Task first. Relationship Type defines the type of dependency relationship, not the parent-child relationship.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,29 @@
+<template>
+    <div class="slds-card">
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                    <lightning-icon icon-name="utility:related_list" size="small"></lightning-icon>
+                </div>
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                        <span>Related Tasks</span>
+                    </h2>
+                </div>
+            </header>
+        </div>
+        <div class="slds-card__body slds-card__body_inner">
+            <template if:true={error}>
+                <p class="slds-text-color_error">Error loading related tasks</p>
+            </template>
+            <template if:true={relatedTasks}>
+                <template for:each={relatedTasks} for:item="task">
+                    <div key={task.Id} class="slds-m-bottom_small">
+                        <lightning-formatted-url value={task.Id} label={task.Name} target="_blank"></lightning-formatted-url>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </div>
+</template>
+

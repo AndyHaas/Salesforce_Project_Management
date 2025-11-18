@@ -1,0 +1,85 @@
+<template>
+    <template if:true={shouldShowFilter}>
+        <lightning-card title="Filter by Account" icon-name="utility:account">
+            <div class="slds-card__body slds-card__body_inner">
+                <div class="account-filter-container">
+                    <!-- Selected Accounts Display -->
+                    <template if:true={hasSelectedAccounts}>
+                        <div class="slds-m-bottom_small selected-accounts-container">
+                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                <div class="slds-text-body_small slds-text-color_weak">Selected Accounts:</div>
+                                <lightning-button 
+                                    label="Clear All" 
+                                    variant="neutral" 
+                                    size="x-small"
+                                    onclick={handleClearAll}>
+                                </lightning-button>
+                            </div>
+                            <div class="slds-m-top_x-small selected-accounts-chips">
+                                <template for:each={selectedAccounts} for:item="account">
+                                    <div key={account.id} class="slds-chip slds-chip_removable account-chip">
+                                        <span class="slds-chip__text">{account.label}</span>
+                                        <button 
+                                            class="slds-button slds-button_icon slds-chip__remove" 
+                                            data-account-id={account.id}
+                                            onclick={handleRemoveAccount}
+                                            title="Remove {account.label}">
+                                            <lightning-icon icon-name="utility:close" size="xx-small" alternative-text="Remove"></lightning-icon>
+                                            <span class="slds-assistive-text">Remove {account.label}</span>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <!-- All Accounts Message -->
+                    <template if:false={hasSelectedAccounts}>
+                        <div class="slds-m-bottom_small all-accounts-message">
+                            <lightning-icon icon-name="utility:info" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            <span class="slds-text-body_small">Showing all accounts</span>
+                        </div>
+                    </template>
+                    
+                    <!-- Search Input -->
+                    <lightning-input
+                        label="Add Account"
+                        type="text"
+                        value={searchTerm}
+                        placeholder="Type to search accounts..."
+                        onchange={handleSearchChange}
+                        onfocus={handleInputFocus}
+                        onblur={handleInputBlur}>
+                    </lightning-input>
+                    
+                    <!-- Dropdown -->
+                    <template if:true={showDropdown}>
+                        <div class="slds-dropdown slds-dropdown_left account-dropdown">
+                            <ul class="slds-dropdown__list" role="listbox">
+                                <template for:each={filteredAccounts} for:item="account">
+                                    <li key={account.value} 
+                                        class="slds-dropdown__item" 
+                                        role="presentation">
+                                        <a href="#" 
+                                           class="slds-dropdown__item-link" 
+                                           role="option"
+                                           data-value={account.value}
+                                           onclick={handleAccountSelect}>
+                                            {account.label}
+                                        </a>
+                                    </li>
+                                </template>
+                                <template if:true={filteredAccountsEmpty}>
+                                    <li class="slds-dropdown__item">
+                                        <span class="slds-text-body_small slds-text-color_weak">No accounts found</span>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </lightning-card>
+    </template>
+</template>
+

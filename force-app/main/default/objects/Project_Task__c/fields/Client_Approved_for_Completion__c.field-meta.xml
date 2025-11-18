@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Client_Approved_for_Completion__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Checkbox indicating that the client has approved this task for completion (post-QA approval). Set automatically by the approval workflow.</description>
+    <inlineHelpText>This checkbox is automatically set to true when the client approves a completed task after PM/Code Reviewer approval. Once approved, the task status changes to Completed.</inlineHelpText>
+    <label>Client Approved for Completion</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

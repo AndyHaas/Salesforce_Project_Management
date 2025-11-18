@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Blocking__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Checkbox indicating if this task is currently blocking other tasks due to blocking dependencies. Set automatically when other tasks have blocking dependencies on this task and this task is not Completed, Closed, or In Review.</description>
+    <inlineHelpText>This field is automatically set to true when other tasks have blocking dependencies on this task and this task's status is not Completed, Closed, or In Review. A task in In Review status is not considered blocking since the work is done and just waiting for approval.</inlineHelpText>
+    <label>Is Blocking</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

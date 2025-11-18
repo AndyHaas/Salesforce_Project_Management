@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estimated_Hours__c</fullName>
+    <description>Estimated number of hours required to complete this task. Used for planning and tracking against actual hours.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Enter the estimated number of hours needed to complete this task. This helps with project planning and comparing estimates to actual time spent.</inlineHelpText>
+    <label>Estimated Hours</label>
+    <precision>5</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

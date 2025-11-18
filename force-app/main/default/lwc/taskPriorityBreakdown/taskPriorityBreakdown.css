@@ -1,0 +1,77 @@
+:host {
+    display: block;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    min-height: 200px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.priority-card {
+    border: 1px solid #d8dde6;
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+}
+
+.priority-card-clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.priority-card-clickable:hover {
+    background-color: #f3f2f2;
+    border-color: #0176D3;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.priority-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+.priority-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.priority-label {
+    font-size: 0.875rem;
+    color: #080707;
+    font-weight: bold;
+}
+
+.priority-count {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #080707;
+}
+
+.priority-percentage {
+    font-size: 0.75rem;
+    color: #706e6b;
+}
+
+.no-data-message {
+    padding: 1rem;
+}
+
+.no-data-message p {
+    color: #706e6b;
+    margin: 0;
+}
+

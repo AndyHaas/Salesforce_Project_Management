@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Release_Notes_Complete__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Checkbox indicating that the release notes are complete and ready for use. Check this when the release notes text has been finalized.</description>
+    <inlineHelpText>Check this box when the release notes are complete and finalized. This helps track which release notes are ready for deployment.</inlineHelpText>
+    <label>Release Notes Complete</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

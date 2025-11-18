@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validate_Reviewed_by_PM_Status</fullName>
+    <active>true</active>
+    <description>Reviewed by PM/Code Reviewer can only be checked when Status is In Review. This checkbox is set automatically by the approval workflow.</description>
+    <errorConditionFormula>AND(
+    Reviewed_by_PM_Code_Reviewer__c = TRUE,
+    TEXT(Status__c) != &quot;In Review&quot;
+)</errorConditionFormula>
+    <errorDisplayField>Reviewed_by_PM_Code_Reviewer__c</errorDisplayField>
+    <errorMessage>Reviewed by PM/Code Reviewer can only be checked when Status is In Review. This checkbox is set automatically by the approval workflow.</errorMessage>
+</ValidationRule>
