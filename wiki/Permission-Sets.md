@@ -32,10 +32,10 @@ The system includes three permission sets designed for different user roles:
 
 | Object | Create | Read | Edit | Delete | View All | Modify All |
 |--------|---------|------|------|--------|----------|------------|
-| Project_Task__c | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Release_Notes__c | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Release_Tag__c | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Release_Version__c | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Project_Task__c |  |  |  |  |  |  |
+| Release_Notes__c |  |  |  |  |  |  |
+| Release_Tag__c |  |  |  |  |  |  |
+| Release_Version__c |  |  |  |  |  |  |
 
 ### Field Permissions
 
@@ -45,18 +45,18 @@ The system includes three permission sets designed for different user roles:
 
 ### Apex Class Access
 
-- TaskProgressCalculator: ✅
-- TaskDependencyHelper: ✅
-- RelatedTasksController: ✅
-- ProjectTaskDashboardController: ✅
+- TaskProgressCalculator: 
+- TaskDependencyHelper: 
+- RelatedTasksController: 
+- ProjectTaskDashboardController: 
 
 ### System Permissions
 
-- Customize Application: ✅
-- Modify All Data: ✅
-- View All Data: ✅
-- Manage Users: ✅ (if needed)
-- Customize Application: ✅
+- Customize Application: 
+- Modify All Data: 
+- View All Data: 
+- Manage Users:  (if needed)
+- Customize Application: 
 
 ## Project_Management_Manager
 
@@ -71,10 +71,10 @@ The system includes three permission sets designed for different user roles:
 
 | Object | Create | Read | Edit | Delete | View All | Modify All |
 |--------|---------|------|------|--------|----------|------------|
-| Project_Task__c | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
-| Release_Notes__c | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
-| Release_Tag__c | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
-| Release_Version__c | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
+| Project_Task__c |  |  |  |  |  |  |
+| Release_Notes__c |  |  |  |  |  |  |
+| Release_Tag__c |  |  |  |  |  |  |
+| Release_Version__c |  |  |  |  |  |  |
 
 ### Field Permissions
 
@@ -84,17 +84,17 @@ The system includes three permission sets designed for different user roles:
 
 ### Apex Class Access
 
-- TaskProgressCalculator: ✅
-- TaskDependencyHelper: ✅
-- RelatedTasksController: ✅
-- ProjectTaskDashboardController: ✅
+- TaskProgressCalculator: 
+- TaskDependencyHelper: 
+- RelatedTasksController: 
+- ProjectTaskDashboardController: 
 
 ### System Permissions
 
-- Customize Application: ❌
-- Modify All Data: ❌
-- View All Data: ✅
-- Manage Users: ❌
+- Customize Application: 
+- Modify All Data: 
+- View All Data: 
+- Manage Users: 
 
 ## Project_Management_User
 
@@ -109,10 +109,10 @@ The system includes three permission sets designed for different user roles:
 
 | Object | Create | Read | Edit | Delete | View All | Modify All |
 |--------|---------|------|------|--------|----------|------------|
-| Project_Task__c | ✅ | ✅ | ✅* | ❌ | ❌ | ❌ |
-| Release_Notes__c | ✅ | ✅ | ✅* | ❌ | ❌ | ❌ |
-| Release_Tag__c | ✅ | ✅ | ✅* | ❌ | ❌ | ❌ |
-| Release_Version__c | ✅ | ✅ | ✅* | ❌ | ❌ | ❌ |
+| Project_Task__c |  |  | * |  |  |  |
+| Release_Notes__c |  |  | * |  |  |  |
+| Release_Tag__c |  |  | * |  |  |  |
+| Release_Version__c |  |  | * |  |  |  |
 
 *Edit access may be restricted to own records or specific fields
 
@@ -124,24 +124,24 @@ The system includes three permission sets designed for different user roles:
 
 ### Apex Class Access
 
-- TaskProgressCalculator: ✅ (indirect via triggers)
-- TaskDependencyHelper: ✅ (indirect via triggers)
-- RelatedTasksController: ✅
-- ProjectTaskDashboardController: ✅
+- TaskProgressCalculator:  (indirect via triggers)
+- TaskDependencyHelper:  (indirect via triggers)
+- RelatedTasksController: 
+- ProjectTaskDashboardController: 
 
 ### System Permissions
 
-- Customize Application: ❌
-- Modify All Data: ❌
-- View All Data: ❌
-- Manage Users: ❌
+- Customize Application: 
+- Modify All Data: 
+- View All Data: 
+- Manage Users: 
 
 ## Assigning Permission Sets
 
 ### Method 1: Individual Assignment
 
 1. **Navigate to Permission Sets**
-   - Setup → Users → Permission Sets
+   - Setup �� Users �� Permission Sets
 
 2. **Select Permission Set**
    - Click on permission set name (e.g., Project_Management_User)
@@ -155,7 +155,7 @@ The system includes three permission sets designed for different user roles:
 ### Method 2: Mass Assignment
 
 1. **Navigate to Users**
-   - Setup → Users → Users
+   - Setup �� Users �� Users
 
 2. **Select Users**
    - Use checkboxes to select multiple users
@@ -175,7 +175,7 @@ While you can assign permission sets to profiles, it's better to assign to indiv
 ### Adding Custom Permissions
 
 1. **Edit Permission Set**
-   - Setup → Users → Permission Sets
+   - Setup �� Users �� Permission Sets
    - Click on permission set name
    - Click "Edit"
 
@@ -193,7 +193,7 @@ While you can assign permission sets to profiles, it's better to assign to indiv
 You can create custom permission sets for specific needs:
 
 1. **Create New Permission Set**
-   - Setup → Users → Permission Sets
+   - Setup �� Users �� Permission Sets
    - Click "New"
    - Enter label and API name
    - Click "Save"
@@ -240,24 +240,24 @@ Create a permission set for stakeholders who only need to view:
 
 ### Permission Set Management
 
-- ✅ **Principle of Least Privilege**: Grant minimum necessary permissions
-- ✅ **Role-Based Assignment**: Assign based on job function
-- ✅ **Regular Review**: Periodically review and update permissions
-- ✅ **Documentation**: Document any custom permission sets
+-  **Principle of Least Privilege**: Grant minimum necessary permissions
+-  **Role-Based Assignment**: Assign based on job function
+-  **Regular Review**: Periodically review and update permissions
+-  **Documentation**: Document any custom permission sets
 
 ### Security Considerations
 
-- ✅ **Field-Level Security**: Restrict sensitive fields
-- ✅ **Sharing Rules**: Use sharing rules for record-level access
-- ✅ **Audit Trail**: Monitor permission set assignments
-- ✅ **Testing**: Test permissions with test users
+-  **Field-Level Security**: Restrict sensitive fields
+-  **Sharing Rules**: Use sharing rules for record-level access
+-  **Audit Trail**: Monitor permission set assignments
+-  **Testing**: Test permissions with test users
 
 ### User Management
 
-- ✅ **Onboarding**: Assign permission sets during user onboarding
-- ✅ **Role Changes**: Update permissions when roles change
-- ✅ **Offboarding**: Remove permission sets when users leave
-- ✅ **Training**: Train users on their permissions
+-  **Onboarding**: Assign permission sets during user onboarding
+-  **Role Changes**: Update permissions when roles change
+-  **Offboarding**: Remove permission sets when users leave
+-  **Training**: Train users on their permissions
 
 ## Troubleshooting
 

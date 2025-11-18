@@ -169,9 +169,9 @@ Choose the appropriate record type based on the work:
 #### Review Fields
 
 - **Ready for Client Review**: Check when ready for client approval (Backlog tasks)
-- **Client Approved for Development**: Set when client approves (Backlog → Pending)
+- **Client Approved for Development**: Set when client approves (Backlog �� Pending)
 - **Reviewed by PM/Code Reviewer**: Set when internal review complete (In Review tasks)
-- **Client Approved for Completion**: Set when client approves completion (In Review → Completed)
+- **Client Approved for Completion**: Set when client approves completion (In Review �� Completed)
 
 #### Release Management
 
@@ -303,7 +303,7 @@ View hours analytics:
 
 ## Review and Approval Workflows
 
-### Workflow 1: Backlog → Pending (Client Development Approval)
+### Workflow 1: Backlog �� Pending (Client Development Approval)
 
 **Purpose**: Get client approval before starting development work.
 
@@ -328,7 +328,7 @@ View hours analytics:
    - **Ready for Client Review** may remain checked
    - PM can address feedback and resubmit
 
-### Workflow 2: In Review → Completed (PM Review + Client Completion Approval)
+### Workflow 2: In Review �� Completed (PM Review + Client Completion Approval)
 
 **Purpose**: Ensure quality through internal review and client sign-off before marking complete.
 
@@ -451,51 +451,51 @@ On other pages:
 
 ### Task Creation
 
-- ✅ Use clear, descriptive task names
-- ✅ Provide detailed descriptions
-- ✅ Set realistic estimates and due dates
-- ✅ Assign developers and client users
-- ✅ Choose appropriate record type and priority
+-  Use clear, descriptive task names
+-  Provide detailed descriptions
+-  Set realistic estimates and due dates
+-  Assign developers and client users
+-  Choose appropriate record type and priority
 
 ### Task Organization
 
-- ✅ Break large tasks into subtasks
-- ✅ Link related tasks
-- ✅ Identify blocking dependencies early
-- ✅ Keep parent tasks at high level, subtasks for details
+-  Break large tasks into subtasks
+-  Link related tasks
+-  Identify blocking dependencies early
+-  Keep parent tasks at high level, subtasks for details
 
 ### Progress Tracking
 
-- ✅ Create subtasks for accurate progress
-- ✅ Update subtask status as you work
-- ✅ Let the system calculate parent progress automatically
+-  Create subtasks for accurate progress
+-  Update subtask status as you work
+-  Let the system calculate parent progress automatically
 
 ### Time Tracking
 
-- ✅ Estimate hours when creating tasks
-- ✅ Update actual hours regularly
-- ✅ Review hours metrics to improve estimates
+-  Estimate hours when creating tasks
+-  Update actual hours regularly
+-  Review hours metrics to improve estimates
 
 ### Communication
 
-- ✅ Use Chatter on tasks for updates
-- ✅ @mention team members for notifications
-- ✅ Add comments when changing status
-- ✅ Document decisions in task description
+-  Use Chatter on tasks for updates
+-  @mention team members for notifications
+-  Add comments when changing status
+-  Document decisions in task description
 
 ### Workflow Management
 
-- ✅ Follow the approval workflows
-- ✅ Don't skip review steps
-- ✅ Get client approval before starting work
-- ✅ Complete internal review before client review
+-  Follow the approval workflows
+-  Don't skip review steps
+-  Get client approval before starting work
+-  Complete internal review before client review
 
 ### Dependencies
 
-- ✅ Identify dependencies early
-- ✅ Use blocking dependencies for critical paths
-- ✅ Monitor "At Risk" flags
-- ✅ Update blocking tasks promptly
+-  Identify dependencies early
+-  Use blocking dependencies for critical paths
+-  Monitor "At Risk" flags
+-  Update blocking tasks promptly
 
 ---
 

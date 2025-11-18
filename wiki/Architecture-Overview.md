@@ -17,28 +17,28 @@ Technical architecture and design of the Milestone Task Management System.
 ### High-Level Architecture
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                   Salesforce Platform                   â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚                                                         â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
-â”‚  â”‚   Lightning  â”‚  â”‚   Lightning  â”‚  â”‚   Lightning  â”‚ â”‚
-â”‚  â”‚ Web Componentsâ”‚  â”‚   Flows      â”‚  â”‚   Pages      â”‚ â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
-â”‚         â”‚                  â”‚                  â”‚         â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â” â”‚
-â”‚  â”‚              Apex Controllers & Helpers            â”‚ â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
-â”‚         â”‚                                                â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
-â”‚  â”‚              Triggers & Automation                 â”‚ â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
-â”‚         â”‚                                                â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
-â”‚  â”‚           Custom Objects & Fields                   â”‚ â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
-â”‚                                                         â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+”””””””””””””””””””””””””””””””””””””””””””””””””””””””””””
+”‚                   Salesforce Platform                   ”‚
+”””””””””””””””””””””””””””””””””””””””””””””””””””””””””””¤
+”‚                                                         ”‚
+”‚  ””””””””””””””””  ””””””””””””””””  ”””””””””””””””” ”‚
+”‚  ”‚   Lightning  ”‚  ”‚   Lightning  ”‚  ”‚   Lightning  ”‚ ”‚
+”‚  ”‚ Web Components”‚  ”‚   Flows      ”‚  ”‚   Pages      ”‚ ”‚
+”‚  ”””””””””¬””””””””˜  ”””””””””¬””””””””˜  ”””””””””¬””””””””˜ ”‚
+”‚         ”‚                  ”‚                  ”‚         ”‚
+”‚  ””””””””´”””””””””””””””””””´”””””””””””””””””””´””””””” ”‚
+”‚  ”‚              Apex Controllers & Helpers            ”‚ ”‚
+”‚  ”””””””””¬”””””””””””””””””””””””””””””””””””””””””””””˜ ”‚
+”‚         ”‚                                                ”‚
+”‚  ””””””””´””””””””””””””””””””””””””””””””””””””””””””” ”‚
+”‚  ”‚              Triggers & Automation                 ”‚ ”‚
+”‚  ”””””””””¬”””””””””””””””””””””””””””””””””””””””””””””˜ ”‚
+”‚         ”‚                                                ”‚
+”‚  ””””””””´””””””””””””””””””””””””””””””””””””””””””””” ”‚
+”‚  ”‚           Custom Objects & Fields                   ”‚ ”‚
+”‚  ”””””””””””””””””””””””””””””””””””””””””””””””””””””””˜ ”‚
+”‚                                                         ”‚
+””””””””””””””””””””””””””””””””””””””””””””””””””””””””””””˜
 ```
 
 ### Technology Stack
@@ -59,8 +59,8 @@ Technical architecture and design of the Milestone Task Management System.
 The primary object for task management.
 
 **Key Relationships**:
-- **Parent-Child**: Self-referential (Parent_Task__c â†’ Project_Task__c)
-- **Related Tasks**: Self-referential (Related_Task__c â†’ Project_Task__c)
+- **Parent-Child**: Self-referential (Parent_Task__c †’ Project_Task__c)
+- **Related Tasks**: Self-referential (Related_Task__c †’ Project_Task__c)
 - **Account**: Lookup to Account (Account__c)
 - **Developer**: Lookup to User (Developer__c)
 - **Client User**: Lookup to User (Client_User__c)
@@ -98,14 +98,14 @@ Tagging system for releases.
 
 ```
 Account
-  â””â”€â”€ Project_Task__c (Many)
-       â”œâ”€â”€ Parent_Task__c â†’ Project_Task__c (Self)
-       â”œâ”€â”€ Related_Task__c â†’ Project_Task__c (Self)
-       â”œâ”€â”€ Developer__c â†’ User
-       â”œâ”€â”€ Client_User__c â†’ User
-       â””â”€â”€ Release_Notes__c â†’ Release_Notes__c
-            â”œâ”€â”€ Release_Version__c â†’ Release_Version__c
-            â””â”€â”€ Release_Tag__c â†’ Release_Tag__c
+  ”””” Project_Task__c (Many)
+       ””” Parent_Task__c †’ Project_Task__c (Self)
+       ””” Related_Task__c †’ Project_Task__c (Self)
+       ””” Developer__c †’ User
+       ””” Client_User__c †’ User
+       ”””” Release_Notes__c †’ Release_Notes__c
+            ””” Release_Version__c †’ Release_Version__c
+            ”””” Release_Tag__c †’ Release_Tag__c
 ```
 
 ### Field Types and Calculations
@@ -231,14 +231,14 @@ Components communicate via LMS for:
 
 ```
 projectTaskDashboard (Container)
-  â”œâ”€â”€ accountFilter (Optional)
-  â”œâ”€â”€ taskStatusBreakdown
-  â”œâ”€â”€ taskPriorityBreakdown
-  â”œâ”€â”€ taskHoursMetrics
-  â”œâ”€â”€ taskProgressMetrics
-  â”œâ”€â”€ taskReviewStatusMetrics
-  â”œâ”€â”€ taskDueDateMetrics
-  â””â”€â”€ taskListComponent
+  ””” accountFilter (Optional)
+  ””” taskStatusBreakdown
+  ””” taskPriorityBreakdown
+  ””” taskHoursMetrics
+  ””” taskProgressMetrics
+  ””” taskReviewStatusMetrics
+  ””” taskDueDateMetrics
+  ”””” taskListComponent
 ```
 
 ## Automation Architecture
@@ -504,12 +504,12 @@ Progress = (Completed Subtasks / Total Active Subtasks) Ã— 100
 
 ### Best Practices
 
-- âœ… Bulk operations in all code
-- âœ… Selective queries with indexed fields
-- âœ… Efficient data structures
-- âœ… Minimal DML operations
-- âœ… Proper error handling
-- âœ… Governor limit awareness
+-  Bulk operations in all code
+-  Selective queries with indexed fields
+-  Efficient data structures
+-  Minimal DML operations
+-  Proper error handling
+-  Governor limit awareness
 
 ---
 

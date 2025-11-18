@@ -15,17 +15,17 @@ Complete guide for configuring the Milestone Task Management System after instal
 
 ### Step 1: Verify Installation
 
-1. Navigate to Setup â†’ Custom Code â†’ Apex Classes
+1. Navigate to Setup †’ Custom Code †’ Apex Classes
 2. Verify all classes are present:
    - TaskProgressCalculator
    - TaskDependencyHelper
    - RelatedTasksController
    - ProjectTaskDashboardController
 
-3. Navigate to Setup â†’ Custom Code â†’ Apex Triggers
+3. Navigate to Setup †’ Custom Code †’ Apex Triggers
 4. Verify ProjectTaskTrigger is active
 
-5. Navigate to Setup â†’ Object Manager
+5. Navigate to Setup †’ Object Manager
 6. Verify custom objects exist:
    - Project_Task__c
    - Release_Notes__c
@@ -35,11 +35,11 @@ Complete guide for configuring the Milestone Task Management System after instal
 ### Step 2: Activate Automation
 
 1. **Activate Triggers**
-   - Setup â†’ Custom Code â†’ Apex Triggers
+   - Setup †’ Custom Code †’ Apex Triggers
    - Verify ProjectTaskTrigger is active
 
 2. **Activate Flows**
-   - Setup â†’ Process Automation â†’ Flows
+   - Setup †’ Process Automation †’ Flows
    - Activate all flows:
      - Progress Calculation Flow
      - Dependency Risk Assessment Flow
@@ -47,7 +47,7 @@ Complete guide for configuring the Milestone Task Management System after instal
      - Release Notes Generation Flow
 
 3. **Activate Approval Processes**
-   - Setup â†’ Process Automation â†’ Approval Processes
+   - Setup †’ Process Automation †’ Approval Processes
    - Activate:
      - Approval_Process_Project_Task_Waiting_For_Client_Approval_on_Backlog_Task
      - Approval_Process_Project_Task_PM_Code_Reviewer_Approval
@@ -58,7 +58,7 @@ Complete guide for configuring the Milestone Task Management System after instal
 ### Assign Permission Sets
 
 1. **Navigate to Permission Sets**
-   - Setup â†’ Users â†’ Permission Sets
+   - Setup †’ Users †’ Permission Sets
 
 2. **Assign to Users**
    - For each permission set:
@@ -77,15 +77,15 @@ Complete guide for configuring the Milestone Task Management System after instal
 ### Configure User Profiles
 
 1. **Verify Object Access**
-   - Setup â†’ Users â†’ Profiles
+   - Setup †’ Users †’ Profiles
    - For each profile:
-     - Object Settings â†’ Project Task
+     - Object Settings †’ Project Task
      - Verify object permissions
      - Adjust as needed
 
 2. **Configure Field-Level Security**
    - For each profile:
-     - Field-Level Security â†’ Project Task
+     - Field-Level Security †’ Project Task
      - Set field visibility and editability
      - Restrict sensitive fields as needed
 
@@ -169,7 +169,7 @@ Complete guide for configuring the Milestone Task Management System after instal
 ### Create Lightning Pages
 
 1. **Project Task Home Page**
-   - Setup â†’ Lightning App Builder
+   - Setup †’ Lightning App Builder
    - Create new page: "Project Task Home Page"
    - Add components:
      - Project Task Dashboard (container)
@@ -177,7 +177,7 @@ Complete guide for configuring the Milestone Task Management System after instal
    - Activate page
 
 2. **Project Task Record Page**
-   - Setup â†’ Lightning App Builder
+   - Setup †’ Lightning App Builder
    - Create new page: "Project Task Record Page"
    - Add components:
      - Task Progress Indicator
@@ -213,13 +213,13 @@ Complete guide for configuring the Milestone Task Management System after instal
 #### Adding Custom Fields
 
 1. **Create Field**
-   - Setup â†’ Object Manager â†’ Project Task â†’ Fields & Relationships
+   - Setup †’ Object Manager †’ Project Task †’ Fields & Relationships
    - Click "New"
    - Choose field type
    - Configure field properties
 
 2. **Add to Page Layout**
-   - Setup â†’ Object Manager â†’ Project Task â†’ Page Layouts
+   - Setup †’ Object Manager †’ Project Task †’ Page Layouts
    - Edit layout
    - Add field to appropriate section
 
@@ -239,7 +239,7 @@ Complete guide for configuring the Milestone Task Management System after instal
 #### Adding Validation Rules
 
 1. **Create Rule**
-   - Setup â†’ Object Manager â†’ Project Task â†’ Validation Rules
+   - Setup †’ Object Manager †’ Project Task †’ Validation Rules
    - Click "New"
    - Define error condition
    - Set error message
@@ -277,7 +277,7 @@ Complete guide for configuring the Milestone Task Management System after instal
 #### Customizing Page Layouts
 
 1. **Edit Layout**
-   - Setup â†’ Object Manager â†’ Project Task â†’ Page Layouts
+   - Setup †’ Object Manager †’ Project Task †’ Page Layouts
    - Edit layout
    - Add/remove fields
    - Reorganize sections
@@ -293,12 +293,12 @@ Complete guide for configuring the Milestone Task Management System after instal
 #### Configure Sharing
 
 1. **Organization-Wide Defaults**
-   - Setup â†’ Sharing Settings
+   - Setup †’ Sharing Settings
    - Set Project_Task__c default sharing
    - Typically: Private
 
 2. **Sharing Rules**
-   - Setup â†’ Sharing Settings â†’ Sharing Rules
+   - Setup †’ Sharing Settings †’ Sharing Rules
    - Create rules based on:
      - Account ownership
      - Role hierarchy
@@ -309,7 +309,7 @@ Complete guide for configuring the Milestone Task Management System after instal
 #### Configure External Resources
 
 1. **Chart.js (if used)**
-   - Setup â†’ Remote Site Settings
+   - Setup †’ Remote Site Settings
    - Verify ChartJS remote site exists
    - Activate if needed
 
@@ -322,7 +322,7 @@ Complete guide for configuring the Milestone Task Management System after instal
 #### Create Email Templates
 
 1. **Approval Request Templates**
-   - Setup â†’ Communication Templates â†’ Email Templates
+   - Setup †’ Communication Templates †’ Email Templates
    - Create templates for:
      - Client Development Approval
      - PM/Code Reviewer Approval
@@ -350,7 +350,7 @@ Complete guide for configuring the Milestone Task Management System after instal
 #### External System Integration
 
 1. **API Access**
-   - Setup â†’ API
+   - Setup †’ API
    - Generate API tokens if needed
    - Configure OAuth if needed
 

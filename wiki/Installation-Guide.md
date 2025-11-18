@@ -77,7 +77,7 @@ sf apex run test --class-names ProjectTaskDashboardControllerTest --result-forma
 #### Step 1: Open Project in VS Code
 
 1. Open VS Code
-2. File â†’ Open Folder
+2. File †’ Open Folder
 3. Select the project directory
 
 #### Step 2: Authorize Org
@@ -96,7 +96,7 @@ sf apex run test --class-names ProjectTaskDashboardControllerTest --result-forma
 
 #### Step 1: Create Outbound Change Set
 
-1. In source org: Setup â†’ Outbound Change Sets
+1. In source org: Setup †’ Outbound Change Sets
 2. Create new change set
 3. Add all components:
    - Custom Objects (Project_Task__c, Release_Notes__c, etc.)
@@ -118,7 +118,7 @@ sf apex run test --class-names ProjectTaskDashboardControllerTest --result-forma
 
 #### Step 3: Deploy to Target Org
 
-1. In target org: Setup â†’ Inbound Change Sets
+1. In target org: Setup †’ Inbound Change Sets
 2. Find and select the change set
 3. Click "Deploy"
 4. Review and confirm
@@ -129,7 +129,7 @@ sf apex run test --class-names ProjectTaskDashboardControllerTest --result-forma
 
 Assign permission sets to users:
 
-1. Setup â†’ Users â†’ Permission Sets
+1. Setup †’ Users †’ Permission Sets
 2. For each permission set:
    - Click on the permission set name
    - Click "Manage Assignments"
@@ -146,7 +146,7 @@ Assign permission sets to users:
 
 The system includes approval processes that need to be activated:
 
-1. Setup â†’ Process Automation â†’ Approval Processes
+1. Setup †’ Process Automation †’ Approval Processes
 2. Find and activate:
    - `Approval_Process_Project_Task_Waiting_For_Client_Approval_on_Backlog_Task`
    - `Approval_Process_Project_Task_PM_Code_Reviewer_Approval`
@@ -162,7 +162,7 @@ The system includes approval processes that need to be activated:
 
 Review and activate flows:
 
-1. Setup â†’ Process Automation â†’ Flows
+1. Setup †’ Process Automation †’ Flows
 2. Activate required flows:
    - Progress Calculation Flow
    - Dependency Risk Assessment Flow
@@ -175,7 +175,7 @@ Review and activate flows:
 
 Ensure page layouts are assigned:
 
-1. Setup â†’ Object Manager â†’ Project Task
+1. Setup †’ Object Manager †’ Project Task
 2. Click "Page Layouts"
 3. Assign layouts to profiles:
    - Default layout for most users
@@ -185,7 +185,7 @@ Ensure page layouts are assigned:
 
 Set up Lightning pages:
 
-1. Setup â†’ Lightning App Builder
+1. Setup †’ Lightning App Builder
 2. Create or edit:
    - **Project Task Home Page**: Main dashboard page
    - **Project Task Record Page**: Task detail page
@@ -220,7 +220,7 @@ Verify list views are accessible:
 
 Set up quick actions on page layouts:
 
-1. Setup â†’ Object Manager â†’ Project Task
+1. Setup †’ Object Manager †’ Project Task
 2. Click "Buttons, Links, and Actions"
 3. Verify quick actions exist:
    - Mark Reviewed by PM/Code Reviewer
@@ -233,7 +233,7 @@ Set up quick actions on page layouts:
 
 If using external resources (e.g., Chart.js):
 
-1. Setup â†’ Remote Site Settings
+1. Setup †’ Remote Site Settings
 2. Verify settings exist:
    - ChartJS (if using Chart.js)
    - Other required remote sites
@@ -244,7 +244,7 @@ If using external resources (e.g., Chart.js):
 
 For Chart.js or other external JavaScript:
 
-1. Setup â†’ CSP Trusted Sites
+1. Setup †’ CSP Trusted Sites
 2. Verify ChartJS trusted site exists
 3. Activate if needed
 

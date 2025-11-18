@@ -326,7 +326,7 @@ public class TaskStatusChangeSubscriber implements PlatformEventSubscriber {
 Configure outbound messages for task events:
 
 1. **Setup Outbound Message**
-   - Setup â†’ Workflow Actions â†’ Outbound Messages
+   - Setup †’ Workflow Actions †’ Outbound Messages
    - Create new outbound message
    - Select object: Project_Task__c
    - Configure endpoint URL

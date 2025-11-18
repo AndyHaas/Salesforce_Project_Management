@@ -401,27 +401,27 @@ Choose based on preference and screen space.
 
 ### Dashboard Usage
 
-- ✅ Check dashboard daily for updates
-- ✅ Monitor key metrics regularly
-- ✅ Use filters to focus on relevant work
-- ✅ Drill down into concerning metrics
-- ✅ Share dashboard insights with team
+-  Check dashboard daily for updates
+-  Monitor key metrics regularly
+-  Use filters to focus on relevant work
+-  Drill down into concerning metrics
+-  Share dashboard insights with team
 
 ### Metric Interpretation
 
-- ✅ Look for trends, not just snapshots
-- ✅ Compare metrics over time
-- ✅ Identify root causes of issues
-- ✅ Use metrics to guide decisions
-- ✅ Don't over-optimize single metrics
+-  Look for trends, not just snapshots
+-  Compare metrics over time
+-  Identify root causes of issues
+-  Use metrics to guide decisions
+-  Don't over-optimize single metrics
 
 ### Customization
 
-- ✅ Configure dashboard for your role
-- ✅ Show metrics most relevant to you
-- ✅ Arrange components by priority
-- ✅ Test different configurations
-- ✅ Adjust based on feedback
+-  Configure dashboard for your role
+-  Show metrics most relevant to you
+-  Arrange components by priority
+-  Test different configurations
+-  Adjust based on feedback
 
 ---
 

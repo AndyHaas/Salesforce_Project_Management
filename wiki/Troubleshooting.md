@@ -23,7 +23,7 @@ Solutions to common issues and problems in the Milestone Task Management System.
 **Solutions**:
 
 1. **Check Permission Set Assignment**
-   - Go to Setup â†’ Users â†’ Permission Sets
+   - Go to Setup †’ Users †’ Permission Sets
    - Verify you have one of these assigned:
      - Project Management User
      - Project Management Manager
@@ -31,7 +31,7 @@ Solutions to common issues and problems in the Milestone Task Management System.
    - If not assigned, contact administrator
 
 2. **Check App Access**
-   - Go to Setup â†’ Apps â†’ App Manager
+   - Go to Setup †’ Apps †’ App Manager
    - Find "Project Management" app
    - Verify it's assigned to your profile
    - Contact administrator if not assigned
@@ -151,7 +151,7 @@ Solutions to common issues and problems in the Milestone Task Management System.
 **Solutions**:
 
 1. **Check Approval Process Status**
-   - Go to Setup â†’ Process Automation â†’ Approval Processes
+   - Go to Setup †’ Process Automation †’ Approval Processes
    - Verify process is "Active"
    - Contact administrator if inactive
 

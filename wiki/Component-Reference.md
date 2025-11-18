@@ -443,14 +443,14 @@ When placed on Account record page, dashboard automatically filters:
 
 ### Best Practices
 
-- ✅ Subscribe to LMS for account filtering
-- ✅ Use wire services for data loading
-- ✅ Implement error handling
-- ✅ Optimize queries for performance
-- ✅ Support bulk operations
-- ✅ Handle empty states gracefully
-- ✅ Provide loading indicators
-- ✅ Make components configurable
+-  Subscribe to LMS for account filtering
+-  Use wire services for data loading
+-  Implement error handling
+-  Optimize queries for performance
+-  Support bulk operations
+-  Handle empty states gracefully
+-  Provide loading indicators
+-  Make components configurable
 
 ---
 

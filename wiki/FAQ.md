@@ -134,10 +134,10 @@ You can edit the task, but significant changes may require:
 ### Can I change a task's status directly?
 
 Yes, but some status changes trigger approval processes:
-- **Backlog â†’ Pending**: Requires client approval
-- **In Review â†’ Completed**: Requires PM review and client approval
+- **Backlog †’ Pending**: Requires client approval
+- **In Review †’ Completed**: Requires PM review and client approval
 
-Other status changes (e.g., Pending â†’ In Progress) don't require approval.
+Other status changes (e.g., Pending †’ In Progress) don't require approval.
 
 ## Progress and Time Tracking
 
