@@ -31,17 +31,38 @@ The Milestone Task Management System is a Salesforce-based tool that helps teams
 - From the Project Management app, click on **"Project Tasks"** in the navigation menu
 - You'll see a list of all tasks (or filtered tasks based on your permissions)
 
+![Main Dashboard](images/01-main-dashboard.png)
+
+*The main Project Tasks dashboard showing tasks organized by status and the Project Task Dashboard with metrics*
+
 ## Your First Task
 
 ### Creating a New Task
 
 1. **Click "New"** button on the Project Tasks list view
-2. **Fill in the required fields**:
+   - The button is located in the top-right area of the list view
+   
+2. **Select Record Type** (first screen):
+   ![Record Type Selection](images/02-create-new-task-form.png)
+   
+   Choose the appropriate record type for your task:
+   - **Bug**: For fixing defects or issues
+   - **Feature**: For new functionality
+   - **Enhancement**: For improving existing features
+   - **Data Migration**: For data-related work
+   - **Training**: For training materials or sessions
+   - **Other**: For anything that doesn't fit the above
+   
+   Click **"Next"** to proceed to the task form.
+
+3. **Fill in the required fields**:
+   ![Task Form Fields](images/03-task-form-fields.png)
+   
+   **Required Fields** (marked with red asterisk):
    - **Task Name**: A clear, descriptive name (e.g., "Implement User Login Feature")
    - **Account**: Select the customer account this task belongs to
    - **Status**: Start with "Backlog" for new tasks
    - **Priority**: Choose High, Medium, or Low
-   - **Record Type**: Select the type (Bug, Feature, Enhancement, etc.)
 
 3. **Optional but recommended fields**:
    - **Description**: Detailed description of the task
@@ -61,6 +82,10 @@ After saving, you'll be taken to the task record page where you can:
 - See progress indicators
 - Add subtasks
 - Track time spent
+
+![Task Detail Page](images/04-task-detail-page.png)
+
+*The task detail page showing task information, review workflow, dependencies, and related components*
 
 ## Understanding Task Status
 

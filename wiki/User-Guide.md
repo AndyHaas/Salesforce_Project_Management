@@ -19,16 +19,87 @@ Complete guide to using the Milestone Task Management System. This document cove
 
 #### Basic Task Creation
 
-1. Navigate to **Project Tasks** tab
-2. Click **New** button
-3. Fill in required fields:
-   - **Task Name**: Clear, descriptive name
-   - **Account**: Customer account
-   - **Status**: Initial status (usually "Backlog")
-   - **Priority**: High, Medium, or Low
-   - **Record Type**: Bug, Feature, Enhancement, Data Migration, Training, or Other
+**Step 1: Navigate to Project Tasks**
+1. Open the **Project Management** app
+2. Click on **Project Tasks** in the navigation menu
+3. You'll see the main dashboard with tasks organized by status
 
-4. Click **Save**
+![Main Dashboard](images/01-main-dashboard.png)
+
+**Step 2: Click New Button**
+1. Locate the **"New"** button in the top-right area of the list view
+2. Click it to start creating a new task
+
+**Step 3: Select Record Type**
+![Record Type Selection](images/02-create-new-task-form.png)
+
+1. You'll first see a screen to select the **Record Type**
+2. Choose the appropriate type:
+   - **Bug**: Fixing defects or issues
+   - **Feature**: New functionality
+   - **Enhancement**: Improving existing features
+   - **Data Migration**: Data-related work
+   - **Training**: Training materials or sessions
+   - **Other**: Anything that doesn't fit the above
+3. Click **"Next"** to proceed
+
+**Step 4: Fill in Task Details**
+![Task Form Fields](images/03-task-form-fields.png)
+
+Fill in the required fields (marked with red asterisk):
+- **Task Name**: Clear, descriptive name
+- **Account**: Customer account (use lookup to search)
+- **Status**: Initial status (usually "Backlog")
+- **Priority**: High, Medium, or Low
+
+**Optional but Recommended Fields:**
+- **Description**: Detailed explanation of the task
+- **Developer**: Assign to a developer
+- **Client User**: Assign to a client contact
+- **Estimated Hours**: Initial time estimate
+- **Due Date**: Target completion date
+- **Start Date**: When work should begin
+
+**Step 5: Save the Task**
+1. Click **"Save"** button at the bottom of the form
+2. You'll be taken to the task detail page
+
+### Viewing Tasks
+
+After creating or clicking on a task, you'll see the task detail page:
+
+![Task Detail Page](images/04-task-detail-page.png)
+
+The task detail page includes:
+
+**Highlight Panel** (top section):
+- Task name and key information
+- Progress percentage (for parent tasks)
+- Status and priority indicators
+- Review status icons
+- Quick action buttons
+
+**Details Tab**:
+- **Task Information**: Name, description, status, priority
+- **User Details**: Owner, developer, client user assignments
+- **Time Tracking**: Estimated and actual hours (with rollup totals for parent tasks)
+- **Review Workflow**: Review status and approval checkboxes
+- **Dependencies**: Related tasks and parent task relationships
+
+**Related Tab**:
+- **Related Tasks**: Tasks that are related or dependent
+- **Subtasks**: All subtasks for this parent task
+- **Dependency Visualizer**: Visual map of task dependencies (if component is configured)
+
+**Chatter Tab**:
+- Comments and updates
+- @mentions and notifications
+- File attachments
+
+**Work Guide**:
+- Step-by-step guidance for approval workflows
+- Approval decision forms
+- Status indicators
 
 #### Task Record Types
 
