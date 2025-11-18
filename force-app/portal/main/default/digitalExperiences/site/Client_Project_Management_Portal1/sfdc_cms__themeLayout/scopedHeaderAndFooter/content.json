@@ -1,0 +1,219 @@
+{
+  "type" : "sfdc_cms__themeLayout",
+  "title" : "Scoped Header and Footer",
+  "contentBody" : {
+    "component" : {
+      "attributes" : {
+        "hideThemeFooter" : false,
+        "showThemeFooterAtBottom" : true,
+        "stickyThemeHeader" : false
+      },
+      "children" : [ {
+        "children" : [ {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,0)",
+            "componentSpacerSize" : "",
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"237d30c6-f448-4040-a576-dad7ef64e2df\",\"columns\":[{\"UUID\":\"7a8f6cef-974a-43f0-aa0a-b41d42ebd438\",\"columnName\":\"Column 1\",\"columnKey\":\"headerSection\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionMinHeight" : "",
+            "sectionVerticalAlign" : "flex-start"
+          },
+          "children" : [ {
+            "children" : [ {
+              "attributes" : {
+                "headerLayout" : "LogoLeft",
+                "slotOneWidth" : "",
+                "slotThreeWidth" : "",
+                "slotTwoWidth" : "",
+                "spaceBetweenSlots" : "16px"
+              },
+              "children" : [ {
+                "children" : [ {
+                  "attributes" : {
+                    "alignment" : "left",
+                    "imageInfo" : "",
+                    "imageInfoMobile" : "",
+                    "logoWidth" : 250
+                  },
+                  "definition" : "dxp_content_layout:siteLogo",
+                  "id" : "7d0a5d4d-fba4-4cf1-baa6-92d3fa5e2634",
+                  "type" : "component"
+                } ],
+                "id" : "a223933f-2aa1-4262-80b1-ab341257f0bd",
+                "name" : "siteLogo",
+                "title" : "Add component",
+                "type" : "region"
+              }, {
+                "children" : [ {
+                  "attributes" : {
+                    "dxpStyle" : {
+                      "padding" : {
+                        "bottom" : "5px",
+                        "left" : "5px",
+                        "right" : "5px",
+                        "top" : "5px"
+                      }
+                    }
+                  },
+                  "children" : [ {
+                    "children" : [ {
+                      "attributes" : {
+                        "activeLineWeight" : "3px",
+                        "backgroundColor" : "rgba(255, 255, 255, 0)",
+                        "dropdownAccordionIconSize" : "xx-small",
+                        "dropdownActiveLineWeight" : "5px",
+                        "dropdownBackgroundActiveColor" : "rgba(0, 0, 0, 0)",
+                        "dropdownBackgroundColor" : "",
+                        "dropdownBackgroundHoverColor" : "",
+                        "dropdownBottomBorderRadius" : "5px",
+                        "dropdownFontSizeOverride" : "",
+                        "dropdownFontWeightOverride" : "300",
+                        "dropdownItemPadding" : "{\"top\":\"10px\",\"right\":\"10px\",\"bottom\":\"10px\",\"left\":\"10px\"}",
+                        "dropdownLineHeightOverride" : "",
+                        "dropdownMenuPadding" : "{\"top\":\"0px\",\"right\":\"0px\",\"bottom\":\"0px\",\"left\":\"0px\"}",
+                        "dropdownOverrideTextStyle" : true,
+                        "dropdownShowDividerLines" : false,
+                        "dropdownTextDecorationOverride" : "",
+                        "dropdownTextStyle" : "body-regular",
+                        "dropdownTopBorderRadius" : "5px",
+                        "fontSizeOverride" : "",
+                        "fontWeightOverride" : "",
+                        "iconSize" : "xx-small",
+                        "itemBackgroundActiveColor" : "rgba(255, 255, 255, 0)",
+                        "itemBackgroundHoverColor" : "rgba(255, 255, 255, 0)",
+                        "lineHeightOverride" : "",
+                        "menuHorizontalAlignment" : "left",
+                        "overrideTextStyle" : false,
+                        "showHomeLink" : true,
+                        "showParentMenuIcon" : true,
+                        "spaceBetweenMenuItems" : "30px",
+                        "textDecorationOverride" : "",
+                        "textStyle" : "body-regular"
+                      },
+                      "definition" : "community_navigation:customizableNavigationBarContainer",
+                      "id" : "2f922fcb-719e-440c-8349-bfde9bd22e7f",
+                      "type" : "component"
+                    } ],
+                    "id" : "89db38ea-a736-4e5e-b78e-2f213ef3c2b1",
+                    "name" : "desktop",
+                    "title" : "Desktop View",
+                    "type" : "region"
+                  }, {
+                    "children" : [ {
+                      "attributes" : {
+                        "burgerIconHorizontalAlignment" : "left",
+                        "modalAccordionIconSize" : "xx-small",
+                        "modalActiveBackgroundColor" : "rgba(255, 255, 255, 0)",
+                        "modalActiveLineWeight" : "5px",
+                        "modalFontSizeOverride" : "",
+                        "modalFontWeightOverride" : "",
+                        "modalItemPadding" : "{\"top\":\"10px\",\"right\":\"10px\",\"bottom\":\"10px\",\"left\":\"15px\"}",
+                        "modalLineHeightOverride" : "",
+                        "modalMenuPadding" : "{\"top\":\"0px\",\"right\":\"0px\",\"bottom\":\"0px\",\"left\":\"0px\"}",
+                        "modalOverrideTextStyle" : false,
+                        "modalShowDividerLines" : true,
+                        "modalSubmenuFontSizeOverride" : "",
+                        "modalSubmenuFontWeightOverride" : "300",
+                        "modalSubmenuLineHeightOverride" : "",
+                        "modalSubmenuOverrideTextStyle" : true,
+                        "modalSubmenuTextDecorationOverride" : "",
+                        "modalSubmenuTextStyle" : "body-regular",
+                        "modalTextDecorationOverride" : "",
+                        "modalTextStyle" : "body-regular",
+                        "showHomeLink" : true
+                      },
+                      "definition" : "community_navigation:customizableNavigationHamburgerMenuContainer",
+                      "id" : "07a97ae3-094e-40da-83bf-c933adff6c34",
+                      "type" : "component"
+                    } ],
+                    "id" : "227a6612-7177-4791-be98-16d25832e053",
+                    "name" : "mobile",
+                    "title" : "Mobile View",
+                    "type" : "region"
+                  } ],
+                  "definition" : "community_navigation:customizableNavigationMenu",
+                  "id" : "e0fe83af-8f34-473c-bd62-c91276f25908",
+                  "type" : "component"
+                } ],
+                "id" : "4c82990f-f786-4dad-96d7-5fda2156b48c",
+                "name" : "navigation",
+                "title" : "Add component",
+                "type" : "region"
+              }, {
+                "children" : [ {
+                  "attributes" : {
+                    "alignment" : "right",
+                    "size" : "standard",
+                    "stretch" : "standard",
+                    "text" : "Login",
+                    "type" : "primary",
+                    "url" : "{\"linkInfo\":{\"pageReference\":{\"type\":\"comm__namedPage\",\"attributes\":{\"name\":\"Login\"}}}}"
+                  },
+                  "definition" : "dxp_base:button",
+                  "id" : "2efa0c94-b9f7-4f49-8799-2deef08129de",
+                  "type" : "component"
+                } ],
+                "id" : "2fdc9131-a222-4382-aa4e-d78d235d233e",
+                "name" : "actions",
+                "title" : "Add component",
+                "type" : "region"
+              } ],
+              "definition" : "community_builder:customizableHeader",
+              "id" : "d0981ee6-b5b1-4ce7-a8fb-38a98fb78c06",
+              "type" : "component"
+            } ],
+            "id" : "7a8f6cef-974a-43f0-aa0a-b41d42ebd438",
+            "name" : "headerSection",
+            "title" : "Theme Header",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "237d30c6-f448-4040-a576-dad7ef64e2df",
+          "type" : "component"
+        } ],
+        "id" : "5eb166ec-64e7-44c9-b8c0-70f025df862e",
+        "name" : "header",
+        "title" : "Theme Header",
+        "type" : "region"
+      }, {
+        "children" : [ {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,0)",
+            "componentSpacerSize" : "",
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"67507ba5-f9ff-43c3-8ac9-cec47e38af06\",\"columns\":[{\"UUID\":\"d52c548a-d248-4fca-a6ea-93d4fc3f598a\",\"columnName\":\"Column 1\",\"columnKey\":\"footerSection\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionMinHeight" : "",
+            "sectionVerticalAlign" : "flex-start"
+          },
+          "children" : [ {
+            "id" : "d52c548a-d248-4fca-a6ea-93d4fc3f598a",
+            "name" : "footerSection",
+            "title" : "Theme Footer",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "67507ba5-f9ff-43c3-8ac9-cec47e38af06",
+          "type" : "component"
+        } ],
+        "id" : "5b3a748c-9ea0-465a-a3be-e83ac9d36b96",
+        "name" : "footer",
+        "title" : "Theme Footer",
+        "type" : "region"
+      } ],
+      "definition" : "community_byo:scopedHeaderAndFooter",
+      "id" : "d69445b2-1cc1-47e5-9cbb-f81d3a1a255d",
+      "type" : "component"
+    }
+  },
+  "urlName" : "scoped-header-and-footer"
+}
