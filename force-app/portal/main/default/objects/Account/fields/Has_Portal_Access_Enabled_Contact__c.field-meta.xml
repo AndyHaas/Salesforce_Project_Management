@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://www.salesforce.com/2006/04/metadata">
+    <fullName>Has_Portal_Access_Enabled_Contact__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indicates whether this Account has at least one Contact with Portal Access Enabled. This field should be updated via automation (Flow/Process Builder) when Contacts are created or updated. Used for reporting and portal access verification.</description>
+    <inlineHelpText>Set to true if any Contact on this Account has Portal Access Enabled. This field should be automatically updated via Flow when Contacts are created or updated. Both this field and the Contact's Portal_Access_Enabled__c field must be true for portal access.</inlineHelpText>
+    <label>Has Portal Access Enabled Contact</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

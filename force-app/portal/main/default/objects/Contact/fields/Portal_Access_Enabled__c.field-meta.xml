@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://www.salesforce.com/2006/04/metadata">
+    <fullName>Portal_Access_Enabled__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indicates whether this contact is enabled to access the Project Management Portal. Both this field and the Account's Has_Portal_Access_Enabled_Contact__c field must be true for portal access.</description>
+    <inlineHelpText>Enable this checkbox to allow the contact to access the portal. The associated Account must also have portal access enabled.</inlineHelpText>
+    <label>Portal Access Enabled</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

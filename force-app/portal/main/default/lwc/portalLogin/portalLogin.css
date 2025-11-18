@@ -1,0 +1,13 @@
+.slds-card {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.slds-text-color_error {
+    color: var(--slds-g-color-error-base-10, #c23934);
+}
+
+.slds-text-color_success {
+    color: var(--slds-g-color-success-base-10, #027e69);
+}
+
