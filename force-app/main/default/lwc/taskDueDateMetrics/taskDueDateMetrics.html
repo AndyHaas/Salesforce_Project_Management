@@ -1,0 +1,76 @@
+<template>
+    <lightning-card title="Due Date Metrics" icon-name="utility:date_time">
+        <div class="slds-card__body slds-card__body_inner">
+            <template if:true={hasData}>
+                <div class="slds-grid slds-gutters slds-wrap">
+                    <!-- Overdue Tasks Card -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <div class="metric-card alert-card clickable-metric-card" 
+                             onclick={handleOverdueClick} 
+                             title="Click to view Overdue Tasks list view">
+                            <div class="metric-label">Overdue Tasks</div>
+                            <div class={overdueClass}>{overdueCount}</div>
+                            <div class="metric-subtext">Past due date</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tasks Due Today Card -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <div class="metric-card warning-card clickable-metric-card" 
+                             onclick={handleDueTodayClick} 
+                             title="Click to view Tasks Due Today list view">
+                            <div class="metric-label">Due Today</div>
+                            <div class="metric-value warning-value">{dueTodayCount}</div>
+                            <div class="metric-subtext">Due date is today</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tasks Due This Week Card -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <div class="metric-card info-card clickable-metric-card" 
+                             onclick={handleDueThisWeekClick} 
+                             title="Click to view Tasks Due This Week list view">
+                            <div class="metric-label">Due This Week</div>
+                            <div class="metric-value info-value">{dueThisWeekCount}</div>
+                            <div class="metric-subtext">Due within 7 days</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Overdue Percentage Card -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <div class="metric-card">
+                            <div class="metric-label-container">
+                                <span class="metric-label">Overdue Percentage</span>
+                                <lightning-helptext 
+                                    content="Percentage of tasks with due dates that are currently overdue. Formula: (Overdue Tasks / Tasks With Due Date) × 100" 
+                                    icon-name="utility:info">
+                                </lightning-helptext>
+                            </div>
+                            <div class={overdueClass}>{overduePercentage}%</div>
+                            <div class="metric-subtext">{tasksWithDueDate} tasks have due dates</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tasks Without Due Date Card -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <div class="metric-card clickable-metric-card" 
+                             onclick={handleTasksWithoutDueDateClick} 
+                             title="Click to view Tasks Due This Week list view">
+                            <div class="metric-label">Tasks Without Due Date</div>
+                            <div class="metric-value">{tasksWithoutDueDate}</div>
+                            <div class="metric-subtext">No deadline set</div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            
+            <template if:false={hasData}>
+                <div class="no-data-message">
+                    <p>No due date data available</p>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>
+
+

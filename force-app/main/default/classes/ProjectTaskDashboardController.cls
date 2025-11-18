@@ -1,0 +1,1008 @@
+public with sharing class ProjectTaskDashboardController {
+    
+    @AuraEnabled(cacheable=true)
+    public static StatusBreakdownResult getStatusBreakdown(List<String> accountIds) {
+        // Handle null or empty list
+        if (accountIds == null) {
+            accountIds = new List<String>();
+        }
+        List<AggregateResult> results;
+        
+        if (accountIds != null && !accountIds.isEmpty()) {
+            results = [
+                SELECT Status__c, COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Account__c IN :accountIds
+                GROUP BY Status__c
+            ];
+        } else {
+            results = [
+                SELECT Status__c, COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                GROUP BY Status__c
+            ];
+        }
+        
+        StatusBreakdownResult breakdown = new StatusBreakdownResult();
+        breakdown.statusCounts = new Map<String, Integer>();
+        breakdown.totalTasks = 0;
+        
+        for (AggregateResult ar : results) {
+            String status = (String)ar.get('Status__c');
+            Integer count = (Integer)ar.get('taskCount');
+            if (status != null) {
+                breakdown.statusCounts.put(status, count);
+                breakdown.totalTasks += count;
+            }
+        }
+        
+        return breakdown;
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static HoursMetricsResult getHoursMetrics(List<String> accountIds) {
+        // Handle null or empty list
+        if (accountIds == null) {
+            accountIds = new List<String>();
+        }
+        List<AggregateResult> results;
+        
+        if (accountIds != null && !accountIds.isEmpty()) {
+            results = [
+                SELECT SUM(Estimated_Hours__c) totalEstimated, 
+                       SUM(Actual_Hours__c) totalActual, 
+                       SUM(Total_Estimated_Hours__c) totalEstimatedWithSubtasks, 
+                       SUM(Total_Actual_Hours__c) totalActualWithSubtasks, 
+                       Status__c 
+                FROM Project_Task__c 
+                WHERE Account__c IN :accountIds
+                GROUP BY Status__c
+            ];
+        } else {
+            results = [
+                SELECT SUM(Estimated_Hours__c) totalEstimated, 
+                       SUM(Actual_Hours__c) totalActual, 
+                       SUM(Total_Estimated_Hours__c) totalEstimatedWithSubtasks, 
+                       SUM(Total_Actual_Hours__c) totalActualWithSubtasks, 
+                       Status__c 
+                FROM Project_Task__c 
+                GROUP BY Status__c
+            ];
+        }
+        
+        HoursMetricsResult metrics = new HoursMetricsResult();
+        metrics.totalEstimated = 0;
+        metrics.totalActual = 0;
+        metrics.totalEstimatedWithSubtasks = 0;
+        metrics.totalActualWithSubtasks = 0;
+        metrics.hoursByStatus = new List<HoursByStatus>();
+        
+        for (AggregateResult ar : results) {
+            Decimal estimated = (Decimal)ar.get('totalEstimated');
+            Decimal actual = (Decimal)ar.get('totalActual');
+            Decimal estimatedWithSubtasks = (Decimal)ar.get('totalEstimatedWithSubtasks');
+            Decimal actualWithSubtasks = (Decimal)ar.get('totalActualWithSubtasks');
+            String status = (String)ar.get('Status__c');
+            
+            if (estimated != null) metrics.totalEstimated += estimated;
+            if (actual != null) metrics.totalActual += actual;
+            if (estimatedWithSubtasks != null) metrics.totalEstimatedWithSubtasks += estimatedWithSubtasks;
+            if (actualWithSubtasks != null) metrics.totalActualWithSubtasks += actualWithSubtasks;
+            
+            if (status != null) {
+                HoursByStatus hbs = new HoursByStatus();
+                hbs.status = status;
+                hbs.estimatedHours = estimated != null ? estimated : 0;
+                hbs.actualHours = actual != null ? actual : 0;
+                metrics.hoursByStatus.add(hbs);
+            }
+        }
+        
+        metrics.variance = metrics.totalEstimated - metrics.totalActual;
+        metrics.variancePercentage = metrics.totalEstimated != 0 
+            ? ((metrics.totalEstimated - metrics.totalActual) / metrics.totalEstimated) * 100 
+            : 0;
+        
+        return metrics;
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static ReviewStatusMetricsResult getReviewStatusMetrics(List<String> accountIds) {
+        // Handle null or empty list
+        if (accountIds == null) {
+            accountIds = new List<String>();
+        }
+        List<Project_Task__c> tasks;
+        
+        if (accountIds != null && !accountIds.isEmpty()) {
+            tasks = [
+                SELECT Id, Status__c, Reviewed_by_PM_Code_Reviewer__c, 
+                       Client_Approved_for_Completion__c, Client_Approved_for_Development__c, 
+                       Ready_for_Client_Review__c 
+                FROM Project_Task__c
+                WHERE Account__c IN :accountIds
+            ];
+        } else {
+            tasks = [
+                SELECT Id, Status__c, Reviewed_by_PM_Code_Reviewer__c, 
+                       Client_Approved_for_Completion__c, Client_Approved_for_Development__c, 
+                       Ready_for_Client_Review__c 
+                FROM Project_Task__c
+            ];
+        }
+        
+        ReviewStatusMetricsResult metrics = new ReviewStatusMetricsResult();
+        metrics.pmApprovedCount = 0;
+        metrics.pmPendingCount = 0;
+        metrics.clientCompletionApprovedCount = 0;
+        metrics.clientCompletionPendingCount = 0;
+        metrics.clientDevelopmentApprovedCount = 0;
+        metrics.clientDevelopmentPendingCount = 0;
+        metrics.readyForClientReviewCount = 0;
+        metrics.inReviewTotal = 0;
+        metrics.backlogTotal = 0;
+        
+        for (Project_Task__c task : tasks) {
+            if (task.Status__c == 'In Review') {
+                metrics.inReviewTotal++;
+                if (task.Reviewed_by_PM_Code_Reviewer__c) {
+                    metrics.pmApprovedCount++;
+                } else {
+                    metrics.pmPendingCount++;
+                }
+                if (task.Client_Approved_for_Completion__c) {
+                    metrics.clientCompletionApprovedCount++;
+                } else {
+                    metrics.clientCompletionPendingCount++;
+                }
+            } else if (task.Status__c == 'Backlog') {
+                metrics.backlogTotal++;
+                if (task.Ready_for_Client_Review__c) {
+                    metrics.readyForClientReviewCount++;
+                }
+                if (task.Client_Approved_for_Development__c) {
+                    metrics.clientDevelopmentApprovedCount++;
+                } else {
+                    metrics.clientDevelopmentPendingCount++;
+                }
+            }
+        }
+        
+        return metrics;
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static PriorityBreakdownResult getPriorityBreakdown(List<String> accountIds) {
+        // Handle null or empty list
+        if (accountIds == null) {
+            accountIds = new List<String>();
+        }
+        List<AggregateResult> results;
+        
+        if (accountIds != null && !accountIds.isEmpty()) {
+            results = [
+                SELECT Priority__c, COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Account__c IN :accountIds
+                GROUP BY Priority__c
+            ];
+        } else {
+            results = [
+                SELECT Priority__c, COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                GROUP BY Priority__c
+            ];
+        }
+        
+        PriorityBreakdownResult breakdown = new PriorityBreakdownResult();
+        breakdown.priorityCounts = new Map<String, Integer>();
+        breakdown.totalTasks = 0;
+        
+        for (AggregateResult ar : results) {
+            String priority = (String)ar.get('Priority__c');
+            Integer count = (Integer)ar.get('taskCount');
+            if (priority != null) {
+                breakdown.priorityCounts.put(priority, count);
+                breakdown.totalTasks += count;
+            }
+        }
+        
+        return breakdown;
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static ProgressMetricsResult getProgressMetrics(List<String> accountIds) {
+        // Handle null or empty list
+        if (accountIds == null) {
+            accountIds = new List<String>();
+        }
+        List<Project_Task__c> tasks;
+        
+        if (accountIds != null && !accountIds.isEmpty()) {
+            tasks = [
+                SELECT Progress_Percentage__c, At_Risk_Due_to_Dependencies__c, Status__c 
+                FROM Project_Task__c
+                WHERE Account__c IN :accountIds
+            ];
+        } else {
+            tasks = [
+                SELECT Progress_Percentage__c, At_Risk_Due_to_Dependencies__c, Status__c 
+                FROM Project_Task__c
+            ];
+        }
+        
+        ProgressMetricsResult metrics = new ProgressMetricsResult();
+        metrics.avgProgress = 0;
+        metrics.atRiskCount = 0;
+        metrics.blockedCount = 0;
+        metrics.totalTasks = tasks.size();
+        metrics.completedCount = 0;
+        metrics.tasksWithProgress = 0;
+        metrics.tasksWithoutProgress = 0;
+        metrics.nearingCompletionCount = 0;
+        metrics.progressDistribution = new Map<String, Integer>();
+        metrics.avgProgressByStatus = new Map<String, Decimal>();
+        
+        // Initialize progress distribution buckets
+        metrics.progressDistribution.put('0%', 0);
+        metrics.progressDistribution.put('1-25%', 0);
+        metrics.progressDistribution.put('26-50%', 0);
+        metrics.progressDistribution.put('51-75%', 0);
+        metrics.progressDistribution.put('76-99%', 0);
+        metrics.progressDistribution.put('100%', 0);
+        
+        Decimal totalProgress = 0;
+        Integer tasksWithProgress = 0;
+        Map<String, Decimal> statusProgressTotals = new Map<String, Decimal>();
+        Map<String, Integer> statusTaskCounts = new Map<String, Integer>();
+        
+        for (Project_Task__c task : tasks) {
+            // Count completed/closed tasks
+            if (task.Status__c == 'Completed' || task.Status__c == 'Closed') {
+                metrics.completedCount++;
+            }
+            
+            // Track progress
+            if (task.Progress_Percentage__c != null) {
+                Decimal progress = task.Progress_Percentage__c;
+                totalProgress += progress;
+                tasksWithProgress++;
+                metrics.tasksWithProgress++;
+                
+                // Progress distribution buckets
+                if (progress == 0) {
+                    metrics.progressDistribution.put('0%', metrics.progressDistribution.get('0%') + 1);
+                } else if (progress > 0 && progress <= 25) {
+                    metrics.progressDistribution.put('1-25%', metrics.progressDistribution.get('1-25%') + 1);
+                } else if (progress > 25 && progress <= 50) {
+                    metrics.progressDistribution.put('26-50%', metrics.progressDistribution.get('26-50%') + 1);
+                } else if (progress > 50 && progress <= 75) {
+                    metrics.progressDistribution.put('51-75%', metrics.progressDistribution.get('51-75%') + 1);
+                } else if (progress > 75 && progress < 100) {
+                    metrics.progressDistribution.put('76-99%', metrics.progressDistribution.get('76-99%') + 1);
+                    metrics.nearingCompletionCount++;
+                } else if (progress == 100) {
+                    metrics.progressDistribution.put('100%', metrics.progressDistribution.get('100%') + 1);
+                }
+                
+                // Track average progress by status
+                if (!statusProgressTotals.containsKey(task.Status__c)) {
+                    statusProgressTotals.put(task.Status__c, 0);
+                    statusTaskCounts.put(task.Status__c, 0);
+                }
+                statusProgressTotals.put(task.Status__c, statusProgressTotals.get(task.Status__c) + progress);
+                statusTaskCounts.put(task.Status__c, statusTaskCounts.get(task.Status__c) + 1);
+            } else {
+                metrics.tasksWithoutProgress++;
+            }
+            
+            // Count at-risk and blocked tasks
+            if (task.At_Risk_Due_to_Dependencies__c == true) {
+                metrics.atRiskCount++;
+            }
+            if (task.Status__c == 'Blocked') {
+                metrics.blockedCount++;
+            }
+        }
+        
+        metrics.avgProgress = tasksWithProgress > 0 ? totalProgress / tasksWithProgress : 0;
+        metrics.completionRate = metrics.totalTasks > 0 
+            ? ((Decimal.valueOf(metrics.completedCount) / Decimal.valueOf(metrics.totalTasks)) * 100).setScale(2)
+            : 0;
+        
+        // Calculate average progress by status
+        for (String status : statusProgressTotals.keySet()) {
+            Integer count = statusTaskCounts.get(status);
+            if (count > 0) {
+                metrics.avgProgressByStatus.put(status, (statusProgressTotals.get(status) / count).setScale(2));
+            }
+        }
+        
+        return metrics;
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static TaskListResult getTaskList(List<String> accountIds, Integer pageSize, Integer pageNumber) {
+        // Handle null or empty list
+        if (accountIds == null) {
+            accountIds = new List<String>();
+        }
+        List<Project_Task__c> allTasks;
+        
+        if (accountIds != null && !accountIds.isEmpty()) {
+            allTasks = [
+                SELECT Id, Name, Status__c, Priority__c, 
+                       Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c, 
+                       Review_Status_Icons__c, CreatedDate, Owner.Name 
+                FROM Project_Task__c 
+                WHERE Account__c IN :accountIds
+                ORDER BY CreatedDate DESC
+            ];
+        } else {
+            allTasks = [
+                SELECT Id, Name, Status__c, Priority__c, 
+                       Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c, 
+                       Review_Status_Icons__c, CreatedDate, Owner.Name 
+                FROM Project_Task__c 
+                ORDER BY CreatedDate DESC
+            ];
+        }
+        
+        Integer totalRecords = allTasks.size();
+        Integer offset = (pageNumber - 1) * pageSize;
+        Integer endIndex = Math.min(offset + pageSize, totalRecords);
+        
+        TaskListResult result = new TaskListResult();
+        result.tasks = new List<Project_Task__c>();
+        result.totalRecords = totalRecords;
+        result.pageNumber = pageNumber;
+        result.pageSize = pageSize;
+        result.totalPages = (Integer)Math.ceil((Double)totalRecords / pageSize);
+        
+        for (Integer i = offset; i < endIndex; i++) {
+            result.tasks.add(allTasks[i]);
+        }
+        
+        return result;
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static DueDateMetricsResult getDueDateMetrics(List<String> accountIds) {
+        // Handle null or empty list
+        if (accountIds == null) {
+            accountIds = new List<String>();
+        }
+        
+        DueDateMetricsResult metrics = new DueDateMetricsResult();
+        
+        // Query for overdue tasks
+        List<AggregateResult> overdueResults;
+        if (accountIds != null && !accountIds.isEmpty()) {
+            overdueResults = [
+                SELECT COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Account__c IN :accountIds AND Is_Overdue__c = true
+            ];
+        } else {
+            overdueResults = [
+                SELECT COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Is_Overdue__c = true
+            ];
+        }
+        metrics.overdueCount = overdueResults.isEmpty() ? 0 : (Integer)overdueResults[0].get('taskCount');
+        
+        // Query for tasks due today
+        List<AggregateResult> dueTodayResults;
+        if (accountIds != null && !accountIds.isEmpty()) {
+            dueTodayResults = [
+                SELECT COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Account__c IN :accountIds 
+                AND Due_Date__c = TODAY 
+                AND Status__c != 'Completed' 
+                AND Status__c != 'Closed'
+            ];
+        } else {
+            dueTodayResults = [
+                SELECT COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Due_Date__c = TODAY 
+                AND Status__c != 'Completed' 
+                AND Status__c != 'Closed'
+            ];
+        }
+        metrics.dueTodayCount = dueTodayResults.isEmpty() ? 0 : (Integer)dueTodayResults[0].get('taskCount');
+        
+        // Query for tasks due this week
+        List<AggregateResult> dueThisWeekResults;
+        if (accountIds != null && !accountIds.isEmpty()) {
+            dueThisWeekResults = [
+                SELECT COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Account__c IN :accountIds 
+                AND Due_Date__c = THIS_WEEK 
+                AND Status__c != 'Completed' 
+                AND Status__c != 'Closed'
+            ];
+        } else {
+            dueThisWeekResults = [
+                SELECT COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Due_Date__c = THIS_WEEK 
+                AND Status__c != 'Completed' 
+                AND Status__c != 'Closed'
+            ];
+        }
+        metrics.dueThisWeekCount = dueThisWeekResults.isEmpty() ? 0 : (Integer)dueThisWeekResults[0].get('taskCount');
+        
+        // Query for tasks with due dates
+        List<AggregateResult> withDueDateResults;
+        if (accountIds != null && !accountIds.isEmpty()) {
+            withDueDateResults = [
+                SELECT COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Account__c IN :accountIds AND Due_Date__c != null
+            ];
+        } else {
+            withDueDateResults = [
+                SELECT COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Due_Date__c != null
+            ];
+        }
+        metrics.tasksWithDueDate = withDueDateResults.isEmpty() ? 0 : (Integer)withDueDateResults[0].get('taskCount');
+        
+        // Query for tasks without due dates
+        List<AggregateResult> withoutDueDateResults;
+        if (accountIds != null && !accountIds.isEmpty()) {
+            withoutDueDateResults = [
+                SELECT COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Account__c IN :accountIds AND Due_Date__c = null
+            ];
+        } else {
+            withoutDueDateResults = [
+                SELECT COUNT(Id) taskCount 
+                FROM Project_Task__c 
+                WHERE Due_Date__c = null
+            ];
+        }
+        metrics.tasksWithoutDueDate = withoutDueDateResults.isEmpty() ? 0 : (Integer)withoutDueDateResults[0].get('taskCount');
+        
+        // Calculate overdue percentage
+        if (metrics.tasksWithDueDate > 0) {
+            metrics.overduePercentage = (Decimal.valueOf(metrics.overdueCount) / Decimal.valueOf(metrics.tasksWithDueDate)) * 100;
+        } else {
+            metrics.overduePercentage = 0;
+        }
+        
+        return metrics;
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static List<Account> getAccounts() {
+        return [
+            SELECT Id, Name 
+            FROM Account 
+            WHERE Active__c = true 
+            AND Type = 'Customer'
+            AND Id IN (SELECT Account__c FROM Project_Task__c WHERE Account__c != null)
+            ORDER BY Name
+        ];
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static String getCurrentUserAccountId() {
+        // For Experience Cloud users, get account from Contact
+        User currentUser = [SELECT Id, ContactId, Contact.AccountId FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+        
+        if (currentUser.ContactId != null && currentUser.Contact.AccountId != null) {
+            return currentUser.Contact.AccountId;
+        }
+        
+        return null;
+    }
+    
+    // Wrapper classes
+    public class StatusBreakdownResult {
+        @AuraEnabled public Map<String, Integer> statusCounts;
+        @AuraEnabled public Integer totalTasks;
+    }
+    
+    public class HoursMetricsResult {
+        @AuraEnabled public Decimal totalEstimated;
+        @AuraEnabled public Decimal totalActual;
+        @AuraEnabled public Decimal totalEstimatedWithSubtasks;
+        @AuraEnabled public Decimal totalActualWithSubtasks;
+        @AuraEnabled public Decimal variance;
+        @AuraEnabled public Decimal variancePercentage;
+        @AuraEnabled public List<HoursByStatus> hoursByStatus;
+    }
+    
+    public class HoursByStatus {
+        @AuraEnabled public String status;
+        @AuraEnabled public Decimal estimatedHours;
+        @AuraEnabled public Decimal actualHours;
+    }
+    
+    public class ReviewStatusMetricsResult {
+        @AuraEnabled public Integer pmApprovedCount;
+        @AuraEnabled public Integer pmPendingCount;
+        @AuraEnabled public Integer clientCompletionApprovedCount;
+        @AuraEnabled public Integer clientCompletionPendingCount;
+        @AuraEnabled public Integer clientDevelopmentApprovedCount;
+        @AuraEnabled public Integer clientDevelopmentPendingCount;
+        @AuraEnabled public Integer readyForClientReviewCount;
+        @AuraEnabled public Integer inReviewTotal;
+        @AuraEnabled public Integer backlogTotal;
+    }
+    
+    public class PriorityBreakdownResult {
+        @AuraEnabled public Map<String, Integer> priorityCounts;
+        @AuraEnabled public Integer totalTasks;
+    }
+    
+    public class ProgressMetricsResult {
+        @AuraEnabled public Decimal avgProgress;
+        @AuraEnabled public Integer atRiskCount;
+        @AuraEnabled public Integer blockedCount;
+        @AuraEnabled public Integer totalTasks;
+        @AuraEnabled public Integer completedCount;
+        @AuraEnabled public Decimal completionRate;
+        @AuraEnabled public Integer tasksWithProgress;
+        @AuraEnabled public Integer tasksWithoutProgress;
+        @AuraEnabled public Integer nearingCompletionCount;
+        @AuraEnabled public Map<String, Integer> progressDistribution;
+        @AuraEnabled public Map<String, Decimal> avgProgressByStatus;
+    }
+    
+    public class TaskListResult {
+        @AuraEnabled public List<Project_Task__c> tasks;
+        @AuraEnabled public Integer totalRecords;
+        @AuraEnabled public Integer pageNumber;
+        @AuraEnabled public Integer pageSize;
+        @AuraEnabled public Integer totalPages;
+    }
+    
+    public class DueDateMetricsResult {
+        @AuraEnabled public Integer overdueCount;
+        @AuraEnabled public Integer dueTodayCount;
+        @AuraEnabled public Integer dueThisWeekCount;
+        @AuraEnabled public Integer tasksWithDueDate;
+        @AuraEnabled public Integer tasksWithoutDueDate;
+        @AuraEnabled public Decimal overduePercentage;
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static SubtaskProgressResult getSubtaskProgress(String taskId) {
+        if (taskId == null || taskId == '') {
+            return null;
+        }
+        
+        List<Project_Task__c> subtasks = [
+            SELECT Id, Status__c
+            FROM Project_Task__c
+            WHERE Parent_Task__c = :taskId
+        ];
+        
+        if (subtasks.isEmpty()) {
+            return null; // No subtasks, so don't show progress indicator
+        }
+        
+        Integer totalCount = subtasks.size();
+        Integer completedCount = 0;
+        Integer removedCount = 0;
+        
+        for (Project_Task__c subtask : subtasks) {
+            if (subtask.Status__c == 'Completed' || subtask.Status__c == 'Closed') {
+                completedCount++;
+            } else if (subtask.Status__c == 'Removed') {
+                removedCount++;
+            }
+        }
+        
+        Integer validTotal = totalCount - removedCount;
+        Decimal progressPercentage = validTotal > 0 
+            ? (Decimal.valueOf(completedCount) / Decimal.valueOf(validTotal)) * 100 
+            : 0;
+        
+        SubtaskProgressResult result = new SubtaskProgressResult();
+        result.progressPercentage = progressPercentage.setScale(2);
+        result.completedCount = completedCount;
+        result.totalCount = validTotal;
+        result.hasSubtasks = true;
+        
+        return result;
+    }
+    
+    public class SubtaskProgressResult {
+        @AuraEnabled public Decimal progressPercentage;
+        @AuraEnabled public Integer completedCount;
+        @AuraEnabled public Integer totalCount;
+        @AuraEnabled public Boolean hasSubtasks;
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static DependencyDataResult getDependencyData(String taskId) {
+        if (taskId == null || taskId == '') {
+            return null;
+        }
+        
+        Project_Task__c currentTask = [
+            SELECT Id, Parent_Task__c, Parent_Task__r.Name, Parent_Task__r.Status__c, Parent_Task__r.Priority__c,
+                   Related_Task__c, Related_Task__r.Name, Related_Task__r.Status__c, Related_Task__r.Priority__c,
+                   Related_Task__r.Is_Blocking__c,
+                   Relationship_Type__c, At_Risk_Due_to_Dependencies__c, Is_Blocking__c
+            FROM Project_Task__c
+            WHERE Id = :taskId
+            LIMIT 1
+        ];
+        
+        // Get tasks that depend on this task (reverse dependencies)
+        List<Project_Task__c> dependentTasks = [
+            SELECT Id, Name, Status__c, Priority__c, Relationship_Type__c, At_Risk_Due_to_Dependencies__c, Is_Blocking__c
+            FROM Project_Task__c
+            WHERE Related_Task__c = :taskId
+            ORDER BY CreatedDate DESC
+        ];
+        
+        DependencyDataResult result = new DependencyDataResult();
+        result.isBlocking = currentTask.Is_Blocking__c != null && currentTask.Is_Blocking__c == true;
+        
+        // Parent Task
+        if (currentTask.Parent_Task__c != null) {
+            result.parentTask = new DependencyTask();
+            result.parentTask.id = currentTask.Parent_Task__c;
+            result.parentTask.name = currentTask.Parent_Task__r.Name;
+            result.parentTask.status = currentTask.Parent_Task__r.Status__c;
+            result.parentTask.priority = currentTask.Parent_Task__r.Priority__c;
+            result.parentTask.type = 'Parent Task';
+            result.parentTask.isBlocking = false;
+        }
+        
+        // Related Task (dependency)
+        if (currentTask.Related_Task__c != null) {
+            result.relatedTask = new DependencyTask();
+            result.relatedTask.id = currentTask.Related_Task__c;
+            result.relatedTask.name = currentTask.Related_Task__r.Name;
+            result.relatedTask.status = currentTask.Related_Task__r.Status__c;
+            result.relatedTask.priority = currentTask.Related_Task__r.Priority__c;
+            result.relatedTask.type = String.isBlank(currentTask.Relationship_Type__c) ? 'Related' : currentTask.Relationship_Type__c;
+            // A task is blocking if Relationship Type is "Blocking Dependency" AND the related task is actually blocking (not Completed/Closed/In Review/Removed)
+            // Use Is_Blocking__c field which is automatically calculated based on status
+            result.relatedTask.isBlocking = currentTask.Relationship_Type__c == 'Blocking Dependency' 
+                && currentTask.Related_Task__r.Is_Blocking__c == true;
+            result.isAtRisk = currentTask.At_Risk_Due_to_Dependencies__c != null && currentTask.At_Risk_Due_to_Dependencies__c == true;
+            // Note: Is_Blocking__c on currentTask indicates if THIS task is blocking others, not if it's blocked
+        }
+        
+        // Tasks that depend on this task
+        result.dependentTasks = new List<DependencyTask>();
+        for (Project_Task__c depTask : dependentTasks) {
+            DependencyTask dt = new DependencyTask();
+            dt.id = depTask.Id;
+            dt.name = depTask.Name;
+            dt.status = depTask.Status__c;
+            dt.priority = depTask.Priority__c;
+            dt.type = String.isBlank(depTask.Relationship_Type__c) ? 'Related' : depTask.Relationship_Type__c;
+            // A task is blocking if Relationship Type is "Blocking Dependency" AND the task is actually blocking (not Completed/Closed/In Review/Removed)
+            // Use Is_Blocking__c field which is automatically calculated based on status
+            dt.isBlocking = depTask.Relationship_Type__c == 'Blocking Dependency' 
+                && depTask.Is_Blocking__c == true;
+            dt.isAtRisk = depTask.At_Risk_Due_to_Dependencies__c != null && depTask.At_Risk_Due_to_Dependencies__c == true;
+            // Note: depTask.Is_Blocking__c indicates if the dependent task is blocking others, not if it's blocked by this task
+            result.dependentTasks.add(dt);
+        }
+        
+        return result;
+    }
+    
+    public class DependencyDataResult {
+        @AuraEnabled public DependencyTask parentTask;
+        @AuraEnabled public DependencyTask relatedTask;
+        @AuraEnabled public List<DependencyTask> dependentTasks;
+        @AuraEnabled public Boolean isAtRisk;
+        @AuraEnabled public Boolean isBlocking;
+    }
+    
+    public class DependencyTask {
+        @AuraEnabled public String id;
+        @AuraEnabled public String name;
+        @AuraEnabled public String status;
+        @AuraEnabled public String priority;
+        @AuraEnabled public String type;
+        @AuraEnabled public Boolean isBlocking;
+        @AuraEnabled public Boolean isAtRisk;
+    }
+    
+    @AuraEnabled(cacheable=true)
+    public static GroupedTasksResult getGroupedTasksWithSubtasks(List<String> accountIds) {
+        // Handle null or empty list, and filter out empty strings and null values
+        List<String> validAccountIds = new List<String>();
+        if (accountIds != null) {
+            for (String accountId : accountIds) {
+                if (accountId != null && accountId.trim().length() > 0) {
+                    validAccountIds.add(accountId);
+                }
+            }
+        }
+        
+        List<Project_Task__c> allTasks;
+        
+        try {
+            // Query parent tasks (tasks without a parent)
+            if (!validAccountIds.isEmpty()) {
+            allTasks = [
+                SELECT Id, Name, Status__c, Priority__c, Due_Date__c,
+                       Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c,
+                       Owner.Name, Owner.Id, Developer__c, Developer__r.Name, Developer__r.Id,
+                       Client_User__c, Client_User__r.Name, Client_User__r.Id,
+                       Account__c, Account__r.Name,
+                       CreatedDate, Description__c,
+                       (SELECT Id, Name, Status__c, Priority__c, Due_Date__c,
+                               Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c,
+                               Owner.Name, Owner.Id, Developer__c, Developer__r.Name, Developer__r.Id,
+                               Client_User__c, Client_User__r.Name, Client_User__r.Id,
+                               Account__c, Account__r.Name,
+                               CreatedDate, Description__c
+                        FROM Subtasks__r
+                        ORDER BY CreatedDate ASC)
+                FROM Project_Task__c 
+                WHERE Account__c IN :validAccountIds
+                AND Parent_Task__c = null
+                ORDER BY Status__c, CreatedDate DESC
+            ];
+        } else {
+            allTasks = [
+                SELECT Id, Name, Status__c, Priority__c, Due_Date__c,
+                       Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c,
+                       Owner.Name, Owner.Id, Developer__c, Developer__r.Name, Developer__r.Id,
+                       Client_User__c, Client_User__r.Name, Client_User__r.Id,
+                       Account__c, Account__r.Name,
+                       CreatedDate, Description__c,
+                       (SELECT Id, Name, Status__c, Priority__c, Due_Date__c,
+                               Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c,
+                               Owner.Name, Owner.Id, Developer__c, Developer__r.Name, Developer__r.Id,
+                               Client_User__c, Client_User__r.Name, Client_User__r.Id,
+                               Account__c, Account__r.Name,
+                               CreatedDate, Description__c
+                        FROM Subtasks__r
+                        ORDER BY CreatedDate ASC)
+                FROM Project_Task__c 
+                WHERE Parent_Task__c = null
+                ORDER BY Status__c, CreatedDate DESC
+            ];
+            }
+        } catch (Exception e) {
+            // Log error and throw AuraHandledException so LWC can display it
+            System.debug('Error querying Project_Task__c: ' + e.getMessage());
+            System.debug('Stack trace: ' + e.getStackTraceString());
+            throw new AuraHandledException('Error loading tasks: ' + e.getMessage());
+        }
+        
+        // Get task IDs for querying Chatter feed items
+        Set<Id> taskIds = new Set<Id>();
+        for (Project_Task__c task : allTasks) {
+            taskIds.add(task.Id);
+            if (task.Subtasks__r != null) {
+                for (Project_Task__c subtask : task.Subtasks__r) {
+                    taskIds.add(subtask.Id);
+                }
+            }
+        }
+        
+        // Query latest Chatter feed items (comments) for all tasks
+        Map<Id, FeedItem> latestFeedItems = new Map<Id, FeedItem>();
+        if (!taskIds.isEmpty()) {
+            try {
+                List<FeedItem> feedItems = [
+                    SELECT Id, ParentId, Body, CreatedDate, CreatedBy.Name
+                    FROM FeedItem
+                    WHERE ParentId IN :taskIds
+                    AND Type = 'TextPost'
+                    ORDER BY CreatedDate DESC
+                ];
+                
+                // Get the latest feed item for each task
+                for (FeedItem feedItem : feedItems) {
+                    if (!latestFeedItems.containsKey(feedItem.ParentId)) {
+                        latestFeedItems.put(feedItem.ParentId, feedItem);
+                    }
+                }
+            } catch (Exception e) {
+                // If FeedItem query fails (e.g., no access), continue without comments
+                System.debug('Error querying FeedItem: ' + e.getMessage());
+            }
+        }
+        
+        // Group tasks by status
+        Map<String, List<TaskWithSubtasks>> tasksByStatus = new Map<String, List<TaskWithSubtasks>>();
+        
+        for (Project_Task__c task : allTasks) {
+            String status = task.Status__c != null ? task.Status__c : 'Backlog';
+            
+            if (!tasksByStatus.containsKey(status)) {
+                tasksByStatus.put(status, new List<TaskWithSubtasks>());
+            }
+            
+            TaskWithSubtasks taskWrapper = new TaskWithSubtasks();
+            taskWrapper.id = task.Id;
+            taskWrapper.name = task.Name;
+            taskWrapper.status = task.Status__c;
+            taskWrapper.priority = task.Priority__c;
+            taskWrapper.dueDate = task.Due_Date__c;
+            taskWrapper.estimatedHours = task.Estimated_Hours__c;
+            taskWrapper.actualHours = task.Actual_Hours__c;
+            taskWrapper.progressPercentage = task.Progress_Percentage__c;
+            taskWrapper.ownerName = task.Owner != null ? task.Owner.Name : '';
+            taskWrapper.ownerId = task.Owner != null ? task.Owner.Id : '';
+            taskWrapper.developerName = (task.Developer__r != null) ? task.Developer__r.Name : '';
+            taskWrapper.developerId = (task.Developer__c != null) ? String.valueOf(task.Developer__c) : '';
+            taskWrapper.clientUserName = (task.Client_User__r != null) ? task.Client_User__r.Name : '';
+            taskWrapper.clientUserId = (task.Client_User__c != null) ? String.valueOf(task.Client_User__c) : '';
+            taskWrapper.accountId = (task.Account__c != null) ? String.valueOf(task.Account__c) : '';
+            taskWrapper.accountName = (task.Account__r != null) ? task.Account__r.Name : '';
+            taskWrapper.createdDate = task.CreatedDate;
+            taskWrapper.description = task.Description__c != null ? task.Description__c : '';
+            taskWrapper.hasSubtasks = task.Subtasks__r != null && !task.Subtasks__r.isEmpty();
+            taskWrapper.subtaskCount = task.Subtasks__r != null ? task.Subtasks__r.size() : 0;
+            
+            // Get latest Chatter comment for this task
+            if (latestFeedItems.containsKey(task.Id)) {
+                FeedItem latestComment = latestFeedItems.get(task.Id);
+                taskWrapper.latestComment = latestComment.Body != null ? latestComment.Body : '';
+                taskWrapper.latestCommentAuthor = latestComment.CreatedBy != null ? latestComment.CreatedBy.Name : '';
+                taskWrapper.latestCommentDate = latestComment.CreatedDate;
+            } else {
+                taskWrapper.latestComment = '';
+                taskWrapper.latestCommentAuthor = '';
+                taskWrapper.latestCommentDate = null;
+            }
+            
+            // Convert subtasks
+            taskWrapper.subtasks = new List<TaskInfo>();
+            if (task.Subtasks__r != null) {
+                for (Project_Task__c subtask : task.Subtasks__r) {
+                    TaskInfo subtaskInfo = new TaskInfo();
+                    subtaskInfo.id = subtask.Id;
+                    subtaskInfo.name = subtask.Name;
+                    subtaskInfo.status = subtask.Status__c;
+                    subtaskInfo.priority = subtask.Priority__c;
+                    subtaskInfo.dueDate = subtask.Due_Date__c;
+                    subtaskInfo.estimatedHours = subtask.Estimated_Hours__c;
+                    subtaskInfo.actualHours = subtask.Actual_Hours__c;
+                    subtaskInfo.progressPercentage = subtask.Progress_Percentage__c;
+                    subtaskInfo.ownerName = subtask.Owner != null ? subtask.Owner.Name : '';
+                    subtaskInfo.ownerId = subtask.Owner != null ? subtask.Owner.Id : '';
+                    subtaskInfo.developerName = (subtask.Developer__r != null) ? subtask.Developer__r.Name : '';
+                    subtaskInfo.developerId = (subtask.Developer__c != null) ? String.valueOf(subtask.Developer__c) : '';
+                    subtaskInfo.clientUserName = (subtask.Client_User__r != null) ? subtask.Client_User__r.Name : '';
+                    subtaskInfo.clientUserId = (subtask.Client_User__c != null) ? String.valueOf(subtask.Client_User__c) : '';
+                    subtaskInfo.accountId = (subtask.Account__c != null) ? String.valueOf(subtask.Account__c) : '';
+                    subtaskInfo.accountName = (subtask.Account__r != null) ? subtask.Account__r.Name : '';
+                    subtaskInfo.createdDate = subtask.CreatedDate;
+                    subtaskInfo.description = subtask.Description__c != null ? subtask.Description__c : '';
+                    
+                    // Get latest Chatter comment for this subtask
+                    if (latestFeedItems.containsKey(subtask.Id)) {
+                        FeedItem latestComment = latestFeedItems.get(subtask.Id);
+                        subtaskInfo.latestComment = latestComment.Body != null ? latestComment.Body : '';
+                        subtaskInfo.latestCommentAuthor = latestComment.CreatedBy != null ? latestComment.CreatedBy.Name : '';
+                        subtaskInfo.latestCommentDate = latestComment.CreatedDate;
+                    } else {
+                        subtaskInfo.latestComment = '';
+                        subtaskInfo.latestCommentAuthor = '';
+                        subtaskInfo.latestCommentDate = null;
+                    }
+                    
+                    taskWrapper.subtasks.add(subtaskInfo);
+                }
+            }
+            
+            tasksByStatus.get(status).add(taskWrapper);
+        }
+        
+        // Build result with status groups
+        GroupedTasksResult result = new GroupedTasksResult();
+        result.statusGroups = new List<StatusGroup>();
+        
+        // Define status order
+        List<String> statusOrder = new List<String>{
+            'Completed', 'Closed', 'In Review', 'In Progress', 'Pending', 'Blocked', 'Backlog', 'Removed'
+        };
+        
+        // Create status groups in order
+        for (String status : statusOrder) {
+            if (tasksByStatus.containsKey(status)) {
+                StatusGroup statusGroupItem = new StatusGroup();
+                statusGroupItem.status = status;
+                statusGroupItem.tasks = tasksByStatus.get(status);
+                statusGroupItem.taskCount = tasksByStatus.get(status).size();
+                result.statusGroups.add(statusGroupItem);
+            }
+        }
+        
+        // Add any remaining statuses not in the predefined order
+        for (String status : tasksByStatus.keySet()) {
+            Boolean found = false;
+            for (StatusGroup existingGroup : result.statusGroups) {
+                if (existingGroup.status == status) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                StatusGroup statusGroupItem = new StatusGroup();
+                statusGroupItem.status = status;
+                statusGroupItem.tasks = tasksByStatus.get(status);
+                statusGroupItem.taskCount = tasksByStatus.get(status).size();
+                result.statusGroups.add(statusGroupItem);
+            }
+        }
+        
+        return result;
+    }
+    
+    public class GroupedTasksResult {
+        @AuraEnabled public List<StatusGroup> statusGroups;
+    }
+    
+    public class StatusGroup {
+        @AuraEnabled public String status;
+        @AuraEnabled public List<TaskWithSubtasks> tasks;
+        @AuraEnabled public Integer taskCount;
+    }
+    
+    public class TaskWithSubtasks {
+        @AuraEnabled public String id;
+        @AuraEnabled public String name;
+        @AuraEnabled public String status;
+        @AuraEnabled public String priority;
+        @AuraEnabled public Date dueDate;
+        @AuraEnabled public Decimal estimatedHours;
+        @AuraEnabled public Decimal actualHours;
+        @AuraEnabled public Decimal progressPercentage;
+        @AuraEnabled public String ownerName;
+        @AuraEnabled public String ownerId;
+        @AuraEnabled public String developerName;
+        @AuraEnabled public String developerId;
+        @AuraEnabled public String clientUserName;
+        @AuraEnabled public String clientUserId;
+        @AuraEnabled public String accountId;
+        @AuraEnabled public String accountName;
+        @AuraEnabled public DateTime createdDate;
+        @AuraEnabled public String description;
+        @AuraEnabled public String latestComment;
+        @AuraEnabled public String latestCommentAuthor;
+        @AuraEnabled public DateTime latestCommentDate;
+        @AuraEnabled public Boolean hasSubtasks;
+        @AuraEnabled public Integer subtaskCount;
+        @AuraEnabled public List<TaskInfo> subtasks;
+    }
+    
+    public class TaskInfo {
+        @AuraEnabled public String id;
+        @AuraEnabled public String name;
+        @AuraEnabled public String status;
+        @AuraEnabled public String priority;
+        @AuraEnabled public Date dueDate;
+        @AuraEnabled public Decimal estimatedHours;
+        @AuraEnabled public Decimal actualHours;
+        @AuraEnabled public Decimal progressPercentage;
+        @AuraEnabled public String ownerName;
+        @AuraEnabled public String ownerId;
+        @AuraEnabled public String developerName;
+        @AuraEnabled public String developerId;
+        @AuraEnabled public String clientUserName;
+        @AuraEnabled public String clientUserId;
+        @AuraEnabled public String accountId;
+        @AuraEnabled public String accountName;
+        @AuraEnabled public DateTime createdDate;
+        @AuraEnabled public String description;
+        @AuraEnabled public String latestComment;
+        @AuraEnabled public String latestCommentAuthor;
+        @AuraEnabled public DateTime latestCommentDate;
+    }
+}
+

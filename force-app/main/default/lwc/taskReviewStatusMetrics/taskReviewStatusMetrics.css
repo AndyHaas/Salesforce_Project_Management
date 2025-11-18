@@ -1,0 +1,52 @@
+:host {
+    display: block;
+}
+
+.chart-container {
+    position: relative;
+    height: 250px;
+    min-height: 200px;
+    width: 100%;
+}
+
+.chart-clickable {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.chart-clickable:hover {
+    opacity: 0.8;
+}
+
+.metric-card {
+    border: 1px solid #d8dde6;
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+    text-align: center;
+    background-color: #f3f2f2;
+    margin-bottom: 0.5rem;
+    min-width: 0; /* Allow flex shrinking */
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: #706e6b;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #080707;
+}
+
+.no-data-message {
+    padding: 1rem;
+}
+
+.no-data-message p {
+    color: #706e6b;
+    margin: 0;
+}
+

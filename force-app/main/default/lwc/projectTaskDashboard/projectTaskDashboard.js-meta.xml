@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Project Task Dashboard</masterLabel>
+    <description>Comprehensive dashboard displaying project task metrics, breakdowns, and lists with customizable component visibility</description>
+    <targets>
+        <target>lightning__HomePage</target>
+        <target>lightning__AppPage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__HomePage,lightning__AppPage">
+            <property name="showAccountFilter" type="Boolean" default="true" label="Show Account Filter" description="Display the Account Filter component"/>
+            <property name="accountFilterOrder" type="Integer" default="0" label="Account Filter Order" description="Display order for Account Filter (lower numbers appear first)"/>
+            <property name="showStatusBreakdown" type="Boolean" default="true" label="Show Status Breakdown" description="Display the Status Breakdown component"/>
+            <property name="statusBreakdownOrder" type="Integer" default="1" label="Status Breakdown Order" description="Display order for Status Breakdown (lower numbers appear first)"/>
+            <property name="showHoursMetrics" type="Boolean" default="true" label="Show Hours Metrics" description="Display the Hours Metrics component"/>
+            <property name="showHoursMetricsChart" type="Boolean" default="true" label="Show Hours Metrics Chart" description="Display the Hours Metrics chart. When unchecked, metrics are shown in a grid layout instead."/>
+            <property name="hoursMetricsOrder" type="Integer" default="2" label="Hours Metrics Order" description="Display order for Hours Metrics (lower numbers appear first)"/>
+            <property name="showReviewStatusMetrics" type="Boolean" default="true" label="Show Review Status Metrics" description="Display the Review Status Metrics component"/>
+            <property name="reviewStatusMetricsOrder" type="Integer" default="3" label="Review Status Metrics Order" description="Display order for Review Status Metrics (lower numbers appear first)"/>
+            <property name="showPriorityBreakdown" type="Boolean" default="true" label="Show Priority Breakdown" description="Display the Priority Breakdown component"/>
+            <property name="priorityBreakdownOrder" type="Integer" default="4" label="Priority Breakdown Order" description="Display order for Priority Breakdown (lower numbers appear first)"/>
+            <property name="showProgressMetrics" type="Boolean" default="true" label="Show Progress Metrics" description="Display the Progress Metrics component"/>
+            <property name="progressMetricsOrder" type="Integer" default="5" label="Progress Metrics Order" description="Display order for Progress Metrics (lower numbers appear first)"/>
+            <property name="showTaskList" type="Boolean" default="true" label="Show Task List" description="Display the Task List component"/>
+            <property name="taskListOrder" type="Integer" default="6" label="Task List Order" description="Display order for Task List (lower numbers appear first)"/>
+            <property name="showDueDateMetrics" type="Boolean" default="true" label="Show Due Date Metrics" description="Display the Due Date Metrics component"/>
+            <property name="dueDateMetricsOrder" type="Integer" default="7" label="Due Date Metrics Order" description="Display order for Due Date Metrics (lower numbers appear first)"/>
+        </targetConfig>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>Account</object>
+            </objects>
+            <property name="showAccountFilter" type="Boolean" default="true" label="Show Account Filter" description="Display the Account Filter component"/>
+            <property name="accountFilterOrder" type="Integer" default="0" label="Account Filter Order" description="Display order for Account Filter (lower numbers appear first)"/>
+            <property name="showStatusBreakdown" type="Boolean" default="true" label="Show Status Breakdown" description="Display the Status Breakdown component"/>
+            <property name="statusBreakdownOrder" type="Integer" default="1" label="Status Breakdown Order" description="Display order for Status Breakdown (lower numbers appear first)"/>
+            <property name="showHoursMetrics" type="Boolean" default="true" label="Show Hours Metrics" description="Display the Hours Metrics component"/>
+            <property name="showHoursMetricsChart" type="Boolean" default="true" label="Show Hours Metrics Chart" description="Display the Hours Metrics chart. When unchecked, metrics are shown in a grid layout instead."/>
+            <property name="hoursMetricsOrder" type="Integer" default="2" label="Hours Metrics Order" description="Display order for Hours Metrics (lower numbers appear first)"/>
+            <property name="showReviewStatusMetrics" type="Boolean" default="true" label="Show Review Status Metrics" description="Display the Review Status Metrics component"/>
+            <property name="reviewStatusMetricsOrder" type="Integer" default="3" label="Review Status Metrics Order" description="Display order for Review Status Metrics (lower numbers appear first)"/>
+            <property name="showPriorityBreakdown" type="Boolean" default="true" label="Show Priority Breakdown" description="Display the Priority Breakdown component"/>
+            <property name="priorityBreakdownOrder" type="Integer" default="4" label="Priority Breakdown Order" description="Display order for Priority Breakdown (lower numbers appear first)"/>
+            <property name="showProgressMetrics" type="Boolean" default="true" label="Show Progress Metrics" description="Display the Progress Metrics component"/>
+            <property name="progressMetricsOrder" type="Integer" default="5" label="Progress Metrics Order" description="Display order for Progress Metrics (lower numbers appear first)"/>
+            <property name="showTaskList" type="Boolean" default="true" label="Show Task List" description="Display the Task List component"/>
+            <property name="taskListOrder" type="Integer" default="6" label="Task List Order" description="Display order for Task List (lower numbers appear first)"/>
+            <property name="showDueDateMetrics" type="Boolean" default="true" label="Show Due Date Metrics" description="Display the Due Date Metrics component"/>
+            <property name="dueDateMetricsOrder" type="Integer" default="7" label="Due Date Metrics Order" description="Display order for Due Date Metrics (lower numbers appear first)"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

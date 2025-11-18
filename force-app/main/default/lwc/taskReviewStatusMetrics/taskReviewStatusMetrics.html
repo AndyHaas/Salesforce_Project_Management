@@ -1,0 +1,156 @@
+<template>
+    <lightning-card title="Review Status Metrics" icon-name="utility:approval">
+        <template if:true={hasData}>
+            <div class="slds-card__body slds-card__body_inner">
+                <!-- In Review Workflow Charts -->
+                <div class="slds-m-bottom_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">In Review Workflow</h3>
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <div class="chart-container chart-clickable" data-chart="pmChart" onclick={handleChartClick} title="Click to view PM/Code Reviewer approval tasks">
+                                <template if:true={hasPMData}>
+                                    <canvas class="pmChart" lwc:dom="manual"></canvas>
+                                </template>
+                                <template if:false={hasPMData}>
+                                    <div class="slds-text-align_center slds-p-around_medium">
+                                        <p class="slds-text-body_small slds-text-color_weak">No PM/Code Reviewer approval data available</p>
+                                        <p class="slds-text-body_small slds-text-color_weak">(Requires tasks with "In Review" status)</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <div class="chart-container chart-clickable" data-chart="clientChart" onclick={handleChartClick} title="Click to view Client Completion approval tasks">
+                                <template if:true={hasClientData}>
+                                    <canvas class="clientChart" lwc:dom="manual"></canvas>
+                                </template>
+                                <template if:false={hasClientData}>
+                                    <div class="slds-text-align_center slds-p-around_medium">
+                                        <p class="slds-text-body_small slds-text-color_weak">No Client Completion approval data available</p>
+                                        <p class="slds-text-body_small slds-text-color_weak">(Requires tasks with "In Review" status)</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Backlog Workflow Chart -->
+                <div class="slds-m-bottom_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">
+                        <lightning-icon icon-name="utility:queue" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                        Backlog Workflow
+                    </h3>
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <div class="chart-container chart-clickable" data-chart="clientDevChart" onclick={handleChartClick} title="Click to view Client Development approval tasks">
+                                <template if:true={hasClientDevData}>
+                                    <canvas class="clientDevChart" lwc:dom="manual"></canvas>
+                                </template>
+                                <template if:false={hasClientDevData}>
+                                    <div class="slds-text-align_center slds-p-around_medium">
+                                        <p class="slds-text-body_small slds-text-color_weak">No Client Development approval data available</p>
+                                        <p class="slds-text-body_small slds-text-color_weak">(Requires Backlog tasks with "Ready for Client Review" checked)</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Summary Metric Cards -->
+                <div class="slds-m-top_medium slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Backlog Tasks</div>
+                            <div class="metric-value">{backlogTotal}</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Ready for Client Review</div>
+                            <div class="metric-value">{readyForClientReviewCount}</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                        <div class="metric-card">
+                            <div class="metric-label">In Review Tasks</div>
+                            <div class="metric-value">{inReviewTotal}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PM Review Metrics -->
+                <template if:true={hasPMData}>
+                    <div class="slds-m-top_medium">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">PM/Code Reviewer Approval</h3>
+                        <div class="slds-grid slds-gutters slds-grid_vertical-stack">
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                <div class="metric-card">
+                                    <div class="metric-label">PM Approved</div>
+                                    <div class="metric-value">{pmApprovedCount}</div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                <div class="metric-card">
+                                    <div class="metric-label">PM Pending</div>
+                                    <div class="metric-value">{pmPendingCount}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                
+                <!-- Client Completion Approval Metrics -->
+                <template if:true={hasClientData}>
+                    <div class="slds-m-top_medium">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Client Completion Approval</h3>
+                        <div class="slds-grid slds-gutters slds-grid_vertical-stack">
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                <div class="metric-card">
+                                    <div class="metric-label">Client Approved</div>
+                                    <div class="metric-value">{clientCompletionApprovedCount}</div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                <div class="metric-card">
+                                    <div class="metric-label">Client Pending</div>
+                                    <div class="metric-value">{clientCompletionPendingCount}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                
+                <!-- Client Development Approval Metrics -->
+                <template if:true={hasClientDevData}>
+                    <div class="slds-m-top_medium">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Client Development Approval</h3>
+                        <div class="slds-grid slds-gutters slds-grid_vertical-stack">
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                <div class="metric-card">
+                                    <div class="metric-label">Client Approved</div>
+                                    <div class="metric-value">{clientDevelopmentApprovedCount}</div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                <div class="metric-card">
+                                    <div class="metric-label">Client Pending</div>
+                                    <div class="metric-value">{clientDevelopmentPendingCount}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+        <template if:false={hasData}>
+            <div class="slds-card__body slds-card__body_inner no-data-message">
+                <div class="slds-text-align_center slds-p-around_medium">
+                    <lightning-icon icon-name="utility:info" size="small" class="slds-m-bottom_x-small"></lightning-icon>
+                    <p class="slds-text-body_regular">No review status data available for the selected account.</p>
+                </div>
+            </div>
+        </template>
+    </lightning-card>
+</template>
+

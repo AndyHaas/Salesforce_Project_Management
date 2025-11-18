@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://www.salesforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#0176D3</headerColor>
+        <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
+    </brand>
+    <formFactors>Large</formFactors>
+    <formFactors>Small</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
+    <label>Project Management</label>
+    <navType>Console</navType>
+    <tabs>Project_Task__c</tabs>
+    <tabs>Release_Notes__c</tabs>
+    <tabs>Release_Version__c</tabs>
+    <tabs>Release_Tag__c</tabs>
+    <uiType>Lightning</uiType>
+</CustomApplication>

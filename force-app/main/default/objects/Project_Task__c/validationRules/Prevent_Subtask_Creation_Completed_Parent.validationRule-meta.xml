@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Prevent_Subtask_If_Parent_Completed</fullName>
+    <active>true</active>
+    <description>Prevents creating a new subtask when the parent task status is Completed. This ensures data integrity by preventing subtasks from being added to completed parent tasks.</description>
+    <errorConditionFormula>AND(
+  NOT(ISBLANK(Parent_Task__c)),
+  ISBLANK(Related_Task__c),
+  Parent_Task__r.Status__c = "Completed"
+)</errorConditionFormula>
+    <errorDisplayField>Parent_Task__c</errorDisplayField>
+    <errorMessage>Cannot create a subtask when the parent task is Completed. Please select a different parent task or change the parent task status.</errorMessage>
+</ValidationRule>

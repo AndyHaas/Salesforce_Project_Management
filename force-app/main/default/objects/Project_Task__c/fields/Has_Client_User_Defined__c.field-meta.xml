@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Has_Client_User_Defined__c</fullName>
+    <description>Formula checkbox indicating if a Client User is assigned to this task. Returns true when Client_User__c is populated.</description>
+    <formula>NOT(ISBLANK(Client_User__c))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>This formula field automatically returns true when a Client User is assigned to this task. Used for visibility rules to show/hide client approval actions on the record page.</inlineHelpText>
+    <label>Has Client User Defined</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

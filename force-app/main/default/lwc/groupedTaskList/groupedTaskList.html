@@ -1,0 +1,244 @@
+<template>
+    <lightning-card title="Tasks" icon-name="utility:list">
+        <div slot="actions" class="slds-p-around_small slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+            <div class="slds-col slds-grow slds-m-right_medium">
+                <template if:true={shouldShowAccountFilter}>
+                    <lightning-combobox
+                        label=""
+                        label-hidden
+                        placeholder="Filter by Account"
+                        value={selectedAccountId}
+                        options={accounts}
+                        onchange={handleAccountChange}
+                        class="account-filter-combobox">
+                    </lightning-combobox>
+                </template>
+            </div>
+            <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center">
+                <template if:true={isFilteredByAccount}>
+                    <lightning-badge 
+                        label="Filtered by Account" 
+                        class="slds-m-right_small"
+                        title="Tasks are filtered to show only those associated with the selected account(s)">
+                    </lightning-badge>
+                </template>
+            <lightning-button
+                label={meModeButtonLabel}
+                variant={meModeButtonVariant}
+                icon-name={meModeButtonIcon}
+                onclick={handleMeModeToggle}
+                title={meModeButtonTitle}
+                class="slds-m-left_small">
+            </lightning-button>
+            </div>
+        </div>
+        <template if:true={error}>
+            <div class="slds-card__body slds-card__body_inner">
+                <div class="slds-text-align_center slds-p-around_medium">
+                    <lightning-icon icon-name="utility:error" size="small" class="slds-m-bottom_x-small"></lightning-icon>
+                    <p class="slds-text-body_regular slds-text-color_error">
+                        Error loading tasks. Please try again.
+                    </p>
+                </div>
+            </div>
+        </template>
+        
+        <template if:true={hasData}>
+            <div class="slds-card__body slds-card__body_inner">
+                <template for:each={displayStatusGroups} for:item="statusGroup">
+                    <div key={statusGroup.status} class="status-group slds-m-bottom_large">
+                        <!-- Status Header -->
+                        <div class="status-header slds-p-around_small slds-border_bottom" style={statusGroup.headerStyle}>
+                            <h3 class="slds-text-heading_small">
+                                {statusGroup.status}
+                                <span class="slds-m-left_small slds-text-body_regular" style="opacity: 0.9;">
+                                    ({statusGroup.taskCount})
+                                </span>
+                                <template if:true={statusGroup.formattedTotalEstimatedHours}>
+                                    <span class="slds-m-left_small slds-text-body_regular" style="opacity: 0.9;">
+                                        • {statusGroup.formattedTotalEstimatedHours}
+                                    </span>
+                                </template>
+                            </h3>
+                        </div>
+                        
+                        <!-- Column Headers -->
+                        <div class="column-headers slds-grid slds-grid_align-spread slds-p-around_small slds-border_bottom slds-text-body_small slds-text-color_weak">
+                            <div class="slds-col slds-grow">
+                                <strong>Task Name</strong>
+                            </div>
+                            <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center task-details">
+                                <template if:false={isFilteredByAccount}>
+                                    <div class="slds-m-right_medium">
+                                        <strong>Account</strong>
+                                    </div>
+                                </template>
+                                <div class="slds-m-right_medium">
+                                    <strong>Owner</strong>
+                                </div>
+                                <div class="slds-m-right_medium">
+                                    <strong>Due Date</strong>
+                                </div>
+                                <div class="slds-m-right_medium">
+                                    <strong>Priority</strong>
+                                </div>
+                                <div class="slds-m-right_medium">
+                                    <strong>Est. Hours</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tasks in this status group -->
+                        <div class="tasks-container">
+                            <template for:each={statusGroup.tasks} for:item="task">
+                                <div key={task.id} class="task-item slds-border_bottom">
+                                    <div class="task-row slds-grid slds-grid_align-spread slds-p-around_small">
+                                        <!-- Expand/Collapse Icon and Task Name -->
+                                        <div class="slds-col slds-grow slds-grid slds-grid_vertical-align-center">
+                                            <template if:true={task.hasSubtasks}>
+                                                <button 
+                                                    class="slds-button slds-button_icon slds-button_icon-small slds-m-right_x-small"
+                                                    data-task-id={task.id}
+                                                    onclick={handleToggleSubtasks}>
+                                                    <lightning-icon 
+                                                        icon-name={task.iconName}
+                                                        size="x-small"
+                                                        alternative-text={task.iconAltText}>
+                                                    </lightning-icon>
+                                                    <span class="slds-assistive-text">
+                                                        {task.iconAltText} subtasks
+                                                    </span>
+                                                </button>
+                                            </template>
+                                            <template if:false={task.hasSubtasks}>
+                                                <div class="slds-m-right_large"></div>
+                                            </template>
+                                            
+                                            <a 
+                                                href="javascript:void(0);" 
+                                                class="task-name-link slds-text-link"
+                                                data-task-id={task.id}
+                                                onclick={handleTaskClick}
+                                                title={task.tooltipContent}>
+                                                {task.name}
+                                            </a>
+                                            
+                                            <template if:true={task.hasSubtasks}>
+                                                <span class="slds-m-left_small slds-text-body_small slds-text-color_weak">
+                                                    ({task.subtaskCount} {task.subtaskLabel})
+                                                </span>
+                                            </template>
+                                        </div>
+                                        
+                                        <!-- Task Details -->
+                                        <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center task-details">
+                                            <template if:false={isFilteredByAccount}>
+                                                <div class="slds-m-right_medium">
+                                                    <template if:true={task.accountName}>
+                                                        <div class="slds-text-body_small">{task.accountName}</div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                            
+                                            <div class="slds-m-right_medium">
+                                                <template if:true={task.ownerName}>
+                                                    <div class="slds-text-body_small">{task.ownerName}</div>
+                                                </template>
+                                            </div>
+                                            
+                                            <div class="slds-m-right_medium">
+                                                <template if:true={task.formattedDueDate}>
+                                                    <div class="slds-text-body_small">{task.formattedDueDate}</div>
+                                                </template>
+                                            </div>
+                                            
+                                            <div class="slds-m-right_medium">
+                                                <template if:true={task.priority}>
+                                                    <div class="slds-text-body_small">{task.priority}</div>
+                                                </template>
+                                            </div>
+                                            
+                                            <div class="slds-m-right_medium">
+                                                <template if:true={task.formattedEstimatedHours}>
+                                                    <div class="slds-text-body_small">{task.formattedEstimatedHours}</div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Subtasks (shown when expanded) -->
+                                    <template if:true={task.hasSubtasks}>
+                                        <template if:true={task.isExpanded}>
+                                            <div class="subtasks-container slds-p-left_large slds-border_left">
+                                                <template for:each={task.subtasks} for:item="subtask">
+                                                    <div key={subtask.id} class="subtask-item slds-p-around_small slds-border_bottom">
+                                                        <div class="slds-grid slds-grid_align-spread">
+                                                            <div class="slds-col slds-grow">
+                                                                <a 
+                                                                    href="javascript:void(0);" 
+                                                                    class="subtask-name-link slds-text-link"
+                                                                    data-task-id={subtask.id}
+                                                                    onclick={handleTaskClick}
+                                                                    title={subtask.tooltipContent}>
+                                                                    {subtask.name}
+                                                                </a>
+                                                            </div>
+                                                            
+                                                            <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center subtask-details">
+                                                                <template if:false={isFilteredByAccount}>
+                                                                    <div class="slds-m-right_medium">
+                                                                        <template if:true={subtask.accountName}>
+                                                                            <div class="slds-text-body_small">{subtask.accountName}</div>
+                                                                        </template>
+                                                                    </div>
+                                                                </template>
+                                                                
+                                                                <div class="slds-m-right_medium">
+                                                                    <template if:true={subtask.ownerName}>
+                                                                        <div class="slds-text-body_small">{subtask.ownerName}</div>
+                                                                    </template>
+                                                                </div>
+                                                                
+                                                                <div class="slds-m-right_medium">
+                                                                    <template if:true={subtask.formattedDueDate}>
+                                                                        <div class="slds-text-body_small">{subtask.formattedDueDate}</div>
+                                                                    </template>
+                                                                </div>
+                                                                
+                                                                <div class="slds-m-right_medium">
+                                                                    <template if:true={subtask.priority}>
+                                                                        <div class="slds-text-body_small">{subtask.priority}</div>
+                                                                    </template>
+                                                                </div>
+                                                                
+                                                                <div class="slds-m-right_medium">
+                                                                    <template if:true={subtask.formattedEstimatedHours}>
+                                                                        <div class="slds-text-body_small">{subtask.formattedEstimatedHours}</div>
+                                                                    </template>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+        
+        <template if:false={hasData}>
+            <div class="slds-card__body slds-card__body_inner no-data-message">
+                <div class="slds-text-align_center slds-p-around_medium">
+                    <lightning-icon icon-name="utility:info" size="small" class="slds-m-bottom_x-small"></lightning-icon>
+                    <p class="slds-text-body_regular">No tasks available.</p>
+                </div>
+            </div>
+        </template>
+    </lightning-card>
+</template>
+

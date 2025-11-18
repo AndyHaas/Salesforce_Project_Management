@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Release_Notes_Done__c</fullName>
+    <description>Formula checkbox indicating if the linked Release Notes are marked as complete. Returns true when Release Notes are linked and marked as complete.</description>
+    <formula>AND(
+    NOT(ISBLANK(Release_Notes__c)),
+    Release_Notes__r.Release_Notes_Complete__c = TRUE
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>This formula field automatically returns true when Release Notes are linked to this task and marked as complete. Used for filtering and visibility rules to track release notes completion status.</inlineHelpText>
+    <label>Release Notes Done</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

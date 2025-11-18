@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validate_RelType_Requires_RelatedTask</fullName>
+    <active>true</active>
+    <description>Relationship Type can only be set when Related Task is populated. This field defines the type of dependency relationship.</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(TEXT(Relationship_Type__c))),
+    ISBLANK(Related_Task__c)
+)</errorConditionFormula>
+    <errorDisplayField>Relationship_Type__c</errorDisplayField>
+    <errorMessage>Relationship Type can only be set when a Related Task is selected. Please select a Related Task first, or clear the Relationship Type field.</errorMessage>
+</ValidationRule>

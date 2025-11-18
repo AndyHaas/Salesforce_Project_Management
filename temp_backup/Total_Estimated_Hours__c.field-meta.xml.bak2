@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://www.salesforce.com/2006/04/metadata">
+    <fullName>Total_Estimated_Hours__c</fullName>
+    <label>Total Estimated Hours</label>
+    <precision>10</precision>
+    <scale>2</scale>
+    <type>Summary</type>
+    <rollUpSummary>
+        <field>Estimated_Hours__c</field>
+        <masterDetail>Parent_Task__c</masterDetail>
+        <operation>Sum</operation>
+    </rollUpSummary>
+</CustomField>

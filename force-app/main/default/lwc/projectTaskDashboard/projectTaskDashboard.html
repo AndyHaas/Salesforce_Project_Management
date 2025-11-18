@@ -1,0 +1,34 @@
+<template>
+    <lightning-card title="Project Task Dashboard" icon-name="utility:task">
+        <div class="slds-card__body slds-card__body_inner">
+            <!-- Dynamically render components in configured order -->
+            <template for:each={orderedComponents} for:item="comp">
+                <template lwc:if={comp.isAccountFilter}>
+                    <c-account-filter key={comp.name} record-id={recordId} class="slds-m-bottom_medium"></c-account-filter>
+                </template>
+                <template lwc:if={comp.isStatusBreakdown}>
+                    <c-task-status-breakdown key={comp.name} account-id={accountId}></c-task-status-breakdown>
+                </template>
+                <template lwc:if={comp.isHoursMetrics}>
+                    <c-task-hours-metrics key={comp.name} account-id={accountId} show-chart={showHoursMetricsChart}></c-task-hours-metrics>
+                </template>
+                <template lwc:if={comp.isReviewStatusMetrics}>
+                    <c-task-review-status-metrics key={comp.name} account-id={accountId}></c-task-review-status-metrics>
+                </template>
+                <template lwc:if={comp.isPriorityBreakdown}>
+                    <c-task-priority-breakdown key={comp.name} account-id={accountId}></c-task-priority-breakdown>
+                </template>
+                <template lwc:if={comp.isProgressMetrics}>
+                    <c-task-progress-metrics key={comp.name} account-id={accountId}></c-task-progress-metrics>
+                </template>
+                <template lwc:if={comp.isTaskList}>
+                    <c-task-list-component key={comp.name} account-id={accountId}></c-task-list-component>
+                </template>
+                <template lwc:if={comp.isDueDateMetrics}>
+                    <c-task-due-date-metrics key={comp.name} account-id={accountId}></c-task-due-date-metrics>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>
+

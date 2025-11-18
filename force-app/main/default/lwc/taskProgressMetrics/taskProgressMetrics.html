@@ -1,0 +1,127 @@
+<template>
+    <lightning-card title="Progress Metrics" icon-name="utility:chart">
+        <template if:true={hasData}>
+            <div class="slds-card__body slds-card__body_inner">
+                <!-- Key Metrics Row -->
+                <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <div class="metric-card">
+                            <div class="metric-label-container">
+                                <span class="metric-label">Average Progress</span>
+                                <lightning-helptext content="Average completion percentage across all tasks that have progress tracked. For parent tasks, progress is automatically calculated based on completed subtasks. For regular tasks, progress is manually set. Only includes tasks with a Progress Percentage value." icon-name="utility:info"></lightning-helptext>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style={progressStyle}></div>
+                                </div>
+                                <div class="progress-value">{avgProgressRounded}%</div>
+                            </div>
+                            <div class="metric-subtext">
+                                <template if:true={tasksWithProgress}>
+                                    Based on {tasksWithProgress} tasks with progress tracked
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Completion Rate</div>
+                            <div class="progress-container">
+                                <div class="progress-bar completion-bar">
+                                    <div class="progress-fill completion-fill" style={completionRateStyle}></div>
+                                </div>
+                                <div class="progress-value">{completionRateRounded}%</div>
+                            </div>
+                            <div class="metric-subtext">{completedCount} of {totalTasks} tasks completed</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Total Tasks</div>
+                            <div class="metric-value">{totalTasks}</div>
+                            <div class="metric-subtext">
+                                <template if:true={tasksWithProgress}>
+                                    {tasksWithProgress} with progress
+                                </template>
+                                <template if:true={tasksWithoutProgress}>
+                                    <template if:true={tasksWithProgress}>, </template>
+                                    {tasksWithoutProgress} without progress
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Metrics Row -->
+                <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <div class="metric-card alert-card clickable-metric-card" onclick={handleTasksAtRiskClick} title="Click to view Tasks at Risk list view">
+                            <div class="metric-label">Tasks at Risk</div>
+                            <div class="metric-value alert-value">{atRiskCount}</div>
+                            <div class="metric-subtext">Due to dependencies</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <div class="metric-card alert-card clickable-metric-card" onclick={handleBlockedTasksClick} title="Click to view Blocked Tasks list view">
+                            <div class="metric-label">Blocked Tasks</div>
+                            <div class="metric-value alert-value">{blockedCount}</div>
+                            <div class="metric-subtext">Require attention</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <div class="metric-card success-card">
+                            <div class="metric-label">Nearing Completion</div>
+                            <div class="metric-value success-value">{nearingCompletionCount}</div>
+                            <div class="metric-subtext">76-99% complete</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Distribution Chart -->
+                <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-3">
+                        <div class="chart-container">
+                            <canvas class="progressChart" lwc:dom="manual"></canvas>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                        <div class="metric-card">
+                            <div class="metric-label slds-m-bottom_small">Progress Distribution</div>
+                            <template for:each={progressDistributionItems} for:item="item">
+                                <div key={item.label} class="distribution-item">
+                                    <div class="distribution-label">{item.label}</div>
+                                    <div class="distribution-value">{item.count}</div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Average Progress by Status -->
+                <template if:true={hasStatusProgress}>
+                    <div class="slds-m-top_medium">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Average Progress by Status</h3>
+                        <div class="slds-grid slds-gutters">
+                            <template for:each={statusProgressItems} for:item="item">
+                                <div key={item.status} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4">
+                                    <div class="metric-card status-progress-card">
+                                        <div class="metric-label">{item.status}</div>
+                                        <div class="metric-value">{item.progress}%</div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+        <template if:false={hasData}>
+            <div class="slds-card__body slds-card__body_inner no-data-message">
+                <div class="slds-text-align_center slds-p-around_medium">
+                    <lightning-icon icon-name="utility:info" size="small" class="slds-m-bottom_x-small"></lightning-icon>
+                    <p class="slds-text-body_regular">No progress data available for the selected account.</p>
+                </div>
+            </div>
+        </template>
+    </lightning-card>
+</template>

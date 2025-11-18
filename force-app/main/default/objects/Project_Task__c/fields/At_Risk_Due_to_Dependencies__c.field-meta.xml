@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>At_Risk_Due_to_Dependencies__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Checkbox flag indicating that this task is at risk due to dependencies on other tasks. Manually set to identify tasks that may be delayed.</description>
+    <inlineHelpText>Check this box to flag a task as at risk when it depends on other tasks that may cause delays. Used for project risk management and to identify tasks needing attention.</inlineHelpText>
+    <label>At Risk Due to Dependencies</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

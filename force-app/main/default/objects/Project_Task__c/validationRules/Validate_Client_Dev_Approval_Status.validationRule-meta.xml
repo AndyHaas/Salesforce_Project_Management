@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validate_Client_Dev_Approval_Status</fullName>
+    <active>true</active>
+    <description>Client Approved for Development can only be true when Status is Pending. This checkbox is set automatically by the approval workflow when client approves a Backlog task.</description>
+    <errorConditionFormula>AND(
+    Client_Approved_for_Development__c = TRUE,
+    TEXT(Status__c) != &quot;Pending&quot;,
+    OR(
+        ISCHANGED(Client_Approved_for_Development__c),
+        ISCHANGED(Status__c)
+    )
+)</errorConditionFormula>
+    <errorDisplayField>Client_Approved_for_Development__c</errorDisplayField>
+    <errorMessage>Client Approved for Development can only be true when Status is Pending. This checkbox is set automatically by the approval workflow when a Backlog task is approved.</errorMessage>
+</ValidationRule>

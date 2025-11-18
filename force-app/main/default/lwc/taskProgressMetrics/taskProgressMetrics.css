@@ -1,0 +1,162 @@
+:host {
+    display: block;
+    max-height: 800px;
+    overflow-y: auto;
+}
+
+.metric-card {
+    border: 1px solid #d8dde6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    background-color: #ffffff;
+    margin-bottom: 1rem;
+    min-height: 100px;
+}
+
+.metric-label-container {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: #706e6b;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #080707;
+    margin-bottom: 0.25rem;
+}
+
+.metric-subtext {
+    font-size: 0.75rem;
+    color: #706e6b;
+    margin-top: 0.25rem;
+}
+
+.alert-card {
+    background-color: #fff4e5;
+    border-color: #ffb75d;
+}
+
+.clickable-metric-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clickable-metric-card:hover {
+    background-color: #f3f2f2;
+    border-color: #0176D3;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.alert-value {
+    color: #ff6b35;
+}
+
+.success-card {
+    background-color: #e8f5e9;
+    border-color: #4caf50;
+}
+
+.success-value {
+    color: #2e7d32;
+}
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 24px;
+    background-color: #e0e5ee;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #0176d3;
+    transition: width 0.3s ease;
+}
+
+.completion-bar {
+    background-color: #e0e5ee;
+}
+
+.completion-fill {
+    background-color: #32CD32;
+}
+
+.progress-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #080707;
+    min-width: 60px;
+    text-align: right;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    min-height: 200px;
+    width: 100%;
+}
+
+.distribution-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e0e5ee;
+}
+
+.distribution-item:last-child {
+    border-bottom: none;
+}
+
+.distribution-label {
+    font-size: 0.875rem;
+    color: #080707;
+    font-weight: 500;
+}
+
+.distribution-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #0176d3;
+}
+
+.status-progress-card {
+    text-align: center;
+    padding: 1rem 0.75rem;
+}
+
+.status-progress-card .metric-label {
+    font-size: 0.7rem;
+    margin-bottom: 0.5rem;
+}
+
+.status-progress-card .metric-value {
+    font-size: 1.75rem;
+}
+
+.no-data-message {
+    padding: 1rem;
+}
+
+.no-data-message p {
+    color: #706e6b;
+    margin: 0;
+}

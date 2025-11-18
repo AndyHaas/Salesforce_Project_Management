@@ -1,0 +1,101 @@
+/**
+ * @fileoverview Styles for Task Due Date Metrics component
+ */
+
+:host {
+    display: block;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.metric-card {
+    background: #ffffff;
+    border: 1px solid #dddbda;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    transition: box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clickable-metric-card {
+    cursor: pointer;
+}
+
+.clickable-metric-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-color: #0176d3;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #706e6b;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.metric-label-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #080707;
+    margin-bottom: 0.25rem;
+}
+
+.alert-value {
+    color: #c23934 !important; /* Red for overdue/alert */
+}
+
+.success-value {
+    color: #2e844a !important; /* Green for no overdue */
+}
+
+.warning-value {
+    color: #fe9339 !important; /* Orange for due today */
+}
+
+.info-value {
+    color: #0176d3 !important; /* Blue for due this week */
+}
+
+.metric-subtext {
+    font-size: 0.75rem;
+    color: #706e6b;
+    margin-top: 0.25rem;
+}
+
+.alert-card {
+    border-left: 4px solid #c23934;
+}
+
+.warning-card {
+    border-left: 4px solid #fe9339;
+}
+
+.info-card {
+    border-left: 4px solid #0176d3;
+}
+
+.no-data-message {
+    text-align: center;
+    padding: 2rem;
+    color: #706e6b;
+}
+
+.no-data-message p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+

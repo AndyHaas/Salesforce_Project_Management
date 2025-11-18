@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Progress_Percentage__c</fullName>
+    <description>Progress percentage of task completion. For parent tasks, calculated based on completed subtasks (excluding Removed subtasks).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Shows the percentage of task completion. For parent tasks, this is automatically calculated based on the number of completed subtasks. Subtasks marked as Removed are not counted against progress.</inlineHelpText>
+    <label>Progress Percentage</label>
+    <precision>5</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

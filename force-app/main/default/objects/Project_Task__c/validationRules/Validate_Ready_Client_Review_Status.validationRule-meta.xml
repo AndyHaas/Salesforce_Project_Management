@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validate_Ready_Client_Review_Status</fullName>
+    <active>true</active>
+    <description>Ready for Client Review can only be checked when Status is Backlog. This checkbox is used to submit Backlog tasks for client approval.</description>
+    <errorConditionFormula>AND(
+    Ready_for_Client_Review__c = TRUE,
+    TEXT(Status__c) != &quot;Backlog&quot;,
+    OR(
+        ISCHANGED(Ready_for_Client_Review__c),
+        ISCHANGED(Status__c)
+    )
+)</errorConditionFormula>
+    <errorDisplayField>Ready_for_Client_Review__c</errorDisplayField>
+    <errorMessage>Ready for Client Review can only be checked when Status is Backlog. Please change Status to Backlog before submitting for client review.</errorMessage>
+</ValidationRule>

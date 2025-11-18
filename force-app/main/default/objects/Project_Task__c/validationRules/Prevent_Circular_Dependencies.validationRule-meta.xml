@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Prevent_Circular_Dependencies</fullName>
+    <active>true</active>
+    <description>Prevents circular dependencies in Related_Task__c</description>
+    <errorConditionFormula>AND(
+  NOT(ISBLANK(Related_Task__c)),
+  Related_Task__c = Id
+)</errorConditionFormula>
+    <errorDisplayField>Related_Task__c</errorDisplayField>
+    <errorMessage>Cannot set a task as related to itself.</errorMessage>
+</ValidationRule>

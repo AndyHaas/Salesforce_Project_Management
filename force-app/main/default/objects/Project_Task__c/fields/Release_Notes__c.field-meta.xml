@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Release_Notes__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Release Notes record associated with this task. Links tasks to release documentation for deployment tracking.</description>
+    <inlineHelpText>Select the Release Notes record that this task is associated with. Multiple tasks can be linked to the same release notes to track what&apos;s included in a release.</inlineHelpText>
+    <label>Release Notes</label>
+    <referenceTo>Release_Notes__c</referenceTo>
+    <relationshipLabel>Project Tasks</relationshipLabel>
+    <relationshipName>Project_Tasks</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

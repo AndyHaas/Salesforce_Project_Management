@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Priority_Icon__c</fullName>
+    <description>Visual priority indicator (emoji flag) for task priority. Formula field that displays colored flags based on Priority field value.</description>
+    <externalId>false</externalId>
+    <formula>CASE(Priority__c, 
+&quot;High&quot;, &quot;🔴&quot;, 
+&quot;Medium&quot;, &quot;🟡&quot;, 
+&quot;Low&quot;, &quot;🟢&quot;, 
+&quot;&quot;)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>This formula field displays colored flag emoji indicators: 🔴 High priority, 🟡 Medium priority, 🟢 Low priority. Used for quick visual identification in list views and highlight panels.</inlineHelpText>
+    <label>Priority Icon</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

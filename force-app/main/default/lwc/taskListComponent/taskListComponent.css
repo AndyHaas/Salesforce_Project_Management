@@ -1,0 +1,20 @@
+/* Task list component styles */
+:host {
+    display: block;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.slds-card__body_inner {
+    padding: 1rem;
+}
+
+.no-data-message {
+    padding: 1rem;
+}
+
+.no-data-message p {
+    color: #706e6b;
+    margin: 0;
+}
+

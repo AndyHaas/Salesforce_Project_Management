@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Has_Related_Task__c</fullName>
+    <description>Formula checkbox indicating if this task has a related task dependency. Returns true when Related Task field is populated.</description>
+    <formula>NOT(ISBLANK(Related_Task__c))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>This formula field automatically returns true when a Related Task is selected. Used for filtering and visibility rules to show/hide related task sections on the record page.</inlineHelpText>
+    <label>Has Related Task</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>
