@@ -21,6 +21,7 @@ import { getRecord } from 'lightning/uiRecordApi';
 import { MessageContext, publish } from 'lightning/messageService';
 import ACCOUNT_OBJECT from '@salesforce/schema/Account';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
+import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 
 /**
  * @description Project Task Dashboard container component
@@ -205,6 +206,13 @@ export default class ProjectTaskDashboard extends NavigationMixin(LightningEleme
      * @private
      */
     _messageContext = null;
+
+    /**
+     * @description Refresh timestamp to trigger data refresh in child components
+     * @type {number}
+     * @private
+     */
+    _refreshTimestamp = Date.now();
 
     // ============================================================================
     // WIRE SERVICES
@@ -567,5 +575,57 @@ export default class ProjectTaskDashboard extends NavigationMixin(LightningEleme
             // This will be published when wiredMessageContext receives the context
             this._pendingAccountIds = accountIdArray;
         }
+    }
+
+    /**
+     * @description Publish refresh message via Lightning Message Service
+     * 
+     * Sends a refresh message to all subscribed child components to trigger
+     * data refresh without changing account filters.
+     * 
+     * @private
+     */
+    publishRefresh() {
+        // Update refresh timestamp
+        this._refreshTimestamp = Date.now();
+
+        // If MessageContext is available, publish immediately
+        if (this._messageContext) {
+            const message = {
+                refreshTimestamp: this._refreshTimestamp
+            };
+
+            publish(this._messageContext, DASHBOARD_REFRESH_MESSAGE_CHANNEL, message);
+        }
+    }
+
+    /**
+     * @description Handle refresh button click
+     * Triggers a refresh of all child components
+     * @private
+     */
+    handleRefresh() {
+        this.publishRefresh();
+    }
+
+    /**
+     * @description Component lifecycle hook - auto-refresh on load
+     * Triggers an automatic refresh when the component is first loaded
+     * Waits for MessageContext to be available before publishing
+     */
+    connectedCallback() {
+        // Auto-refresh after a delay to ensure MessageContext and child components are ready
+        // Check if MessageContext is available, if not wait and retry
+        const attemptRefresh = () => {
+            if (this._messageContext) {
+                this.publishRefresh();
+            } else {
+                // Retry after a short delay if MessageContext not yet available
+                setTimeout(attemptRefresh, 100);
+            }
+        };
+        
+        // Start attempting refresh after initial delay
+        setTimeout(attemptRefresh, 500);
     }
 }

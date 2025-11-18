@@ -4,6 +4,7 @@ import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'light
 import getPriorityBreakdown from '@salesforce/apex/ProjectTaskDashboardController.getPriorityBreakdown';
 import { loadScript } from 'lightning/platformResourceLoader';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
+import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 
 export default class TaskPriorityBreakdown extends NavigationMixin(LightningElement) {
     @api accountId;
@@ -16,6 +17,7 @@ export default class TaskPriorityBreakdown extends NavigationMixin(LightningElem
     chart;
     chartjsInitialized = false;
     subscription = null;
+    refreshSubscription = null;
     _filteredAccountIds = [];
     
     get effectiveAccountIds() {
@@ -41,13 +43,59 @@ export default class TaskPriorityBreakdown extends NavigationMixin(LightningElem
                 },
                 { scope: APPLICATION_SCOPE }
             );
+            
+            // Subscribe to refresh messages
+            this.refreshSubscription = subscribe(
+                this.messageContext,
+                DASHBOARD_REFRESH_MESSAGE_CHANNEL,
+                (message) => this.handleRefresh(message),
+                { scope: APPLICATION_SCOPE }
+            );
         }
+        
+        // Set up resize handler for chart
+        this.resizeHandler = () => {
+            if (this.chart) {
+                this.chart.resize();
+            }
+        };
+        window.addEventListener('resize', this.resizeHandler);
     }
     
     disconnectedCallback() {
         if (this.subscription) {
             unsubscribe(this.subscription);
             this.subscription = null;
+        }
+        
+        if (this.refreshSubscription) {
+            unsubscribe(this.refreshSubscription);
+            this.refreshSubscription = null;
+        }
+        
+        if (this.resizeHandler) {
+            window.removeEventListener('resize', this.resizeHandler);
+        }
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
+    }
+    
+    /**
+     * @description Handle refresh message from LMS
+     * Forces a refresh of the wire service by temporarily clearing and restoring accountIds
+     * @param {Object} message - Refresh message with timestamp
+     * @private
+     */
+    handleRefresh(message) {
+        if (message && message.refreshTimestamp) {
+            // Force wire refresh by temporarily clearing and restoring accountIds
+            const currentAccountIds = [...this._filteredAccountIds];
+            this._filteredAccountIds = [];
+            // Use setTimeout to ensure the wire service processes the change
+            setTimeout(() => {
+                this._filteredAccountIds = currentAccountIds;
+            }, 0);
         }
     }
     
@@ -87,23 +135,6 @@ export default class TaskPriorityBreakdown extends NavigationMixin(LightningElem
             });
     }
     
-    connectedCallback() {
-        this.resizeHandler = () => {
-            if (this.chart) {
-                this.chart.resize();
-            }
-        };
-        window.addEventListener('resize', this.resizeHandler);
-    }
-    
-    disconnectedCallback() {
-        if (this.resizeHandler) {
-            window.removeEventListener('resize', this.resizeHandler);
-        }
-        if (this.resizeObserver) {
-            this.resizeObserver.disconnect();
-        }
-    }
     
     setupResizeObserver() {
         const chartContainer = this.template.querySelector('.chart-container');

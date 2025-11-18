@@ -3,6 +3,7 @@ import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'light
 import getHoursMetrics from '@salesforce/apex/ProjectTaskDashboardController.getHoursMetrics';
 import { loadScript } from 'lightning/platformResourceLoader';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
+import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 
 export default class TaskHoursMetrics extends LightningElement {
     @api accountId;
@@ -30,6 +31,7 @@ export default class TaskHoursMetrics extends LightningElement {
     chart;
     chartjsInitialized = false;
     subscription = null;
+    refreshSubscription = null;
     _filteredAccountIds = [];
     _internalShowChart = true; // Internal state for checkbox
     
@@ -51,6 +53,14 @@ export default class TaskHoursMetrics extends LightningElement {
                         }
                     }
                 },
+                { scope: APPLICATION_SCOPE }
+            );
+            
+            // Subscribe to refresh messages
+            this.refreshSubscription = subscribe(
+                this.messageContext,
+                DASHBOARD_REFRESH_MESSAGE_CHANNEL,
+                (message) => this.handleRefresh(message),
                 { scope: APPLICATION_SCOPE }
             );
         }
@@ -79,6 +89,11 @@ export default class TaskHoursMetrics extends LightningElement {
             this.subscription = null;
         }
         
+        if (this.refreshSubscription) {
+            unsubscribe(this.refreshSubscription);
+            this.refreshSubscription = null;
+        }
+        
         // Remove resize handler
         if (this.resizeHandler) {
             window.removeEventListener('resize', this.resizeHandler);
@@ -87,6 +102,24 @@ export default class TaskHoursMetrics extends LightningElement {
         // Disconnect resize observer
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
+        }
+    }
+    
+    /**
+     * @description Handle refresh message from LMS
+     * Forces a refresh of the wire service by temporarily clearing and restoring accountIds
+     * @param {Object} message - Refresh message with timestamp
+     * @private
+     */
+    handleRefresh(message) {
+        if (message && message.refreshTimestamp) {
+            // Force wire refresh by temporarily clearing and restoring accountIds
+            const currentAccountIds = [...this._filteredAccountIds];
+            this._filteredAccountIds = [];
+            // Use setTimeout to ensure the wire service processes the change
+            setTimeout(() => {
+                this._filteredAccountIds = currentAccountIds;
+            }, 0);
         }
     }
     
