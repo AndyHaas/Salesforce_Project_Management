@@ -12,9 +12,41 @@
             "layoutDirectionDesktop" : "row",
             "layoutDirectionMobile" : "column",
             "layoutDirectionTablet" : "column",
-            "maxContentWidth" : "",
+            "maxContentWidth" : "1200px",
             "sectionColumnGutterWidth" : "",
-            "sectionConfig" : "{\"UUID\":\"2e519063-ddde-4ca3-a514-feefce991b0b\",\"columns\":[{\"UUID\":\"b637ab13-8f19-4ad1-8877-ed3948096dfd\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionConfig" : "{\"UUID\":\"867056b0-b0eb-4d96-9605-2eb6185090c9\",\"columns\":[{\"UUID\":\"1331b787-a110-4af2-b69f-760cf15ed157\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionMinHeight" : "400px",
+            "sectionVerticalAlign" : "center"
+          },
+          "children" : [ {
+            "children" : [ {
+              "attributes" : {
+                "imageInfos" : "",
+                "richTextValue" : "<div style=\"text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #355d7c 0%, #4d86b2 100%); border-radius: 12px; color: #ffffff;\"><h1 style=\"font-family: 'Montserrat', sans-serif; font-size: 2.5rem; font-weight: 600; margin-bottom: 1rem; color: #ffffff;\">Welcome to Your Project Portal</h1><p style=\"font-family: 'Roboto', sans-serif; font-size: 1.25rem; line-height: 1.6; max-width: 800px; margin: 0 auto; color: #ffffff;\">Your central hub for managing projects, tracking tasks, and staying connected with Milestone Consulting.</p></div>"
+              },
+              "definition" : "community_builder:htmlEditor",
+              "id" : "435d73d9-6779-488c-8d76-aa4842a9323c",
+              "type" : "component"
+            } ],
+            "id" : "37d033e9-4ccd-4a2c-b5f5-bd9203abe5e8",
+            "name" : "col1",
+            "title" : "Column 1",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "c5b62e9e-48dc-4518-90a7-3e1fecd5bffa",
+          "type" : "component"
+        }, {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,0)",
+            "componentSpacerSize" : "",
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "1200px",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"8c4b71cd-6640-4a28-8f12-7c51b637cf11\",\"columns\":[{\"UUID\":\"9dc1a975-0df5-4dd1-9e68-04b44e4bd7e7\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"4\",\"seedComponents\":null},{\"UUID\":\"4ae30b9a-c49e-492e-8eab-700b3150c0d0\",\"columnName\":\"Column 2\",\"columnKey\":\"col2\",\"columnWidth\":\"4\",\"seedComponents\":null},{\"UUID\":\"0ca7bd40-c75d-4198-ad5b-5fd967cfb59a\",\"columnName\":\"Column 3\",\"columnKey\":\"col3\",\"columnWidth\":\"4\",\"seedComponents\":null}]}",
             "sectionMinHeight" : "",
             "sectionVerticalAlign" : "flex-start"
           },
@@ -22,19 +54,79 @@
             "children" : [ {
               "attributes" : {
                 "imageInfos" : "",
-                "richTextValue" : "<div style=\"display: flex; justify-content: center; align-items: center; margin: 50px 0; flex-direction: column; text-align: center;\"><div style=\"background-image: url(assets/img/desert.svg) !important; background-size: cover; background-position: center; height: 300px; width: 100%; max-width: 600px; min-width: 300px;\"></div><h1 class=\"slds-text-heading_medium slds-p-bottom_x-small\">Start Building Your Page</h1> <div>Drag and drop a component into the content slots.</div></div>"
+                "richTextValue" : "<div style=\"background: #ffffff; border-radius: 8px; padding: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); height: 100%; border-top: 4px solid #355d7c;\"><div style=\"font-size: 2.5rem; margin-bottom: 1rem; color: #355d7c;\">📋</div><h2 style=\"font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 600; color: #355d7c; margin-bottom: 1rem;\">Project Tasks</h2><p style=\"font-family: 'Roboto', sans-serif; color: #686963; line-height: 1.6; margin: 0;\">View and track all your project tasks in one place. Stay updated on progress, deadlines, and task assignments.</p></div>"
               },
               "definition" : "community_builder:htmlEditor",
-              "id" : "a90562a1-134a-45a0-9958-60bd882f2283",
+              "id" : "07871284-d4f5-4166-a9c6-b692588c5952",
               "type" : "component"
             } ],
-            "id" : "b637ab13-8f19-4ad1-8877-ed3948096dfd",
+            "id" : "8a8a4a13-5451-4b8a-bc56-09e35b65b3fa",
+            "name" : "col1",
+            "title" : "Column 1",
+            "type" : "region"
+          }, {
+            "children" : [ {
+              "attributes" : {
+                "imageInfos" : "",
+                "richTextValue" : "<div style=\"background: #ffffff; border-radius: 8px; padding: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); height: 100%; border-top: 4px solid #355d7c;\"><div style=\"font-size: 2.5rem; margin-bottom: 1rem; color: #355d7c;\">👀</div><h2 style=\"font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 600; color: #355d7c; margin-bottom: 1rem;\">Items for Review</h2><p style=\"font-family: 'Roboto', sans-serif; color: #686963; line-height: 1.6; margin: 0;\">See what's pending your review and approval. Quickly access items that need your attention.</p></div>"
+              },
+              "definition" : "community_builder:htmlEditor",
+              "id" : "9ea5d64c-563a-4e09-8e54-18445210c955",
+              "type" : "component"
+            } ],
+            "id" : "59b01ffd-5717-42d8-9f1c-0f0f84c34f34",
+            "name" : "col2",
+            "title" : "Column 2",
+            "type" : "region"
+          }, {
+            "children" : [ {
+              "attributes" : {
+                "imageInfos" : "",
+                "richTextValue" : "<div style=\"background: #ffffff; border-radius: 8px; padding: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); height: 100%; border-top: 4px solid #355d7c;\"><div style=\"font-size: 2.5rem; margin-bottom: 1rem; color: #355d7c;\">🚀</div><h2 style=\"font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 600; color: #355d7c; margin-bottom: 1rem;\">Pipeline View</h2><p style=\"font-family: 'Roboto', sans-serif; color: #686963; line-height: 1.6; margin: 0;\">Track upcoming work and projects in your pipeline. Get visibility into what's coming next.</p></div>"
+              },
+              "definition" : "community_builder:htmlEditor",
+              "id" : "77857ba6-2396-4971-840b-80ce7db87694",
+              "type" : "component"
+            } ],
+            "id" : "80828723-c28f-4e18-8a7a-fc8e4b655f4c",
+            "name" : "col3",
+            "title" : "Column 3",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "18bf1b67-a09f-406c-98a3-12edc92d9c41",
+          "type" : "component"
+        }, {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,0)",
+            "componentSpacerSize" : "",
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "1200px",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"c6dbdc86-52da-4fd3-ab3e-1d22f43479f2\",\"columns\":[{\"UUID\":\"5d676bbd-04a8-4604-b223-8943b43429e9\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionMinHeight" : "",
+            "sectionVerticalAlign" : "flex-start"
+          },
+          "children" : [ {
+            "children" : [ {
+              "attributes" : {
+                "imageInfos" : "",
+                "richTextValue" : "<div style=\"background: #f5f5f5; border-radius: 8px; padding: 2.5rem; margin: 2rem 0; text-align: center;\"><h2 style=\"font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 600; color: #355d7c; margin-bottom: 1rem;\">Coming Soon</h2><p style=\"font-family: 'Roboto', sans-serif; color: #686963; font-size: 1.125rem; line-height: 1.6; max-width: 800px; margin: 0 auto 1.5rem;\">We're continuously improving your portal experience. Soon you'll be able to:</p><div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem; text-align: left;\"><div style=\"background: #ffffff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);\"><div style=\"font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b;\">💳</div><h3 style=\"font-family: 'Montserrat', sans-serif; font-size: 1.125rem; font-weight: 600; color: #355d7c; margin-bottom: 0.5rem;\">Billing & Invoices</h3><p style=\"font-family: 'Roboto', sans-serif; color: #686963; font-size: 0.875rem; margin: 0;\">View invoices and billing history</p></div><div style=\"background: #ffffff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);\"><div style=\"font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b;\">🏢</div><h3 style=\"font-family: 'Montserrat', sans-serif; font-size: 1.125rem; font-weight: 600; color: #355d7c; margin-bottom: 0.5rem;\">Account Management</h3><p style=\"font-family: 'Roboto', sans-serif; color: #686963; font-size: 0.875rem; margin: 0;\">Update account details and preferences</p></div><div style=\"background: #ffffff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);\"><div style=\"font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b;\">👥</div><h3 style=\"font-family: 'Montserrat', sans-serif; font-size: 1.125rem; font-weight: 600; color: #355d7c; margin-bottom: 0.5rem;\">Contact Management</h3><p style=\"font-family: 'Roboto', sans-serif; color: #686963; font-size: 0.875rem; margin: 0;\">Add and manage team contacts</p></div></div></div>"
+              },
+              "definition" : "community_builder:htmlEditor",
+              "id" : "577f5461-9b8d-4204-9580-438a1118de80",
+              "type" : "component"
+            } ],
+            "id" : "d66ee0e6-2a07-4e2f-ab0f-76c275eefd84",
             "name" : "col1",
             "title" : "Column 1",
             "type" : "region"
           } ],
           "definition" : "community_layout:section",
-          "id" : "2e519063-ddde-4ca3-a514-feefce991b0b",
+          "id" : "484abb45-9df9-4f7d-858f-22a173484ef3",
           "type" : "component"
         } ],
         "id" : "430d3af6-0422-4db3-841d-8d8ce77e94bd",
@@ -45,8 +137,8 @@
         "children" : [ {
           "attributes" : {
             "customHeadTags" : "",
-            "description" : "",
-            "pageTitle" : "Home",
+            "description" : "Client portal for viewing project tasks, reviews, and pipeline. Manage your projects with Milestone Consulting.",
+            "pageTitle" : "Project Portal - Home",
             "recordId" : "{!recordId}"
           },
           "definition" : "community_builder:seoAssistant",
