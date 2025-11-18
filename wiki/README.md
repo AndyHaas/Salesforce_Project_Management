@@ -2,7 +2,7 @@
 
 Welcome to the comprehensive documentation for the Milestone Task Management System, a Salesforce-based project and task management solution.
 
-## 📚 Documentation Index
+##  Documentation Index
 
 ### For End Users
 - [Getting Started Guide](./Getting-Started.md) - Learn how to use the system
@@ -23,13 +23,13 @@ Welcome to the comprehensive documentation for the Milestone Task Management Sys
 - [API Reference](./API-Reference.md) - Integration and API documentation
 - [Development Guide](./Development-Guide.md) - Contributing and extending the system
 
-## 🚀 Quick Links
+##  Quick Links
 
 - **New Users**: Start with [Getting Started Guide](./Getting-Started.md)
 - **Administrators**: Begin with [Installation Guide](./Installation-Guide.md)
 - **Developers**: Review [Architecture Overview](./Architecture-Overview.md)
 
-## 📋 System Overview
+##  System Overview
 
 The Milestone Task Management System is a comprehensive Salesforce solution that provides:
 
@@ -40,7 +40,7 @@ The Milestone Task Management System is a comprehensive Salesforce solution that
 - **Dashboard Analytics**: Real-time metrics and visualizations
 - **Release Management**: Integration with release notes and version tracking
 
-## 🎯 Key Features
+##  Key Features
 
 ### Task Management
 - Multiple task types (Bug, Feature, Enhancement, Data Migration, Training, Other)
@@ -62,14 +62,14 @@ The Milestone Task Management System is a comprehensive Salesforce solution that
 - Review status tracking
 - Progress indicators
 
-## 📞 Support
+##  Support
 
 For issues, questions, or contributions:
 - Review the [FAQ](./FAQ.md) for common questions
 - Check the [Troubleshooting Guide](./Troubleshooting.md) for solutions
 - Open an issue in the repository
 
-## 📄 License
+##  License
 
 [Add your license information here]
 

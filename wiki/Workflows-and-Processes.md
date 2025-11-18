@@ -16,34 +16,34 @@ This document explains the approval workflows and business processes in the Mile
 Tasks move through a structured lifecycle with specific approval gates:
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ Backlog â”‚ â† New tasks start here
-â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”˜
-     â”‚ Client Approval Required
-     â†“
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ Pending â”‚ â† Approved, ready to start
-â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”˜
-     â”‚ Work begins
-     â†“
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ In Progress  â”‚ â† Active development
-â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-     â”‚ Work complete
-     â†“
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ In Review â”‚ â† PM Review + Client Approval Required
-â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
-     â”‚ Both approvals received
-     â†“
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ Completed â”‚ â† Ready for deployment
-â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
-     â”‚ Final closure
-     â†“
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ Closed â”‚ â† Final state
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+”””””””””””
+”‚ Backlog ”‚ † New tasks start here
+”””””””¬”””””˜
+     ”‚ Client Approval Required
+     †
+”””””””””””
+”‚ Pending ”‚ † Approved, ready to start
+”””””””¬”””””˜
+     ”‚ Work begins
+     †
+””””””””””””””””
+”‚ In Progress  ”‚ † Active development
+”””””””¬””””””””””˜
+     ”‚ Work complete
+     †
+”””””””””””””
+”‚ In Review ”‚ † PM Review + Client Approval Required
+”””””””¬”””””””˜
+     ”‚ Both approvals received
+     †
+”””””””””””””
+”‚ Completed ”‚ † Ready for deployment
+”””””””¬”””””””˜
+     ”‚ Final closure
+     †
+””””””””””
+”‚ Closed ”‚ † Final state
+”””””””””””˜
 ```
 
 ## Workflow 1: Backlog to Pending
@@ -335,32 +335,32 @@ The system includes validation rules to ensure data integrity and workflow compl
 
 ### For Project Managers
 
-- âœ… Review tasks before marking "Ready for Client Review"
-- âœ… Ensure all required information is complete
-- âœ… Set realistic due dates and estimates
-- âœ… Monitor approval queues regularly
-- âœ… Follow up on rejected approvals promptly
+-  Review tasks before marking "Ready for Client Review"
+-  Ensure all required information is complete
+-  Set realistic due dates and estimates
+-  Monitor approval queues regularly
+-  Follow up on rejected approvals promptly
 
 ### For Developers
 
-- âœ… Update status to "In Review" when work is complete
-- âœ… Provide clear descriptions of what was done
-- âœ… Address review feedback promptly
-- âœ… Update actual hours as you work
+-  Update status to "In Review" when work is complete
+-  Provide clear descriptions of what was done
+-  Address review feedback promptly
+-  Update actual hours as you work
 
 ### For Clients
 
-- âœ… Review tasks promptly
-- âœ… Provide clear feedback when rejecting
-- âœ… Approve tasks that meet requirements
-- âœ… Communicate any concerns early
+-  Review tasks promptly
+-  Provide clear feedback when rejecting
+-  Approve tasks that meet requirements
+-  Communicate any concerns early
 
 ### For Code Reviewers
 
-- âœ… Review code thoroughly
-- âœ… Test functionality when possible
-- âœ… Provide constructive feedback
-- âœ… Approve when quality standards are met
+-  Review code thoroughly
+-  Test functionality when possible
+-  Provide constructive feedback
+-  Approve when quality standards are met
 
 ---
 

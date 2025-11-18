@@ -119,8 +119,8 @@ Tasks move through different statuses during their lifecycle:
 ### Status Flow
 
 ```
-Backlog â†’ Pending â†’ In Progress â†’ In Review â†’ Completed â†’ Closed
-                                    â†“
+Backlog †’ Pending †’ In Progress †’ In Review †’ Completed †’ Closed
+                                    †
                                  Removed (if cancelled)
 ```
 
@@ -166,12 +166,12 @@ Now that you understand the basics:
 
 ## Quick Tips
 
-- âœ… Always assign tasks to developers and client users when possible
-- âœ… Set realistic due dates and estimated hours
-- âœ… Use the description field to provide context
-- âœ… Link related tasks to show relationships
-- âœ… Check for blocking dependencies before starting work
-- âœ… Update actual hours as you work on tasks
+-  Always assign tasks to developers and client users when possible
+-  Set realistic due dates and estimated hours
+-  Use the description field to provide context
+-  Link related tasks to show relationships
+-  Check for blocking dependencies before starting work
+-  Update actual hours as you work on tasks
 
 ## Need Help?
 

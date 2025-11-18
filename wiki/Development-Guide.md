@@ -60,22 +60,22 @@ The project includes configuration for:
 
 ```
 Milestone-Task-Management/
-â”œâ”€â”€ force-app/
-â”‚   â””â”€â”€ main/
-â”‚       â””â”€â”€ default/
-â”‚           â”œâ”€â”€ classes/          # Apex classes
-â”‚           â”œâ”€â”€ lwc/              # Lightning Web Components
-â”‚           â”œâ”€â”€ triggers/         # Apex triggers
-â”‚           â”œâ”€â”€ objects/          # Custom objects and fields
-â”‚           â”œâ”€â”€ flows/            # Lightning Flows
-â”‚           â”œâ”€â”€ flexipages/       # Lightning pages
-â”‚           â”œâ”€â”€ permissionsets/   # Permission sets
-â”‚           â””â”€â”€ ...
-â”œâ”€â”€ scripts/                      # Utility scripts
-â”œâ”€â”€ wiki/                         # Documentation
-â”œâ”€â”€ package.json                  # Node.js dependencies
-â”œâ”€â”€ sfdx-project.json            # Salesforce project config
-â””â”€â”€ README.md                     # Project README
+””” force-app/
+”‚   ”””” main/
+”‚       ”””” default/
+”‚           ””” classes/          # Apex classes
+”‚           ””” lwc/              # Lightning Web Components
+”‚           ””” triggers/         # Apex triggers
+”‚           ””” objects/          # Custom objects and fields
+”‚           ””” flows/            # Lightning Flows
+”‚           ””” flexipages/       # Lightning pages
+”‚           ””” permissionsets/   # Permission sets
+”‚           ”””” ...
+””” scripts/                      # Utility scripts
+””” wiki/                         # Documentation
+””” package.json                  # Node.js dependencies
+””” sfdx-project.json            # Salesforce project config
+”””” README.md                     # Project README
 ```
 
 ## Development Workflow
@@ -157,12 +157,12 @@ public with sharing class ExampleClass {
 
 #### Best Practices
 
-- âœ… Always use `with sharing` or `without sharing` explicitly
-- âœ… Bulkify all code (handle lists, not single records)
-- âœ… Use try-catch for error handling
-- âœ… Add comments for complex logic
-- âœ… Follow Salesforce governor limits
-- âœ… Use SOQL best practices (selective queries)
+-  Always use `with sharing` or `without sharing` explicitly
+-  Bulkify all code (handle lists, not single records)
+-  Use try-catch for error handling
+-  Add comments for complex logic
+-  Follow Salesforce governor limits
+-  Use SOQL best practices (selective queries)
 
 ### Lightning Web Component Standards
 
@@ -203,12 +203,12 @@ export default class ExampleComponent extends LightningElement {
 
 #### Best Practices
 
-- âœ… Use `@api` for public properties
-- âœ… Use `@wire` for data loading
-- âœ… Handle errors gracefully
-- âœ… Provide loading states
-- âœ… Use Lightning Message Service for cross-component communication
-- âœ… Optimize for performance
+-  Use `@api` for public properties
+-  Use `@wire` for data loading
+-  Handle errors gracefully
+-  Provide loading states
+-  Use Lightning Message Service for cross-component communication
+-  Optimize for performance
 
 ### HTML Templates
 
@@ -361,19 +361,19 @@ sf project deploy start --target-org production
 
 ### Deployment Best Practices
 
-- âœ… Always validate before deploying to production
-- âœ… Run tests before deployment
-- âœ… Deploy to sandbox first
-- âœ… Use change sets for production (if required)
-- âœ… Document deployment steps
-- âœ… Have rollback plan
+-  Always validate before deploying to production
+-  Run tests before deployment
+-  Deploy to sandbox first
+-  Use change sets for production (if required)
+-  Document deployment steps
+-  Have rollback plan
 
 ## Extending the System
 
 ### Adding New Custom Fields
 
 1. **Create Field**
-   - Setup â†’ Object Manager â†’ Project Task â†’ Fields & Relationships
+   - Setup †’ Object Manager †’ Project Task †’ Fields & Relationships
    - Or use VS Code: Create `.field-meta.xml` file
 
 2. **Add to Permission Sets**
@@ -429,7 +429,7 @@ sf project deploy start --target-org production
 ### Creating New Flows
 
 1. **Create Flow**
-   - Setup â†’ Process Automation â†’ Flows
+   - Setup †’ Process Automation †’ Flows
    - Or use VS Code (create `.flow-meta.xml`)
 
 2. **Configure Flow**
@@ -461,35 +461,35 @@ sf project deploy start --target-org production
 
 ### Code Quality
 
-- âœ… Follow coding standards
-- âœ… Write clean, readable code
-- âœ… Add comments for complex logic
-- âœ… Use meaningful variable names
-- âœ… Keep methods focused and small
+-  Follow coding standards
+-  Write clean, readable code
+-  Add comments for complex logic
+-  Use meaningful variable names
+-  Keep methods focused and small
 
 ### Performance
 
-- âœ… Optimize SOQL queries
-- âœ… Use selective queries
-- âœ… Minimize DML operations
-- âœ… Cache data when appropriate
-- âœ… Monitor governor limits
+-  Optimize SOQL queries
+-  Use selective queries
+-  Minimize DML operations
+-  Cache data when appropriate
+-  Monitor governor limits
 
 ### Security
 
-- âœ… Use `with sharing` appropriately
-- âœ… Validate all inputs
-- âœ… Don't expose sensitive data
-- âœ… Follow field-level security
-- âœ… Use secure authentication
+-  Use `with sharing` appropriately
+-  Validate all inputs
+-  Don't expose sensitive data
+-  Follow field-level security
+-  Use secure authentication
 
 ### Documentation
 
-- âœ… Document all public methods
-- âœ… Update wiki documentation
-- âœ… Add inline comments
-- âœ… Keep README updated
-- âœ… Document breaking changes
+-  Document all public methods
+-  Update wiki documentation
+-  Add inline comments
+-  Keep README updated
+-  Document breaking changes
 
 ---
 
