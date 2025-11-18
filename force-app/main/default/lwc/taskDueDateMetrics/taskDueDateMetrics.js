@@ -13,6 +13,7 @@ import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
 import getDueDateMetrics from '@salesforce/apex/ProjectTaskDashboardController.getDueDateMetrics';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
+import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 
 /**
  * @description Task Due Date Metrics component
@@ -51,6 +52,12 @@ export default class TaskDueDateMetrics extends NavigationMixin(LightningElement
     subscription = null;
     
     /**
+     * @description Subscription to refresh messages
+     * @type {Object|null}
+     */
+    refreshSubscription = null;
+    
+    /**
      * @description Account IDs from LMS filter
      * @type {Array<string>}
      */
@@ -67,6 +74,14 @@ export default class TaskDueDateMetrics extends NavigationMixin(LightningElement
                 (message) => this.handleAccountFilterChange(message),
                 { scope: APPLICATION_SCOPE }
             );
+            
+            // Subscribe to refresh messages
+            this.refreshSubscription = subscribe(
+                this.messageContext,
+                DASHBOARD_REFRESH_MESSAGE_CHANNEL,
+                (message) => this.handleRefresh(message),
+                { scope: APPLICATION_SCOPE }
+            );
         }
     }
     
@@ -77,6 +92,29 @@ export default class TaskDueDateMetrics extends NavigationMixin(LightningElement
         if (this.subscription) {
             unsubscribe(this.subscription);
             this.subscription = null;
+        }
+        
+        if (this.refreshSubscription) {
+            unsubscribe(this.refreshSubscription);
+            this.refreshSubscription = null;
+        }
+    }
+    
+    /**
+     * @description Handle refresh message from LMS
+     * Forces a refresh of the wire service by temporarily clearing and restoring accountIds
+     * @param {Object} message - Refresh message with timestamp
+     * @private
+     */
+    handleRefresh(message) {
+        if (message && message.refreshTimestamp) {
+            // Force wire refresh by temporarily clearing and restoring accountIds
+            const currentAccountIds = [...this._filteredAccountIds];
+            this._filteredAccountIds = [];
+            // Use setTimeout to ensure the wire service processes the change
+            setTimeout(() => {
+                this._filteredAccountIds = currentAccountIds;
+            }, 0);
         }
     }
     

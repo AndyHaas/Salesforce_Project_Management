@@ -1,5 +1,14 @@
 <template>
     <lightning-card title="Project Task Dashboard" icon-name="utility:task">
+        <div slot="actions">
+            <lightning-button-icon 
+                icon-name="utility:refresh" 
+                alternative-text="Refresh"
+                title="Refresh Dashboard"
+                onclick={handleRefresh}
+                variant="border-filled">
+            </lightning-button-icon>
+        </div>
         <div class="slds-card__body slds-card__body_inner">
             <!-- Dynamically render components in configured order -->
             <template for:each={orderedComponents} for:item="comp">
