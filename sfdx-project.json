@@ -3,6 +3,11 @@
     {
       "path": "force-app",
       "default": true
+    },
+    {
+      "path": "force-app/portal",
+      "default": false,
+      "package": "Portal"
     }
   ],
   "name": "Milestone-Task-Management",
