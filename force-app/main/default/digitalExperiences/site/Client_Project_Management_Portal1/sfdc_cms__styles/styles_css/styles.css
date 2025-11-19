@@ -216,6 +216,13 @@ select:focus {
     background: transparent !important;
 }
 
+/* Header Section Wrapper - Ensure gradient background */
+[data-region-name="headerSection"] .community_builder\:customizableHeader,
+[data-region-name="headerSection"] > div,
+[data-region-name="headerSection"] > section {
+    background: linear-gradient(135deg, #355d7c 0%, #4d86b2 100%) !important;
+}
+
 /* Navigation Links */
 .community_navigation\:customizableNavigationBarContainer a,
 .community_navigation\:customizableNavigationBarContainer [role="link"],
