@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "Project Related List",
+  "contentBody" : {
+    "activeViewId" : "Project_Related_List",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "relatedlist-Project__c",
+    "urlPrefix" : "project"
+  },
+  "urlName" : "project-related-list"
+}

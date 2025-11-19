@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "Project Task Detail",
+  "contentBody" : {
+    "activeViewId" : "Project_Task_Detail",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "detail-Project_Task__c",
+    "urlPrefix" : "project-task"
+  },
+  "urlName" : "project-task-detail"
+}
