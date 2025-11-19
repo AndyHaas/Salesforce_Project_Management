@@ -37,7 +37,6 @@ This package provides a complete project and task management solution for Salesf
 
 ### Apex Classes
 - `ProjectTaskDashboardController`: Dashboard controller logic
-- `RelatedTasksController`: Related tasks controller
 - `TaskDependencyHelper`: Dependency validation and management
 - `TaskProgressCalculator`: Automated progress calculations
 
