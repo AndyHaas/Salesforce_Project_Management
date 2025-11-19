@@ -22,7 +22,7 @@ Core elements:
 2. `taskListComponent` wires both the task list data and the field-set definition. When either changes:
    - Columns are rebuilt dynamically with the right datatable types, type attributes, and cell decorations (e.g., status badges, numeric alignment, percent formatting).
    - Row data is reprocessed to inject helper display fields (URL for `Name`, reference labels, percent normalization, CSS status classes).
-3. Admin changes to the field set automatically flow to the dashboard table after a deploy/refresh.
+3. Admin changes to the field set automatically appear in the dashboard table after refreshing the page.
 
 ### Customizing Columns
 
@@ -34,15 +34,7 @@ Admins can customize which columns appear in the task list table without any cod
    - Fields can be added from any available field on the Project Task object
    - Field order in the field set determines column order in the table
 4. **Save Changes**: Click Save in the Salesforce UI
-5. **Retrieve Metadata**: Pull the updated field set into your repository:
-   ```bash
-   sf project retrieve start --metadata "FieldSet:Project_Task__c.Project_Task_Dashboard_Table"
-   ```
-6. **Deploy to Other Orgs** (if needed): Deploy the updated field set metadata:
-   ```bash
-   sf project deploy start --source-dir force-app/main/default/objects/Project_Task__c/fieldSets/Project_Task_Dashboard_Table.fieldSet-meta.xml
-   ```
-7. **Reload Dashboard**: Refresh the dashboard page—columns will update automatically
+5. **Reload Dashboard**: Refresh the dashboard page—columns will update automatically
 
 **Note**: No code changes are required. The component automatically detects and renders fields from the field set.
 
@@ -69,47 +61,14 @@ The system uses two main field sets that can be customized by admins:
 
 ### Updating Field Sets
 
-Both field sets can be updated through the Salesforce UI and then retrieved via CLI:
+Both field sets can be updated through the Salesforce UI. Changes take effect immediately after saving.
 
-#### For Project_Task_Dashboard_Table:
-```bash
-sf project retrieve start --metadata "FieldSet:Project_Task__c.Project_Task_Dashboard_Table"
-```
-
-#### For Task_Hover_Fields:
-```bash
-sf project retrieve start --metadata "FieldSet:Project_Task__c.Task_Hover_Fields"
-```
-
-#### Retrieve Both at Once:
-```bash
-sf project retrieve start --metadata "FieldSet:Project_Task__c.Project_Task_Dashboard_Table" "FieldSet:Project_Task__c.Task_Hover_Fields"
-```
-
-This checkpoints admin changes before committing to version control.
-
-## Testing & Deployment
-
-1. Run Apex tests covering the dashboard controller (specifically `ProjectTaskDashboardControllerTest`) to ensure field-set metadata is valid:
-
-```bash
-sf apex run test --tests ProjectTaskDashboardControllerTest
-```
-
-2. Deploy updated metadata:
-
-```bash
-sf project deploy start --source-dir force-app/main/default/lwc/taskListComponent \
-  --source-dir force-app/main/default/classes/ProjectTaskDashboardController.cls \
-  --source-dir force-app/main/default/classes/ProjectTaskDashboardControllerTest.cls \
-  --source-dir force-app/main/default/objects/Project_Task__c/fieldSets/Project_Task_Dashboard_Table.fieldSet-meta.xml
-```
 
 ## Troubleshooting
 
 | Symptom | Likely Cause | Resolution |
 | --- | --- | --- |
-| Task list shows no columns | Field-set wire failed or field set empty | Verify `Project_Task_Dashboard_Table` contains at least one field and rerun retrieve/deploy |
+| Task list shows no columns | Field-set wire failed or field set empty | Verify `Project_Task_Dashboard_Table` contains at least one field and refresh the page |
 | Column shows API name instead of label | Field set entry missing label | Update field set label in Setup |
 | Reference columns display Ids | Relationship not accessible or missing from query | Ensure the field is reference type and has relationship access; controller auto-adds `relationship.Name` |
 | Percent field displays 0–1 values | Field stored as decimal fraction | Confirm field is defined as Percent (metadata) so scaling logic applies |
@@ -241,15 +200,7 @@ Admins can customize which fields appear in hover cards without any code changes
    - Fields can be added from any available field on the Project Task object
    - Field order in the field set determines display order in the hover card
 4. **Save Changes**: Click Save in the Salesforce UI
-5. **Retrieve Metadata**: Pull the updated field set into your repository:
-   ```bash
-   sf project retrieve start --metadata "FieldSet:Project_Task__c.Task_Hover_Fields"
-   ```
-6. **Deploy to Other Orgs** (if needed): Deploy the updated field set metadata:
-   ```bash
-   sf project deploy start --source-dir force-app/main/default/objects/Project_Task__c/fieldSets/Task_Hover_Fields.fieldSet-meta.xml
-   ```
-7. **Test**: Hover over a task name—the hover card will automatically show the updated fields
+5. **Test**: Hover over a task name—the hover card will automatically show the updated fields
 
 **Note**: No code changes are required. The component automatically detects and renders fields from the field set.
 
@@ -328,6 +279,10 @@ The component subscribes to `AccountFilter__c` message channel for cross-compone
 - `force-app/main/default/classes/TaskContextControllerTest.cls`
 - `force-app/main/default/classes/TaskDependencyHelper.cls`
 - `force-app/main/default/classes/TaskDependencyHelperTest.cls`
+- `force-app/main/default/classes/TaskProgressCalculator.cls`
+- `force-app/main/default/classes/TaskProgressCalculatorTest.cls`
+- `force-app/main/default/classes/TaskSubtaskHelper.cls`
+- `force-app/main/default/classes/TaskSubtaskHelperTest.cls`
 
 ### Objects & Field Sets
 - `force-app/main/default/objects/Project_Task__c/fieldSets/Project_Task_Dashboard_Table.fieldSet-meta.xml`
@@ -335,7 +290,7 @@ The component subscribes to `AccountFilter__c` message channel for cross-compone
 - `force-app/main/default/objects/Project_Task_Relationship__c/` (junction object)
 
 ### Triggers
-- `force-app/main/default/triggers/ProjectTaskTrigger.trigger`
+- `force-app/main/default/triggers/ProjectTaskTrigger.trigger` - Handles all automated business logic for Project Tasks including subtask user population, parent status updates, progress calculation, and dependency risk assessment
 
 ## Testing
 
@@ -348,23 +303,8 @@ A comprehensive test suite has been created to ensure code quality and coverage 
 - `TaskDependencyHelperTest`: Tests for dependency risk assessment and blocking status updates
 - `TaskProgressCalculatorTest`: Tests for subtask progress calculation logic
 - `TaskContextControllerTest`: Tests for relationship management and dependency data retrieval
+- `TaskSubtaskHelperTest`: Tests for subtask user population, parent status updates, and validation logic
 
-### Running Tests
-
-To run the test suite:
-
-```bash
-sf apex run test --test-suite TaskProjectTests
-```
-
-To run individual test classes:
-
-```bash
-sf apex run test --tests ProjectTaskDashboardControllerTest
-sf apex run test --tests TaskDependencyHelperTest
-sf apex run test --tests TaskProgressCalculatorTest
-sf apex run test --tests TaskContextControllerTest
-```
 
 ## Layout & Page Configuration Updates
 
@@ -384,6 +324,35 @@ The record page flexipage includes:
 - **Enhanced Field Display**: Key fields displayed in the header region
 - **Related Lists**: Junction object related lists for viewing all task relationships
 
+## Automated Business Logic (Triggers & Helpers)
+
+### ProjectTaskTrigger
+
+The `ProjectTaskTrigger` handles all automated business logic for Project Tasks.
+
+#### Trigger Contexts
+
+- **before insert**: Populates subtask fields from parent before save
+- **before update**: Validates parent tasks cannot be closed with open subtasks
+- **after insert**: Calculates progress and assesses dependency risk
+- **after update**: Updates parent status, recalculates progress, and reassesses dependencies
+- **after delete**: Recalculates parent progress when subtasks are deleted
+
+#### Helper Classes
+
+1. **TaskSubtaskHelper**: Manages subtask relationships and validations
+   - `populateSubtaskUsers()`: Automatically populates OwnerId and Client_User__c from parent task when creating subtasks
+   - `updateParentTaskStatus()`: Updates parent task status when subtask moves from Backlog→Pending or Pending→In Progress
+   - `validateParentCanBeClosed()`: Prevents closing a parent task if it has open subtasks
+
+2. **TaskProgressCalculator**: Calculates parent task progress based on subtasks
+   - Updates `Progress_Percentage__c`, `Total_Estimated_Hours__c`, and `Total_Actual_Hours__c`
+   - Based on subtask completion status and hours
+
+3. **TaskDependencyHelper**: Assesses dependency risk and blocking status
+   - Updates `At_Risk_Due_to_Dependencies__c` when blocking dependencies are incomplete
+   - Updates `Is_Blocking__c` when a task blocks other tasks
+
 ## Code Documentation
 
 All Lightning Web Components and Apex classes have been updated with comprehensive usage documentation comments, including:
@@ -391,6 +360,7 @@ All Lightning Web Components and Apex classes have been updated with comprehensi
 - Method documentation with parameter descriptions
 - Class-level documentation explaining purpose and integration points
 - Field set dependencies and configuration requirements
+- Trigger documentation explaining execution order and business logic
 
 This documentation is embedded in the code and can be viewed in IDEs and documentation generators.
 
@@ -418,18 +388,6 @@ Significant UI/UX updates have been made to the Experience Cloud portal:
 - **Theme**: Custom theme with header and footer styling
 - **Routes**: Configured routes for login, home, account, and project task pages
 - **Static Resources**: `MilestoneTheme.css` for portal styling
-
-### Portal Deployment
-
-Portal components are in the `force-app/portal` directory and can be deployed separately:
-
-```bash
-# Deploy portal only
-sf project deploy start --source-dir force-app/portal
-
-# Deploy everything
-sf project deploy start
-```
 
 See `force-app/portal/README.md` for detailed portal setup instructions.
 

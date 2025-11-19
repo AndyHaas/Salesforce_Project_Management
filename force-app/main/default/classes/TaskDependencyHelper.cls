@@ -10,6 +10,15 @@
  */
 public with sharing class TaskDependencyHelper {
     public static void assessDependencyRisk(List<Project_Task__c> tasks) {
+        assessDependencyRisk(tasks, null);
+    }
+    
+    public static void assessDependencyRisk(List<Project_Task__c> tasks, Map<Id, Project_Task__c> oldMap) {
+        // Build map of tasks being updated for quick lookup
+        Map<Id, Project_Task__c> tasksMap = new Map<Id, Project_Task__c>();
+        for (Project_Task__c task : tasks) {
+            tasksMap.put(task.Id, task);
+        }
         Set<Id> taskIds = new Set<Id>();
         Set<Id> relatedTaskIds = new Set<Id>();
         
@@ -50,8 +59,17 @@ public with sharing class TaskDependencyHelper {
         Set<Id> allStatusCheckIds = new Set<Id>(relatedTaskIds);
         allStatusCheckIds.addAll(taskIds);
         Map<Id, Project_Task__c> relatedTasksMap = new Map<Id, Project_Task__c>([
-            SELECT Id, Status__c FROM Project_Task__c WHERE Id IN :allStatusCheckIds
+            SELECT Id, Status__c, At_Risk_Due_to_Dependencies__c FROM Project_Task__c WHERE Id IN :allStatusCheckIds
         ]);
+        
+        // Override with updated status from Trigger.new for tasks being updated in this transaction
+        // This ensures we use the NEW status, not the OLD status from the database query
+        for (Id taskId : taskIds) {
+            if (tasksMap.containsKey(taskId) && relatedTasksMap.containsKey(taskId)) {
+                // Update the status in the map to use the NEW status from Trigger.new
+                relatedTasksMap.get(taskId).Status__c = tasksMap.get(taskId).Status__c;
+            }
+        }
         
         // Also get all tasks that have blocking dependencies on the tasks being updated or related tasks
         // These are the tasks that might need their Is_Blocking__c field updated
@@ -74,40 +92,51 @@ public with sharing class TaskDependencyHelper {
         List<Project_Task__c> tasksToUpdate = new List<Project_Task__c>();
         
         // Process tasks from Trigger.new - check if they have blocking dependencies
+        // Always recalculate risk for any task that is updated
         for (Project_Task__c task : tasks) {
+            // Get current database value for comparison (may be different from Trigger.new)
+            Project_Task__c currentTask = relatedTasksMap.get(task.Id);
+            Boolean currentAtRiskValue = currentTask != null ? currentTask.At_Risk_Due_to_Dependencies__c : false;
+            
             // Find relationships where this task is Task A (depends on Task B)
+            Boolean hasBlockingDep = false;
+            Boolean isAtRisk = false;
+            
             for (Project_Task_Relationship__c rel : blockingRelationships) {
                 if (rel.Task_A__c == task.Id) {
+                    hasBlockingDep = true;
                     Project_Task__c relatedTask = relatedTasksMap.get(rel.Task_B__c);
                     if (relatedTask != null) {
                         // Task is at risk if the blocking dependency is not completed/closed/in review/removed
                         // In Review means work is done, just waiting for approval, so it's not blocking
                         // Removed tasks are no longer active, so they don't block
-                        Boolean isAtRisk = relatedTask.Status__c != 'Completed' 
+                        // Statuses that ARE blocking: Backlog, Pending, In Progress, Blocked
+                        // Check ALL blocking dependencies - task is at risk if ANY are blocking
+                        Boolean thisDependencyIsBlocking = relatedTask.Status__c != 'Completed' 
                             && relatedTask.Status__c != 'Closed' 
                             && relatedTask.Status__c != 'In Review'
                             && relatedTask.Status__c != 'Removed';
-                        if (task.At_Risk_Due_to_Dependencies__c != isAtRisk) {
-                            // Create new instance instead of modifying Trigger.new record
-                            tasksToUpdate.add(new Project_Task__c(
-                                Id = task.Id,
-                                At_Risk_Due_to_Dependencies__c = isAtRisk
-                            ));
+                        // If this dependency is blocking, task is at risk (don't need to check others)
+                        if (thisDependencyIsBlocking) {
+                            isAtRisk = true;
+                            break; // Found a blocking dependency, no need to check others
                         }
-                        break; // Only process first blocking dependency
+                        // If this dependency is not blocking, continue checking other dependencies
                     }
                 }
             }
             
-            // If task has no blocking dependencies but is marked as at risk, clear it
-            Boolean hasBlockingDep = false;
-            for (Project_Task_Relationship__c rel : blockingRelationships) {
-                if (rel.Task_A__c == task.Id) {
-                    hasBlockingDep = true;
-                    break;
+            // Always update if the calculated value differs from current value
+            // This ensures any update triggers a re-assessment
+            if (hasBlockingDep) {
+                if (currentAtRiskValue != isAtRisk) {
+                    tasksToUpdate.add(new Project_Task__c(
+                        Id = task.Id,
+                        At_Risk_Due_to_Dependencies__c = isAtRisk
+                    ));
                 }
-            }
-            if (!hasBlockingDep && task.At_Risk_Due_to_Dependencies__c == true) {
+            } else if (currentAtRiskValue == true) {
+                // Task has no blocking dependencies but is marked as at risk, clear it
                 tasksToUpdate.add(new Project_Task__c(
                     Id = task.Id,
                     At_Risk_Due_to_Dependencies__c = false
@@ -132,6 +161,9 @@ public with sharing class TaskDependencyHelper {
                     && relatedTask.Status__c != 'Closed' 
                     && relatedTask.Status__c != 'In Review'
                     && relatedTask.Status__c != 'Removed';
+                
+                // Always check and update if needed - don't skip based on status change
+                // The field value might be out of sync, so we always recalculate
                 if (dependentTask.At_Risk_Due_to_Dependencies__c != isAtRisk) {
                     tasksToUpdate.add(new Project_Task__c(
                         Id = dependentTask.Id,
