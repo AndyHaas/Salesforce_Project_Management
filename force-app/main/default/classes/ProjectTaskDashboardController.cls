@@ -15,7 +15,7 @@
  *   - taskDueDateMetrics: getDueDateMetrics()
  *   - taskListComponent: getTaskList(), getTaskListFieldSetDefinition()
  *   - groupedTaskList: getGroupedTasksWithSubtasks(), getAccounts()
- *   - taskContextPanel: getSubtaskProgress(), getDependencyData()
+ *   - taskContextPanel: getDependencyData()
  */
 public with sharing class ProjectTaskDashboardController {
 
@@ -866,55 +866,6 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public Boolean isReference;
         @AuraEnabled public String referenceRelationshipName;
         @AuraEnabled public Boolean isNameField;
-    }
-    
-    @AuraEnabled(cacheable=true)
-    public static SubtaskProgressResult getSubtaskProgress(String taskId) {
-        if (taskId == null || taskId == '') {
-            return null;
-        }
-        
-        List<Project_Task__c> subtasks = [
-            SELECT Id, Status__c
-            FROM Project_Task__c
-            WHERE Parent_Task__c = :taskId
-        ];
-        
-        if (subtasks.isEmpty()) {
-            return null; // No subtasks, so don't show progress indicator
-        }
-        
-        Integer totalCount = subtasks.size();
-        Integer completedCount = 0;
-        Integer removedCount = 0;
-        
-        for (Project_Task__c subtask : subtasks) {
-            if (subtask.Status__c == 'Completed' || subtask.Status__c == 'Closed') {
-                completedCount++;
-            } else if (subtask.Status__c == 'Removed') {
-                removedCount++;
-            }
-        }
-        
-        Integer validTotal = totalCount - removedCount;
-        Decimal progressPercentage = validTotal > 0 
-            ? (Decimal.valueOf(completedCount) / Decimal.valueOf(validTotal)) * 100 
-            : 0;
-        
-        SubtaskProgressResult result = new SubtaskProgressResult();
-        result.progressPercentage = progressPercentage.setScale(2);
-        result.completedCount = completedCount;
-        result.totalCount = validTotal;
-        result.hasSubtasks = true;
-        
-        return result;
-    }
-    
-    public class SubtaskProgressResult {
-        @AuraEnabled public Decimal progressPercentage;
-        @AuraEnabled public Integer completedCount;
-        @AuraEnabled public Integer totalCount;
-        @AuraEnabled public Boolean hasSubtasks;
     }
     
     @AuraEnabled(cacheable=true)

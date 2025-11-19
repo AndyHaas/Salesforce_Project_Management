@@ -8,10 +8,6 @@
         <apexClass>ProjectTaskDashboardController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>RelatedTasksController</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
     <description>Limited access to Project Management Tool for regular users</description>
     <fieldPermissions>
         <editable>true</editable>
