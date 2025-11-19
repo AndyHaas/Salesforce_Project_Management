@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApexTestSuite xmlns="http://www.salesforce.com/2006/04/metadata">
+    <testClassName>ProjectTaskDashboardControllerTest</testClassName>
+    <testClassName>TaskDependencyHelperTest</testClassName>
+    <testClassName>TaskProgressCalculatorTest</testClassName>
+</ApexTestSuite>
