@@ -43,10 +43,18 @@ This package provides a complete project and task management solution for Salesf
 - `TaskContextController`: Controller for task relationships, dependencies, and context panel
 - `TaskDependencyHelper`: Dependency risk assessment and blocking status management
 - `TaskProgressCalculator`: Automated progress calculations for parent tasks
-- `TaskSubtaskHelper`: Helper class for subtask management
+- `TaskSubtaskHelper`: Helper class for subtask management (user population, parent status updates, validation)
+
+### Triggers
+- `ProjectTaskTrigger`: Comprehensive trigger handling all automated business logic for Project Tasks including:
+  - Subtask user population from parent (before insert)
+  - Parent task validation (before update)
+  - Progress calculation (after insert/update/delete)
+  - Dependency risk assessment (after insert/update)
+  - Parent status updates based on subtask changes (after update)
 
 ### Flows
-- 33 Flow definitions for automation and business processes
+- 29 Flow definitions for automation and business processes
 
 ### Permission Sets
 - `Project_Management_Admin`: Full administrative access
