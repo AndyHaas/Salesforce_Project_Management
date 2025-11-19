@@ -1,3 +1,12 @@
+/**
+ * @description Apex controller for retrieving related tasks via Project_Task_Relationship__c
+ * 
+ * Returns tasks that are related to a given task through the junction object.
+ * 
+ * USAGE:
+ * - Currently not actively used by any LWC components
+ * - Available for future use if related tasks functionality is needed
+ */
 public with sharing class RelatedTasksController {
     @AuraEnabled(cacheable=true)
     public static List<Project_Task__c> getRelatedTasks(String taskId) {

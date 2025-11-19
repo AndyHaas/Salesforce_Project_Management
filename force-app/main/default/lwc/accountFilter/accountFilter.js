@@ -13,6 +13,10 @@
  * - Publishes filter changes via LMS
  * 
  * @component
+ * 
+ * USAGE:
+ * - Used in: projectTaskDashboard component (dynamically rendered)
+ * - Can be placed on: Home pages, App pages, Record pages, Experience Cloud pages
  */
 import { LightningElement, api, wire } from 'lwc';
 import { getRecord } from 'lightning/uiRecordApi';

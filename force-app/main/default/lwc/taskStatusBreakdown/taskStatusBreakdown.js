@@ -1,3 +1,13 @@
+/**
+ * @description Task Status Breakdown Component
+ * 
+ * Displays a breakdown of Project Tasks by status with a Chart.js visualization.
+ * Subscribes to account filter changes via Lightning Message Service.
+ * 
+ * USAGE:
+ * - Used in: projectTaskDashboard component (dynamically rendered)
+ * - Apex Controller: ProjectTaskDashboardController.getStatusBreakdown()
+ */
 import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';

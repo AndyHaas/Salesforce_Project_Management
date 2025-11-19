@@ -1,3 +1,13 @@
+/**
+ * @description Grouped Task List Component
+ * 
+ * Displays tasks grouped by status with expandable subtasks, hover field details,
+ * and "Me" mode filtering. Shows latest Chatter comments for each task.
+ * 
+ * USAGE:
+ * - Used in: Standalone component, can be placed on any Lightning page
+ * - Apex Controller: ProjectTaskDashboardController.getGroupedTasksWithSubtasks(), getAccounts()
+ */
 import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';

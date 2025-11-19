@@ -1,3 +1,13 @@
+/**
+ * @description Helper class for assessing task dependency risk and blocking status
+ * 
+ * Evaluates blocking dependencies and updates At_Risk_Due_to_Dependencies__c
+ * and Is_Blocking__c fields on Project_Task__c records.
+ * 
+ * USAGE:
+ * - Used in: ProjectTaskTrigger (after insert, after update)
+ * - Called by: TaskDependencyHelper.assessDependencyRisk()
+ */
 public with sharing class TaskDependencyHelper {
     public static void assessDependencyRisk(List<Project_Task__c> tasks) {
         Set<Id> taskIds = new Set<Id>();

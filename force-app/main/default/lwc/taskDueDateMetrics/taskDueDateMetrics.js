@@ -6,6 +6,10 @@
  * 
  * @author Milestone Consulting
  * @since API Version 65.0
+ * 
+ * USAGE:
+ * - Used in: projectTaskDashboard component (dynamically rendered)
+ * - Apex Controller: ProjectTaskDashboardController.getDueDateMetrics()
  */
 
 import { LightningElement, api, wire } from 'lwc';

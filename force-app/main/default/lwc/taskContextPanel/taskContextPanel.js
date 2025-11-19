@@ -8,6 +8,10 @@
  * 
  * @component
  * @author Salesforce LWC
+ * 
+ * USAGE:
+ * - Used in: Project_Task_Record_Page.flexipage (sidebar region)
+ * - Apex Controller: ProjectTaskDashboardController.getSubtaskProgress(), getDependencyData()
  */
 import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
