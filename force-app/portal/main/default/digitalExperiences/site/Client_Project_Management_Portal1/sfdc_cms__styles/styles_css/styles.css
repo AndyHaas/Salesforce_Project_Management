@@ -573,3 +573,126 @@ nav img[class*="icon"] {
 [data-region-name="footerSection"] a[href^="tel:"]:hover {
     color: var(--mc-accent-orange) !important;
 }
+
+/* ============================================
+   HTML Editor Content Styles
+   ============================================ */
+
+/* Ensure HTML Editor content in header renders properly */
+[data-region-name="headerSection"] .community_builder\:htmlEditor,
+[data-region-name="headerSection"] [class*="htmlEditor"],
+[data-region-name="headerSection"] [class*="richText"] {
+    width: 100% !important;
+}
+
+[data-region-name="headerSection"] .community_builder\:htmlEditor > *,
+[data-region-name="headerSection"] [class*="htmlEditor"] > *,
+[data-region-name="headerSection"] [class*="richText"] > * {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Ensure HTML Editor content in footer renders properly */
+[data-region-name="footerSection"] .community_builder\:htmlEditor,
+[data-region-name="footerSection"] [class*="htmlEditor"],
+[data-region-name="footerSection"] [class*="richText"] {
+    width: 100% !important;
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+[data-region-name="footerSection"] .community_builder\:htmlEditor > *,
+[data-region-name="footerSection"] [class*="htmlEditor"] > *,
+[data-region-name="footerSection"] [class*="richText"] > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+/* Force footer HTML content to display properly */
+[data-region-name="footerSection"] div[style*="background-color: #000000"],
+[data-region-name="footerSection"] div[style*="background-color:#000000"] {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 3rem 2rem !important;
+}
+
+/* Ensure footer grid layout works */
+[data-region-name="footerSection"] div[style*="display: grid"] {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 2rem !important;
+}
+
+/* Footer text colors - ensure all text is white */
+[data-region-name="footerSection"] p,
+[data-region-name="footerSection"] span,
+[data-region-name="footerSection"] a,
+[data-region-name="footerSection"] h3,
+[data-region-name="footerSection"] h4,
+[data-region-name="footerSection"] li {
+    color: #ffffff !important;
+}
+
+[data-region-name="footerSection"] a {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-region-name="footerSection"] a:hover {
+    color: #ffffff !important;
+}
+
+/* Footer icons - ensure they're visible */
+[data-region-name="footerSection"] .slds-icon,
+[data-region-name="footerSection"] svg {
+    fill: rgba(255, 255, 255, 0.9) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Footer logo - ensure it's visible */
+[data-region-name="footerSection"] img[src*="MilestoneLogo_White"],
+[data-region-name="footerSection"] img[alt*="Milestone Consulting"] {
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+/* Header HTML Editor content */
+[data-region-name="headerSection"] div[style*="background: linear-gradient"] {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Ensure header navigation links are white */
+[data-region-name="headerSection"] nav a {
+    color: #ffffff !important;
+}
+
+[data-region-name="headerSection"] nav a:hover {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Responsive adjustments for HTML Editor content */
+@media (max-width: 768px) {
+    [data-region-name="footerSection"] div[style*="display: grid"] {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+    
+    [data-region-name="footerSection"] div[style*="background-color: #000000"] {
+        padding: 2rem 1rem !important;
+    }
+    
+    [data-region-name="headerSection"] div[style*="background: linear-gradient"] {
+        padding: 1rem !important;
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+    
+    [data-region-name="headerSection"] nav {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+}
