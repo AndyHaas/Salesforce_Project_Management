@@ -1,8 +1,29 @@
 <template>
-    <lightning-card title="Task Relationships" icon-name="utility:related_list">
+    <lightning-card title="Task Context" icon-name="utility:related_list">
+        <!-- Progress Section (for parent tasks with subtasks) -->
+        <template if:true={shouldShowProgress}>
+            <div class="slds-card__body slds-card__body_inner slds-border_bottom">
+                <div class="slds-m-bottom_small">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">
+                        <lightning-icon icon-name="utility:chart" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                        {progressTitle}
+                    </h3>
+                    <div class="slds-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={_progressPercentage}>
+                        <span class="slds-progress-bar__value" style={progressStyle}>
+                            <span class="slds-assistive-text">{progressDisplayText}</span>
+                        </span>
+                    </div>
+                    <div class="slds-text-align_center slds-m-top_small">
+                        <span class="slds-text-heading_small">{progressDisplayText}</span>
+                    </div>
+                </div>
+            </div>
+        </template>
+        
+        <!-- Relationships Section -->
         <template if:true={isLoading}>
             <div class="slds-card__body slds-card__body_inner">
-                <lightning-spinner alternative-text="Loading task relationships"></lightning-spinner>
+                <lightning-spinner alternative-text="Loading task context"></lightning-spinner>
             </div>
         </template>
         
@@ -20,17 +41,18 @@
                             <p class="slds-m-top_x-small">Complete this task to unblock dependent tasks. Check the "Tasks That Depend on This" section below.</p>
                         </div>
                     </template>
+                    
                     <!-- Parent Task Section -->
                     <template if:true={hasParentTask}>
-                        <div class="dependency-section slds-m-bottom_medium">
+                        <div class="context-section slds-m-bottom_medium">
                             <h3 class="slds-text-heading_small slds-m-bottom_small">
                                 <lightning-icon icon-name="utility:task" size="x-small" class="slds-m-right_x-small"></lightning-icon>
                                 Parent Task
                             </h3>
-                            <div class="dependency-item" data-id={parentTask.id} onclick={navigateToTask}>
+                            <div class="context-item" data-id={parentTask.id} onclick={navigateToTask}>
                                 <div class="slds-grid slds-grid_align-spread slds-wrap">
                                     <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
-                                        <div class="slds-text-heading_small dependency-name">{parentTask.name}</div>
+                                        <div class="slds-text-heading_small context-name">{parentTask.name}</div>
                                         <div class="slds-m-top_x-small">
                                             <span class={parentTaskStatusBadgeClass}>{parentTask.status}</span>
                                             <template if:true={parentTask.priority}>
@@ -39,7 +61,7 @@
                                         </div>
                                     </div>
                                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-medium-text-align_left">
-                                        <lightning-icon icon-name="utility:chevronright" size="x-small" class="dependency-link-icon"></lightning-icon>
+                                        <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
                                     </div>
                                 </div>
                             </div>
@@ -48,7 +70,7 @@
                     
                     <!-- Related Task (Dependency) Section -->
                     <template if:true={hasRelatedTask}>
-                        <div class="dependency-section slds-m-bottom_medium">
+                        <div class="context-section slds-m-bottom_medium">
                             <h3 class="slds-text-heading_small slds-m-bottom_small">
                                 <lightning-icon icon-name="utility:flow" size="x-small" class="slds-m-right_x-small"></lightning-icon>
                                 Dependency
@@ -56,16 +78,16 @@
                                     <lightning-icon icon-name="utility:warning" size="x-small" class="slds-m-left_x-small risk-indicator" title="Task is at risk due to this dependency"></lightning-icon>
                                 </template>
                             </h3>
-                            <div class="dependency-item" data-id={relatedTask.id} onclick={navigateToTask}>
+                            <div class="context-item" data-id={relatedTask.id} onclick={navigateToTask}>
                                 <div class="slds-grid slds-grid_align-spread slds-wrap">
                                     <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
-                                        <div class="slds-text-heading_small dependency-name">{relatedTask.name}</div>
+                                        <div class="slds-text-heading_small context-name">{relatedTask.name}</div>
                                         <div class="slds-m-top_x-small">
                                             <span class={relatedTaskStatusBadgeClass}>{relatedTask.status}</span>
                                             <template if:true={relatedTask.priority}>
                                                 <span class={relatedTaskPriorityBadgeClass}>{relatedTask.priority}</span>
                                             </template>
-                                            <span class="slds-badge slds-badge_lightest dependency-type-badge">
+                                            <span class="slds-badge slds-badge_lightest context-type-badge">
                                                 <template if:true={relatedTask.isBlocking}>
                                                     <lightning-icon icon-name="utility:ban" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
                                                     Blocking
@@ -77,7 +99,7 @@
                                         </div>
                                     </div>
                                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-medium-text-align_left">
-                                        <lightning-icon icon-name="utility:chevronright" size="x-small" class="dependency-link-icon"></lightning-icon>
+                                        <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
                                     </div>
                                 </div>
                             </div>
@@ -86,7 +108,7 @@
                     
                     <!-- Tasks That Depend on This Task (Collapsible, open by default) -->
                     <template if:true={hasDependentTasks}>
-                        <div class="dependency-section">
+                        <div class="context-section">
                             <h3 class="slds-text-heading_small slds-m-bottom_small">
                                 <button class="slds-button slds-button_reset slds-text-heading_small dependent-tasks-toggle-button" onclick={toggleDependentTasks}>
                                     <lightning-icon icon-name="utility:related_list" size="x-small" class="slds-m-right_x-small"></lightning-icon>
@@ -96,16 +118,16 @@
                             </h3>
                             <template if:true={dependentTasksExpanded}>
                                 <template for:each={dependentTasks} for:item="depTask">
-                                    <div key={depTask.id} class="dependency-item slds-m-bottom_small" data-id={depTask.id} onclick={navigateToTask}>
+                                    <div key={depTask.id} class="context-item slds-m-bottom_small" data-id={depTask.id} onclick={navigateToTask}>
                                         <div class="slds-grid slds-grid_align-spread slds-wrap">
                                             <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
-                                                <div class="dependency-name">{depTask.name}</div>
+                                                <div class="context-name">{depTask.name}</div>
                                                 <div class="slds-m-top_x-small">
                                                     <span class={depTask.statusBadgeClass}>{depTask.status}</span>
                                                     <template if:true={depTask.priority}>
                                                         <span class={depTask.priorityBadgeClass}>{depTask.priority}</span>
                                                     </template>
-                                                    <span class="slds-badge slds-badge_lightest dependency-type-badge">
+                                                    <span class="slds-badge slds-badge_lightest context-type-badge">
                                                         <template if:true={depTask.isBlocking}>
                                                             <lightning-icon icon-name="utility:ban" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
                                                             Blocking
@@ -120,7 +142,7 @@
                                                 </div>
                                             </div>
                                             <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-medium-text-align_left">
-                                                <lightning-icon icon-name="utility:chevronright" size="x-small" class="dependency-link-icon"></lightning-icon>
+                                                <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
                                             </div>
                                         </div>
                                     </div>
@@ -131,7 +153,7 @@
                     
                     <!-- Sub Tasks Section (Collapsible) -->
                     <template if:true={hasSubtasks}>
-                        <div class="dependency-section">
+                        <div class="context-section">
                             <h3 class="slds-text-heading_small slds-m-bottom_small">
                                 <button class="slds-button slds-button_reset slds-text-heading_small subtasks-toggle-button" onclick={toggleSubtasks}>
                                     <lightning-icon icon-name="utility:task" size="x-small" class="slds-m-right_x-small"></lightning-icon>
@@ -141,16 +163,16 @@
                             </h3>
                             <template if:true={subtasksExpanded}>
                                 <template for:each={subtasks} for:item="subtask">
-                                    <div key={subtask.id} class="dependency-item slds-m-bottom_small" data-id={subtask.id} onclick={navigateToTask}>
+                                    <div key={subtask.id} class="context-item slds-m-bottom_small" data-id={subtask.id} onclick={navigateToTask}>
                                         <div class="slds-grid slds-grid_align-spread slds-wrap">
                                             <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
-                                                <div class="dependency-name">{subtask.name}</div>
+                                                <div class="context-name">{subtask.name}</div>
                                                 <div class="slds-m-top_x-small">
                                                     <span class={subtask.statusBadgeClass}>{subtask.status}</span>
                                                     <template if:true={subtask.priority}>
                                                         <span class={subtask.priorityBadgeClass}>{subtask.priority}</span>
                                                     </template>
-                                                    <span class="slds-badge slds-badge_lightest dependency-type-badge">
+                                                    <span class="slds-badge slds-badge_lightest context-type-badge">
                                                         <template if:true={subtask.isBlocking}>
                                                             <lightning-icon icon-name="utility:ban" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
                                                             Blocking
@@ -165,7 +187,7 @@
                                                 </div>
                                             </div>
                                             <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-medium-text-align_left">
-                                                <lightning-icon icon-name="utility:chevronright" size="x-small" class="dependency-link-icon"></lightning-icon>
+                                                <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
                                             </div>
                                         </div>
                                     </div>

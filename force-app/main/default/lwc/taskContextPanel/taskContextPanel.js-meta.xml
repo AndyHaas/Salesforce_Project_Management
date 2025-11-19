@@ -2,8 +2,8 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>Related Tasks List</masterLabel>
-    <description>Displays a list of tasks related to the current Project Task record</description>
+    <masterLabel>Task Context Panel</masterLabel>
+    <description>Displays task context including progress, relationships, dependencies, and subtasks</description>
     <targets>
         <target>lightning__RecordPage</target>
         <target>lightning__AppPage</target>
