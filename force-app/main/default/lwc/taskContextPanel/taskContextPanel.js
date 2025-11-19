@@ -11,15 +11,15 @@
  * 
  * USAGE:
  * - Used in: Project_Task_Record_Page.flexipage (sidebar region)
- * - Apex Controller: ProjectTaskDashboardController.getDependencyData() (includes subtask progress)
+ * - Apex Controller: TaskContextController.getDependencyData() (includes subtask progress)
  */
 import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
 import { refreshApex } from '@salesforce/apex';
 import { getRecord, getRecordNotifyChange, NotifyChangeRecordIds, RecordChange } from 'lightning/uiRecordApi';
-import getDependencyData from '@salesforce/apex/ProjectTaskDashboardController.getDependencyData';
-import deleteTaskRelationship from '@salesforce/apex/ProjectTaskDashboardController.deleteTaskRelationship';
+import getDependencyData from '@salesforce/apex/TaskContextController.getDependencyData';
+import deleteTaskRelationship from '@salesforce/apex/TaskContextController.deleteTaskRelationship';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 import PROGRESS_PERCENTAGE_FIELD from '@salesforce/schema/Project_Task__c.Progress_Percentage__c';
@@ -344,7 +344,7 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     }
     
     get subtasksToggleIcon() {
-        return this._subtasksExpanded ? 'utility:chevronup' : 'utility:chevrondown';
+        return this._subtasksExpanded ? 'utility:chevrondown' : 'utility:chevronup';
     }
     
     get dependentTasksExpanded() {
@@ -431,7 +431,7 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
             return null;
         }
         
-        return {
+        const task = {
             id: String(taskProxy.id || ''),
             name: String(taskProxy.name || ''),
             status: String(taskProxy.status || ''),
@@ -439,8 +439,11 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
             type: String(taskProxy.type || ''),
             isBlocking: Boolean(taskProxy.isBlocking),
             isAtRisk: Boolean(taskProxy.isAtRisk),
-            relationshipId: taskProxy.relationshipId ? String(taskProxy.relationshipId) : null
+            relationshipId: taskProxy.relationshipId ? String(taskProxy.relationshipId) : null,
+            hoverFields: taskProxy.hoverFields || [] // Pass raw hoverFields to taskHoverCard component
         };
+        
+        return task;
     }
     
     /**
@@ -741,11 +744,56 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     /**
      * @description Handle delete relationship button click
      */
-    async handleDeleteRelationship(event) {
-        event.stopPropagation(); // Prevent navigation when clicking delete button
+    /**
+     * @description Handle menu selection (Edit or Delete)
+     */
+    handleMenuSelect(event) {
+        event.stopPropagation(); // Prevent navigation when clicking menu
         
-        const relationshipId = event.currentTarget.dataset.relationshipId;
+        const action = event.detail.value;
         
+        // Find the relationship ID from the parent div
+        let element = event.currentTarget;
+        let relationshipId = null;
+        
+        // Traverse up the DOM to find the div with data-relationship-id
+        while (element && !relationshipId) {
+            relationshipId = element.dataset?.relationshipId;
+            if (!relationshipId) {
+                element = element.parentElement;
+            }
+        }
+        
+        if (!relationshipId) {
+            this.showToast('Error', 'Relationship ID not found', 'error');
+            return;
+        }
+        
+        if (action === 'edit') {
+            this.handleEditRelationship(relationshipId);
+        } else if (action === 'delete') {
+            this.handleDeleteRelationship(relationshipId);
+        }
+    }
+    
+    /**
+     * @description Handle edit relationship action
+     */
+    async handleEditRelationship(relationshipId) {
+        const modal = this.template.querySelector('c-link-task-modal');
+        if (modal) {
+            await modal.openForEdit(relationshipId);
+        }
+    }
+    
+    /**
+     * @description Handle relationship updated event from modal
+     */
+    handleRelationshipUpdated() {
+        this._refreshDependencyData();
+    }
+    
+    async handleDeleteRelationship(relationshipId) {
         if (!relationshipId) {
             this.showToast('Error', 'Relationship ID not found', 'error');
             return;
