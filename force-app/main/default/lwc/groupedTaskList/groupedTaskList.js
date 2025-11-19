@@ -284,16 +284,23 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     decorateTaskRecord(record) {
-        const description = record.description ? record.description.trim() : '';
-        const latestComment = record.latestComment ? record.latestComment.trim() : '';
+        const hoverFields = (record.hoverFields || []).map(field => {
+            const rawValue = typeof field.value === 'string' ? field.value : (field.value ?? '');
+            const trimmedValue = typeof rawValue === 'string' ? rawValue.trim() : rawValue;
+            const displayValue = trimmedValue && trimmedValue.length > 0 ? trimmedValue : '—';
+            const isStatusField = field.apiName === 'Status__c';
+            return {
+                ...field,
+                displayValue,
+                valueClass: `hover-value${field.isLongText ? ' hover-value_multiline' : ''}`,
+                isStatus: isStatusField,
+                badgeClass: isStatusField ? this.getStatusBadgeClass(record.status) : ''
+            };
+        });
         
         return {
             ...record,
-            safeDescription: description && description.length > 0 ? description : 'No notes captured yet.',
-            hasLatestComment: latestComment && latestComment.length > 0,
-            latestCommentText: latestComment,
-            latestCommentDateFormatted: record.latestCommentDate ? this.formatDate(record.latestCommentDate) : '',
-            statusBadgeClass: this.getStatusBadgeClass(record.status)
+            hoverFields
         };
     }
     

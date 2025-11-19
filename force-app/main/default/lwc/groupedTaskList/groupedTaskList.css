@@ -126,6 +126,7 @@
     gap: 0.75rem;
     font-size: 0.75rem;
     margin-bottom: 0.25rem;
+    align-items: flex-start;
 }
 
 .hover-label {
@@ -138,21 +139,9 @@
     color: var(--slds-g-color-neutral-base-20, #3e3e3c);
 }
 
-.task-hover-note,
-.task-hover-comment {
-    margin-top: 0.5rem;
-}
-
-.hover-note-value {
-    margin-top: 0.15rem;
-    font-size: 0.75rem;
-    color: var(--slds-g-color-neutral-base-30, #514f4d);
+.hover-value_multiline {
+    text-align: left;
     white-space: pre-line;
-}
-
-.hover-comment-meta {
-    font-size: 0.7rem;
-    color: var(--slds-g-color-neutral-base-40, #706e6b);
 }
 
 /* Responsive adjustments */
