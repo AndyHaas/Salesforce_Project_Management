@@ -1015,18 +1015,6 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>taskProgressIndicator</componentName>
-                <identifier>c_taskProgressIndicator</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentName>taskDependencyVisualizer</componentName>
-                <identifier>c_taskDependencyVisualizer</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
                 <componentInstanceProperties>
                     <name>decorate</name>
                     <value>true</value>
