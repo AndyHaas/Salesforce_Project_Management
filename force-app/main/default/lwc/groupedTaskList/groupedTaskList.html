@@ -114,20 +114,75 @@
                                                 <div class="slds-m-right_large"></div>
                                             </template>
                                             
-                                            <a 
-                                                href="javascript:void(0);" 
-                                                class="task-name-link slds-text-link"
-                                                data-task-id={task.id}
-                                                onclick={handleTaskClick}
-                                                title={task.tooltipContent}>
-                                                {task.name}
-                                            </a>
-                                            
-                                            <template if:true={task.hasSubtasks}>
-                                                <span class="slds-m-left_small slds-text-body_small slds-text-color_weak">
-                                                    ({task.subtaskCount} {task.subtaskLabel})
-                                                </span>
-                                            </template>
+                                            <div class="task-name-wrapper">
+                                                <a 
+                                                    href="javascript:void(0);" 
+                                                    class="task-name-link slds-text-link"
+                                                    data-task-id={task.id}
+                                                    onclick={handleTaskClick}>
+                                                    {task.name}
+                                                </a>
+                                                
+                                                <template if:true={task.hasSubtasks}>
+                                                    <span class="slds-m-left_small slds-text-body_small slds-text-color_weak">
+                                                        ({task.subtaskCount} {task.subtaskLabel})
+                                                    </span>
+                                                </template>
+                                                
+                                                <section class="task-hover-card" role="tooltip" aria-live="polite">
+                                                    <div class="hover-title">Task Snapshot</div>
+                                                    <div class="hover-row">
+                                                        <span class="hover-label">Status</span>
+                                                        <span class="hover-value">
+                                                            <span class={task.statusBadgeClass}>{task.status}</span>
+                                                        </span>
+                                                    </div>
+                                                    <div class="hover-row">
+                                                        <span class="hover-label">Priority</span>
+                                                        <span class="hover-value">{task.priority}</span>
+                                                    </div>
+                                                    <template if:true={task.ownerName}>
+                                                        <div class="hover-row">
+                                                            <span class="hover-label">Owner</span>
+                                                            <span class="hover-value">{task.ownerName}</span>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={task.accountName}>
+                                                        <div class="hover-row">
+                                                            <span class="hover-label">Account</span>
+                                                            <span class="hover-value">{task.accountName}</span>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={task.formattedDueDate}>
+                                                        <div class="hover-row">
+                                                            <span class="hover-label">Due Date</span>
+                                                            <span class="hover-value">{task.formattedDueDate}</span>
+                                                        </div>
+                                                    </template>
+                                                    <template if:true={task.formattedEstimatedHours}>
+                                                        <div class="hover-row">
+                                                            <span class="hover-label">Est. Hours</span>
+                                                            <span class="hover-value">{task.formattedEstimatedHours}</span>
+                                                        </div>
+                                                    </template>
+                                                    <div class="task-hover-note">
+                                                        <span class="hover-label">Notes</span>
+                                                        <div class="hover-note-value">{task.safeDescription}</div>
+                                                    </div>
+                                                    <template if:true={task.hasLatestComment}>
+                                                        <div class="task-hover-comment">
+                                                            <span class="hover-label">Latest Comment</span>
+                                                            <div class="hover-comment-meta">
+                                                                {task.latestCommentAuthor}
+                                                                <template if:true={task.latestCommentDateFormatted}>
+                                                                    • {task.latestCommentDateFormatted}
+                                                                </template>
+                                                            </div>
+                                                            <div class="hover-note-value">{task.latestCommentText}</div>
+                                                        </div>
+                                                    </template>
+                                                </section>
+                                            </div>
                                         </div>
                                         
                                         <!-- Task Details -->
@@ -174,14 +229,69 @@
                                                     <div key={subtask.id} class="subtask-item slds-p-around_small slds-border_bottom">
                                                         <div class="slds-grid slds-grid_align-spread">
                                                             <div class="slds-col slds-grow">
-                                                                <a 
-                                                                    href="javascript:void(0);" 
-                                                                    class="subtask-name-link slds-text-link"
-                                                                    data-task-id={subtask.id}
-                                                                    onclick={handleTaskClick}
-                                                                    title={subtask.tooltipContent}>
-                                                                    {subtask.name}
-                                                                </a>
+                                                                <div class="subtask-name-wrapper">
+                                                                    <a 
+                                                                        href="javascript:void(0);" 
+                                                                        class="subtask-name-link slds-text-link"
+                                                                        data-task-id={subtask.id}
+                                                                        onclick={handleTaskClick}>
+                                                                        {subtask.name}
+                                                                    </a>
+                                                                    
+                                                                    <section class="task-hover-card" role="tooltip" aria-live="polite">
+                                                                        <div class="hover-title">Task Snapshot</div>
+                                                                        <div class="hover-row">
+                                                                            <span class="hover-label">Status</span>
+                                                                            <span class="hover-value">
+                                                                                <span class={subtask.statusBadgeClass}>{subtask.status}</span>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="hover-row">
+                                                                            <span class="hover-label">Priority</span>
+                                                                            <span class="hover-value">{subtask.priority}</span>
+                                                                        </div>
+                                                                        <template if:true={subtask.ownerName}>
+                                                                            <div class="hover-row">
+                                                                                <span class="hover-label">Owner</span>
+                                                                                <span class="hover-value">{subtask.ownerName}</span>
+                                                                            </div>
+                                                                        </template>
+                                                                        <template if:true={subtask.accountName}>
+                                                                            <div class="hover-row">
+                                                                                <span class="hover-label">Account</span>
+                                                                                <span class="hover-value">{subtask.accountName}</span>
+                                                                            </div>
+                                                                        </template>
+                                                                        <template if:true={subtask.formattedDueDate}>
+                                                                            <div class="hover-row">
+                                                                                <span class="hover-label">Due Date</span>
+                                                                                <span class="hover-value">{subtask.formattedDueDate}</span>
+                                                                            </div>
+                                                                        </template>
+                                                                        <template if:true={subtask.formattedEstimatedHours}>
+                                                                            <div class="hover-row">
+                                                                                <span class="hover-label">Est. Hours</span>
+                                                                                <span class="hover-value">{subtask.formattedEstimatedHours}</span>
+                                                                            </div>
+                                                                        </template>
+                                                                        <div class="task-hover-note">
+                                                                            <span class="hover-label">Notes</span>
+                                                                            <div class="hover-note-value">{subtask.safeDescription}</div>
+                                                                        </div>
+                                                                        <template if:true={subtask.hasLatestComment}>
+                                                                            <div class="task-hover-comment">
+                                                                                <span class="hover-label">Latest Comment</span>
+                                                                                <div class="hover-comment-meta">
+                                                                                    {subtask.latestCommentAuthor}
+                                                                                    <template if:true={subtask.latestCommentDateFormatted}>
+                                                                                        • {subtask.latestCommentDateFormatted}
+                                                                                    </template>
+                                                                                </div>
+                                                                                <div class="hover-note-value">{subtask.latestCommentText}</div>
+                                                                            </div>
+                                                                        </template>
+                                                                    </section>
+                                                                </div>
                                                             </div>
                                                             
                                                             <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center subtask-details">
