@@ -226,16 +226,6 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.OwnerId</fieldItem>
-                <identifier>RecordOwnerIdField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
                 <fieldItem>Record.Account__c</fieldItem>
                 <identifier>RecordAccount_cField</identifier>
             </fieldInstance>
@@ -891,6 +881,9 @@
                             <value>NAME</value>
                         </valueListItems>
                         <valueListItems>
+                            <value>Account__c</value>
+                        </valueListItems>
+                        <valueListItems>
                             <value>Status__c</value>
                         </valueListItems>
                         <valueListItems>
@@ -901,6 +894,9 @@
                         </valueListItems>
                         <valueListItems>
                             <value>Client_User__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Due_Date__c</value>
                         </valueListItems>
                         <valueListItems>
                             <value>Progress_Percentage__c</value>
@@ -1013,6 +1009,12 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentName>taskContextPanel</componentName>
+                <identifier>c_taskContextPanel</identifier>
+            </componentInstance>
+        </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
