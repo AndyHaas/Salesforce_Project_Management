@@ -165,9 +165,9 @@ select:focus {
 [data-region-name="headerSection"],
 .community_builder\:customizableHeader,
 [class*="header"] {
-    background-color: var(--mc-bg-primary) !important;
+    background: linear-gradient(135deg, #355d7c 0%, #4d86b2 100%) !important;
     box-shadow: var(--mc-shadow-sm) !important;
-    border-bottom: 1px solid var(--mc-gray-200) !important;
+    border-bottom: none !important;
     padding: 0 !important;
     position: relative;
     z-index: 1000;
@@ -179,6 +179,7 @@ select:focus {
     max-width: 100%;
     margin: 0 auto;
     padding: 0;
+    background: linear-gradient(135deg, #355d7c 0%, #4d86b2 100%) !important;
 }
 
 /* Logo Styling */
@@ -187,6 +188,7 @@ select:focus {
 [class*="siteLogo"] {
     display: flex;
     align-items: center;
+    background: transparent !important;
 }
 
 [data-region-name="siteLogo"] img,
@@ -194,6 +196,7 @@ select:focus {
     max-height: 50px;
     width: auto;
     object-fit: contain;
+    filter: brightness(0) invert(1) !important; /* Make logo white */
 }
 
 /* Navigation Menu Container */
@@ -204,6 +207,13 @@ select:focus {
     align-items: center;
     justify-content: center;
     flex: 1;
+    background: transparent !important;
+}
+
+/* Standard Header Component Structure */
+.community_navigation\:customizableNavigationMenu,
+.dxp_content_layout\:siteLogo {
+    background: transparent !important;
 }
 
 /* Navigation Links */
@@ -211,7 +221,7 @@ select:focus {
 .community_navigation\:customizableNavigationBarContainer [role="link"],
 nav a,
 [class*="navigation"] a {
-    color: var(--mc-text-primary) !important;
+    color: #ffffff !important;
     font-family: var(--mc-font-primary) !important;
     font-weight: 500 !important;
     font-size: 1rem !important;
@@ -231,8 +241,8 @@ nav a,
 nav a:hover,
 nav a:focus,
 [class*="navigation"] a:hover {
-    color: var(--mc-primary-blue) !important;
-    background-color: var(--mc-gray-100) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
     text-decoration: none !important;
 }
 
@@ -240,9 +250,9 @@ nav a:focus,
 .community_navigation\:customizableNavigationBarContainer a[aria-current="page"],
 nav a[aria-current="page"],
 [class*="navigation"] a[aria-current="page"] {
-    color: var(--mc-primary-blue) !important;
+    color: #ffffff !important;
     font-weight: 600 !important;
-    background-color: transparent !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
 }
 
 /* Navigation Icons */
@@ -287,6 +297,7 @@ nav img[class*="icon"] {
     justify-content: space-between !important;
     width: 100% !important;
     gap: var(--mc-spacing-lg) !important;
+    background: linear-gradient(135deg, #355d7c 0%, #4d86b2 100%) !important;
 }
 
 /* Header Spacing Between Elements */
@@ -303,23 +314,23 @@ nav img[class*="icon"] {
 
 /* Mobile Navigation (Hamburger Menu) */
 .community_navigation\:customizableNavigationHamburgerMenuContainer {
-    background-color: var(--mc-bg-primary) !important;
+    background: linear-gradient(135deg, #355d7c 0%, #4d86b2 100%) !important;
 }
 
 .community_navigation\:customizableNavigationHamburgerMenuContainer button {
-    color: var(--mc-text-primary) !important;
+    color: #ffffff !important;
     font-family: var(--mc-font-primary) !important;
 }
 
 .community_navigation\:customizableNavigationHamburgerMenuContainer a {
-    color: var(--mc-text-primary) !important;
+    color: #ffffff !important;
     font-family: var(--mc-font-primary) !important;
-    padding: var(--mc-spacing-md) !important;
+    padding: 0 !important;
 }
 
 .community_navigation\:customizableNavigationHamburgerMenuContainer a:hover {
-    color: var(--mc-primary-blue) !important;
-    background-color: var(--mc-gray-100) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Responsive Header Styles */
