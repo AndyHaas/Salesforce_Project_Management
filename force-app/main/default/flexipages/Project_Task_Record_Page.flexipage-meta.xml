@@ -23,13 +23,6 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.At_Risk_Due_to_Dependencies__c</fieldItem>
                 <identifier>RecordAt_Risk_Due_to_Dependencies_cField</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.Relationship_Type__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Blocking Dependency</rightValue>
-                    </criteria>
-                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -144,6 +137,9 @@
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
+                        <valueListItems>
+                            <value>Project_Task__c.Add_Related_Task</value>
+                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -174,12 +170,6 @@
                 </componentInstanceProperties>
                 <componentName>runtime_sales_pathassistant:pathAssistant</componentName>
                 <identifier>runtime_sales_pathassistant_pathAssistant</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentName>taskProgressIndicator</componentName>
-                <identifier>c_taskProgressIndicator</identifier>
             </componentInstance>
         </itemInstances>
         <name>header</name>
@@ -513,28 +503,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Related_Task__c</fieldItem>
-                <identifier>RecordRelated_Task_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
                 <fieldItem>Record.Parent_Task__c</fieldItem>
                 <identifier>RecordParent_Task_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Relationship_Type__c</fieldItem>
-                <identifier>RecordRelationship_Type_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-b09a5c45-3dda-4957-a962-2be2ba7a9dcb</name>
@@ -662,56 +632,6 @@
             </componentInstance>
         </itemInstances>
         <name>Facet-cc2a54f2-6b26-4f18-b03f-4ba79e3e425e</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldItem>Record.Related_Task__r.Status__c</fieldItem>
-                <identifier>RecordRelated_Task_rStatus_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldItem>Record.Related_Task__r.Priority__c</fieldItem>
-                <identifier>RecordRelated_Task_rPriority_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-dhoh790sjxp</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldItem>Record.Related_Task__r.Description__c</fieldItem>
-                <identifier>RecordRelated_Task_rDescription_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-xcoowsu50cq</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-dhoh790sjxp</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>flexipage_column7</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-xcoowsu50cq</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>flexipage_column8</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-ygodw8jh5a</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -849,31 +769,6 @@
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Has_Parent_Task__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>true</rightValue>
-                    </criteria>
-                </visibilityRule>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>columns</name>
-                    <value>Facet-ygodw8jh5a</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>horizontalAlignment</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Related Task Details</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <identifier>flexipage_fieldSection4</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.Has_Related_Task__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>true</rightValue>
                     </criteria>
@@ -1118,6 +1013,12 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentName>taskProgressIndicator</componentName>
+                <identifier>c_taskProgressIndicator</identifier>
+            </componentInstance>
+        </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentName>taskDependencyVisualizer</componentName>
@@ -1406,81 +1307,6 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:tabset</componentName>
                 <identifier>flexipage_tabset</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>actionNames</name>
-                    <valueList>
-                        <valueListItems>
-                            <value>New</value>
-                        </valueListItems>
-                    </valueList>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>maxRecordsToDisplay</name>
-                    <value>10</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>parentFieldApiName</name>
-                    <value>Project_Task__c.Id</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListApiName</name>
-                    <value>Related_Tasks__r</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListDisplayType</name>
-                    <value>ADVGRID</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListFieldAliases</name>
-                    <valueList>
-                        <valueListItems>
-                            <value>NAME</value>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Status__c</value>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Priority__c</value>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Developer__c</value>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Client_User__c</value>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Progress_Percentage__c</value>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Estimated_Hours__c</value>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Actual_Hours__c</value>
-                        </valueListItems>
-                    </valueList>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListLabel</name>
-                    <value>Related Tasks</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showActionBar</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>sortFieldAlias</name>
-                    <value>__DEFAULT__</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>sortFieldOrder</name>
-                    <value>Default</value>
-                </componentInstanceProperties>
-                <componentName>lst:dynamicRelatedList</componentName>
-                <identifier>lst_dynamicRelatedList</identifier>
             </componentInstance>
         </itemInstances>
         <name>sidebar</name>
