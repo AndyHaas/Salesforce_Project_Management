@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Task_A__c</fullName>
-    <description>First task in the relationship. This task depends on or is related to Task B.</description>
-    <inlineHelpText>Select the first task in this relationship. This task depends on or is related to Task B.</inlineHelpText>
-    <label>Task A</label>
+    <description>The primary task in the relationship. This task depends on or is related to the Related Task.</description>
+    <inlineHelpText>Select the primary task in this relationship. This task depends on or is related to the Related Task.</inlineHelpText>
+    <label>Task</label>
     <referenceTo>Project_Task__c</referenceTo>
     <relationshipLabel>Task A Relationships</relationshipLabel>
     <relationshipName>Task_A_Relationships</relationshipName>

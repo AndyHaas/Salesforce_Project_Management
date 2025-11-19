@@ -137,9 +137,6 @@
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
-                        <valueListItems>
-                            <value>Project_Task__c.Add_Related_Task</value>
-                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -1011,6 +1008,10 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentInstanceProperties>
+                    <name>showLinkTaskButton</name>
+                    <value>true</value>
+                </componentInstanceProperties>
                 <componentName>taskContextPanel</componentName>
                 <identifier>c_taskContextPanel</identifier>
             </componentInstance>

@@ -887,7 +887,7 @@ public with sharing class ProjectTaskDashboardController {
         
         // Get relationships where this task is Task A (so Task_B is the related/dependency task)
         List<Project_Task_Relationship__c> relatedRelationships = [
-            SELECT Task_B__c, Task_B__r.Name, Task_B__r.Status__c, Task_B__r.Priority__c, Task_B__r.Is_Blocking__c,
+            SELECT Id, Task_B__c, Task_B__r.Name, Task_B__r.Status__c, Task_B__r.Priority__c, Task_B__r.Is_Blocking__c,
                    Task_B__r.At_Risk_Due_to_Dependencies__c, Relationship_Type__c
             FROM Project_Task_Relationship__c
             WHERE Task_A__c = :taskId
@@ -896,7 +896,7 @@ public with sharing class ProjectTaskDashboardController {
         
         // Get relationships where this task is Task B (so Task A is the dependent task)
         List<Project_Task_Relationship__c> dependentRelationships = [
-            SELECT Task_A__c, Task_A__r.Name, Task_A__r.Status__c, Task_A__r.Priority__c, Task_A__r.Is_Blocking__c,
+            SELECT Id, Task_A__c, Task_A__r.Name, Task_A__r.Status__c, Task_A__r.Priority__c, Task_A__r.Is_Blocking__c,
                    Task_A__r.At_Risk_Due_to_Dependencies__c,
                    Relationship_Type__c
             FROM Project_Task_Relationship__c
@@ -932,6 +932,7 @@ public with sharing class ProjectTaskDashboardController {
             dep.isBlocking = rel.Relationship_Type__c == 'Blocking Dependency' 
                 && rel.Task_B__r.Is_Blocking__c == true;
             dep.isAtRisk = rel.Task_B__r.At_Risk_Due_to_Dependencies__c != null && rel.Task_B__r.At_Risk_Due_to_Dependencies__c == true;
+            dep.relationshipId = rel.Id; // Include relationship ID for deletion
             result.dependencies.add(dep);
         }
         
@@ -953,6 +954,7 @@ public with sharing class ProjectTaskDashboardController {
             dt.isBlocking = rel.Relationship_Type__c == 'Blocking Dependency' 
                 && rel.Task_A__r.Is_Blocking__c == true;
             dt.isAtRisk = rel.Task_A__r.At_Risk_Due_to_Dependencies__c != null && rel.Task_A__r.At_Risk_Due_to_Dependencies__c == true;
+            dt.relationshipId = rel.Id; // Include relationship ID for deletion
             result.dependentTasks.add(dt);
         }
         
@@ -1026,6 +1028,7 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public String type;
         @AuraEnabled public Boolean isBlocking;
         @AuraEnabled public Boolean isAtRisk;
+        @AuraEnabled public String relationshipId; // ID of the Project_Task_Relationship__c record (null for parent/child relationships)
     }
     
     @AuraEnabled(cacheable=true)
@@ -1333,6 +1336,79 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public String label;
         @AuraEnabled public String displayValue;
         @AuraEnabled public String rawValue;
+    }
+    
+    /**
+     * @description Create a task relationship between two tasks
+     * @param taskAId The ID of the primary Task (the task that depends on the Related Task)
+     * @param taskBId The ID of the Related Task (the task that the primary Task depends on)
+     * @param relationshipType The type of relationship (Related, Blocking Dependency, Epic/Feature Parent)
+     * @return The created Project_Task_Relationship__c record ID
+     */
+    @AuraEnabled
+    public static String createTaskRelationship(String taskAId, String taskBId, String relationshipType) {
+        if (String.isBlank(taskAId) || String.isBlank(taskBId)) {
+            throw new AuraHandledException('Both Task and Related Task are required');
+        }
+        
+        if (taskAId == taskBId) {
+            throw new AuraHandledException('A task cannot be related to itself');
+        }
+        
+        // Check if relationship already exists in either direction
+        // Check Task -> Related Task (or reverse)
+        List<Project_Task_Relationship__c> existingRelationships = [
+            SELECT Id
+            FROM Project_Task_Relationship__c
+            WHERE (Task_A__c = :taskAId AND Task_B__c = :taskBId)
+               OR (Task_A__c = :taskBId AND Task_B__c = :taskAId)
+            LIMIT 1
+        ];
+        
+        if (!existingRelationships.isEmpty()) {
+            throw new AuraHandledException('A relationship between these tasks already exists');
+        }
+        
+        Project_Task_Relationship__c relationship = new Project_Task_Relationship__c(
+            Task_A__c = taskAId,
+            Task_B__c = taskBId,
+            Relationship_Type__c = String.isNotBlank(relationshipType) ? relationshipType : 'Related'
+        );
+        
+        try {
+            insert relationship;
+            return relationship.Id;
+        } catch (DmlException e) {
+            throw new AuraHandledException('Error creating relationship: ' + e.getMessage());
+        }
+    }
+    
+    /**
+     * @description Delete a task relationship
+     * @param relationshipId The ID of the Project_Task_Relationship__c record to delete
+     * @return Success message
+     */
+    @AuraEnabled
+    public static String deleteTaskRelationship(String relationshipId) {
+        if (String.isBlank(relationshipId)) {
+            throw new AuraHandledException('Relationship ID is required');
+        }
+        
+        try {
+            Project_Task_Relationship__c relationship = [
+                SELECT Id
+                FROM Project_Task_Relationship__c
+                WHERE Id = :relationshipId
+                LIMIT 1
+            ];
+            
+            delete relationship;
+            return 'Relationship deleted successfully';
+        } catch (QueryException e) {
+            throw new AuraHandledException('Relationship not found: ' + e.getMessage());
+        } catch (DmlException e) {
+            throw new AuraHandledException('Error deleting relationship: ' + e.getMessage());
+        }
     }
 }
 
