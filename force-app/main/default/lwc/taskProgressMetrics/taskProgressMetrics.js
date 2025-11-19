@@ -1,3 +1,13 @@
+/**
+ * @description Task Progress Metrics Component
+ * 
+ * Displays progress metrics including average progress, completion rate,
+ * at-risk tasks, blocked tasks, and progress distribution by percentage ranges.
+ * 
+ * USAGE:
+ * - Used in: projectTaskDashboard component (dynamically rendered)
+ * - Apex Controller: ProjectTaskDashboardController.getProgressMetrics()
+ */
 import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';

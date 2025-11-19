@@ -1,3 +1,22 @@
+/**
+ * @description Main Apex controller for Project Task Dashboard components
+ * 
+ * Provides @AuraEnabled methods for retrieving task metrics, breakdowns, lists,
+ * and related data for the Project Task Dashboard LWC components.
+ * 
+ * USAGE:
+ * - Used by LWC components:
+ *   - accountFilter: getAccounts(), getCurrentUserAccountId()
+ *   - taskStatusBreakdown: getStatusBreakdown()
+ *   - taskHoursMetrics: getHoursMetrics()
+ *   - taskReviewStatusMetrics: getReviewStatusMetrics()
+ *   - taskPriorityBreakdown: getPriorityBreakdown()
+ *   - taskProgressMetrics: getProgressMetrics()
+ *   - taskDueDateMetrics: getDueDateMetrics()
+ *   - taskListComponent: getTaskList(), getTaskListFieldSetDefinition()
+ *   - groupedTaskList: getGroupedTasksWithSubtasks(), getAccounts()
+ *   - taskContextPanel: getSubtaskProgress(), getDependencyData()
+ */
 public with sharing class ProjectTaskDashboardController {
 
     private static final String TASK_HOVER_FIELD_SET = 'Task_Hover_Fields';

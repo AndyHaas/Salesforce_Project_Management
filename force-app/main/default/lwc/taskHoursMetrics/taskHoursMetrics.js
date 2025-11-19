@@ -1,3 +1,13 @@
+/**
+ * @description Task Hours Metrics Component
+ * 
+ * Displays estimated vs actual hours metrics with Chart.js bar chart visualization.
+ * Shows total estimated/actual hours, variance, and hours by status.
+ * 
+ * USAGE:
+ * - Used in: projectTaskDashboard component (dynamically rendered)
+ * - Apex Controller: ProjectTaskDashboardController.getHoursMetrics()
+ */
 import { LightningElement, api, wire } from 'lwc';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
 import getHoursMetrics from '@salesforce/apex/ProjectTaskDashboardController.getHoursMetrics';

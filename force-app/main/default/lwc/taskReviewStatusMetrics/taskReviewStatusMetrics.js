@@ -1,3 +1,15 @@
+/**
+ * @description Task Review Status Metrics Component
+ * 
+ * Displays review status metrics with Chart.js doughnut charts for:
+ * - PM/Code Reviewer approval (In Review tasks)
+ * - Client Completion approval (In Review tasks)
+ * - Client Development approval (Backlog tasks)
+ * 
+ * USAGE:
+ * - Used in: projectTaskDashboard component (dynamically rendered)
+ * - Apex Controller: ProjectTaskDashboardController.getReviewStatusMetrics()
+ */
 import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';

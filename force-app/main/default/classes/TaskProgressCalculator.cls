@@ -1,3 +1,13 @@
+/**
+ * @description Helper class for calculating parent task progress based on subtasks
+ * 
+ * Calculates Progress_Percentage__c, Total_Estimated_Hours__c, and Total_Actual_Hours__c
+ * for parent tasks based on their subtask completion status and hours.
+ * 
+ * USAGE:
+ * - Used in: ProjectTaskTrigger (after insert, after update, after delete)
+ * - Called by: TaskProgressCalculator.calculateProgress()
+ */
 public with sharing class TaskProgressCalculator {
     public static void calculateProgress(List<Project_Task__c> tasks) {
         Set<Id> parentTaskIds = new Set<Id>();

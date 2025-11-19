@@ -13,6 +13,12 @@
  * 
  * @author Milestone Consulting
  * @since API Version 65.0
+ * 
+ * USAGE:
+ * - Used in: Project_Task_Home_Page.flexipage, Project_Task_Record_Page.flexipage
+ * - Can be placed on: Home pages, App pages, Record pages, Experience Cloud pages
+ * - Contains child components: accountFilter, taskStatusBreakdown, taskHoursMetrics,
+ *   taskReviewStatusMetrics, taskPriorityBreakdown, taskProgressMetrics, taskDueDateMetrics
  */
 
 import { LightningElement, api, wire } from 'lwc';

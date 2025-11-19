@@ -1,3 +1,13 @@
+/**
+ * @description Task List Component
+ * 
+ * Displays a paginated list of Project Tasks with configurable field sets.
+ * Supports account filtering via Lightning Message Service.
+ * 
+ * USAGE:
+ * - Used in: projectTaskDashboard component (dynamically rendered, currently not displayed in template)
+ * - Apex Controller: ProjectTaskDashboardController.getTaskList(), getTaskListFieldSetDefinition()
+ */
 import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
