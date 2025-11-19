@@ -1,0 +1,23 @@
+<template>
+    <template if:true={showCard}>
+        <section class="task-hover-card-wrapper">
+            <section class="task-hover-card" role="tooltip" aria-live="polite">
+                <div class="hover-title">Task Snapshot</div>
+                <template for:each={decoratedHoverFields} for:item="field">
+                    <div key={field.apiName} class="hover-row">
+                        <span class="hover-label">{field.label}</span>
+                        <div class={field.valueClass}>
+                            <template if:true={field.isStatus}>
+                                <span class={field.badgeClass}>{field.displayValue}</span>
+                            </template>
+                            <template if:false={field.isStatus}>
+                                {field.displayValue}
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </section>
+        </section>
+    </template>
+</template>
+
