@@ -7,8 +7,6 @@
     <columns>Status__c</columns>
     <columns>Priority__c</columns>
     <columns>At_Risk_Due_to_Dependencies__c</columns>
-    <columns>Related_Task__c</columns>
-    <columns>Relationship_Type__c</columns>
     <columns>Is_Blocking__c</columns>
     <columns>OWNER.FIRST_NAME</columns>
     <filterScope>Everything</filterScope>
