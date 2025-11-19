@@ -1,0 +1,125 @@
+.task-hover-card-wrapper {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    z-index: 10;
+    pointer-events: none;
+    display: block;
+}
+
+.task-hover-card {
+    width: min(360px, 80vw);
+    background: var(--slds-g-color-neutral-base-100, #ffffff);
+    border: 1px solid var(--slds-g-color-border-base-4, #d8dde6);
+    border-radius: 0.25rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+    padding: 0.75rem;
+}
+
+.hover-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--slds-g-color-neutral-base-40, #706e6b);
+    margin-bottom: 0.4rem;
+}
+
+.hover-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+    align-items: flex-start;
+}
+
+.hover-label {
+    font-weight: 600;
+    color: var(--slds-g-color-neutral-base-30, #514f4d);
+}
+
+.hover-value {
+    text-align: right;
+    color: var(--slds-g-color-neutral-base-20, #3e3e3c);
+}
+
+.hover-value_multiline {
+    text-align: left;
+    white-space: pre-line;
+}
+
+/* Custom status badge styles (for taskContextPanel) */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.status-badge-backlog {
+    background-color: #e5e5e5;
+    color: #080707;
+}
+
+.status-badge-pending {
+    background-color: #ffb75d;
+    color: #080707;
+}
+
+.status-badge-in-progress {
+    background-color: #0176d3;
+    color: #ffffff;
+}
+
+.status-badge-in-review {
+    background-color: #5B21B6;
+    color: #ffffff;
+}
+
+.status-badge-blocked {
+    background-color: #c23934;
+    color: #ffffff;
+}
+
+.status-badge-completed {
+    background-color: #2e844a;
+    color: #ffffff;
+}
+
+.status-badge-removed {
+    background-color: #706e6b;
+    color: #ffffff;
+}
+
+.status-badge-closed {
+    background-color: #2e844a;
+    color: #ffffff;
+}
+
+.status-badge-not-started {
+    background-color: #e5e5e5;
+    color: #080707;
+}
+
+.status-badge-on-hold {
+    background-color: #ffb75d;
+    color: #080707;
+}
+
+.status-badge-cancelled {
+    background-color: #706e6b;
+    color: #ffffff;
+}
+
+.status-badge-deferred {
+    background-color: #e5e5e5;
+    color: #080707;
+}
+
+.status-badge-default {
+    background-color: #f3f3f3;
+    color: #080707;
+}
+
