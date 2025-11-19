@@ -1,4 +1,149 @@
 public with sharing class ProjectTaskDashboardController {
+
+    private static final String TASK_HOVER_FIELD_SET = 'Task_Hover_Fields';
+    private static final String TASK_LIST_FIELD_SET = 'Project_Task_Dashboard_Table';
+    private static final List<String> BASE_PARENT_TASK_FIELDS = new List<String>{
+        'Id',
+        'Name',
+        'Status__c',
+        'Priority__c',
+        'Due_Date__c',
+        'Estimated_Hours__c',
+        'Actual_Hours__c',
+        'Progress_Percentage__c',
+        'Owner.Id',
+        'Owner.Name',
+        'Developer__c',
+        'Developer__r.Name',
+        'Developer__r.Id',
+        'Client_User__c',
+        'Client_User__r.Name',
+        'Client_User__r.Id',
+        'Account__c',
+        'Account__r.Name',
+        'CreatedDate',
+        'Description__c'
+    };
+    
+    private static final List<String> BASE_SUBTASK_FIELDS = new List<String>{
+        'Id',
+        'Name',
+        'Status__c',
+        'Priority__c',
+        'Due_Date__c',
+        'Estimated_Hours__c',
+        'Actual_Hours__c',
+        'Progress_Percentage__c',
+        'Owner.Id',
+        'Owner.Name',
+        'Developer__c',
+        'Developer__r.Name',
+        'Developer__r.Id',
+        'Client_User__c',
+        'Client_User__r.Name',
+        'Client_User__r.Id',
+        'Account__c',
+        'Account__r.Name',
+        'CreatedDate',
+        'Description__c'
+    };
+
+    private static List<Schema.FieldSetMember> getTaskHoverFieldSetMembers() {
+        return getFieldSetMembers(TASK_HOVER_FIELD_SET);
+    }
+
+    private static List<Schema.FieldSetMember> getTaskListFieldSetMembers() {
+        return getFieldSetMembers(TASK_LIST_FIELD_SET);
+    }
+
+    private static List<Schema.FieldSetMember> getFieldSetMembers(String fieldSetName) {
+        Schema.DescribeSObjectResult describe = Project_Task__c.SObjectType.getDescribe();
+        Map<String, Schema.FieldSet> fieldSets = describe.fieldSets.getMap();
+        if (fieldSets.containsKey(fieldSetName)) {
+            return fieldSets.get(fieldSetName).getFields();
+        }
+        return new List<Schema.FieldSetMember>();
+    }
+    
+    private static List<String> getHoverFieldPaths(List<Schema.FieldSetMember> members) {
+        List<String> paths = new List<String>();
+        if (members == null) {
+            return paths;
+        }
+        for (Schema.FieldSetMember member : members) {
+            if (member != null && String.isNotBlank(member.getFieldPath())) {
+                paths.add(member.getFieldPath());
+            }
+        }
+        return paths;
+    }
+    
+    private static List<String> mergeFields(List<String> baseFields, List<String> additionalFields) {
+        List<String> merged = new List<String>();
+        Set<String> existing = new Set<String>();
+        
+        for (String baseField : baseFields) {
+            if (!existing.contains(baseField)) {
+                merged.add(baseField);
+                existing.add(baseField);
+            }
+        }
+        for (String additionalField : additionalFields) {
+            if (!existing.contains(additionalField)) {
+                merged.add(additionalField);
+                existing.add(additionalField);
+            }
+        }
+        return merged;
+    }
+    
+    private static List<HoverFieldValue> buildHoverFieldValues(
+        SObject record,
+        List<Schema.FieldSetMember> members,
+        Map<String, Schema.SObjectField> fieldDescribeMap
+    ) {
+        List<HoverFieldValue> values = new List<HoverFieldValue>();
+        if (record == null || members == null || members.isEmpty()) {
+            return values;
+        }
+        
+        for (Schema.FieldSetMember member : members) {
+            if (member == null) {
+                continue;
+            }
+            String apiName = member.getFieldPath();
+            HoverFieldValue hoverField = new HoverFieldValue();
+            hoverField.apiName = apiName;
+            hoverField.label = member.getLabel();
+            
+            Schema.DescribeFieldResult describe = null;
+            if (fieldDescribeMap != null && fieldDescribeMap.containsKey(apiName)) {
+                describe = fieldDescribeMap.get(apiName).getDescribe();
+            }
+            
+            Object rawValue = record.get(apiName);
+            hoverField.value = formatHoverFieldValue(rawValue, describe);
+            hoverField.isLongText = describe != null && describe.getType() == Schema.DisplayType.TextArea;
+            values.add(hoverField);
+        }
+        return values;
+    }
+    
+    private static String formatHoverFieldValue(Object rawValue, Schema.DescribeFieldResult describe) {
+        if (rawValue == null) {
+            return '';
+        }
+        if (rawValue instanceof Date) {
+            return ((Date)rawValue).format();
+        }
+        if (rawValue instanceof Datetime) {
+            return ((Datetime)rawValue).format();
+        }
+        if (rawValue instanceof Decimal && describe != null && describe.getType() == Schema.DisplayType.Percent) {
+            return String.valueOf(((Decimal)rawValue).setScale(2)) + '%';
+        }
+        return String.valueOf(rawValue);
+    }
     
     @AuraEnabled(cacheable=true)
     public static StatusBreakdownResult getStatusBreakdown(List<String> accountIds) {
@@ -323,47 +468,101 @@ public with sharing class ProjectTaskDashboardController {
     
     @AuraEnabled(cacheable=true)
     public static TaskListResult getTaskList(List<String> accountIds, Integer pageSize, Integer pageNumber) {
-        // Handle null or empty list
         if (accountIds == null) {
             accountIds = new List<String>();
         }
-        List<Project_Task__c> allTasks;
-        
-        if (accountIds != null && !accountIds.isEmpty()) {
-            allTasks = [
-                SELECT Id, Name, Status__c, Priority__c, 
-                       Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c, 
-                       Review_Status_Icons__c, CreatedDate, Owner.Name 
-                FROM Project_Task__c 
-                WHERE Account__c IN :accountIds
-                ORDER BY CreatedDate DESC
-            ];
-        } else {
-            allTasks = [
-                SELECT Id, Name, Status__c, Priority__c, 
-                       Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c, 
-                       Review_Status_Icons__c, CreatedDate, Owner.Name 
-                FROM Project_Task__c 
-                ORDER BY CreatedDate DESC
-            ];
+        pageSize = (pageSize == null || pageSize <= 0) ? 10 : pageSize;
+        pageNumber = (pageNumber == null || pageNumber <= 0) ? 1 : pageNumber;
+
+        List<Schema.FieldSetMember> fieldSetMembers = getTaskListFieldSetMembers();
+        Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe().fields.getMap();
+        Set<String> selectFields = new Set<String>{
+            'Id',
+            'Status__c',
+            'Review_Status_Icons__c',
+            'CreatedDate'
+        };
+
+        for (Schema.FieldSetMember member : fieldSetMembers) {
+            if (member == null || String.isBlank(member.getFieldPath())) {
+                continue;
+            }
+            String fieldPath = member.getFieldPath();
+            selectFields.add(fieldPath);
+            if (describeFieldMap.containsKey(fieldPath)) {
+                Schema.DescribeFieldResult describe = describeFieldMap.get(fieldPath).getDescribe();
+                if (describe.getType() == Schema.DisplayType.Reference) {
+                    String relationshipName = describe.getRelationshipName();
+                    if (!String.isBlank(relationshipName)) {
+                        selectFields.add(relationshipName + '.Name');
+                    }
+                }
+            }
         }
-        
+
+        List<String> fieldList = new List<String>(selectFields);
+        fieldList.sort();
+        String fieldClause = String.join(fieldList, ', ');
+
+        String baseQuery = 'SELECT ' + fieldClause + ' FROM Project_Task__c';
+        if (!accountIds.isEmpty()) {
+            baseQuery += ' WHERE Account__c IN :accountIds';
+        }
+        baseQuery += ' ORDER BY CreatedDate DESC';
+
+        List<Project_Task__c> allTasks = Database.query(baseQuery);
+
         Integer totalRecords = allTasks.size();
-        Integer offset = (pageNumber - 1) * pageSize;
+        Integer totalPages = pageSize > 0 ? (Integer)Math.ceil((Double)totalRecords / pageSize) : 0;
+        Integer safePageNumber = Math.max(1, Math.min(pageNumber, Math.max(totalPages, 1)));
+        Integer offset = (safePageNumber - 1) * pageSize;
         Integer endIndex = Math.min(offset + pageSize, totalRecords);
-        
+
         TaskListResult result = new TaskListResult();
         result.tasks = new List<Project_Task__c>();
         result.totalRecords = totalRecords;
-        result.pageNumber = pageNumber;
+        result.pageNumber = safePageNumber;
         result.pageSize = pageSize;
-        result.totalPages = (Integer)Math.ceil((Double)totalRecords / pageSize);
-        
+        result.totalPages = totalPages;
+
         for (Integer i = offset; i < endIndex; i++) {
             result.tasks.add(allTasks[i]);
         }
-        
+
         return result;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<FieldSetFieldDefinition> getTaskListFieldSetDefinition() {
+        List<Schema.FieldSetMember> members = getTaskListFieldSetMembers();
+        Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe().fields.getMap();
+        List<FieldSetFieldDefinition> definitions = new List<FieldSetFieldDefinition>();
+
+        for (Schema.FieldSetMember member : members) {
+            if (member == null || String.isBlank(member.getFieldPath())) {
+                continue;
+            }
+            FieldSetFieldDefinition definition = new FieldSetFieldDefinition();
+            definition.apiName = member.getFieldPath();
+            definition.label = member.getLabel();
+            definition.isNameField = definition.apiName == 'Name';
+
+            if (describeFieldMap.containsKey(definition.apiName)) {
+                Schema.DescribeFieldResult describe = describeFieldMap.get(definition.apiName).getDescribe();
+                definition.dataType = describe.getType().name();
+                definition.isReference = describe.getType() == Schema.DisplayType.Reference;
+                if (definition.isReference) {
+                    definition.referenceRelationshipName = describe.getRelationshipName();
+                }
+            } else {
+                definition.dataType = 'STRING';
+                definition.isReference = false;
+            }
+
+            definitions.add(definition);
+        }
+
+        return definitions;
     }
     
     @AuraEnabled(cacheable=true)
@@ -573,6 +772,15 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public Integer tasksWithoutDueDate;
         @AuraEnabled public Decimal overduePercentage;
     }
+
+    public class FieldSetFieldDefinition {
+        @AuraEnabled public String apiName;
+        @AuraEnabled public String label;
+        @AuraEnabled public String dataType;
+        @AuraEnabled public Boolean isReference;
+        @AuraEnabled public String referenceRelationshipName;
+        @AuraEnabled public Boolean isNameField;
+    }
     
     @AuraEnabled(cacheable=true)
     public static SubtaskProgressResult getSubtaskProgress(String taskId) {
@@ -729,50 +937,24 @@ public with sharing class ProjectTaskDashboardController {
         }
         
         List<Project_Task__c> allTasks;
+        List<Schema.FieldSetMember> hoverFieldMembers = getTaskHoverFieldSetMembers();
+        List<String> hoverFieldPaths = getHoverFieldPaths(hoverFieldMembers);
+        List<String> parentFieldList = mergeFields(BASE_PARENT_TASK_FIELDS, hoverFieldPaths);
+        List<String> subtaskFieldList = mergeFields(BASE_SUBTASK_FIELDS, hoverFieldPaths);
+        String parentFieldClause = String.join(parentFieldList, ', ');
+        String subtaskFieldClause = String.join(subtaskFieldList, ', ');
+        String baseQuery = 'SELECT ' + parentFieldClause +
+            ', (SELECT ' + subtaskFieldClause + ' FROM Subtasks__r ORDER BY CreatedDate ASC) FROM Project_Task__c ';
+        String orderClause = ' ORDER BY Status__c, CreatedDate DESC';
         
         try {
             // Query parent tasks (tasks without a parent)
             if (!validAccountIds.isEmpty()) {
-            allTasks = [
-                SELECT Id, Name, Status__c, Priority__c, Due_Date__c,
-                       Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c,
-                       Owner.Name, Owner.Id, Developer__c, Developer__r.Name, Developer__r.Id,
-                       Client_User__c, Client_User__r.Name, Client_User__r.Id,
-                       Account__c, Account__r.Name,
-                       CreatedDate, Description__c,
-                       (SELECT Id, Name, Status__c, Priority__c, Due_Date__c,
-                               Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c,
-                               Owner.Name, Owner.Id, Developer__c, Developer__r.Name, Developer__r.Id,
-                               Client_User__c, Client_User__r.Name, Client_User__r.Id,
-                               Account__c, Account__r.Name,
-                               CreatedDate, Description__c
-                        FROM Subtasks__r
-                        ORDER BY CreatedDate ASC)
-                FROM Project_Task__c 
-                WHERE Account__c IN :validAccountIds
-                AND Parent_Task__c = null
-                ORDER BY Status__c, CreatedDate DESC
-            ];
-        } else {
-            allTasks = [
-                SELECT Id, Name, Status__c, Priority__c, Due_Date__c,
-                       Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c,
-                       Owner.Name, Owner.Id, Developer__c, Developer__r.Name, Developer__r.Id,
-                       Client_User__c, Client_User__r.Name, Client_User__r.Id,
-                       Account__c, Account__r.Name,
-                       CreatedDate, Description__c,
-                       (SELECT Id, Name, Status__c, Priority__c, Due_Date__c,
-                               Estimated_Hours__c, Actual_Hours__c, Progress_Percentage__c,
-                               Owner.Name, Owner.Id, Developer__c, Developer__r.Name, Developer__r.Id,
-                               Client_User__c, Client_User__r.Name, Client_User__r.Id,
-                               Account__c, Account__r.Name,
-                               CreatedDate, Description__c
-                        FROM Subtasks__r
-                        ORDER BY CreatedDate ASC)
-                FROM Project_Task__c 
-                WHERE Parent_Task__c = null
-                ORDER BY Status__c, CreatedDate DESC
-            ];
+                String soql = baseQuery + 'WHERE Account__c IN :validAccountIds AND Parent_Task__c = null' + orderClause;
+                allTasks = Database.query(soql);
+            } else {
+                String soql = baseQuery + 'WHERE Parent_Task__c = null' + orderClause;
+                allTasks = Database.query(soql);
             }
         } catch (Exception e) {
             // Log error and throw AuraHandledException so LWC can display it
@@ -819,6 +1001,8 @@ public with sharing class ProjectTaskDashboardController {
         // Group tasks by status
         Map<String, List<TaskWithSubtasks>> tasksByStatus = new Map<String, List<TaskWithSubtasks>>();
         
+        Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe().fields.getMap();
+        
         for (Project_Task__c task : allTasks) {
             String status = task.Status__c != null ? task.Status__c : 'Backlog';
             
@@ -860,6 +1044,8 @@ public with sharing class ProjectTaskDashboardController {
                 taskWrapper.latestCommentDate = null;
             }
             
+            taskWrapper.hoverFields = buildHoverFieldValues(task, hoverFieldMembers, describeFieldMap);
+            
             // Convert subtasks
             taskWrapper.subtasks = new List<TaskInfo>();
             if (task.Subtasks__r != null) {
@@ -895,6 +1081,8 @@ public with sharing class ProjectTaskDashboardController {
                         subtaskInfo.latestCommentAuthor = '';
                         subtaskInfo.latestCommentDate = null;
                     }
+                    
+                    subtaskInfo.hoverFields = buildHoverFieldValues(subtask, hoverFieldMembers, describeFieldMap);
                     
                     taskWrapper.subtasks.add(subtaskInfo);
                 }
@@ -979,6 +1167,7 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public Boolean hasSubtasks;
         @AuraEnabled public Integer subtaskCount;
         @AuraEnabled public List<TaskInfo> subtasks;
+        @AuraEnabled public List<HoverFieldValue> hoverFields;
     }
     
     public class TaskInfo {
@@ -1003,6 +1192,14 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public String latestComment;
         @AuraEnabled public String latestCommentAuthor;
         @AuraEnabled public DateTime latestCommentDate;
+        @AuraEnabled public List<HoverFieldValue> hoverFields;
+    }
+    
+    public class HoverFieldValue {
+        @AuraEnabled public String apiName;
+        @AuraEnabled public String label;
+        @AuraEnabled public String value;
+        @AuraEnabled public Boolean isLongText;
     }
 }
 

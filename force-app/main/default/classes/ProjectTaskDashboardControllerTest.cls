@@ -143,6 +143,34 @@ private class ProjectTaskDashboardControllerTest {
         System.assertNotEquals(null, result.tasks, 'Tasks should not be null');
         System.assert(result.totalRecords > 0, 'Should have records');
     }
+
+    @isTest
+    static void testGetTaskListFieldSetDefinition() {
+        Test.startTest();
+        List<ProjectTaskDashboardController.FieldSetFieldDefinition> definitions =
+            ProjectTaskDashboardController.getTaskListFieldSetDefinition();
+        Test.stopTest();
+
+        System.assertNotEquals(null, definitions, 'Definitions should not be null');
+        System.assert(!definitions.isEmpty(), 'Field set should contain fields');
+        System.assertNotEquals(null, definitions[0].apiName, 'API name should be populated');
+
+        Boolean foundNameField = false;
+        Boolean foundReferenceField = false;
+
+        for (ProjectTaskDashboardController.FieldSetFieldDefinition def : definitions) {
+            if (def.apiName == 'Name') {
+                foundNameField = def.isNameField;
+            }
+            if (def.isReference) {
+                System.assertNotEquals(null, def.referenceRelationshipName, 'Reference fields should include relationship names');
+                foundReferenceField = true;
+            }
+        }
+
+        System.assert(foundNameField, 'Field set should include Name field marked correctly');
+        System.assert(foundReferenceField, 'Field set should include at least one reference field');
+    }
     
     @isTest
     static void testGetAccounts() {
