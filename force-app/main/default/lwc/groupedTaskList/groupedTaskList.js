@@ -115,15 +115,14 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                     const subtasks = (task.subtasks || []).map(subtask => {
                         const subtaskHours = subtask.estimatedHours || 0;
                         totalEstimatedHours += subtaskHours;
-                        return {
+                        return this.decorateTaskRecord({
                             ...subtask,
                             formattedDueDate: subtask.dueDate ? this.formatDate(subtask.dueDate) : '',
-                            formattedEstimatedHours: subtask.estimatedHours ? this.formatHours(subtask.estimatedHours) : '',
-                            tooltipContent: this.getTooltipContent(subtask)
-                        };
+                            formattedEstimatedHours: subtask.estimatedHours ? this.formatHours(subtask.estimatedHours) : ''
+                        });
                     });
                     
-                    return {
+                    return this.decorateTaskRecord({
                         ...task,
                         isExpanded: isExpanded,
                         iconName: isExpanded ? 'utility:chevrondown' : 'utility:chevronright',
@@ -131,9 +130,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                         subtaskLabel: task.subtaskCount === 1 ? 'subtask' : 'subtasks',
                         formattedDueDate: task.dueDate ? this.formatDate(task.dueDate) : '',
                         formattedEstimatedHours: task.estimatedHours ? this.formatHours(task.estimatedHours) : '',
-                        tooltipContent: this.getTooltipContent(task),
                         subtasks: subtasks
-                    };
+                    });
                 });
                 
                 return {
@@ -271,33 +269,32 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                clientUserId === this.currentUserId;
     }
     
-    getTooltipContent(task) {
-        let content = '';
+    getStatusBadgeClass(status) {
+        const statusClasses = {
+            'Backlog': 'slds-badge slds-badge_lightest',
+            'Pending': 'slds-badge slds-badge_warning',
+            'In Progress': 'slds-badge slds-badge_info',
+            'In Review': 'slds-badge slds-badge_inverse',
+            'Blocked': 'slds-badge slds-badge_error',
+            'Completed': 'slds-badge slds-badge_success',
+            'Removed': 'slds-badge slds-badge_offline',
+            'Closed': 'slds-badge slds-badge_success'
+        };
+        return statusClasses[status] || 'slds-badge';
+    }
+    
+    decorateTaskRecord(record) {
+        const description = record.description ? record.description.trim() : '';
+        const latestComment = record.latestComment ? record.latestComment.trim() : '';
         
-        // Add description
-        if (task.description) {
-            content += task.description;
-        }
-        
-        // Add latest comment
-        if (task.latestComment) {
-            if (content) {
-                content += '\n\n';
-            }
-            content += 'Latest Comment:\n';
-            if (task.latestCommentAuthor) {
-                content += `${task.latestCommentAuthor}: `;
-            }
-            content += task.latestComment;
-            if (task.latestCommentDate) {
-                const commentDate = this.formatDate(task.latestCommentDate);
-                if (commentDate) {
-                    content += `\n(${commentDate})`;
-                }
-            }
-        }
-        
-        return content || 'No additional information';
+        return {
+            ...record,
+            safeDescription: description && description.length > 0 ? description : 'No notes captured yet.',
+            hasLatestComment: latestComment && latestComment.length > 0,
+            latestCommentText: latestComment,
+            latestCommentDateFormatted: record.latestCommentDate ? this.formatDate(record.latestCommentDate) : '',
+            statusBadgeClass: this.getStatusBadgeClass(record.status)
+        };
     }
     
     get hasData() {
