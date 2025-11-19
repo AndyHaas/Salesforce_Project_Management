@@ -173,6 +173,73 @@ private class ProjectTaskDashboardControllerTest {
     }
     
     @isTest
+    static void testGetGroupedTasksWithSummaryFields() {
+        Account summaryAccount = new Account(Name = 'Summary Account');
+        insert summaryAccount;
+        
+        Project_Task__c parentTask = new Project_Task__c(
+            Name = 'Parent Summary Task',
+            Status__c = 'Backlog',
+            Account__c = summaryAccount.Id,
+            OwnerId = UserInfo.getUserId(),
+            Estimated_Hours__c = 10,
+            Due_Date__c = Date.today().addDays(5),
+            Priority__c = 'High'
+        );
+        insert parentTask;
+        
+        Project_Task__c subtask = new Project_Task__c(
+            Name = 'Child Task',
+            Status__c = 'Backlog',
+            Account__c = summaryAccount.Id,
+            Parent_Task__c = parentTask.Id,
+            Due_Date__c = Date.today(),
+            Estimated_Hours__c = 5,
+            OwnerId = UserInfo.getUserId(),
+            Priority__c = 'Medium'
+        );
+        insert subtask;
+
+        Test.startTest();
+        ProjectTaskDashboardController.GroupedTasksResult result =
+            ProjectTaskDashboardController.getGroupedTasksWithSubtasks(new List<String>{ summaryAccount.Id });
+        Test.stopTest();
+
+        System.assertNotEquals(null, result, 'Result should not be null');
+        System.assertNotEquals(null, result.summaryFieldDefinitions, 'Summary field definitions should be returned');
+        System.assert(!result.summaryFieldDefinitions.isEmpty(), 'Summary field definitions should not be empty');
+        System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
+
+        Boolean validatedParent = false;
+        for (ProjectTaskDashboardController.StatusGroup statusGroup : result.statusGroups) {
+            if (statusGroup == null || statusGroup.tasks == null) {
+                continue;
+            }
+            for (ProjectTaskDashboardController.TaskWithSubtasks task : statusGroup.tasks) {
+                if (task.id == parentTask.Id) {
+                    System.assertNotEquals(null, task.summaryFields, 'Summary fields should not be null on tasks');
+                    System.assertEquals(
+                        result.summaryFieldDefinitions.size(),
+                        task.summaryFields.size(),
+                        'Summary fields should align with definitions'
+                    );
+                    System.assertNotEquals(null, task.subtasks, 'Parent should include subtasks');
+                    System.assert(task.subtasks.size() > 0, 'Parent should have at least one subtask');
+                    ProjectTaskDashboardController.TaskInfo childInfo = task.subtasks[0];
+                    System.assertNotEquals(null, childInfo.summaryFields, 'Subtasks should include summary fields');
+                    validatedParent = true;
+                    break;
+                }
+            }
+            if (validatedParent) {
+                break;
+            }
+        }
+
+        System.assert(validatedParent, 'Parent task with summary fields should be found');
+    }
+    
+    @isTest
     static void testGetAccounts() {
         Test.startTest();
         List<Account> accounts = ProjectTaskDashboardController.getAccounts();

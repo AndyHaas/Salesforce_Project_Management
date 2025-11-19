@@ -15,13 +15,17 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     messageContext;
     
     statusGroups = [];
-    filteredStatusGroups = []; // Filtered tasks based on "Me" mode
+    filteredStatusGroups = []; // Filtered tasks based on "Me" mode and other toggles
     expandedTasks = new Set(); // Track which tasks have expanded subtasks
+    collapsedStatuses = new Set(); // Track collapsed status groups
     subscription = null;
     _filteredAccountIds = [];
     showMyTasksOnly = false; // "Me" mode toggle
+    showCompletedTasks = false; // Toggle Completed status visibility (default hidden)
     currentUserId = USER_ID; // Current user ID
     error;
+    summaryFieldDefinitions = [];
+    summaryFieldDefinitionMap = {};
     
     // Account filter dropdown
     accounts = [];
@@ -100,6 +104,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @wire(getGroupedTasksWithSubtasks, { accountIds: '$effectiveAccountIds' })
     wiredGroupedTasks({ error, data }) {
         if (data) {
+            this.summaryFieldDefinitions = data.summaryFieldDefinitions || [];
+            this.updateSummaryFieldDefinitionMap();
             // Add status header style to each status group and icon info to each task
             this.statusGroups = (data.statusGroups || []).map(statusGroup => {
                 // Calculate total estimated hours for this status group
@@ -143,13 +149,15 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                     tasks: tasks
                 };
             });
-            this.applyMeModeFilter();
+            this.refreshFilteredStatusGroups();
             this.error = undefined;
         } else if (error) {
             console.error('Error loading grouped tasks:', error);
             this.error = error;
             this.statusGroups = [];
             this.filteredStatusGroups = [];
+            this.summaryFieldDefinitions = [];
+            this.updateSummaryFieldDefinitionMap();
         }
     }
     
@@ -182,7 +190,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             })
         }));
         // Reapply filter after updating icons
-        this.applyMeModeFilter();
+        this.refreshFilteredStatusGroups();
     }
     
     isTaskExpanded(taskId) {
@@ -298,14 +306,59 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             };
         });
         
+        const summaryFields = (record.summaryFields || []).map(field => {
+            const definition = this.summaryFieldDefinitionMap[field.apiName] || {};
+            const rawValue = field.rawValue;
+            let displayValue = field.displayValue;
+            const dataType = (definition.dataType || '').toUpperCase();
+            
+            if (rawValue) {
+                if (dataType === 'DATE' || dataType === 'DATETIME') {
+                    displayValue = this.formatDate(rawValue);
+                } else if (dataType === 'PERCENT') {
+                    const percentValue = parseFloat(rawValue);
+                    if (!isNaN(percentValue)) {
+                        displayValue = `${percentValue.toFixed(2)}%`;
+                    }
+                }
+            }
+            
+            if (field.apiName && field.apiName.endsWith('_Hours__c') && rawValue) {
+                const hoursValue = parseFloat(rawValue);
+                if (!isNaN(hoursValue)) {
+                    displayValue = this.formatHours(hoursValue);
+                }
+            }
+            
+            const hasValue = displayValue !== null && displayValue !== undefined && (!(typeof displayValue === 'string') || displayValue.trim().length > 0);
+            return {
+                ...field,
+                displayValue: hasValue ? displayValue : ''
+            };
+        });
+        
         return {
             ...record,
-            hoverFields
+            hoverFields,
+            summaryFields
         };
+    }
+    
+    updateSummaryFieldDefinitionMap() {
+        this.summaryFieldDefinitionMap = (this.summaryFieldDefinitions || []).reduce((acc, definition) => {
+            if (definition && definition.apiName) {
+                acc[definition.apiName] = definition;
+            }
+            return acc;
+        }, {});
     }
     
     get hasData() {
         return this.filteredStatusGroups && this.filteredStatusGroups.length > 0;
+    }
+    
+    get hasSummaryFields() {
+        return this.summaryFieldDefinitions && this.summaryFieldDefinitions.length > 0;
     }
     
     get displayStatusGroups() {
@@ -330,9 +383,83 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this.showMyTasksOnly ? 'utility:user' : 'utility:user';
     }
     
+    get completedToggleLabel() {
+        return this.showCompletedTasks ? 'Hide Completed' : 'Show Completed';
+    }
+    
+    get completedToggleTitle() {
+        return this.showCompletedTasks
+            ? 'Hide tasks that are currently in the Completed status'
+            : 'Show tasks that are currently in the Completed status';
+    }
+    
+    get completedToggleIcon() {
+        return this.showCompletedTasks ? 'utility:hide' : 'utility:success';
+    }
+    
+    get expandCollapseAllLabel() {
+        return this.areAllStatusesCollapsed ? 'Expand All' : 'Collapse All';
+    }
+    
+    get expandCollapseAllTitle() {
+        return this.areAllStatusesCollapsed
+            ? 'Expand all visible status groups'
+            : 'Collapse all visible status groups';
+    }
+    
+    get expandCollapseAllIcon() {
+        return this.areAllStatusesCollapsed ? 'utility:chevrondown' : 'utility:chevronup';
+    }
+    
+    get expandCollapseAllDisabled() {
+        return !this.hasData;
+    }
+    
+    get areAllStatusesCollapsed() {
+        if (!this.filteredStatusGroups || this.filteredStatusGroups.length === 0) {
+            return false;
+        }
+        return this.filteredStatusGroups.every(group => this.isStatusCollapsed(group.status));
+    }
+    
     handleMeModeToggle() {
         this.showMyTasksOnly = !this.showMyTasksOnly;
-        this.applyMeModeFilter();
+        this.refreshFilteredStatusGroups();
+    }
+    
+    handleCompletedToggle() {
+        this.showCompletedTasks = !this.showCompletedTasks;
+        this.refreshFilteredStatusGroups();
+    }
+    
+    handleStatusToggle(event) {
+        const status = event.currentTarget?.dataset?.status;
+        if (!status) {
+            return;
+        }
+        const newSet = new Set(this.collapsedStatuses);
+        if (newSet.has(status)) {
+            newSet.delete(status);
+        } else {
+            newSet.add(status);
+        }
+        this.collapsedStatuses = new Set(newSet);
+        this.refreshFilteredStatusGroups();
+    }
+    
+    handleExpandCollapseAll() {
+        const shouldCollapse = !this.areAllStatusesCollapsed;
+        const visibleStatuses = (this.filteredStatusGroups || []).map(group => group.status);
+        const updatedSet = new Set(this.collapsedStatuses);
+        
+        if (shouldCollapse) {
+            visibleStatuses.forEach(status => updatedSet.add(status));
+        } else {
+            visibleStatuses.forEach(status => updatedSet.delete(status));
+        }
+        
+        this.collapsedStatuses = new Set(updatedSet);
+        this.refreshFilteredStatusGroups();
     }
     
     handleAccountChange(event) {
@@ -340,29 +467,33 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         // The wire will automatically refresh when effectiveAccountIds changes
     }
     
-    applyMeModeFilter() {
+    refreshFilteredStatusGroups() {
         if (!this.statusGroups || this.statusGroups.length === 0) {
             this.filteredStatusGroups = [];
             return;
         }
         
-        if (!this.showMyTasksOnly) {
-            // Show all tasks
-            this.filteredStatusGroups = this.statusGroups;
-            return;
+        let groups = [...this.statusGroups];
+        
+        if (!this.showCompletedTasks) {
+            groups = groups.filter(group => group.status !== 'Completed');
         }
         
-        // Filter to show only tasks assigned to current user (Owner, Developer, or Client User)
-        this.filteredStatusGroups = this.statusGroups
+        if (this.showMyTasksOnly) {
+            groups = this.filterGroupsForCurrentUser(groups);
+        }
+        
+        this.filteredStatusGroups = this.decorateStatusGroupsForDisplay(groups);
+    }
+    
+    filterGroupsForCurrentUser(groups) {
+        return groups
             .map(statusGroup => {
-                // Filter parent tasks assigned to current user
                 const filteredTasks = statusGroup.tasks
                     .map(task => {
-                        // Check if task is assigned to current user in any role
                         const isMyTask = this.isTaskAssignedToMe(task);
                         
                         if (isMyTask) {
-                            // Filter subtasks to only show those assigned to current user
                             const mySubtasks = (task.subtasks || []).filter(
                                 subtask => this.isTaskAssignedToMe(subtask)
                             );
@@ -373,7 +504,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                                 hasSubtasks: mySubtasks.length > 0
                             };
                         }
-                        // Show parent task if it has subtasks assigned to current user
+                        
                         if (task.subtasks && task.subtasks.length > 0) {
                             const mySubtasks = task.subtasks.filter(
                                 subtask => this.isTaskAssignedToMe(subtask)
@@ -389,9 +520,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                         }
                         return null;
                     })
-                    .filter(task => task !== null) // Remove tasks that don't match filter
+                    .filter(task => task !== null)
                     .map(task => {
-                        // Update icon state for filtered tasks
                         const isExpanded = this.isTaskExpanded(task.id);
                         return {
                             ...task,
@@ -402,16 +532,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                         };
                     });
                 
-                // Only include status groups that have tasks after filtering
                 if (filteredTasks.length > 0) {
-                    // Calculate total estimated hours for filtered tasks
                     let totalEstimatedHours = 0;
                     filteredTasks.forEach(task => {
-                        // Add parent task hours
                         if (task.estimatedHours) {
                             totalEstimatedHours += task.estimatedHours;
                         }
-                        // Add subtask hours
                         if (task.subtasks) {
                             task.subtasks.forEach(subtask => {
                                 if (subtask.estimatedHours) {
@@ -431,7 +557,23 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                 }
                 return null;
             })
-            .filter(group => group !== null); // Remove empty status groups
+            .filter(group => group !== null);
+    }
+    
+    decorateStatusGroupsForDisplay(groups) {
+        return groups.map(group => {
+            const isCollapsed = this.isStatusCollapsed(group.status);
+            return {
+                ...group,
+                isCollapsed,
+                statusToggleIconName: isCollapsed ? 'utility:chevronright' : 'utility:chevrondown',
+                statusToggleAltText: isCollapsed ? 'Expand status group' : 'Collapse status group'
+            };
+        });
+    }
+    
+    isStatusCollapsed(status) {
+        return this.collapsedStatuses.has(status);
     }
 }
 
