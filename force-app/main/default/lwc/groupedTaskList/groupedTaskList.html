@@ -30,6 +30,23 @@
                 title={meModeButtonTitle}
                 class="slds-m-left_small">
             </lightning-button>
+            <lightning-button
+                label={completedToggleLabel}
+                variant="neutral"
+                icon-name={completedToggleIcon}
+                onclick={handleCompletedToggle}
+                title={completedToggleTitle}
+                class="slds-m-left_small">
+            </lightning-button>
+            <lightning-button
+                label={expandCollapseAllLabel}
+                variant="neutral"
+                icon-name={expandCollapseAllIcon}
+                onclick={handleExpandCollapseAll}
+                disabled={expandCollapseAllDisabled}
+                title={expandCollapseAllTitle}
+                class="slds-m-left_small">
+            </lightning-button>
             </div>
         </div>
         <template if:true={error}>
@@ -49,223 +66,266 @@
                     <div key={statusGroup.status} class="status-group slds-m-bottom_large">
                         <!-- Status Header -->
                         <div class="status-header slds-p-around_small slds-border_bottom" style={statusGroup.headerStyle}>
-                            <h3 class="slds-text-heading_small">
-                                {statusGroup.status}
-                                <span class="slds-m-left_small slds-text-body_regular" style="opacity: 0.9;">
-                                    ({statusGroup.taskCount})
-                                </span>
-                                <template if:true={statusGroup.formattedTotalEstimatedHours}>
+                            <div class="status-header-content">
+                                <h3 class="slds-text-heading_small">
+                                    {statusGroup.status}
                                     <span class="slds-m-left_small slds-text-body_regular" style="opacity: 0.9;">
-                                        • {statusGroup.formattedTotalEstimatedHours}
+                                        ({statusGroup.taskCount})
                                     </span>
-                                </template>
-                            </h3>
-                        </div>
-                        
-                        <!-- Column Headers -->
-                        <div class="column-headers slds-grid slds-grid_align-spread slds-p-around_small slds-border_bottom slds-text-body_small slds-text-color_weak">
-                            <div class="slds-col slds-grow">
-                                <strong>Task Name</strong>
-                            </div>
-                            <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center task-details">
-                                <template if:false={isFilteredByAccount}>
-                                    <div class="slds-m-right_medium">
-                                        <strong>Account</strong>
-                                    </div>
-                                </template>
-                                <div class="slds-m-right_medium">
-                                    <strong>Owner</strong>
-                                </div>
-                                <div class="slds-m-right_medium">
-                                    <strong>Due Date</strong>
-                                </div>
-                                <div class="slds-m-right_medium">
-                                    <strong>Priority</strong>
-                                </div>
-                                <div class="slds-m-right_medium">
-                                    <strong>Est. Hours</strong>
-                                </div>
+                                    <template if:true={statusGroup.formattedTotalEstimatedHours}>
+                                        <span class="slds-m-left_small slds-text-body_regular" style="opacity: 0.9;">
+                                            • {statusGroup.formattedTotalEstimatedHours}
+                                        </span>
+                                    </template>
+                                </h3>
+                                <lightning-button-icon 
+                                    class="status-toggle-button"
+                                    icon-name={statusGroup.statusToggleIconName}
+                                    alternative-text={statusGroup.statusToggleAltText}
+                                    onclick={handleStatusToggle}
+                                    data-status={statusGroup.status}
+                                    variant="bare-inverse">
+                                </lightning-button-icon>
                             </div>
                         </div>
                         
-                        <!-- Tasks in this status group -->
-                        <div class="tasks-container">
-                            <template for:each={statusGroup.tasks} for:item="task">
-                                <div key={task.id} class="task-item slds-border_bottom">
-                                    <div class="task-row slds-grid slds-grid_align-spread slds-p-around_small">
-                                        <!-- Expand/Collapse Icon and Task Name -->
-                                        <div class="slds-col slds-grow slds-grid slds-grid_vertical-align-center">
-                                            <template if:true={task.hasSubtasks}>
-                                                <button 
-                                                    class="slds-button slds-button_icon slds-button_icon-small slds-m-right_x-small"
-                                                    data-task-id={task.id}
-                                                    onclick={handleToggleSubtasks}>
-                                                    <lightning-icon 
-                                                        icon-name={task.iconName}
-                                                        size="x-small"
-                                                        alternative-text={task.iconAltText}>
-                                                    </lightning-icon>
-                                                    <span class="slds-assistive-text">
-                                                        {task.iconAltText} subtasks
-                                                    </span>
-                                                </button>
-                                            </template>
-                                            <template if:false={task.hasSubtasks}>
-                                                <div class="slds-m-right_large"></div>
-                                            </template>
-                                            
-                                            <div class="task-name-wrapper">
-                                                <a 
-                                                    href="javascript:void(0);" 
-                                                    class="task-name-link slds-text-link"
-                                                    data-task-id={task.id}
-                                                    onclick={handleTaskClick}>
-                                                    {task.name}
-                                                </a>
-                                                
-                                                <template if:true={task.hasSubtasks}>
-                                                    <span class="slds-m-left_small slds-text-body_small slds-text-color_weak">
-                                                        ({task.subtaskCount} {task.subtaskLabel})
-                                                    </span>
-                                                </template>
-                                                
-                                                <template if:true={task.hoverFields}>
-                                                    <section class="task-hover-card" role="tooltip" aria-live="polite">
-                                                        <div class="hover-title">Task Snapshot</div>
-                                                        <template for:each={task.hoverFields} for:item="field">
-                                                            <div key={field.apiName} class="hover-row">
-                                                                <span class="hover-label">{field.label}</span>
-                                                                <div class={field.valueClass}>
-                                                                    <template if:true={field.isStatus}>
-                                                                        <span class={field.badgeClass}>{field.displayValue}</span>
-                                                                    </template>
-                                                                    <template if:false={field.isStatus}>
-                                                                        {field.displayValue}
-                                                                    </template>
-                                                                </div>
-                                                            </div>
-                                                        </template>
-                                                    </section>
-                                                </template>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Task Details -->
-                                        <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center task-details">
-                                            <template if:false={isFilteredByAccount}>
-                                                <div class="slds-m-right_medium">
-                                                    <template if:true={task.accountName}>
-                                                        <div class="slds-text-body_small">{task.accountName}</div>
-                                                    </template>
-                                                </div>
-                                            </template>
-                                            
-                                            <div class="slds-m-right_medium">
-                                                <template if:true={task.ownerName}>
-                                                    <div class="slds-text-body_small">{task.ownerName}</div>
-                                                </template>
-                                            </div>
-                                            
-                                            <div class="slds-m-right_medium">
-                                                <template if:true={task.formattedDueDate}>
-                                                    <div class="slds-text-body_small">{task.formattedDueDate}</div>
-                                                </template>
-                                            </div>
-                                            
-                                            <div class="slds-m-right_medium">
-                                                <template if:true={task.priority}>
-                                                    <div class="slds-text-body_small">{task.priority}</div>
-                                                </template>
-                                            </div>
-                                            
-                                            <div class="slds-m-right_medium">
-                                                <template if:true={task.formattedEstimatedHours}>
-                                                    <div class="slds-text-body_small">{task.formattedEstimatedHours}</div>
-                                                </template>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Subtasks (shown when expanded) -->
-                                    <template if:true={task.hasSubtasks}>
-                                        <template if:true={task.isExpanded}>
-                                            <div class="subtasks-container slds-p-left_large slds-border_left">
-                                                <template for:each={task.subtasks} for:item="subtask">
-                                                    <div key={subtask.id} class="subtask-item slds-p-around_small slds-border_bottom">
-                                                        <div class="slds-grid slds-grid_align-spread">
-                                                            <div class="slds-col slds-grow">
-                                                                <div class="subtask-name-wrapper">
-                                                                    <a 
-                                                                        href="javascript:void(0);" 
-                                                                        class="subtask-name-link slds-text-link"
-                                                                        data-task-id={subtask.id}
-                                                                        onclick={handleTaskClick}>
-                                                                        {subtask.name}
-                                                                    </a>
-                                                                    
-                                                                    <template if:true={subtask.hoverFields}>
-                                                                        <section class="task-hover-card" role="tooltip" aria-live="polite">
-                                                                            <div class="hover-title">Task Snapshot</div>
-                                                                            <template for:each={subtask.hoverFields} for:item="field">
-                                                                                <div key={field.apiName} class="hover-row">
-                                                                                    <span class="hover-label">{field.label}</span>
-                                                                                    <div class={field.valueClass}>
-                                                                                        <template if:true={field.isStatus}>
-                                                                                            <span class={field.badgeClass}>{field.displayValue}</span>
-                                                                                        </template>
-                                                                                        <template if:false={field.isStatus}>
-                                                                                            {field.displayValue}
-                                                                                        </template>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </template>
-                                                                        </section>
-                                                                    </template>
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center subtask-details">
-                                                                <template if:false={isFilteredByAccount}>
-                                                                    <div class="slds-m-right_medium">
-                                                                        <template if:true={subtask.accountName}>
-                                                                            <div class="slds-text-body_small">{subtask.accountName}</div>
-                                                                        </template>
-                                                                    </div>
-                                                                </template>
-                                                                
-                                                                <div class="slds-m-right_medium">
-                                                                    <template if:true={subtask.ownerName}>
-                                                                        <div class="slds-text-body_small">{subtask.ownerName}</div>
-                                                                    </template>
-                                                                </div>
-                                                                
-                                                                <div class="slds-m-right_medium">
-                                                                    <template if:true={subtask.formattedDueDate}>
-                                                                        <div class="slds-text-body_small">{subtask.formattedDueDate}</div>
-                                                                    </template>
-                                                                </div>
-                                                                
-                                                                <div class="slds-m-right_medium">
-                                                                    <template if:true={subtask.priority}>
-                                                                        <div class="slds-text-body_small">{subtask.priority}</div>
-                                                                    </template>
-                                                                </div>
-                                                                
-                                                                <div class="slds-m-right_medium">
-                                                                    <template if:true={subtask.formattedEstimatedHours}>
-                                                                        <div class="slds-text-body_small">{subtask.formattedEstimatedHours}</div>
-                                                                    </template>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </template>
+                        <template if:false={statusGroup.isCollapsed}>
+                            <!-- Column Headers -->
+                            <div class="column-headers slds-grid slds-grid_align-spread slds-p-around_small slds-border_bottom slds-text-body_small slds-text-color_weak">
+                                <div class="slds-col slds-grow">
+                                    <strong>Task Name</strong>
+                                </div>
+                                <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center task-details">
+                                    <template if:true={hasSummaryFields}>
+                                        <template for:each={summaryFieldDefinitions} for:item="field">
+                                            <div key={field.apiName} class="slds-m-right_medium summary-column">
+                                                <strong>{field.label}</strong>
                                             </div>
                                         </template>
                                     </template>
+                                    <template if:false={hasSummaryFields}>
+                                        <template if:false={isFilteredByAccount}>
+                                            <div class="slds-m-right_medium">
+                                                <strong>Account</strong>
+                                            </div>
+                                        </template>
+                                        <div class="slds-m-right_medium">
+                                            <strong>Owner</strong>
+                                        </div>
+                                        <div class="slds-m-right_medium">
+                                            <strong>Due Date</strong>
+                                        </div>
+                                        <div class="slds-m-right_medium">
+                                            <strong>Priority</strong>
+                                        </div>
+                                        <div class="slds-m-right_medium">
+                                            <strong>Est. Hours</strong>
+                                        </div>
+                                    </template>
                                 </div>
-                            </template>
-                        </div>
+                            </div>
+                            
+                            <!-- Tasks in this status group -->
+                            <div class="tasks-container">
+                                <template for:each={statusGroup.tasks} for:item="task">
+                                    <div key={task.id} class="task-item slds-border_bottom">
+                                        <div class="task-row slds-grid slds-grid_align-spread slds-p-around_small">
+                                            <!-- Expand/Collapse Icon and Task Name -->
+                                            <div class="slds-col slds-grow slds-grid slds-grid_vertical-align-center">
+                                                <template if:true={task.hasSubtasks}>
+                                                    <button 
+                                                        class="slds-button slds-button_icon slds-button_icon-small slds-m-right_x-small"
+                                                        data-task-id={task.id}
+                                                        onclick={handleToggleSubtasks}>
+                                                        <lightning-icon 
+                                                            icon-name={task.iconName}
+                                                            size="x-small"
+                                                            alternative-text={task.iconAltText}>
+                                                        </lightning-icon>
+                                                        <span class="slds-assistive-text">
+                                                            {task.iconAltText} subtasks
+                                                        </span>
+                                                    </button>
+                                                </template>
+                                                <template if:false={task.hasSubtasks}>
+                                                    <div class="slds-m-right_large"></div>
+                                                </template>
+                                                
+                                                <div class="task-name-wrapper">
+                                                    <a 
+                                                        href="javascript:void(0);" 
+                                                        class="task-name-link slds-text-link"
+                                                        data-task-id={task.id}
+                                                        onclick={handleTaskClick}>
+                                                        {task.name}
+                                                    </a>
+                                                    
+                                                    <template if:true={task.hasSubtasks}>
+                                                        <span class="slds-m-left_small slds-text-body_small slds-text-color_weak">
+                                                            ({task.subtaskCount} {task.subtaskLabel})
+                                                        </span>
+                                                    </template>
+                                                    
+                                                    <template if:true={task.hoverFields}>
+                                                        <section class="task-hover-card" role="tooltip" aria-live="polite">
+                                                            <div class="hover-title">Task Snapshot</div>
+                                                            <template for:each={task.hoverFields} for:item="field">
+                                                                <div key={field.apiName} class="hover-row">
+                                                                    <span class="hover-label">{field.label}</span>
+                                                                    <div class={field.valueClass}>
+                                                                        <template if:true={field.isStatus}>
+                                                                            <span class={field.badgeClass}>{field.displayValue}</span>
+                                                                        </template>
+                                                                        <template if:false={field.isStatus}>
+                                                                            {field.displayValue}
+                                                                        </template>
+                                                                    </div>
+                                                                </div>
+                                                            </template>
+                                                        </section>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Task Details -->
+                                        <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center task-details">
+                                            <template if:true={hasSummaryFields}>
+                                                <template for:each={task.summaryFields} for:item="field">
+                                                    <div key={field.apiName} class="slds-m-right_medium">
+                                                        <template if:true={field.displayValue}>
+                                                            <div class="slds-text-body_small">{field.displayValue}</div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </template>
+                                            <template if:false={hasSummaryFields}>
+                                                <template if:false={isFilteredByAccount}>
+                                                    <div class="slds-m-right_medium">
+                                                        <template if:true={task.accountName}>
+                                                            <div class="slds-text-body_small">{task.accountName}</div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                                
+                                                <div class="slds-m-right_medium">
+                                                    <template if:true={task.ownerName}>
+                                                        <div class="slds-text-body_small">{task.ownerName}</div>
+                                                    </template>
+                                                </div>
+                                                
+                                                <div class="slds-m-right_medium">
+                                                    <template if:true={task.formattedDueDate}>
+                                                        <div class="slds-text-body_small">{task.formattedDueDate}</div>
+                                                    </template>
+                                                </div>
+                                                
+                                                <div class="slds-m-right_medium">
+                                                    <template if:true={task.priority}>
+                                                        <div class="slds-text-body_small">{task.priority}</div>
+                                                    </template>
+                                                </div>
+                                                
+                                                <div class="slds-m-right_medium">
+                                                    <template if:true={task.formattedEstimatedHours}>
+                                                        <div class="slds-text-body_small">{task.formattedEstimatedHours}</div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        </div>
+                                        
+                                        <!-- Subtasks (shown when expanded) -->
+                                        <template if:true={task.hasSubtasks}>
+                                            <template if:true={task.isExpanded}>
+                                                <div class="subtasks-container slds-p-left_large slds-border_left">
+                                                    <template for:each={task.subtasks} for:item="subtask">
+                                                        <div key={subtask.id} class="subtask-item slds-p-around_small slds-border_bottom">
+                                                            <div class="slds-grid slds-grid_align-spread">
+                                                                <div class="slds-col slds-grow">
+                                                                    <div class="subtask-name-wrapper">
+                                                                        <a 
+                                                                            href="javascript:void(0);" 
+                                                                            class="subtask-name-link slds-text-link"
+                                                                            data-task-id={subtask.id}
+                                                                            onclick={handleTaskClick}>
+                                                                            {subtask.name}
+                                                                        </a>
+                                                                        
+                                                                        <template if:true={subtask.hoverFields}>
+                                                                            <section class="task-hover-card" role="tooltip" aria-live="polite">
+                                                                                <div class="hover-title">Task Snapshot</div>
+                                                                                <template for:each={subtask.hoverFields} for:item="field">
+                                                                                    <div key={field.apiName} class="hover-row">
+                                                                                        <span class="hover-label">{field.label}</span>
+                                                                                        <div class={field.valueClass}>
+                                                                                            <template if:true={field.isStatus}>
+                                                                                                <span class={field.badgeClass}>{field.displayValue}</span>
+                                                                                            </template>
+                                                                                            <template if:false={field.isStatus}>
+                                                                                                {field.displayValue}
+                                                                                            </template>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </template>
+                                                                            </section>
+                                                                        </template>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                            <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center subtask-details">
+                                                                <template if:true={hasSummaryFields}>
+                                                                    <template for:each={subtask.summaryFields} for:item="field">
+                                                                        <div key={field.apiName} class="slds-m-right_medium">
+                                                                            <template if:true={field.displayValue}>
+                                                                                <div class="slds-text-body_small">{field.displayValue}</div>
+                                                                            </template>
+                                                                        </div>
+                                                                    </template>
+                                                                </template>
+                                                                <template if:false={hasSummaryFields}>
+                                                                    <template if:false={isFilteredByAccount}>
+                                                                        <div class="slds-m-right_medium">
+                                                                            <template if:true={subtask.accountName}>
+                                                                                <div class="slds-text-body_small">{subtask.accountName}</div>
+                                                                            </template>
+                                                                        </div>
+                                                                    </template>
+                                                                    
+                                                                    <div class="slds-m-right_medium">
+                                                                        <template if:true={subtask.ownerName}>
+                                                                            <div class="slds-text-body_small">{subtask.ownerName}</div>
+                                                                        </template>
+                                                                    </div>
+                                                                    
+                                                                    <div class="slds-m-right_medium">
+                                                                        <template if:true={subtask.formattedDueDate}>
+                                                                            <div class="slds-text-body_small">{subtask.formattedDueDate}</div>
+                                                                        </template>
+                                                                    </div>
+                                                                    
+                                                                    <div class="slds-m-right_medium">
+                                                                        <template if:true={subtask.priority}>
+                                                                            <div class="slds-text-body_small">{subtask.priority}</div>
+                                                                        </template>
+                                                                    </div>
+                                                                    
+                                                                    <div class="slds-m-right_medium">
+                                                                        <template if:true={subtask.formattedEstimatedHours}>
+                                                                            <div class="slds-text-body_small">{subtask.formattedEstimatedHours}</div>
+                                                                        </template>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
                     </div>
                 </template>
             </div>

@@ -4,10 +4,10 @@
     <active>true</active>
     <description>Prevents creating a new subtask when the parent task status is Completed. This ensures data integrity by preventing subtasks from being added to completed parent tasks.</description>
     <errorConditionFormula>AND(
-  NOT(ISBLANK(Parent_Task__c)),
-  ISBLANK(Related_Task__c),
-  Parent_Task__r.Status__c = "Completed"
-)</errorConditionFormula>
+        NOT(ISBLANK(Parent_Task__c)),
+        ISBLANK(Related_Task__c),
+        TEXT(Parent_Task__r.Status__c) = &quot;Completed&quot;
+    )</errorConditionFormula>
     <errorDisplayField>Parent_Task__c</errorDisplayField>
     <errorMessage>Cannot create a subtask when the parent task is Completed. Please select a different parent task or change the parent task status.</errorMessage>
 </ValidationRule>
