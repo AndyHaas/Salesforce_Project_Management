@@ -19,21 +19,6 @@
         </values>
     </picklistValues>
     <picklistValues>
-        <picklist>Relationship_Type__c</picklist>
-        <values>
-            <fullName>Blocking Dependency</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Epic%2FFeature Parent</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Related</fullName>
-            <default>false</default>
-        </values>
-    </picklistValues>
-    <picklistValues>
         <picklist>Status__c</picklist>
         <values>
             <fullName>Backlog</fullName>
