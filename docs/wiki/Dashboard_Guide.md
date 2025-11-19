@@ -26,10 +26,25 @@ Core elements:
 
 ### Customizing Columns
 
-1. In Salesforce Setup, open Object Manager → `Project Task` → Field Sets.
-2. Edit `Project_Task_Dashboard_Table` and drag/drop fields to adjust order or inclusion.
-3. Save and deploy metadata (`force-app/main/default/objects/Project_Task__c/fieldSets/Project_Task_Dashboard_Table.fieldSet-meta.xml`).
-4. Reload the dashboard—no code edits required.
+Admins can customize which columns appear in the task list table without any code changes:
+
+1. **In Salesforce Setup**: Navigate to Object Manager → `Project Task` → Field Sets
+2. **Edit Field Set**: Click on `Project_Task_Dashboard_Table` to edit
+3. **Add/Remove Fields**: Drag and drop fields to adjust order or inclusion
+   - Fields can be added from any available field on the Project Task object
+   - Field order in the field set determines column order in the table
+4. **Save Changes**: Click Save in the Salesforce UI
+5. **Retrieve Metadata**: Pull the updated field set into your repository:
+   ```bash
+   sf project retrieve start --metadata "FieldSet:Project_Task__c.Project_Task_Dashboard_Table"
+   ```
+6. **Deploy to Other Orgs** (if needed): Deploy the updated field set metadata:
+   ```bash
+   sf project deploy start --source-dir force-app/main/default/objects/Project_Task__c/fieldSets/Project_Task_Dashboard_Table.fieldSet-meta.xml
+   ```
+7. **Reload Dashboard**: Refresh the dashboard page—columns will update automatically
+
+**Note**: No code changes are required. The component automatically detects and renders fields from the field set.
 
 ### Supported Field Types
 
@@ -43,15 +58,35 @@ The component auto-detects standard types:
 
 If a field type is not explicitly mapped, it falls back to `text`.
 
-## Field Set Retrieval via CLI
+## Field Set Management
 
-To pull the latest field-set definition into the repo:
+### Field Sets Used
 
+The system uses two main field sets that can be customized by admins:
+
+1. **`Project_Task_Dashboard_Table`**: Controls which columns appear in the task list datatable
+2. **`Task_Hover_Fields`**: Controls which fields appear in task hover cards
+
+### Updating Field Sets
+
+Both field sets can be updated through the Salesforce UI and then retrieved via CLI:
+
+#### For Project_Task_Dashboard_Table:
 ```bash
 sf project retrieve start --metadata "FieldSet:Project_Task__c.Project_Task_Dashboard_Table"
 ```
 
-This checkpoints admin changes before committing.
+#### For Task_Hover_Fields:
+```bash
+sf project retrieve start --metadata "FieldSet:Project_Task__c.Task_Hover_Fields"
+```
+
+#### Retrieve Both at Once:
+```bash
+sf project retrieve start --metadata "FieldSet:Project_Task__c.Project_Task_Dashboard_Table" "FieldSet:Project_Task__c.Task_Hover_Fields"
+```
+
+This checkpoints admin changes before committing to version control.
 
 ## Testing & Deployment
 
@@ -199,10 +234,25 @@ The component is used by:
 
 ### Field Set Configuration
 
-To customize which fields appear in hover cards:
-1. In Salesforce Setup, open Object Manager → `Project Task` → Field Sets
-2. Edit `Task_Hover_Fields` and add/remove fields
-3. Deploy the field set metadata
+Admins can customize which fields appear in hover cards without any code changes:
+
+1. **In Salesforce Setup**: Navigate to Object Manager → `Project Task` → Field Sets
+2. **Edit Field Set**: Click on `Task_Hover_Fields` to edit
+3. **Add/Remove Fields**: Drag and drop fields to adjust which fields are displayed
+   - Fields can be added from any available field on the Project Task object
+   - Field order in the field set determines display order in the hover card
+4. **Save Changes**: Click Save in the Salesforce UI
+5. **Retrieve Metadata**: Pull the updated field set into your repository:
+   ```bash
+   sf project retrieve start --metadata "FieldSet:Project_Task__c.Task_Hover_Fields"
+   ```
+6. **Deploy to Other Orgs** (if needed): Deploy the updated field set metadata:
+   ```bash
+   sf project deploy start --source-dir force-app/main/default/objects/Project_Task__c/fieldSets/Task_Hover_Fields.fieldSet-meta.xml
+   ```
+7. **Test**: Hover over a task name—the hover card will automatically show the updated fields
+
+**Note**: No code changes are required. The component automatically detects and renders fields from the field set.
 
 ## Link Task Modal
 
