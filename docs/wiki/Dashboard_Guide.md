@@ -137,7 +137,6 @@ The `Project_Task_Relationship__c` object contains:
 
 Relationships can be created through:
 - **Link Task Modal**: Accessible from the Task Context Panel via the "Link Task" button
-- **Quick Action**: "Add Related Task" quick action on the Project Task record page
 
 The Link Task Modal allows you to:
 - Select a related task (Task B)
@@ -180,7 +179,7 @@ The `taskContextPanel` is a unified component that displays comprehensive task c
    - Dependencies (tasks this task depends on)
    - Dependent Tasks (tasks that depend on this task)
    - Subtasks
-3. **Show/Hide Completed**: Toggle button to show or hide completed tasks in dependencies and subtasks
+3. **Show/Hide Completed**: Toggle button to show or hide completed tasks in dependencies and subtasks (dependent tasks are always shown)
 4. **Collapsible Sections**: Each relationship section can be expanded/collapsed
 5. **Link Task Button**: Quick access to create new relationships
 6. **Edit/Delete Relationships**: Menu actions on each relationship for editing or deleting
