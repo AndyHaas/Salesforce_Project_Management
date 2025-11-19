@@ -1,6 +1,18 @@
 <template>
-    <lightning-card title="Task Context" icon-name="utility:related_list">
-        <!-- Relationships Section -->
+    <lightning-card icon-name="utility:related_list">
+        <div slot="actions">
+            <template if:true={totalCompletedCount}>
+                <lightning-button
+                    label={showCompletedButtonLabel}
+                    icon-name={showCompletedButtonIcon}
+                    icon-position="left"
+                    variant="neutral"
+                    onclick={toggleShowCompleted}
+                    class="show-completed-toggle-button">
+                </lightning-button>
+            </template>
+        </div>
+
         <template if:true={isLoading}>
             <div class="slds-card__body slds-card__body_inner">
                 <lightning-spinner alternative-text="Loading task context"></lightning-spinner>
@@ -48,41 +60,51 @@
                         </div>
                     </template>
                     
-                    <!-- Related Task (Dependency) Section -->
-                    <template if:true={hasRelatedTask}>
-                        <div class="context-section slds-m-bottom_medium">
+                    <!-- Dependencies Section (Tasks This Task Depends On) - Collapsible, open by default -->
+                    <template if:true={hasDependencies}>
+                        <div class="context-section dependencies-section slds-m-bottom_medium">
                             <h3 class="slds-text-heading_small slds-m-bottom_small">
-                                <lightning-icon icon-name="utility:flow" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                                Dependency
-                                <template if:true={isAtRisk}>
-                                    <lightning-icon icon-name="utility:warning" size="x-small" class="slds-m-left_x-small risk-indicator" title="Task is at risk due to this dependency"></lightning-icon>
-                                </template>
+                                <button class="slds-button slds-button_reset slds-text-heading_small dependencies-toggle-button" onclick={toggleDependencies}>
+                                    <lightning-icon icon-name="utility:flow" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                    Dependencies ({dependencies.length})
+                                    <template if:true={isAtRisk}>
+                                        <lightning-icon icon-name="utility:warning" size="x-small" class="slds-m-left_x-small risk-indicator" title="Task is at risk due to dependencies"></lightning-icon>
+                                    </template>
+                                    <lightning-icon icon-name={dependenciesToggleIcon} size="xx-small" class="slds-m-left_x-small"></lightning-icon>
+                                </button>
                             </h3>
-                            <div class="context-item" data-id={relatedTask.id} onclick={navigateToTask}>
-                                <div class="slds-grid slds-grid_align-spread slds-wrap">
-                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
-                                        <div class="slds-text-heading_small context-name">{relatedTask.name}</div>
-                                        <div class="slds-m-top_x-small">
-                                            <span class={relatedTaskStatusBadgeClass}>{relatedTask.status}</span>
-                                            <template if:true={relatedTask.priority}>
-                                                <span class={relatedTaskPriorityBadgeClass}>{relatedTask.priority}</span>
-                                            </template>
-                                            <span class="slds-badge slds-badge_lightest context-type-badge">
-                                                <template if:true={relatedTask.isBlocking}>
-                                                    <lightning-icon icon-name="utility:ban" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
-                                                    Blocking
-                                                </template>
-                                                <template if:false={relatedTask.isBlocking}>
-                                                    {relatedTask.type}
-                                                </template>
-                                            </span>
+                            <template if:true={dependenciesExpanded}>
+                                <template for:each={dependencies} for:item="depTask">
+                                    <div key={depTask.id} class="context-item slds-m-bottom_small" data-id={depTask.id} onclick={navigateToTask}>
+                                        <div class="slds-grid slds-grid_align-spread slds-wrap">
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                                                <div class="context-name">{depTask.name}</div>
+                                                <div class="slds-m-top_x-small">
+                                                    <span class={depTask.statusBadgeClass}>{depTask.status}</span>
+                                                    <template if:true={depTask.priority}>
+                                                        <span class={depTask.priorityBadgeClass}>{depTask.priority}</span>
+                                                    </template>
+                                                    <span class="slds-badge slds-badge_lightest context-type-badge">
+                                                        <template if:true={depTask.isBlocking}>
+                                                            <lightning-icon icon-name="utility:ban" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
+                                                            Blocking
+                                                        </template>
+                                                        <template if:false={depTask.isBlocking}>
+                                                            {depTask.type}
+                                                        </template>
+                                                    </span>
+                                                    <template if:true={depTask.isAtRisk}>
+                                                        <lightning-icon icon-name="utility:warning" size="xx-small" class="slds-m-left_x-small risk-indicator" title="This dependency is at risk"></lightning-icon>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-medium-text-align_left">
+                                                <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-medium-text-align_left">
-                                        <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
-                                    </div>
-                                </div>
-                            </div>
+                                </template>
+                            </template>
                         </div>
                     </template>
                     
