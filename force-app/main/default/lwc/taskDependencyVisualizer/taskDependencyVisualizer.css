@@ -106,3 +106,27 @@
     border-radius: 0.125rem;
 }
 
+/* Dependent tasks toggle button styling */
+.dependent-tasks-toggle-button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--lwc-colorTextDefault, #080707);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dependent-tasks-toggle-button:hover,
+.dependent-tasks-toggle-button:focus {
+    text-decoration: underline;
+    color: var(--lwc-colorTextLink, #0070d2);
+}
+
+.dependent-tasks-toggle-button lightning-icon {
+    flex-shrink: 0;
+}
+
