@@ -44,6 +44,8 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     // UI state
     _subtasksExpanded = false;
     _dependentTasksExpanded = true;
+    _dependenciesExpanded = true; // Default to expanded
+    _showCompleted = false; // Default to hiding completed tasks
     
     // Wire service results for refresh capability
     _wiredDependencyDataResult;
@@ -81,8 +83,14 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         }
     }
     
+    // Track if we've completed initial load
+    _recordWireInitialized = false;
+    
     /**
-     * @description Fallback: Get progress percentage from the record itself if no subtasks
+     * @description Get progress percentage from the record itself if no subtasks
+     * Also listens for record updates via Lightning Data Service
+     * When the record page refreshes (e.g., after quick actions), this wire service
+     * is re-evaluated by Salesforce, which we use as a signal to refresh dependency data
      */
     @wire(getRecord, { 
         recordId: '$recordId', 
@@ -96,6 +104,22 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
             }
         } else if (error) {
             console.error('Error loading record:', error);
+        }
+        
+        // When record wire service fires after initial load, refresh dependency data
+        // This happens when the record page refreshes after quick actions complete
+        // Even if the record data itself hasn't changed, the wire service re-evaluation
+        // indicates the page has refreshed, so we should refresh our Apex data
+        if (data && this._recordWireInitialized && this._dependencyData) {
+            // Small delay to ensure related record creation has completed
+            setTimeout(() => {
+                this._refreshDependencyData();
+            }, 300);
+        }
+        
+        // Mark wire service as initialized after first successful data load
+        if (data) {
+            this._recordWireInitialized = true;
         }
     }
     
@@ -141,8 +165,9 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         return this._dependencyData?.parentTask != null;
     }
     
-    get hasRelatedTask() {
-        return this._dependencyData?.relatedTask != null;
+    get hasDependencies() {
+        const tasks = this._dependencyData?.dependencies;
+        return Array.isArray(tasks) && tasks.length > 0;
     }
     
     get hasDependentTasks() {
@@ -156,7 +181,7 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     }
     
     get hasAnyDependencies() {
-        return this.hasParentTask || this.hasRelatedTask || this.hasDependentTasks || this.hasSubtasks;
+        return this.hasParentTask || this.hasDependencies || this.hasDependentTasks || this.hasSubtasks;
     }
     
     get isAtRisk() {
@@ -171,8 +196,19 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         return this._dependencyData?.parentTask || null;
     }
     
-    get relatedTask() {
-        return this._dependencyData?.relatedTask || null;
+    get dependencies() {
+        const tasks = this._dependencyData?.dependencies;
+        if (!Array.isArray(tasks)) {
+            return [];
+        }
+        if (this._showCompleted) {
+            return tasks;
+        }
+        // Filter out completed tasks
+        return tasks.filter(task => {
+            const status = String(task?.status || '').toLowerCase();
+            return status !== 'completed' && status !== 'closed';
+        });
     }
     
     get dependentTasks() {
@@ -182,7 +218,17 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     
     get subtasks() {
         const tasks = this._dependencyData?.subtasks;
-        return Array.isArray(tasks) ? tasks : [];
+        if (!Array.isArray(tasks)) {
+            return [];
+        }
+        if (this._showCompleted) {
+            return tasks;
+        }
+        // Filter out completed tasks
+        return tasks.filter(task => {
+            const status = String(task?.status || '').toLowerCase();
+            return status !== 'completed' && status !== 'closed';
+        });
     }
     
     get subtasksExpanded() {
@@ -201,6 +247,14 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         return this._dependentTasksExpanded ? 'utility:chevronup' : 'utility:chevrondown';
     }
     
+    get dependenciesExpanded() {
+        return this._dependenciesExpanded;
+    }
+    
+    get dependenciesToggleIcon() {
+        return this._dependenciesExpanded ? 'utility:chevronup' : 'utility:chevrondown';
+    }
+    
     get parentTaskStatusBadgeClass() {
         if (!this.parentTask?.status) {
             return 'slds-badge slds-badge_lightest';
@@ -215,31 +269,32 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         return this.getPriorityBadgeClassForPriority(this.parentTask.priority);
     }
     
-    get relatedTaskStatusBadgeClass() {
-        if (!this.relatedTask?.status) {
-            return 'slds-badge slds-badge_lightest';
-        }
-        return this.getStatusBadgeClassForStatus(this.relatedTask.status);
-    }
-    
-    get relatedTaskPriorityBadgeClass() {
-        if (!this.relatedTask?.priority) {
-            return 'slds-badge slds-badge_lightest';
-        }
-        return this.getPriorityBadgeClassForPriority(this.relatedTask.priority);
-    }
     
     /**
      * @description Process wire service data into a plain object
      */
     _processWireData(wireData) {
+        if (!wireData) {
+            return this._createEmptyDependencyData();
+        }
+        
         const isAtRisk = Boolean(wireData.isAtRisk);
         const isBlocking = Boolean(wireData.isBlocking);
         
         const parentTask = this._extractTaskObject(wireData.parentTask);
-        const relatedTask = this._extractTaskObject(wireData.relatedTask);
-        const dependentTasks = this._extractTaskArray(wireData.dependentTasks);
-        const subtasks = this._extractTaskArray(wireData.subtasks);
+        
+        // Support both new dependencies array and legacy relatedTask for backward compatibility
+        // Handle case where dependencies might be null, undefined, or an array
+        let dependencies = [];
+        if (wireData.dependencies && Array.isArray(wireData.dependencies)) {
+            dependencies = this._extractTaskArray(wireData.dependencies);
+        } else if (wireData.relatedTask) {
+            // Fallback to legacy relatedTask if dependencies is not available
+            dependencies = this._extractTaskArray([wireData.relatedTask]);
+        }
+        
+        const dependentTasks = this._extractTaskArray(wireData.dependentTasks || []);
+        const subtasks = this._extractTaskArray(wireData.subtasks || []);
         
         // Include subtask progress info
         const subtaskProgress = wireData.subtaskProgress ? {
@@ -251,7 +306,7 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         
         return {
             parentTask,
-            relatedTask,
+            dependencies,
             dependentTasks,
             subtasks,
             isAtRisk,
@@ -311,7 +366,7 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     _createEmptyDependencyData() {
         return {
             parentTask: null,
-            relatedTask: null,
+            dependencies: [],
             dependentTasks: [],
             subtasks: [],
             isAtRisk: false,
@@ -336,25 +391,48 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     
     /**
      * @description Get CSS class for status badge based on status value
+     * Matches the color pattern used in other components (groupedTaskList)
      */
     getStatusBadgeClassForStatus(status) {
         if (!status) {
-            return 'slds-badge slds-badge_lightest';
+            return 'status-badge status-badge-default';
         }
         
-        const normalizedStatus = String(status).toLowerCase();
+        const statusStr = String(status);
+        const normalizedStatus = statusStr.toLowerCase().replace(/\s+/g, '-');
         
-        if (normalizedStatus === 'completed' || normalizedStatus === 'closed') {
-            return 'slds-badge slds-badge_success';
-        }
-        if (normalizedStatus === 'blocked') {
-            return 'slds-badge slds-badge_error';
-        }
-        if (normalizedStatus === 'in progress') {
-            return 'slds-badge slds-badge_info';
-        }
+        const statusClasses = {
+            'Backlog': 'status-badge status-badge-backlog',
+            'backlog': 'status-badge status-badge-backlog',
+            'Pending': 'status-badge status-badge-pending',
+            'pending': 'status-badge status-badge-pending',
+            'In Progress': 'status-badge status-badge-in-progress',
+            'in progress': 'status-badge status-badge-in-progress',
+            'in-progress': 'status-badge status-badge-in-progress',
+            'In Review': 'status-badge status-badge-in-review',
+            'in review': 'status-badge status-badge-in-review',
+            'in-review': 'status-badge status-badge-in-review',
+            'Blocked': 'status-badge status-badge-blocked',
+            'blocked': 'status-badge status-badge-blocked',
+            'Completed': 'status-badge status-badge-completed',
+            'completed': 'status-badge status-badge-completed',
+            'Removed': 'status-badge status-badge-removed',
+            'removed': 'status-badge status-badge-removed',
+            'Closed': 'status-badge status-badge-closed',
+            'closed': 'status-badge status-badge-closed',
+            'Not Started': 'status-badge status-badge-not-started',
+            'not started': 'status-badge status-badge-not-started',
+            'not-started': 'status-badge status-badge-not-started',
+            'On Hold': 'status-badge status-badge-on-hold',
+            'on hold': 'status-badge status-badge-on-hold',
+            'on-hold': 'status-badge status-badge-on-hold',
+            'Cancelled': 'status-badge status-badge-cancelled',
+            'cancelled': 'status-badge status-badge-cancelled',
+            'Deferred': 'status-badge status-badge-deferred',
+            'deferred': 'status-badge status-badge-deferred'
+        };
         
-        return 'slds-badge slds-badge_lightest';
+        return statusClasses[statusStr] || statusClasses[normalizedStatus] || 'status-badge status-badge-default';
     }
     
     /**
@@ -395,9 +473,91 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     }
     
     /**
+     * @description Toggle dependencies section expand/collapse state
+     */
+    toggleDependencies() {
+        this._dependenciesExpanded = !this._dependenciesExpanded;
+    }
+    
+    /**
+     * @description Get all dependencies (unfiltered) for counting
+     */
+    get allDependencies() {
+        const tasks = this._dependencyData?.dependencies;
+        return Array.isArray(tasks) ? tasks : [];
+    }
+    
+    /**
+     * @description Get all subtasks (unfiltered) for counting
+     */
+    get allSubtasks() {
+        const tasks = this._dependencyData?.subtasks;
+        return Array.isArray(tasks) ? tasks : [];
+    }
+    
+    /**
+     * @description Count completed dependencies
+     */
+    get completedDependenciesCount() {
+        return this.allDependencies.filter(task => {
+            const status = String(task?.status || '').toLowerCase();
+            return status === 'completed' || status === 'closed';
+        }).length;
+    }
+    
+    /**
+     * @description Count completed subtasks
+     */
+    get completedSubtasksCount() {
+        return this.allSubtasks.filter(task => {
+            const status = String(task?.status || '').toLowerCase();
+            return status === 'completed' || status === 'closed';
+        }).length;
+    }
+    
+    /**
+     * @description Total count of completed items (dependencies + subtasks)
+     */
+    get totalCompletedCount() {
+        return this.completedDependenciesCount + this.completedSubtasksCount;
+    }
+    
+    /**
+     * @description Toggle showing/hiding completed tasks
+     */
+    toggleShowCompleted() {
+        this._showCompleted = !this._showCompleted;
+    }
+    
+    /**
+     * @description Getter for show completed state
+     */
+    get showCompleted() {
+        return this._showCompleted;
+    }
+    
+    /**
+     * @description Get button label for show/hide completed toggle
+     */
+    get showCompletedButtonLabel() {
+        if (this._showCompleted) {
+            return `Hide ${this.totalCompletedCount} Completed`;
+        }
+        return `Show ${this.totalCompletedCount} Completed`;
+    }
+    
+    /**
+     * @description Get button icon for show/hide completed toggle
+     */
+    get showCompletedButtonIcon() {
+        return this._showCompleted ? 'utility:hide' : 'utility:preview';
+    }
+    
+    /**
      * @description Lifecycle hook - component is inserted into the DOM
      */
     connectedCallback() {
+        // Subscribe to Lightning Message Service for manual refresh triggers
         if (this.messageContext) {
             this._refreshSubscription = subscribe(
                 this.messageContext,
@@ -419,15 +579,22 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     }
     
     /**
+     * @description Refresh dependency data using refreshApex
+     */
+    _refreshDependencyData() {
+        if (this._wiredDependencyDataResult) {
+            refreshApex(this._wiredDependencyDataResult).catch(error => {
+                console.error('Error refreshing dependency data:', error);
+            });
+        }
+    }
+    
+    /**
      * @description Handle refresh message from LMS
      */
     handleRefresh(message) {
         if (message && message.refreshTimestamp) {
-            if (this._wiredDependencyDataResult) {
-                refreshApex(this._wiredDependencyDataResult).catch(error => {
-                    console.error('Error refreshing dependency data:', error);
-                });
-            }
+            this._refreshDependencyData();
         }
     }
     
