@@ -9,7 +9,6 @@
     <columns>Review_Status_Icons__c</columns>
     <columns>Is_Blocking__c</columns>
     <columns>At_Risk_Due_to_Dependencies__c</columns>
-    <columns>Related_Task__c</columns>
     <columns>Progress_Percentage__c</columns>
     <columns>Estimated_Hours__c</columns>
     <columns>Actual_Hours__c</columns>
