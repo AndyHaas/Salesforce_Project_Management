@@ -22,7 +22,7 @@
             </value>
         </assignmentItems>
     </assignments>
-    <description>Auto-populates PM (OwnerId) and Client User from parent task when creating subtasks. Only runs when Parent_Task__c is populated and Related_Task__c is blank.</description>
+    <description>Auto-populates PM (OwnerId) and Client User from parent task when creating subtasks. Only runs when Parent_Task__c is populated.</description>
     <environments>Default</environments>
     <formulas>
         <name>Parent_Task_Id</name>
@@ -86,13 +86,6 @@
             <operator>IsNull</operator>
             <value>
                 <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <filters>
-            <field>Related_Task__c</field>
-            <operator>IsNull</operator>
-            <value>
-                <booleanValue>true</booleanValue>
             </value>
         </filters>
         <object>Project_Task__c</object>
