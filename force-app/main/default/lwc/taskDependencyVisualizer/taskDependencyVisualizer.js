@@ -13,7 +13,10 @@
  */
 import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
+import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
+import { refreshApex } from '@salesforce/apex';
 import getDependencyData from '@salesforce/apex/ProjectTaskDashboardController.getDependencyData';
+import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 
 export default class TaskDependencyVisualizer extends NavigationMixin(LightningElement) {
     /**
@@ -21,6 +24,13 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
      * @type {string}
      */
     @api recordId;
+    
+    /**
+     * @description Message context for Lightning Message Service
+     * @type {Object}
+     */
+    @wire(MessageContext)
+    messageContext;
     
     /**
      * @description Processed dependency data object
@@ -51,6 +61,27 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
     _subtasksExpanded = false;
     
     /**
+     * @description State for expanded/collapsed dependent tasks section (open by default)
+     * @type {boolean}
+     * @private
+     */
+    _dependentTasksExpanded = true;
+    
+    /**
+     * @description Wire service result for refresh capability
+     * @type {Object}
+     * @private
+     */
+    _wiredDependencyDataResult;
+    
+    /**
+     * @description Subscription to refresh message channel
+     * @type {Object}
+     * @private
+     */
+    _refreshSubscription = null;
+    
+    /**
      * @description Wire service to fetch dependency data from Apex
      * 
      * Note: Wire service returns a proxy object. We must never mutate it directly.
@@ -62,7 +93,12 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
      * @param {Object} params.data - Response data (proxy object)
      */
     @wire(getDependencyData, { taskId: '$recordId' })
-    wiredDependencyData({ error, data }) {
+    wiredDependencyData(result) {
+        // Store the result for refresh capability
+        this._wiredDependencyDataResult = result;
+        
+        const { error, data } = result;
+        
         // Reset loading state
         this._isLoading = false;
         
@@ -219,6 +255,22 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
      */
     get subtasksToggleIcon() {
         return this._subtasksExpanded ? 'utility:chevronup' : 'utility:chevrondown';
+    }
+    
+    /**
+     * @description Get expanded state for dependent tasks section
+     * @returns {boolean} True if dependent tasks section is expanded
+     */
+    get dependentTasksExpanded() {
+        return this._dependentTasksExpanded;
+    }
+    
+    /**
+     * @description Get icon name for dependent tasks expand/collapse button
+     * @returns {string} Icon name
+     */
+    get dependentTasksToggleIcon() {
+        return this._dependentTasksExpanded ? 'utility:chevronup' : 'utility:chevrondown';
     }
     
     /**
@@ -457,6 +509,55 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
      */
     toggleSubtasks() {
         this._subtasksExpanded = !this._subtasksExpanded;
+    }
+    
+    /**
+     * @description Toggle dependent tasks section expand/collapse state
+     */
+    toggleDependentTasks() {
+        this._dependentTasksExpanded = !this._dependentTasksExpanded;
+    }
+    
+    /**
+     * @description Lifecycle hook - component is inserted into the DOM
+     * Sets up Lightning Message Service subscription for refresh events
+     */
+    connectedCallback() {
+        // Subscribe to refresh messages
+        if (this.messageContext) {
+            this._refreshSubscription = subscribe(
+                this.messageContext,
+                DASHBOARD_REFRESH_MESSAGE_CHANNEL,
+                (message) => this.handleRefresh(message),
+                { scope: APPLICATION_SCOPE }
+            );
+        }
+    }
+    
+    /**
+     * @description Lifecycle hook - component is removed from the DOM
+     * Cleans up Lightning Message Service subscription
+     */
+    disconnectedCallback() {
+        if (this._refreshSubscription) {
+            unsubscribe(this._refreshSubscription);
+            this._refreshSubscription = null;
+        }
+    }
+    
+    /**
+     * @description Handle refresh message from LMS
+     * Forces a refresh of the wire service when related tasks are created/updated
+     * @param {Object} message - Refresh message with timestamp
+     * @private
+     */
+    handleRefresh(message) {
+        if (message && message.refreshTimestamp && this._wiredDependencyDataResult) {
+            // Use refreshApex to refresh the wire service
+            refreshApex(this._wiredDependencyDataResult).catch(error => {
+                console.error('Error refreshing dependency data:', error);
+            });
+        }
     }
     
     /**
