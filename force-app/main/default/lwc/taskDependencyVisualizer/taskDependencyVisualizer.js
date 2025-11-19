@@ -44,6 +44,13 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
     _error = null;
     
     /**
+     * @description State for expanded/collapsed sub tasks section
+     * @type {boolean}
+     * @private
+     */
+    _subtasksExpanded = false;
+    
+    /**
      * @description Wire service to fetch dependency data from Apex
      * 
      * Note: Wire service returns a proxy object. We must never mutate it directly.
@@ -132,11 +139,20 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
     }
     
     /**
+     * @description Check if any sub tasks exist
+     * @returns {boolean} True if sub tasks exist
+     */
+    get hasSubtasks() {
+        const tasks = this._dependencyData?.subtasks;
+        return Array.isArray(tasks) && tasks.length > 0;
+    }
+    
+    /**
      * @description Check if any dependencies exist at all
      * @returns {boolean} True if any dependency exists
      */
     get hasAnyDependencies() {
-        return this.hasParentTask || this.hasRelatedTask || this.hasDependentTasks;
+        return this.hasParentTask || this.hasRelatedTask || this.hasDependentTasks || this.hasSubtasks;
     }
     
     /**
@@ -178,6 +194,31 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
     get dependentTasks() {
         const tasks = this._dependencyData?.dependentTasks;
         return Array.isArray(tasks) ? tasks : [];
+    }
+    
+    /**
+     * @description Get sub tasks array
+     * @returns {Array} Array of sub tasks (empty array if none)
+     */
+    get subtasks() {
+        const tasks = this._dependencyData?.subtasks;
+        return Array.isArray(tasks) ? tasks : [];
+    }
+    
+    /**
+     * @description Get expanded state for sub tasks section
+     * @returns {boolean} True if sub tasks section is expanded
+     */
+    get subtasksExpanded() {
+        return this._subtasksExpanded;
+    }
+    
+    /**
+     * @description Get icon name for sub tasks expand/collapse button
+     * @returns {string} Icon name
+     */
+    get subtasksToggleIcon() {
+        return this._subtasksExpanded ? 'utility:chevronup' : 'utility:chevrondown';
     }
     
     /**
@@ -243,12 +284,14 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
         const parentTask = this._extractTaskObject(wireData.parentTask);
         const relatedTask = this._extractTaskObject(wireData.relatedTask);
         const dependentTasks = this._extractTaskArray(wireData.dependentTasks);
+        const subtasks = this._extractTaskArray(wireData.subtasks);
         
         // Return new plain object
         return {
             parentTask,
             relatedTask,
             dependentTasks,
+            subtasks,
             isAtRisk,
             isBlocking
         };
@@ -342,6 +385,7 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
             parentTask: null,
             relatedTask: null,
             dependentTasks: [],
+            subtasks: [],
             isAtRisk: false,
             isBlocking: false
         };
@@ -406,6 +450,13 @@ export default class TaskDependencyVisualizer extends NavigationMixin(LightningE
         }
         
         return 'slds-badge slds-badge_lightest';
+    }
+    
+    /**
+     * @description Toggle sub tasks section expand/collapse state
+     */
+    toggleSubtasks() {
+        this._subtasksExpanded = !this._subtasksExpanded;
     }
     
     /**

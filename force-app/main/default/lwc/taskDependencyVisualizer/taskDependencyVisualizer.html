@@ -123,6 +123,51 @@
                             </template>
                         </div>
                     </template>
+                    
+                    <!-- Sub Tasks Section (Collapsible) -->
+                    <template if:true={hasSubtasks}>
+                        <div class="dependency-section">
+                            <h3 class="slds-text-heading_small slds-m-bottom_small">
+                                <button class="slds-button slds-button_reset slds-text-heading_small subtasks-toggle-button" onclick={toggleSubtasks}>
+                                    <lightning-icon icon-name="utility:task" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                    Sub Tasks ({subtasks.length})
+                                    <lightning-icon icon-name={subtasksToggleIcon} size="xx-small" class="slds-m-left_x-small"></lightning-icon>
+                                </button>
+                            </h3>
+                            <template if:true={subtasksExpanded}>
+                                <template for:each={subtasks} for:item="subtask">
+                                    <div key={subtask.id} class="dependency-item slds-m-bottom_small" data-id={subtask.id} onclick={navigateToTask}>
+                                        <div class="slds-grid slds-grid_align-spread slds-wrap">
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                                                <div class="dependency-name">{subtask.name}</div>
+                                                <div class="slds-m-top_x-small">
+                                                    <span class={subtask.statusBadgeClass}>{subtask.status}</span>
+                                                    <template if:true={subtask.priority}>
+                                                        <span class={subtask.priorityBadgeClass}>{subtask.priority}</span>
+                                                    </template>
+                                                    <span class="slds-badge slds-badge_lightest dependency-type-badge">
+                                                        <template if:true={subtask.isBlocking}>
+                                                            <lightning-icon icon-name="utility:ban" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
+                                                            Blocking
+                                                        </template>
+                                                        <template if:false={subtask.isBlocking}>
+                                                            {subtask.type}
+                                                        </template>
+                                                    </span>
+                                                    <template if:true={subtask.isAtRisk}>
+                                                        <lightning-icon icon-name="utility:warning" size="xx-small" class="slds-m-left_x-small risk-indicator" title="This task is at risk"></lightning-icon>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-medium-text-align_left">
+                                                <lightning-icon icon-name="utility:chevronright" size="x-small" class="dependency-link-icon"></lightning-icon>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </template>
                 </div>
             </template>
             

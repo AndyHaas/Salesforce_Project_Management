@@ -85,3 +85,24 @@
     margin-bottom: 0;
 }
 
+/* Sub tasks toggle button styling */
+.subtasks-toggle-button {
+    display: flex;
+    align-items: center;
+    color: #080707;
+    font-weight: 600;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.subtasks-toggle-button:hover {
+    color: #0176d3;
+}
+
+.subtasks-toggle-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #0176d3;
+    border-radius: 0.125rem;
+}
+
