@@ -6,39 +6,44 @@ A comprehensive Salesforce unmanaged package for project and task management wit
 
 This package provides a complete project and task management solution for Salesforce, including:
 
-- **Project Task Management**: Custom object for managing project tasks with dependencies
-- **Task Dependencies**: Visual dependency tracking and validation
-- **Progress Tracking**: Automated progress calculation and metrics
-- **Dashboard Components**: Lightning Web Components for visualizing task data
+- **Project Task Management**: Custom object for managing project tasks with dependencies and relationships
+- **Task Relationships**: Junction object-based many-to-many task relationships with dependency tracking
+- **Task Dependencies**: Visual dependency tracking, risk assessment, and blocking status management
+- **Progress Tracking**: Automated progress calculation and metrics for parent tasks and subtasks
+- **Dashboard Components**: Lightning Web Components for visualizing task data with field set-driven configuration
 - **Review Workflow**: Built-in review and approval processes
+- **Experience Cloud Portal**: Client portal with custom login and task visibility
 
 ## Package Contents
 
 ### Custom Objects
 - `Project_Task__c`: Main task object with dependencies, progress tracking, and review status
+- `Project_Task_Relationship__c`: Junction object for managing many-to-many task relationships
 - `Release_Notes__c`: Release documentation
 - `Release_Tag__c`: Release tagging
 - `Release_Version__c`: Version management
 
 ### Lightning Web Components
-- `projectTaskDashboard`: Main dashboard for project task management
-- `taskDependencyVisualizer`: Visual representation of task dependencies
-- `taskProgressIndicator`: Progress tracking component
+- `projectTaskDashboard`: Main dashboard container for project task management
+- `taskContextPanel`: Unified component displaying task relationships, dependencies, subtasks, and progress
+- `taskHoverCard`: Reusable hover card component for displaying task details
+- `linkTaskModal`: Modal component for creating and editing task relationships
 - `taskStatusBreakdown`: Status breakdown charts
 - `taskPriorityBreakdown`: Priority analysis
 - `taskProgressMetrics`: Progress metrics and KPIs
 - `taskDueDateMetrics`: Due date tracking
 - `taskHoursMetrics`: Hours tracking and reporting
 - `taskReviewStatusMetrics`: Review status tracking
-- `relatedTasksList`: Related tasks display
-- `groupedTaskList`: Grouped task listing
+- `groupedTaskList`: Grouped task listing with expandable subtasks
 - `accountFilter`: Account filtering component
-- `taskListComponent`: Task list component
+- `taskListComponent`: Paginated task list component with field set-driven columns
 
 ### Apex Classes
-- `ProjectTaskDashboardController`: Dashboard controller logic
-- `TaskDependencyHelper`: Dependency validation and management
-- `TaskProgressCalculator`: Automated progress calculations
+- `ProjectTaskDashboardController`: Dashboard controller logic for metrics and task lists
+- `TaskContextController`: Controller for task relationships, dependencies, and context panel
+- `TaskDependencyHelper`: Dependency risk assessment and blocking status management
+- `TaskProgressCalculator`: Automated progress calculations for parent tasks
+- `TaskSubtaskHelper`: Helper class for subtask management
 
 ### Flows
 - 33 Flow definitions for automation and business processes
@@ -61,7 +66,7 @@ This is an unmanaged package. To install:
 
 ## Documentation
 
-- [GitHub Wiki](https://github.com/AndyHaas/Salesforce_Project_Management/wiki) - Comprehensive documentation
+- [Dashboard Guide](docs/wiki/Dashboard_Guide.md) - Comprehensive documentation for dashboard components, task relationships, and field set configuration
 
 ## Development
 
@@ -87,7 +92,7 @@ npm run lint
 
 ## Contributing
 
-This is a managed package. For contributions, please follow the development workflow:
+This is an unmanaged package. For contributions, please follow the development workflow:
 1. Create a feature branch
 2. Make your changes
 3. Commit with descriptive messages

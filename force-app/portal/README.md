@@ -38,7 +38,7 @@ When creating a package, simply don't include the `force-app/portal` directory. 
 
 ## Setup
 
-See `PORTAL_LOGIN_SETUP.md` in the root directory for complete setup instructions.
+Portal setup instructions are included in the main [Dashboard Guide](../docs/wiki/Dashboard_Guide.md#portaldigital-experience-updates). For detailed portal configuration, refer to the Experience Cloud documentation in Salesforce Setup.
 
 ## Notes
 
