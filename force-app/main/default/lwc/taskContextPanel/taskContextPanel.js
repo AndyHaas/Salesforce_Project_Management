@@ -11,17 +11,15 @@
  * 
  * USAGE:
  * - Used in: Project_Task_Record_Page.flexipage (sidebar region)
- * - Apex Controller: ProjectTaskDashboardController.getSubtaskProgress(), getDependencyData()
+ * - Apex Controller: ProjectTaskDashboardController.getDependencyData() (includes subtask progress)
  */
 import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
 import { refreshApex } from '@salesforce/apex';
 import { getRecord } from 'lightning/uiRecordApi';
-import getSubtaskProgress from '@salesforce/apex/ProjectTaskDashboardController.getSubtaskProgress';
 import getDependencyData from '@salesforce/apex/ProjectTaskDashboardController.getDependencyData';
 import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
-import PROJECT_TASK_OBJECT from '@salesforce/schema/Project_Task__c';
 import PROGRESS_PERCENTAGE_FIELD from '@salesforce/schema/Project_Task__c.Progress_Percentage__c';
 
 export default class TaskContextPanel extends NavigationMixin(LightningElement) {
@@ -38,14 +36,7 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     @wire(MessageContext)
     messageContext;
     
-    // Progress data
-    _progressData = null;
-    _progressPercentage = 0;
-    _completedCount = 0;
-    _totalCount = 0;
-    _hasSubtasks = false;
-    
-    // Dependency data
+    // Dependency data (includes progress)
     _dependencyData = null;
     _isLoading = true;
     _error = null;
@@ -56,50 +47,12 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     
     // Wire service results for refresh capability
     _wiredDependencyDataResult;
-    _wiredSubtaskProgressResult;
     
     // Message subscription
     _refreshSubscription = null;
     
     /**
-     * @description Wire service to fetch subtask progress
-     */
-    @wire(getSubtaskProgress, { taskId: '$recordId' })
-    wiredSubtaskProgress(result) {
-        this._wiredSubtaskProgressResult = result;
-        const { error, data } = result;
-        
-        if (data) {
-            this._progressData = data;
-            this._progressPercentage = data.progressPercentage || 0;
-            this._completedCount = data.completedCount || 0;
-            this._totalCount = data.totalCount || 0;
-            this._hasSubtasks = data.hasSubtasks || false;
-        } else if (error) {
-            console.error('Error loading subtask progress:', error);
-            this._hasSubtasks = false;
-        } else {
-            this._hasSubtasks = false;
-        }
-    }
-    
-    /**
-     * @description Fallback: Get progress percentage from the record itself
-     */
-    @wire(getRecord, { 
-        recordId: '$recordId', 
-        fields: [PROGRESS_PERCENTAGE_FIELD] 
-    })
-    wiredRecord({ error, data }) {
-        if (data && !this._hasSubtasks) {
-            this._progressPercentage = data.fields.Progress_Percentage__c?.value || 0;
-        } else if (error) {
-            console.error('Error loading record:', error);
-        }
-    }
-    
-    /**
-     * @description Wire service to fetch dependency data from Apex
+     * @description Wire service to fetch dependency data from Apex (includes subtask progress)
      */
     @wire(getDependencyData, { taskId: '$recordId' })
     wiredDependencyData(result) {
@@ -128,24 +81,47 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         }
     }
     
-    // Progress getters
+    /**
+     * @description Fallback: Get progress percentage from the record itself if no subtasks
+     */
+    @wire(getRecord, { 
+        recordId: '$recordId', 
+        fields: [PROGRESS_PERCENTAGE_FIELD] 
+    })
+    wiredRecord({ error, data }) {
+        if (data && this._dependencyData && !this.hasSubtasks) {
+            // Only use record progress if there are no subtasks
+            if (!this._dependencyData.subtaskProgress?.hasSubtasks) {
+                // This will be handled by the progress getters
+            }
+        } else if (error) {
+            console.error('Error loading record:', error);
+        }
+    }
+    
+    // Progress getters (from dependency data)
+    get progressPercentage() {
+        return this._dependencyData?.subtaskProgress?.progressPercentage || 0;
+    }
+    
     get progressStyle() {
-        return `width: ${this._progressPercentage || 0}%`;
+        return `width: ${this.progressPercentage}%`;
     }
 
     get progressDisplayText() {
-        if (this._hasSubtasks && this._totalCount > 0) {
-            return `${this._completedCount} of ${this._totalCount} subtasks completed`;
+        const progressInfo = this._dependencyData?.subtaskProgress;
+        if (progressInfo?.hasSubtasks && progressInfo.totalCount > 0) {
+            return `${progressInfo.completedCount} of ${progressInfo.totalCount} subtasks completed`;
         }
-        return `${Math.round(this._progressPercentage)}%`;
+        return `${Math.round(this.progressPercentage)}%`;
     }
     
     get shouldShowProgress() {
-        return this._hasSubtasks;
+        return this._dependencyData?.subtaskProgress?.hasSubtasks || false;
     }
     
     get progressTitle() {
-        return this._hasSubtasks ? 'Subtask Progress' : 'Progress';
+        return this.shouldShowProgress ? 'Subtask Progress' : 'Progress';
     }
     
     // Dependency getters
@@ -265,13 +241,22 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         const dependentTasks = this._extractTaskArray(wireData.dependentTasks);
         const subtasks = this._extractTaskArray(wireData.subtasks);
         
+        // Include subtask progress info
+        const subtaskProgress = wireData.subtaskProgress ? {
+            progressPercentage: wireData.subtaskProgress.progressPercentage || 0,
+            completedCount: wireData.subtaskProgress.completedCount || 0,
+            totalCount: wireData.subtaskProgress.totalCount || 0,
+            hasSubtasks: Boolean(wireData.subtaskProgress.hasSubtasks)
+        } : null;
+        
         return {
             parentTask,
             relatedTask,
             dependentTasks,
             subtasks,
             isAtRisk,
-            isBlocking
+            isBlocking,
+            subtaskProgress
         };
     }
     
@@ -330,7 +315,13 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
             dependentTasks: [],
             subtasks: [],
             isAtRisk: false,
-            isBlocking: false
+            isBlocking: false,
+            subtaskProgress: {
+                progressPercentage: 0,
+                completedCount: 0,
+                totalCount: 0,
+                hasSubtasks: false
+            }
         };
     }
     
@@ -435,11 +426,6 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
             if (this._wiredDependencyDataResult) {
                 refreshApex(this._wiredDependencyDataResult).catch(error => {
                     console.error('Error refreshing dependency data:', error);
-                });
-            }
-            if (this._wiredSubtaskProgressResult) {
-                refreshApex(this._wiredSubtaskProgressResult).catch(error => {
-                    console.error('Error refreshing progress data:', error);
                 });
             }
         }

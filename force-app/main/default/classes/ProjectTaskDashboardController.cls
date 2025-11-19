@@ -999,9 +999,15 @@ public with sharing class ProjectTaskDashboardController {
             result.dependentTasks.add(dt);
         }
         
-        // Sub tasks
+        // Sub tasks and progress calculation
         result.subtasks = new List<DependencyTask>();
+        Integer totalSubtaskCount = 0;
+        Integer completedSubtaskCount = 0;
+        Integer removedSubtaskCount = 0;
+        
         if (currentTask.Subtasks__r != null && !currentTask.Subtasks__r.isEmpty()) {
+            totalSubtaskCount = currentTask.Subtasks__r.size();
+            
             for (Project_Task__c subtask : currentTask.Subtasks__r) {
                 DependencyTask st = new DependencyTask();
                 st.id = subtask.Id;
@@ -1012,8 +1018,27 @@ public with sharing class ProjectTaskDashboardController {
                 st.isBlocking = subtask.Is_Blocking__c != null && subtask.Is_Blocking__c == true;
                 st.isAtRisk = subtask.At_Risk_Due_to_Dependencies__c != null && subtask.At_Risk_Due_to_Dependencies__c == true;
                 result.subtasks.add(st);
+                
+                // Calculate progress
+                if (subtask.Status__c == 'Completed' || subtask.Status__c == 'Closed') {
+                    completedSubtaskCount++;
+                } else if (subtask.Status__c == 'Removed') {
+                    removedSubtaskCount++;
+                }
             }
         }
+        
+        // Calculate subtask progress
+        Integer validSubtaskTotal = totalSubtaskCount - removedSubtaskCount;
+        Decimal progressPercentage = validSubtaskTotal > 0 
+            ? (Decimal.valueOf(completedSubtaskCount) / Decimal.valueOf(validSubtaskTotal)) * 100 
+            : 0;
+        
+        result.subtaskProgress = new SubtaskProgressInfo();
+        result.subtaskProgress.progressPercentage = progressPercentage.setScale(2);
+        result.subtaskProgress.completedCount = completedSubtaskCount;
+        result.subtaskProgress.totalCount = validSubtaskTotal;
+        result.subtaskProgress.hasSubtasks = totalSubtaskCount > 0;
         
         return result;
     }
@@ -1025,6 +1050,14 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public List<DependencyTask> subtasks;
         @AuraEnabled public Boolean isAtRisk;
         @AuraEnabled public Boolean isBlocking;
+        @AuraEnabled public SubtaskProgressInfo subtaskProgress;
+    }
+    
+    public class SubtaskProgressInfo {
+        @AuraEnabled public Decimal progressPercentage;
+        @AuraEnabled public Integer completedCount;
+        @AuraEnabled public Integer totalCount;
+        @AuraEnabled public Boolean hasSubtasks;
     }
     
     public class DependencyTask {
