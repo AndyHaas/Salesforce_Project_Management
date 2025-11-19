@@ -3,17 +3,18 @@
   "title" : "Scoped Header and Footer",
   "contentBody" : {
     "component" : {
-        "attributes" : {
-          "hideThemeFooter" : false,
-          "showThemeFooterAtBottom" : true,
-          "stickyThemeHeader" : true
-        },
+      "attributes" : {
+        "hideThemeFooter" : false,
+        "showThemeFooterAtBottom" : true,
+        "stickyThemeHeader" : true
+      },
       "children" : [ {
         "children" : [ {
           "attributes" : {
             "backgroundImageConfig" : "",
             "backgroundImageOverlay" : "rgba(0,0,0,0)",
             "componentSpacerSize" : "",
+            "dxpStyle" : { },
             "layoutDirectionDesktop" : "row",
             "layoutDirectionMobile" : "column",
             "layoutDirectionTablet" : "column",
@@ -26,11 +27,151 @@
           "children" : [ {
             "children" : [ {
               "attributes" : {
-                "imageInfos" : "",
-                "richTextValue" : "<div style=\"max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; background: linear-gradient(135deg, #355d7c 0%, #4d86b2 100%); width: 100%; color: #ffffff;\"><div style=\"display: flex; align-items: center;\"><a href=\"/home\" style=\"display: flex; align-items: center; text-decoration: none; color: #ffffff;\"><img src=\"/sfsites/c/resource/MilestoneLogo_White\" alt=\"Milestone Consulting\" style=\"height: 40px; width: auto; max-width: 200px; object-fit: contain;\"></a></div><nav style=\"display: flex; align-items: center; gap: 2rem; flex: 1; justify-content: center; color: #ffffff;\"><a href=\"/home\" style=\"color: #ffffff !important; text-decoration: none; font-family: 'Roboto', sans-serif; font-weight: 500; font-size: 1rem; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.2s;\">Home</a><a href=\"/account\" style=\"color: #ffffff !important; text-decoration: none; font-family: 'Roboto', sans-serif; font-weight: 500; font-size: 1rem; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.2s;\">Account</a><a href=\"/projects\" style=\"color: #ffffff !important; text-decoration: none; font-family: 'Roboto', sans-serif; font-weight: 500; font-size: 1rem; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.2s;\">Projects</a><a href=\"/tasks\" style=\"color: #ffffff !important; text-decoration: none; font-family: 'Roboto', sans-serif; font-weight: 500; font-size: 1rem; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.2s;\">Tasks</a></nav></div>"
+                "dxpStyle" : { },
+                "headerLayout" : "LogoLeft",
+                "slotOneWidth" : "",
+                "slotThreeWidth" : "",
+                "slotTwoWidth" : "",
+                "spaceBetweenSlots" : "16px"
               },
-              "definition" : "community_builder:htmlEditor",
-              "id" : "91589a7d-4c22-4023-ac73-08081cc2fca5",
+              "children" : [ {
+                "children" : [ {
+                  "attributes" : {
+                    "alignment" : "left",
+                    "dxpStyle" : { },
+                    "imageInfo" : "{\"imageInfoV1\":{\"url\":\"/sfsites/c/cms/delivery/media/MCOPGBEWA4YRDJBCXF63G6M34WXQ?lastModifiedDate=Tue Nov 18 23:25:10 GMT 2025\",\"altText\":\"\",\"contentKey\":\"MCOPGBEWA4YRDJBCXF63G6M34WXQ\",\"contentType\":null}}",
+                    "imageInfoMobile" : "",
+                    "logoWidth" : 250
+                  },
+                  "definition" : "dxp_content_layout:siteLogo",
+                  "id" : "96a4e9a8-1d80-4792-b32e-d33068a325b8",
+                  "type" : "component"
+                } ],
+                "id" : "617788ba-c091-43d0-a391-57b4e5277cda",
+                "name" : "siteLogo",
+                "title" : "Add component",
+                "type" : "region"
+              }, {
+                "children" : [ {
+                  "attributes" : {
+                    "dxpStyle" : {
+                      "padding" : {
+                        "bottom" : "5px",
+                        "left" : "5px",
+                        "right" : "5px",
+                        "top" : "5px"
+                      }
+                    }
+                  },
+                  "children" : [ {
+                    "children" : [ {
+                      "attributes" : {
+                        "activeLineWeight" : "3px",
+                        "backgroundColor" : "rgba(255, 255, 255, 0)",
+                        "dropdownAccordionIconSize" : "xx-small",
+                        "dropdownActiveLineWeight" : "5px",
+                        "dropdownBackgroundActiveColor" : "rgba(0, 0, 0, 0)",
+                        "dropdownBackgroundColor" : "",
+                        "dropdownBackgroundHoverColor" : "",
+                        "dropdownBottomBorderRadius" : "5px",
+                        "dropdownFontSizeOverride" : "",
+                        "dropdownFontWeightOverride" : "300",
+                        "dropdownItemPadding" : "{\"top\":\"10px\",\"right\":\"10px\",\"bottom\":\"10px\",\"left\":\"10px\"}",
+                        "dropdownLineHeightOverride" : "",
+                        "dropdownMenuPadding" : "{\"top\":\"0px\",\"right\":\"0px\",\"bottom\":\"0px\",\"left\":\"0px\"}",
+                        "dropdownOverrideTextStyle" : true,
+                        "dropdownShowDividerLines" : false,
+                        "dropdownTextDecorationOverride" : "",
+                        "dropdownTextStyle" : "body-regular",
+                        "dropdownTopBorderRadius" : "5px",
+                        "dxpStyle" : { },
+                        "fontSizeOverride" : "",
+                        "fontWeightOverride" : "",
+                        "iconSize" : "xx-small",
+                        "itemBackgroundActiveColor" : "rgba(255, 255, 255, 0)",
+                        "itemBackgroundHoverColor" : "rgba(255, 255, 255, 0)",
+                        "lineHeightOverride" : "",
+                        "menuHorizontalAlignment" : "left",
+                        "navigationMenuEditor" : "Default_Navigation",
+                        "overrideTextStyle" : false,
+                        "showHomeLink" : true,
+                        "showParentMenuIcon" : true,
+                        "spaceBetweenMenuItems" : "30px",
+                        "textDecorationOverride" : "",
+                        "textStyle" : "body-regular"
+                      },
+                      "definition" : "community_navigation:customizableNavigationBarContainer",
+                      "id" : "bbac3fa6-b1f8-4bcb-afd1-cf1fd9e02a3a",
+                      "type" : "component"
+                    } ],
+                    "id" : "018544e5-9199-4a8e-aa90-7d9ffdd9fb5c",
+                    "name" : "desktop",
+                    "title" : "Desktop View",
+                    "type" : "region"
+                  }, {
+                    "children" : [ {
+                      "attributes" : {
+                        "burgerIconHorizontalAlignment" : "left",
+                        "dxpStyle" : { },
+                        "modalAccordionIconSize" : "xx-small",
+                        "modalActiveBackgroundColor" : "rgba(255, 255, 255, 0)",
+                        "modalActiveLineWeight" : "5px",
+                        "modalFontSizeOverride" : "",
+                        "modalFontWeightOverride" : "",
+                        "modalItemPadding" : "{\"top\":\"10px\",\"right\":\"10px\",\"bottom\":\"10px\",\"left\":\"15px\"}",
+                        "modalLineHeightOverride" : "",
+                        "modalMenuPadding" : "{\"top\":\"0px\",\"right\":\"0px\",\"bottom\":\"0px\",\"left\":\"0px\"}",
+                        "modalOverrideTextStyle" : false,
+                        "modalShowDividerLines" : true,
+                        "modalSubmenuFontSizeOverride" : "",
+                        "modalSubmenuFontWeightOverride" : "300",
+                        "modalSubmenuLineHeightOverride" : "",
+                        "modalSubmenuOverrideTextStyle" : true,
+                        "modalSubmenuTextDecorationOverride" : "",
+                        "modalSubmenuTextStyle" : "body-regular",
+                        "modalTextDecorationOverride" : "",
+                        "modalTextStyle" : "body-regular",
+                        "showHomeLink" : true
+                      },
+                      "definition" : "community_navigation:customizableNavigationHamburgerMenuContainer",
+                      "id" : "ea7fa75b-7548-4657-892a-7d7e36f814a7",
+                      "type" : "component"
+                    } ],
+                    "id" : "aff1da8a-2961-4949-a564-4db0424915a9",
+                    "name" : "mobile",
+                    "title" : "Mobile View",
+                    "type" : "region"
+                  } ],
+                  "definition" : "community_navigation:customizableNavigationMenu",
+                  "id" : "ce236af3-aa67-4022-b419-e5ba46252699",
+                  "type" : "component"
+                } ],
+                "id" : "0014c710-2e65-48ca-b900-a63497fe70d9",
+                "name" : "navigation",
+                "title" : "Add component",
+                "type" : "region"
+              }, {
+                "children" : [ {
+                  "attributes" : {
+                    "alignment" : "right",
+                    "dxpStyle" : { },
+                    "size" : "standard",
+                    "stretch" : "standard",
+                    "text" : "Login",
+                    "type" : "primary",
+                    "url" : "{\"linkInfo\":{\"pageReference\":{\"type\":\"comm__namedPage\",\"attributes\":{\"name\":\"Login\"}}}}"
+                  },
+                  "definition" : "dxp_base:button",
+                  "id" : "94506f78-9b2c-4f7f-a0f8-62849a11ad8b",
+                  "type" : "component"
+                } ],
+                "id" : "c86f7a87-6030-4752-a4a2-9d42e9dad84f",
+                "name" : "actions",
+                "title" : "Add component",
+                "type" : "region"
+              } ],
+              "definition" : "community_builder:customizableHeader",
+              "id" : "996d06a0-3f9a-424f-b43a-df4f8175aa86",
               "type" : "component"
             } ],
             "id" : "7a8f6cef-974a-43f0-aa0a-b41d42ebd438",
@@ -52,6 +193,7 @@
             "backgroundImageConfig" : "",
             "backgroundImageOverlay" : "rgba(0,0,0,1)",
             "componentSpacerSize" : "",
+            "dxpStyle" : { },
             "layoutDirectionDesktop" : "row",
             "layoutDirectionMobile" : "column",
             "layoutDirectionTablet" : "column",
@@ -64,6 +206,7 @@
           "children" : [ {
             "children" : [ {
               "attributes" : {
+                "dxpStyle" : { },
                 "imageInfos" : "",
                 "richTextValue" : "<div style=\"max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; color: #ffffff; font-family: 'Roboto', sans-serif; width: 100%; background-color: #000000;\"><div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 2rem;\"><div style=\"color: #ffffff;\"><div style=\"margin-bottom: 1rem;\"><img src=\"/sfsites/c/resource/MilestoneLogo_White\" alt=\"Milestone Consulting\" style=\"height: 40px; width: auto; max-width: 200px; object-fit: contain;\"></div><p style=\"color: rgba(255, 255, 255, 0.9); line-height: 1.6; margin-bottom: 1.5rem;\">Your secure portal for managing projects, tracking tasks, and staying connected with your Milestone Consulting team.</p><div style=\"display: flex; flex-direction: column; gap: 0.75rem;\"><div style=\"display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.9);\"><span class=\"slds-icon_container slds-icon-utility-email\" title=\"Email\"><svg class=\"slds-icon slds-icon_x-small\" aria-hidden=\"true\" style=\"fill: rgba(255, 255, 255, 0.9);\"><use xlink:href=\"/assets/icons/utility-sprite/svg/symbols.svg#email\"></use></svg><span class=\"slds-assistive-text\">Email</span></span><a href=\"mailto:info@milestoneconsulting.com\" style=\"color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\">info@milestoneconsulting.com</a></div><div style=\"display: flex; align-items: center; gap: 0.5rem;\"><span class=\"slds-icon_container slds-icon-utility-phone_portrait\" title=\"Phone\"><svg class=\"slds-icon slds-icon_x-small\" aria-hidden=\"true\" style=\"fill: rgba(255, 255, 255, 0.9);\"><use xlink:href=\"/assets/icons/utility-sprite/svg/symbols.svg#phone_portrait\"></use></svg><span class=\"slds-assistive-text\">Phone</span></span><a href=\"tel:+18174056960\" style=\"color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\">(817) 405-6960</a></div></div></div><div style=\"color: #ffffff;\"><h4 style=\"font-family: 'Montserrat', sans-serif; font-size: 1.125rem; font-weight: 600; color: #ffffff; margin-bottom: 1rem;\">Portal Navigation</h4><ul style=\"list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;\"><li><a href=\"/home\" style=\"color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\">Home</a></li><li><a href=\"/account\" style=\"color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\">Account</a></li><li><a href=\"/projects\" style=\"color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\">Projects</a></li><li><a href=\"/tasks\" style=\"color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\">Tasks</a></li></ul></div><div style=\"color: #ffffff;\"><h4 style=\"font-family: 'Montserrat', sans-serif; font-size: 1.125rem; font-weight: 600; color: #ffffff; margin-bottom: 1rem;\">Resources</h4><ul style=\"list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;\"><li><a href=\"/faq\" style=\"color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\">FAQ & Help</a></li><li><a href=\"/help\" style=\"color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\">Portal Guide</a></li><li><a href=\"/policies\" style=\"color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\">Privacy Policy</a></li><li><a href=\"/terms\" style=\"color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\">Terms of Use</a></li></ul></div><div style=\"color: #ffffff;\"><h4 style=\"font-family: 'Montserrat', sans-serif; font-size: 1.125rem; font-weight: 600; color: #ffffff; margin-bottom: 1rem;\">Support</h4><p style=\"color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;\">Need help? Contact your project team</p><div style=\"display: flex; flex-direction: column; gap: 0.75rem;\"><a href=\"mailto:info@milestoneconsulting.com\" aria-label=\"Send support email\" style=\"display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\"><span class=\"slds-icon_container slds-icon-utility-email\" title=\"Email\"><svg class=\"slds-icon slds-icon_x-small\" aria-hidden=\"true\" style=\"fill: rgba(255, 255, 255, 0.9);\"><use xlink:href=\"/assets/icons/utility-sprite/svg/symbols.svg#email\"></use></svg><span class=\"slds-assistive-text\">Email</span></span><span>Portal Support</span></a><a href=\"tel:+18174056960\" aria-label=\"Call support\" style=\"display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.9); text-decoration: none; transition: color 0.2s;\"><span class=\"slds-icon_container slds-icon-utility-phone_portrait\" title=\"Phone\"><svg class=\"slds-icon slds-icon_x-small\" aria-hidden=\"true\" style=\"fill: rgba(255, 255, 255, 0.9);\"><use xlink:href=\"/assets/icons/utility-sprite/svg/symbols.svg#phone_portrait\"></use></svg><span class=\"slds-assistive-text\">Phone</span></span><span>(817) 405-6960</span></a></div></div></div><div style=\"border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 1.5rem; margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;\"><p style=\"color: rgba(255, 255, 255, 0.9); margin: 0;\">© 2025 Milestone Consulting, LLC. All rights reserved.</p><div style=\"display: flex; align-items: center; gap: 1.5rem;\"><span style=\"color: rgba(255, 255, 255, 0.7);\">Portal v0.1.33</span></div></div></div>"
               },

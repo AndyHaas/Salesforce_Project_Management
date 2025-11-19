@@ -18,6 +18,21 @@
         "attributes" : {
           "size" : "small"
         }
+      }, {
+        "id" : "996d06a0-3f9a-424f-b43a-df4f8175aa86",
+        "attributes" : {
+          "spaceBetweenSlots" : "8px"
+        }
+      }, {
+        "id" : "96a4e9a8-1d80-4792-b32e-d33068a325b8",
+        "attributes" : {
+          "logoWidth" : "100"
+        }
+      }, {
+        "id" : "94506f78-9b2c-4f7f-a0f8-62849a11ad8b",
+        "attributes" : {
+          "size" : "small"
+        }
       } ]
     }
   },
