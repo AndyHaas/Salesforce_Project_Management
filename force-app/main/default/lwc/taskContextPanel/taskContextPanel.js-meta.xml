@@ -14,6 +14,7 @@
             <objects>
                 <object>Project_Task__c</object>
             </objects>
+            <property name="showLinkTaskButton" type="Boolean" default="true" label="Show Link Task Button" description="When enabled, displays the Link Task button in the component header."/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

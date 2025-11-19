@@ -17,8 +17,10 @@ import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
 import { refreshApex } from '@salesforce/apex';
-import { getRecord } from 'lightning/uiRecordApi';
+import { getRecord, getRecordNotifyChange, NotifyChangeRecordIds, RecordChange } from 'lightning/uiRecordApi';
 import getDependencyData from '@salesforce/apex/ProjectTaskDashboardController.getDependencyData';
+import deleteTaskRelationship from '@salesforce/apex/ProjectTaskDashboardController.deleteTaskRelationship';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 import PROGRESS_PERCENTAGE_FIELD from '@salesforce/schema/Project_Task__c.Progress_Percentage__c';
 
@@ -28,6 +30,20 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
      * @type {string}
      */
     @api recordId;
+    
+    /**
+     * @description Whether to show the Link Task button. Defaults to true.
+     * @type {boolean}
+     */
+    @api showLinkTaskButton;
+    
+    /**
+     * @description Getter for showLinkTaskButton that defaults to true if not set
+     * @returns {boolean}
+     */
+    get shouldShowLinkTaskButton() {
+        return this.showLinkTaskButton !== false;
+    }
     
     /**
      * @description Message context for Lightning Message Service
@@ -86,11 +102,26 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     // Track if we've completed initial load
     _recordWireInitialized = false;
     
+    // Track if we've completed initial load
+    _recordWireInitialized = false;
+    // Track last refresh time to prevent excessive refreshes
+    _lastRefreshTime = 0;
+    // Debounce timeout ID
+    _refreshTimeoutId = null;
+    
     /**
      * @description Get progress percentage from the record itself if no subtasks
      * Also listens for record updates via Lightning Data Service
      * When the record page refreshes (e.g., after quick actions), this wire service
      * is re-evaluated by Salesforce, which we use as a signal to refresh dependency data
+     * 
+     * The @wire(getRecord) service automatically subscribes to record changes and will
+     * fire when:
+     * 1. The record itself is updated
+     * 2. The record page refreshes (e.g., after quick actions complete)
+     * 3. Related records are created/updated/deleted via standard UI (triggers page refresh)
+     * 
+     * This is the out-of-the-box LDS connection that automatically listens for changes.
      */
     @wire(getRecord, { 
         recordId: '$recordId', 
@@ -107,19 +138,96 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         }
         
         // When record wire service fires after initial load, refresh dependency data
-        // This happens when the record page refreshes after quick actions complete
-        // Even if the record data itself hasn't changed, the wire service re-evaluation
-        // indicates the page has refreshed, so we should refresh our Apex data
-        if (data && this._recordWireInitialized && this._dependencyData) {
-            // Small delay to ensure related record creation has completed
-            setTimeout(() => {
-                this._refreshDependencyData();
-            }, 300);
+        // This happens when:
+        // 1. The record page refreshes after quick actions complete (creates child records)
+        // 2. Related records are created/updated/deleted via standard UI
+        // 3. The record itself is updated
+        if (data && this._recordWireInitialized) {
+            // Debounce refreshes to prevent excessive API calls
+            // Clear any pending refresh
+            if (this._refreshTimeoutId) {
+                clearTimeout(this._refreshTimeoutId);
+            }
+            
+            // Schedule a refresh with a delay to ensure related record creation has completed
+            // This is especially important for quick actions that create child records
+            const now = Date.now();
+            const timeSinceLastRefresh = now - this._lastRefreshTime;
+            const minRefreshInterval = 500; // Minimum 500ms between refreshes
+            
+            if (timeSinceLastRefresh >= minRefreshInterval) {
+                // Refresh immediately if enough time has passed
+                this._refreshTimeoutId = setTimeout(() => {
+                    this._refreshDependencyData();
+                    this._lastRefreshTime = Date.now();
+                    this._refreshTimeoutId = null;
+                }, 300);
+            } else {
+                // Wait a bit longer if we just refreshed
+                this._refreshTimeoutId = setTimeout(() => {
+                    this._refreshDependencyData();
+                    this._lastRefreshTime = Date.now();
+                    this._refreshTimeoutId = null;
+                }, minRefreshInterval - timeSinceLastRefresh + 300);
+            }
         }
         
         // Mark wire service as initialized after first successful data load
         if (data) {
             this._recordWireInitialized = true;
+        }
+    }
+    
+    /**
+     * @description Lifecycle hook - component is inserted into the DOM
+     */
+    connectedCallback() {
+        // Subscribe to Lightning Message Service for manual refresh triggers
+        if (this.messageContext) {
+            this._refreshSubscription = subscribe(
+                this.messageContext,
+                DASHBOARD_REFRESH_MESSAGE_CHANNEL,
+                (message) => this.handleRefresh(message),
+                { scope: APPLICATION_SCOPE }
+            );
+        }
+        
+        // Listen for record change events via Lightning Data Service
+        // This will fire when the record or related records are modified via standard UI
+        if (this.recordId) {
+            this._subscribeToRecordChanges();
+        }
+    }
+    
+    /**
+     * @description Subscribe to Lightning Data Service record change notifications
+     * Uses the recordUpdated event which fires when the record is updated
+     * Note: This will also fire when the record page refreshes after quick actions complete
+     */
+    _subscribeToRecordChanges() {
+        // The @wire(getRecord) service automatically subscribes to record changes
+        // When related records are created via standard UI (quick actions, related lists),
+        // Salesforce automatically refreshes the record page, which triggers the wire service
+        // We handle this in the wiredRecord method above
+        
+        // Additionally, we can listen for the recordUpdated event if needed
+        // This is handled automatically by the @wire(getRecord) service
+    }
+    
+    /**
+     * @description Notify LDS that the record has changed
+     * This can be called manually if needed to trigger a refresh
+     * Salesforce automatically calls this for standard UI operations (quick actions, related lists, etc.)
+     */
+    _notifyRecordChange() {
+        if (this.recordId) {
+            const notifyChangeIds = new NotifyChangeRecordIds([this.recordId]);
+            getRecordNotifyChange(notifyChangeIds).then(() => {
+                // Notification sent - the wired services will automatically refresh
+                console.log('Record change notification sent for:', this.recordId);
+            }).catch(error => {
+                console.error('Error notifying record change:', error);
+            });
         }
     }
     
@@ -330,7 +438,8 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
             priority: String(taskProxy.priority || ''),
             type: String(taskProxy.type || ''),
             isBlocking: Boolean(taskProxy.isBlocking),
-            isAtRisk: Boolean(taskProxy.isAtRisk)
+            isAtRisk: Boolean(taskProxy.isAtRisk),
+            relationshipId: taskProxy.relationshipId ? String(taskProxy.relationshipId) : null
         };
     }
     
@@ -553,20 +662,6 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         return this._showCompleted ? 'utility:hide' : 'utility:preview';
     }
     
-    /**
-     * @description Lifecycle hook - component is inserted into the DOM
-     */
-    connectedCallback() {
-        // Subscribe to Lightning Message Service for manual refresh triggers
-        if (this.messageContext) {
-            this._refreshSubscription = subscribe(
-                this.messageContext,
-                DASHBOARD_REFRESH_MESSAGE_CHANNEL,
-                (message) => this.handleRefresh(message),
-                { scope: APPLICATION_SCOPE }
-            );
-        }
-    }
     
     /**
      * @description Lifecycle hook - component is removed from the DOM
@@ -575,6 +670,12 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         if (this._refreshSubscription) {
             unsubscribe(this._refreshSubscription);
             this._refreshSubscription = null;
+        }
+        
+        // Clear any pending refresh timeout
+        if (this._refreshTimeoutId) {
+            clearTimeout(this._refreshTimeoutId);
+            this._refreshTimeoutId = null;
         }
     }
     
@@ -616,6 +717,67 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
                 actionName: 'view'
             }
         });
+    }
+    
+    /**
+     * @description Open the link task modal
+     */
+    openLinkTaskModal() {
+        const modal = this.template.querySelector('c-link-task-modal');
+        if (modal) {
+            modal.open();
+        }
+    }
+    
+    /**
+     * @description Handle relationship created event from modal
+     * Refresh the dependency data to show the new relationship
+     */
+    handleRelationshipCreated() {
+        // Refresh dependency data to show the new relationship
+        this._refreshDependencyData();
+    }
+    
+    /**
+     * @description Handle delete relationship button click
+     */
+    async handleDeleteRelationship(event) {
+        event.stopPropagation(); // Prevent navigation when clicking delete button
+        
+        const relationshipId = event.currentTarget.dataset.relationshipId;
+        
+        if (!relationshipId) {
+            this.showToast('Error', 'Relationship ID not found', 'error');
+            return;
+        }
+        
+        // Confirm deletion
+        if (!confirm('Are you sure you want to delete this relationship?')) {
+            return;
+        }
+        
+        try {
+            await deleteTaskRelationship({ relationshipId });
+            this.showToast('Success', 'Relationship deleted successfully', 'success');
+            // Refresh dependency data to reflect the deletion
+            this._refreshDependencyData();
+        } catch (error) {
+            console.error('Error deleting relationship:', error);
+            const errorMessage = error.body?.message || error.message || 'An error occurred while deleting the relationship';
+            this.showToast('Error', errorMessage, 'error');
+        }
+    }
+    
+    /**
+     * @description Show toast notification
+     */
+    showToast(title, message, variant) {
+        const event = new ShowToastEvent({
+            title: title,
+            message: message,
+            variant: variant
+        });
+        this.dispatchEvent(event);
     }
 }
 

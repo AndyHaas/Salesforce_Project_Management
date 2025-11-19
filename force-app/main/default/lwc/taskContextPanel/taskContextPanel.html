@@ -1,6 +1,16 @@
 <template>
     <lightning-card icon-name="utility:related_list">
         <div slot="actions">
+            <template if:true={shouldShowLinkTaskButton}>
+                <lightning-button
+                    label="Link Task"
+                    icon-name="utility:link"
+                    icon-position="left"
+                    variant="neutral"
+                    onclick={openLinkTaskModal}
+                    title="Link this task to another task">
+                </lightning-button>
+            </template>
             <template if:true={totalCompletedCount}>
                 <lightning-button
                     label={showCompletedButtonLabel}
@@ -12,6 +22,12 @@
                 </lightning-button>
             </template>
         </div>
+        
+        <!-- Link Task Modal -->
+        <c-link-task-modal 
+            record-id={recordId}
+            onrelationshipcreated={handleRelationshipCreated}>
+        </c-link-task-modal>
 
         <template if:true={isLoading}>
             <div class="slds-card__body slds-card__body_inner">
@@ -75,9 +91,9 @@
                             </h3>
                             <template if:true={dependenciesExpanded}>
                                 <template for:each={dependencies} for:item="depTask">
-                                    <div key={depTask.id} class="context-item slds-m-bottom_small" data-id={depTask.id} onclick={navigateToTask}>
+                                    <div key={depTask.id} class="context-item slds-m-bottom_small">
                                         <div class="slds-grid slds-grid_align-spread slds-wrap">
-                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3" data-id={depTask.id} onclick={navigateToTask}>
                                                 <div class="context-name">{depTask.name}</div>
                                                 <div class="slds-m-top_x-small">
                                                     <span class={depTask.statusBadgeClass}>{depTask.status}</span>
@@ -99,7 +115,22 @@
                                                 </div>
                                             </div>
                                             <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-medium-text-align_left">
-                                                <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
+                                                <div class="slds-grid slds-grid_align-end">
+                                                    <template if:true={depTask.relationshipId}>
+                                                        <lightning-button-icon
+                                                            icon-name="utility:delete"
+                                                            variant="border-filled"
+                                                            alternative-text="Delete relationship"
+                                                            title="Delete relationship"
+                                                            data-relationship-id={depTask.relationshipId}
+                                                            onclick={handleDeleteRelationship}
+                                                            class="slds-m-right_x-small">
+                                                        </lightning-button-icon>
+                                                    </template>
+                                                    <div data-id={depTask.id} onclick={navigateToTask} class="slds-m-left_x-small">
+                                                        <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -120,9 +151,9 @@
                             </h3>
                             <template if:true={dependentTasksExpanded}>
                                 <template for:each={dependentTasks} for:item="depTask">
-                                    <div key={depTask.id} class="context-item slds-m-bottom_small" data-id={depTask.id} onclick={navigateToTask}>
+                                    <div key={depTask.id} class="context-item slds-m-bottom_small">
                                         <div class="slds-grid slds-grid_align-spread slds-wrap">
-                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3" data-id={depTask.id} onclick={navigateToTask}>
                                                 <div class="context-name">{depTask.name}</div>
                                                 <div class="slds-m-top_x-small">
                                                     <span class={depTask.statusBadgeClass}>{depTask.status}</span>
@@ -144,7 +175,22 @@
                                                 </div>
                                             </div>
                                             <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-text-align_right slds-medium-text-align_left">
-                                                <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
+                                                <div class="slds-grid slds-grid_align-end">
+                                                    <template if:true={depTask.relationshipId}>
+                                                        <lightning-button-icon
+                                                            icon-name="utility:delete"
+                                                            variant="border-filled"
+                                                            alternative-text="Delete relationship"
+                                                            title="Delete relationship"
+                                                            data-relationship-id={depTask.relationshipId}
+                                                            onclick={handleDeleteRelationship}
+                                                            class="slds-m-right_x-small">
+                                                        </lightning-button-icon>
+                                                    </template>
+                                                    <div data-id={depTask.id} onclick={navigateToTask} class="slds-m-left_x-small">
+                                                        <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

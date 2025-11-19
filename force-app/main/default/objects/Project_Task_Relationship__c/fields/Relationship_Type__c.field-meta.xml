@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Relationship_Type__c</fullName>
-    <description>Type of relationship between Task A and Task B. Defines whether the dependency is blocking or non-blocking.</description>
-    <inlineHelpText>Select the type of relationship: Related = tasks are related but not dependent. Blocking Dependency = Task A cannot proceed until Task B is completed. Epic/Feature Parent = Task A is part of a larger epic or feature represented by Task B.</inlineHelpText>
+    <description>Type of relationship between the Task and Related Task. Defines whether the dependency is blocking or non-blocking.</description>
+    <inlineHelpText>Select the type of relationship: Related = tasks are related but not dependent. Blocking Dependency = the Task cannot proceed until the Related Task is completed. Epic/Feature Parent = the Task is part of a larger epic or feature represented by the Related Task.</inlineHelpText>
     <label>Relationship Type</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>

@@ -1,0 +1,11 @@
+/* Modal styling */
+.slds-modal__container {
+    max-width: 32rem;
+}
+
+.slds-modal__footer {
+    border-top: 1px solid var(--slds-g-color-border-base-4, #e5e5e5);
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
