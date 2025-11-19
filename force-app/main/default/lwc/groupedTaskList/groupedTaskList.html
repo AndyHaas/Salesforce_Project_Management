@@ -166,24 +166,11 @@
                                                         </span>
                                                     </template>
                                                     
-                                                    <template if:true={task.hoverFields}>
-                                                        <section class="task-hover-card" role="tooltip" aria-live="polite">
-                                                            <div class="hover-title">Task Snapshot</div>
-                                                            <template for:each={task.hoverFields} for:item="field">
-                                                                <div key={field.apiName} class="hover-row">
-                                                                    <span class="hover-label">{field.label}</span>
-                                                                    <div class={field.valueClass}>
-                                                                        <template if:true={field.isStatus}>
-                                                                            <span class={field.badgeClass}>{field.displayValue}</span>
-                                                                        </template>
-                                                                        <template if:false={field.isStatus}>
-                                                                            {field.displayValue}
-                                                                        </template>
-                                                                    </div>
-                                                                </div>
-                                                            </template>
-                                                        </section>
-                                                    </template>
+                                                    <c-task-hover-card 
+                                                        hover-fields={task.hoverFields} 
+                                                        task-status={task.status}
+                                                        badge-style="slds">
+                                                    </c-task-hover-card>
                                                 </div>
                                             </div>
                                             
@@ -251,24 +238,11 @@
                                                                             {subtask.name}
                                                                         </a>
                                                                         
-                                                                        <template if:true={subtask.hoverFields}>
-                                                                            <section class="task-hover-card" role="tooltip" aria-live="polite">
-                                                                                <div class="hover-title">Task Snapshot</div>
-                                                                                <template for:each={subtask.hoverFields} for:item="field">
-                                                                                    <div key={field.apiName} class="hover-row">
-                                                                                        <span class="hover-label">{field.label}</span>
-                                                                                        <div class={field.valueClass}>
-                                                                                            <template if:true={field.isStatus}>
-                                                                                                <span class={field.badgeClass}>{field.displayValue}</span>
-                                                                                            </template>
-                                                                                            <template if:false={field.isStatus}>
-                                                                                                {field.displayValue}
-                                                                                            </template>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </template>
-                                                                            </section>
-                                                                        </template>
+                                                                        <c-task-hover-card 
+                                                                            hover-fields={subtask.hoverFields} 
+                                                                            task-status={subtask.status}
+                                                                            badge-style="slds">
+                                                                        </c-task-hover-card>
                                                                     </div>
                                                                 </div>
                                                                 
