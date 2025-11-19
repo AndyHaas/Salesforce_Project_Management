@@ -1,25 +1,5 @@
 <template>
     <lightning-card title="Task Context" icon-name="utility:related_list">
-        <!-- Progress Section (for parent tasks with subtasks) -->
-        <template if:true={shouldShowProgress}>
-            <div class="slds-card__body slds-card__body_inner slds-border_bottom">
-                <div class="slds-m-bottom_small">
-                    <h3 class="slds-text-heading_small slds-m-bottom_small">
-                        <lightning-icon icon-name="utility:chart" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                        {progressTitle}
-                    </h3>
-                    <div class="slds-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={_progressPercentage}>
-                        <span class="slds-progress-bar__value" style={progressStyle}>
-                            <span class="slds-assistive-text">{progressDisplayText}</span>
-                        </span>
-                    </div>
-                    <div class="slds-text-align_center slds-m-top_small">
-                        <span class="slds-text-heading_small">{progressDisplayText}</span>
-                    </div>
-                </div>
-            </div>
-        </template>
-        
         <!-- Relationships Section -->
         <template if:true={isLoading}>
             <div class="slds-card__body slds-card__body_inner">
@@ -151,7 +131,7 @@
                         </div>
                     </template>
                     
-                    <!-- Sub Tasks Section (Collapsible) -->
+                    <!-- Sub Tasks Section (Collapsible) with Progress -->
                     <template if:true={hasSubtasks}>
                         <div class="context-section">
                             <h3 class="slds-text-heading_small slds-m-bottom_small">
@@ -161,6 +141,19 @@
                                     <lightning-icon icon-name={subtasksToggleIcon} size="xx-small" class="slds-m-left_x-small"></lightning-icon>
                                 </button>
                             </h3>
+                            <!-- Progress Bar (shown when subtasks exist) -->
+                            <template if:true={shouldShowProgress}>
+                                <div class="slds-m-bottom_medium">
+                                    <div class="slds-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progressPercentage}>
+                                        <span class="slds-progress-bar__value" style={progressStyle}>
+                                            <span class="slds-assistive-text">{progressDisplayText}</span>
+                                        </span>
+                                    </div>
+                                    <div class="slds-text-align_center slds-m-top_x-small">
+                                        <span class="slds-text-body_small">{progressDisplayText}</span>
+                                    </div>
+                                </div>
+                            </template>
                             <template if:true={subtasksExpanded}>
                                 <template for:each={subtasks} for:item="subtask">
                                     <div key={subtask.id} class="context-item slds-m-bottom_small" data-id={subtask.id} onclick={navigateToTask}>
