@@ -3,29 +3,39 @@ public with sharing class TaskDependencyHelper {
         Set<Id> taskIds = new Set<Id>();
         Set<Id> relatedTaskIds = new Set<Id>();
         
-        // Collect task IDs and related task IDs
+        // Collect task IDs
         for (Project_Task__c task : tasks) {
             taskIds.add(task.Id);
-            if (task.Related_Task__c != null && task.Relationship_Type__c == 'Blocking Dependency') {
-                relatedTaskIds.add(task.Related_Task__c);
-            }
         }
         
-        // Also check for tasks that depend on the tasks being updated
-        // (reverse dependencies - if Task B depends on Task A, and Task A's status changes, Task B needs updating)
-        List<Project_Task__c> dependentTasks = [
-            SELECT Id, Related_Task__c, Relationship_Type__c, At_Risk_Due_to_Dependencies__c
-            FROM Project_Task__c
-            WHERE Related_Task__c IN :taskIds
+        // Get all blocking relationships where these tasks are Task A (so Task B is the dependency)
+        List<Project_Task_Relationship__c> blockingRelationships = [
+            SELECT Task_A__c, Task_B__c, Relationship_Type__c
+            FROM Project_Task_Relationship__c
+            WHERE Task_A__c IN :taskIds
             AND Relationship_Type__c = 'Blocking Dependency'
         ];
         
-        if (relatedTaskIds.isEmpty() && dependentTasks.isEmpty()) {
+        for (Project_Task_Relationship__c rel : blockingRelationships) {
+            relatedTaskIds.add(rel.Task_B__c);
+        }
+        
+        // Also check for tasks that depend on the tasks being updated
+        // (reverse dependencies - if Task A depends on Task B, and Task B's status changes, Task A needs updating)
+        // In junction object: Task A depends on Task B, so if Task B changes, we need to update Task A
+        List<Project_Task_Relationship__c> dependentRelationships = [
+            SELECT Task_A__c, Task_B__c, Relationship_Type__c
+            FROM Project_Task_Relationship__c
+            WHERE Task_B__c IN :taskIds
+            AND Relationship_Type__c = 'Blocking Dependency'
+        ];
+        
+        if (relatedTaskIds.isEmpty() && dependentRelationships.isEmpty()) {
             return;
         }
         
         // Query related tasks to check their status
-        // For dependent tasks, the Related_Task__c is one of the tasks being updated (in taskIds)
+        // For dependent tasks, Task_B__c is one of the tasks being updated (in taskIds)
         // So we need to query both relatedTaskIds and taskIds to get all statuses
         Set<Id> allStatusCheckIds = new Set<Id>(relatedTaskIds);
         allStatusCheckIds.addAll(taskIds);
@@ -37,44 +47,57 @@ public with sharing class TaskDependencyHelper {
         // These are the tasks that might need their Is_Blocking__c field updated
         Set<Id> tasksThatMightBeBlocking = new Set<Id>(taskIds);
         tasksThatMightBeBlocking.addAll(relatedTaskIds); // Also check related tasks
-        Map<Id, List<Project_Task__c>> blockingDependenciesMap = new Map<Id, List<Project_Task__c>>();
-        List<Project_Task__c> tasksWithBlockingDeps = [
-            SELECT Id, Related_Task__c, Relationship_Type__c
-            FROM Project_Task__c
-            WHERE Related_Task__c IN :tasksThatMightBeBlocking
+        Map<Id, List<Project_Task_Relationship__c>> blockingDependenciesMap = new Map<Id, List<Project_Task_Relationship__c>>();
+        List<Project_Task_Relationship__c> relationshipsWithBlockingDeps = [
+            SELECT Task_A__c, Task_B__c, Relationship_Type__c
+            FROM Project_Task_Relationship__c
+            WHERE Task_B__c IN :tasksThatMightBeBlocking
             AND Relationship_Type__c = 'Blocking Dependency'
         ];
-        for (Project_Task__c depTask : tasksWithBlockingDeps) {
-            if (!blockingDependenciesMap.containsKey(depTask.Related_Task__c)) {
-                blockingDependenciesMap.put(depTask.Related_Task__c, new List<Project_Task__c>());
+        for (Project_Task_Relationship__c rel : relationshipsWithBlockingDeps) {
+            if (!blockingDependenciesMap.containsKey(rel.Task_B__c)) {
+                blockingDependenciesMap.put(rel.Task_B__c, new List<Project_Task_Relationship__c>());
             }
-            blockingDependenciesMap.get(depTask.Related_Task__c).add(depTask);
+            blockingDependenciesMap.get(rel.Task_B__c).add(rel);
         }
         
         List<Project_Task__c> tasksToUpdate = new List<Project_Task__c>();
         
-        // Process tasks from Trigger.new
+        // Process tasks from Trigger.new - check if they have blocking dependencies
         for (Project_Task__c task : tasks) {
-            if (task.Related_Task__c != null && task.Relationship_Type__c == 'Blocking Dependency') {
-                Project_Task__c relatedTask = relatedTasksMap.get(task.Related_Task__c);
-                if (relatedTask != null) {
-                    // Task is at risk if the blocking dependency is not completed/closed/in review/removed
-                    // In Review means work is done, just waiting for approval, so it's not blocking
-                    // Removed tasks are no longer active, so they don't block
-                    Boolean isAtRisk = relatedTask.Status__c != 'Completed' 
-                        && relatedTask.Status__c != 'Closed' 
-                        && relatedTask.Status__c != 'In Review'
-                        && relatedTask.Status__c != 'Removed';
-                    if (task.At_Risk_Due_to_Dependencies__c != isAtRisk) {
-                        // Create new instance instead of modifying Trigger.new record
-                        tasksToUpdate.add(new Project_Task__c(
-                            Id = task.Id,
-                            At_Risk_Due_to_Dependencies__c = isAtRisk
-                        ));
+            // Find relationships where this task is Task A (depends on Task B)
+            for (Project_Task_Relationship__c rel : blockingRelationships) {
+                if (rel.Task_A__c == task.Id) {
+                    Project_Task__c relatedTask = relatedTasksMap.get(rel.Task_B__c);
+                    if (relatedTask != null) {
+                        // Task is at risk if the blocking dependency is not completed/closed/in review/removed
+                        // In Review means work is done, just waiting for approval, so it's not blocking
+                        // Removed tasks are no longer active, so they don't block
+                        Boolean isAtRisk = relatedTask.Status__c != 'Completed' 
+                            && relatedTask.Status__c != 'Closed' 
+                            && relatedTask.Status__c != 'In Review'
+                            && relatedTask.Status__c != 'Removed';
+                        if (task.At_Risk_Due_to_Dependencies__c != isAtRisk) {
+                            // Create new instance instead of modifying Trigger.new record
+                            tasksToUpdate.add(new Project_Task__c(
+                                Id = task.Id,
+                                At_Risk_Due_to_Dependencies__c = isAtRisk
+                            ));
+                        }
+                        break; // Only process first blocking dependency
                     }
                 }
-            } else if (task.At_Risk_Due_to_Dependencies__c == true) {
-                // Create new instance instead of modifying Trigger.new record
+            }
+            
+            // If task has no blocking dependencies but is marked as at risk, clear it
+            Boolean hasBlockingDep = false;
+            for (Project_Task_Relationship__c rel : blockingRelationships) {
+                if (rel.Task_A__c == task.Id) {
+                    hasBlockingDep = true;
+                    break;
+                }
+            }
+            if (!hasBlockingDep && task.At_Risk_Due_to_Dependencies__c == true) {
                 tasksToUpdate.add(new Project_Task__c(
                     Id = task.Id,
                     At_Risk_Due_to_Dependencies__c = false
@@ -83,20 +106,25 @@ public with sharing class TaskDependencyHelper {
         }
         
         // Process dependent tasks (tasks that depend on the tasks being updated)
-        // When Task A's status changes, we need to update Task B if Task B depends on Task A
-        for (Project_Task__c depTask : dependentTasks) {
-            Project_Task__c relatedTask = relatedTasksMap.get(depTask.Related_Task__c);
+        // When Task B's status changes, we need to update Task A if Task A depends on Task B
+        for (Project_Task_Relationship__c rel : dependentRelationships) {
+            Project_Task__c relatedTask = relatedTasksMap.get(rel.Task_B__c);
             if (relatedTask != null) {
+                // Get the dependent task (Task A)
+                Project_Task__c dependentTask = relatedTasksMap.get(rel.Task_A__c);
+                if (dependentTask == null) {
+                    // Need to query it
+                    dependentTask = [SELECT Id, At_Risk_Due_to_Dependencies__c FROM Project_Task__c WHERE Id = :rel.Task_A__c];
+                }
+                
                 // Task is at risk if the blocking dependency is not completed/closed/in review/removed
-                // In Review means work is done, just waiting for approval, so it's not blocking
-                // Removed tasks are no longer active, so they don't block
                 Boolean isAtRisk = relatedTask.Status__c != 'Completed' 
                     && relatedTask.Status__c != 'Closed' 
                     && relatedTask.Status__c != 'In Review'
                     && relatedTask.Status__c != 'Removed';
-                if (depTask.At_Risk_Due_to_Dependencies__c != isAtRisk) {
+                if (dependentTask.At_Risk_Due_to_Dependencies__c != isAtRisk) {
                     tasksToUpdate.add(new Project_Task__c(
-                        Id = depTask.Id,
+                        Id = dependentTask.Id,
                         At_Risk_Due_to_Dependencies__c = isAtRisk
                     ));
                 }
