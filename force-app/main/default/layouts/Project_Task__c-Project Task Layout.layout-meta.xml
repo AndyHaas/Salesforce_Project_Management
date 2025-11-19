@@ -72,14 +72,15 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
-        <fields>Status__c</fields>
-        <fields>Priority__c</fields>
-        <fields>Developer__c</fields>
-        <fields>Client_User__c</fields>
-        <fields>Progress_Percentage__c</fields>
-        <fields>Estimated_Hours__c</fields>
-        <fields>Actual_Hours__c</fields>
-        <relatedList>Project_Task__c.Related_Task__c</relatedList>
+        <fields>Task_B__c</fields>
+        <fields>Relationship_Type__c</fields>
+        <relatedList>Project_Task_Relationship__c.Task_A__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Task_A__c</fields>
+        <fields>Relationship_Type__c</fields>
+        <relatedList>Project_Task_Relationship__c.Task_B__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
