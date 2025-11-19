@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Client_User__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Client user who is the stakeholder and approver for this task. Used for approvals and notifications.</description>
+    <inlineHelpText>Select the Client user who is the stakeholder and approver for this task. This field automatically populates from the parent task when creating subtasks.</inlineHelpText>
+    <label>Client User</label>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>Client User must be related to the account to be associated with this Project Task.</errorMessage>
+        <filterItems>
+            <field>$Source.Account__c</field>
+            <operation>equals</operation>
+            <valueField>User.Contact.AccountId</valueField>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>Client Tasks</relationshipLabel>
+    <relationshipName>Client_Tasks</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
