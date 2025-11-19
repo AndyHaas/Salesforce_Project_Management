@@ -1009,6 +1009,48 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>decorate</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>richTextValue</name>
+                    <value>&lt;div style=&quot;background-color: #FFF4E5; padding: 12px; border-radius: 4px; border-left: 4px solid #FFB75D;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;🚫 This Task is Blocking Other Tasks&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This task is currently blocking other tasks from proceeding. Complete this task to unblock dependent tasks. Check the &lt;strong&gt;Dependencies&lt;/strong&gt; component below to see which tasks are waiting on this one.&lt;/p&gt;&lt;/div&gt;</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:richText</componentName>
+                <identifier>flexipage_richText_blocking_others</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Is_Blocking__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>true</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>decorate</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>richTextValue</name>
+                    <value>&lt;div style=&quot;background-color: #FFEBEE; padding: 12px; border-radius: 4px; border-left: 4px solid #C23934;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⚠️ Task Blocked by Dependencies&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This task is at risk due to blocking dependencies. Check the &lt;strong&gt;Dependencies&lt;/strong&gt; tab to see which tasks must be completed first. The task cannot proceed until all blocking dependencies are resolved.&lt;/p&gt;&lt;/div&gt;</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:richText</componentName>
+                <identifier>flexipage_richText_blocked_dependencies</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.At_Risk_Due_to_Dependencies__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>true</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>showLinkTaskButton</name>
                     <value>true</value>
                 </componentInstanceProperties>
@@ -1210,48 +1252,6 @@
                         <leftValue>{!Record.Client_Approved_for_Completion__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>false</rightValue>
-                    </criteria>
-                </visibilityRule>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>decorate</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #FFEBEE; padding: 12px; border-radius: 4px; border-left: 4px solid #C23934;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⚠️ Task Blocked by Dependencies&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This task is at risk due to blocking dependencies. Check the &lt;strong&gt;Dependencies&lt;/strong&gt; tab to see which tasks must be completed first. The task cannot proceed until all blocking dependencies are resolved.&lt;/p&gt;&lt;/div&gt;</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:richText</componentName>
-                <identifier>flexipage_richText_blocked_dependencies</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.At_Risk_Due_to_Dependencies__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>true</rightValue>
-                    </criteria>
-                </visibilityRule>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>decorate</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #FFF4E5; padding: 12px; border-radius: 4px; border-left: 4px solid #FFB75D;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;🚫 This Task is Blocking Other Tasks&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This task is currently blocking other tasks from proceeding. Complete this task to unblock dependent tasks. Check the &lt;strong&gt;Dependencies&lt;/strong&gt; component below to see which tasks are waiting on this one.&lt;/p&gt;&lt;/div&gt;</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:richText</componentName>
-                <identifier>flexipage_richText_blocking_others</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.Is_Blocking__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>true</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
