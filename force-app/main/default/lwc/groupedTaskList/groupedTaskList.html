@@ -129,59 +129,24 @@
                                                     </span>
                                                 </template>
                                                 
-                                                <section class="task-hover-card" role="tooltip" aria-live="polite">
-                                                    <div class="hover-title">Task Snapshot</div>
-                                                    <div class="hover-row">
-                                                        <span class="hover-label">Status</span>
-                                                        <span class="hover-value">
-                                                            <span class={task.statusBadgeClass}>{task.status}</span>
-                                                        </span>
-                                                    </div>
-                                                    <div class="hover-row">
-                                                        <span class="hover-label">Priority</span>
-                                                        <span class="hover-value">{task.priority}</span>
-                                                    </div>
-                                                    <template if:true={task.ownerName}>
-                                                        <div class="hover-row">
-                                                            <span class="hover-label">Owner</span>
-                                                            <span class="hover-value">{task.ownerName}</span>
-                                                        </div>
-                                                    </template>
-                                                    <template if:true={task.accountName}>
-                                                        <div class="hover-row">
-                                                            <span class="hover-label">Account</span>
-                                                            <span class="hover-value">{task.accountName}</span>
-                                                        </div>
-                                                    </template>
-                                                    <template if:true={task.formattedDueDate}>
-                                                        <div class="hover-row">
-                                                            <span class="hover-label">Due Date</span>
-                                                            <span class="hover-value">{task.formattedDueDate}</span>
-                                                        </div>
-                                                    </template>
-                                                    <template if:true={task.formattedEstimatedHours}>
-                                                        <div class="hover-row">
-                                                            <span class="hover-label">Est. Hours</span>
-                                                            <span class="hover-value">{task.formattedEstimatedHours}</span>
-                                                        </div>
-                                                    </template>
-                                                    <div class="task-hover-note">
-                                                        <span class="hover-label">Notes</span>
-                                                        <div class="hover-note-value">{task.safeDescription}</div>
-                                                    </div>
-                                                    <template if:true={task.hasLatestComment}>
-                                                        <div class="task-hover-comment">
-                                                            <span class="hover-label">Latest Comment</span>
-                                                            <div class="hover-comment-meta">
-                                                                {task.latestCommentAuthor}
-                                                                <template if:true={task.latestCommentDateFormatted}>
-                                                                    • {task.latestCommentDateFormatted}
-                                                                </template>
+                                                <template if:true={task.hoverFields}>
+                                                    <section class="task-hover-card" role="tooltip" aria-live="polite">
+                                                        <div class="hover-title">Task Snapshot</div>
+                                                        <template for:each={task.hoverFields} for:item="field">
+                                                            <div key={field.apiName} class="hover-row">
+                                                                <span class="hover-label">{field.label}</span>
+                                                                <div class={field.valueClass}>
+                                                                    <template if:true={field.isStatus}>
+                                                                        <span class={field.badgeClass}>{field.displayValue}</span>
+                                                                    </template>
+                                                                    <template if:false={field.isStatus}>
+                                                                        {field.displayValue}
+                                                                    </template>
+                                                                </div>
                                                             </div>
-                                                            <div class="hover-note-value">{task.latestCommentText}</div>
-                                                        </div>
-                                                    </template>
-                                                </section>
+                                                        </template>
+                                                    </section>
+                                                </template>
                                             </div>
                                         </div>
                                         
@@ -238,59 +203,24 @@
                                                                         {subtask.name}
                                                                     </a>
                                                                     
-                                                                    <section class="task-hover-card" role="tooltip" aria-live="polite">
-                                                                        <div class="hover-title">Task Snapshot</div>
-                                                                        <div class="hover-row">
-                                                                            <span class="hover-label">Status</span>
-                                                                            <span class="hover-value">
-                                                                                <span class={subtask.statusBadgeClass}>{subtask.status}</span>
-                                                                            </span>
-                                                                        </div>
-                                                                        <div class="hover-row">
-                                                                            <span class="hover-label">Priority</span>
-                                                                            <span class="hover-value">{subtask.priority}</span>
-                                                                        </div>
-                                                                        <template if:true={subtask.ownerName}>
-                                                                            <div class="hover-row">
-                                                                                <span class="hover-label">Owner</span>
-                                                                                <span class="hover-value">{subtask.ownerName}</span>
-                                                                            </div>
-                                                                        </template>
-                                                                        <template if:true={subtask.accountName}>
-                                                                            <div class="hover-row">
-                                                                                <span class="hover-label">Account</span>
-                                                                                <span class="hover-value">{subtask.accountName}</span>
-                                                                            </div>
-                                                                        </template>
-                                                                        <template if:true={subtask.formattedDueDate}>
-                                                                            <div class="hover-row">
-                                                                                <span class="hover-label">Due Date</span>
-                                                                                <span class="hover-value">{subtask.formattedDueDate}</span>
-                                                                            </div>
-                                                                        </template>
-                                                                        <template if:true={subtask.formattedEstimatedHours}>
-                                                                            <div class="hover-row">
-                                                                                <span class="hover-label">Est. Hours</span>
-                                                                                <span class="hover-value">{subtask.formattedEstimatedHours}</span>
-                                                                            </div>
-                                                                        </template>
-                                                                        <div class="task-hover-note">
-                                                                            <span class="hover-label">Notes</span>
-                                                                            <div class="hover-note-value">{subtask.safeDescription}</div>
-                                                                        </div>
-                                                                        <template if:true={subtask.hasLatestComment}>
-                                                                            <div class="task-hover-comment">
-                                                                                <span class="hover-label">Latest Comment</span>
-                                                                                <div class="hover-comment-meta">
-                                                                                    {subtask.latestCommentAuthor}
-                                                                                    <template if:true={subtask.latestCommentDateFormatted}>
-                                                                                        • {subtask.latestCommentDateFormatted}
-                                                                                    </template>
+                                                                    <template if:true={subtask.hoverFields}>
+                                                                        <section class="task-hover-card" role="tooltip" aria-live="polite">
+                                                                            <div class="hover-title">Task Snapshot</div>
+                                                                            <template for:each={subtask.hoverFields} for:item="field">
+                                                                                <div key={field.apiName} class="hover-row">
+                                                                                    <span class="hover-label">{field.label}</span>
+                                                                                    <div class={field.valueClass}>
+                                                                                        <template if:true={field.isStatus}>
+                                                                                            <span class={field.badgeClass}>{field.displayValue}</span>
+                                                                                        </template>
+                                                                                        <template if:false={field.isStatus}>
+                                                                                            {field.displayValue}
+                                                                                        </template>
+                                                                                    </div>
                                                                                 </div>
-                                                                                <div class="hover-note-value">{subtask.latestCommentText}</div>
-                                                                            </div>
-                                                                        </template>
-                                                                    </section>
+                                                                            </template>
+                                                                        </section>
+                                                                    </template>
                                                                 </div>
                                                             </div>
                                                             
