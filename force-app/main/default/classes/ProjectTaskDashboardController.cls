@@ -906,19 +906,31 @@ public with sharing class ProjectTaskDashboardController {
         
         Project_Task__c currentTask = [
             SELECT Id, Parent_Task__c, Parent_Task__r.Name, Parent_Task__r.Status__c, Parent_Task__r.Priority__c,
-                   Related_Task__c, Related_Task__r.Name, Related_Task__r.Status__c, Related_Task__r.Priority__c,
-                   Related_Task__r.Is_Blocking__c,
-                   Relationship_Type__c, At_Risk_Due_to_Dependencies__c, Is_Blocking__c
+                   At_Risk_Due_to_Dependencies__c, Is_Blocking__c,
+                   (SELECT Id, Name, Status__c, Priority__c, Is_Blocking__c, At_Risk_Due_to_Dependencies__c
+                    FROM Subtasks__r
+                    ORDER BY CreatedDate ASC)
             FROM Project_Task__c
             WHERE Id = :taskId
             LIMIT 1
         ];
         
-        // Get tasks that depend on this task (reverse dependencies)
-        List<Project_Task__c> dependentTasks = [
-            SELECT Id, Name, Status__c, Priority__c, Relationship_Type__c, At_Risk_Due_to_Dependencies__c, Is_Blocking__c
-            FROM Project_Task__c
-            WHERE Related_Task__c = :taskId
+        // Get relationships where this task is Task A (so Task B is the related/dependency task)
+        List<Project_Task_Relationship__c> relatedRelationships = [
+            SELECT Task_B__c, Task_B__r.Name, Task_B__r.Status__c, Task_B__r.Priority__c, Task_B__r.Is_Blocking__c,
+                   Relationship_Type__c
+            FROM Project_Task_Relationship__c
+            WHERE Task_A__c = :taskId
+            ORDER BY CreatedDate DESC
+        ];
+        
+        // Get relationships where this task is Task B (so Task A is the dependent task)
+        List<Project_Task_Relationship__c> dependentRelationships = [
+            SELECT Task_A__c, Task_A__r.Name, Task_A__r.Status__c, Task_A__r.Priority__c, Task_A__r.Is_Blocking__c,
+                   Task_A__r.At_Risk_Due_to_Dependencies__c,
+                   Relationship_Type__c
+            FROM Project_Task_Relationship__c
+            WHERE Task_B__c = :taskId
             ORDER BY CreatedDate DESC
         ];
         
@@ -936,38 +948,52 @@ public with sharing class ProjectTaskDashboardController {
             result.parentTask.isBlocking = false;
         }
         
-        // Related Task (dependency)
-        if (currentTask.Related_Task__c != null) {
+        // Related Task (dependency) - Get the first relationship where this task is Task A
+        // In the junction object, Task A depends on Task B
+        if (!relatedRelationships.isEmpty()) {
+            Project_Task_Relationship__c rel = relatedRelationships[0];
             result.relatedTask = new DependencyTask();
-            result.relatedTask.id = currentTask.Related_Task__c;
-            result.relatedTask.name = currentTask.Related_Task__r.Name;
-            result.relatedTask.status = currentTask.Related_Task__r.Status__c;
-            result.relatedTask.priority = currentTask.Related_Task__r.Priority__c;
-            result.relatedTask.type = String.isBlank(currentTask.Relationship_Type__c) ? 'Related' : currentTask.Relationship_Type__c;
-            // A task is blocking if Relationship Type is "Blocking Dependency" AND the related task is actually blocking (not Completed/Closed/In Review/Removed)
-            // Use Is_Blocking__c field which is automatically calculated based on status
-            result.relatedTask.isBlocking = currentTask.Relationship_Type__c == 'Blocking Dependency' 
-                && currentTask.Related_Task__r.Is_Blocking__c == true;
+            result.relatedTask.id = rel.Task_B__c;
+            result.relatedTask.name = rel.Task_B__r.Name;
+            result.relatedTask.status = rel.Task_B__r.Status__c;
+            result.relatedTask.priority = rel.Task_B__r.Priority__c;
+            result.relatedTask.type = String.isBlank(rel.Relationship_Type__c) ? 'Related' : rel.Relationship_Type__c;
+            // A task is blocking if Relationship Type is "Blocking Dependency" AND the related task is actually blocking
+            result.relatedTask.isBlocking = rel.Relationship_Type__c == 'Blocking Dependency' 
+                && rel.Task_B__r.Is_Blocking__c == true;
             result.isAtRisk = currentTask.At_Risk_Due_to_Dependencies__c != null && currentTask.At_Risk_Due_to_Dependencies__c == true;
-            // Note: Is_Blocking__c on currentTask indicates if THIS task is blocking others, not if it's blocked
         }
         
-        // Tasks that depend on this task
+        // Tasks that depend on this task (where this task is Task B, so Task A depends on this task)
         result.dependentTasks = new List<DependencyTask>();
-        for (Project_Task__c depTask : dependentTasks) {
+        for (Project_Task_Relationship__c rel : dependentRelationships) {
             DependencyTask dt = new DependencyTask();
-            dt.id = depTask.Id;
-            dt.name = depTask.Name;
-            dt.status = depTask.Status__c;
-            dt.priority = depTask.Priority__c;
-            dt.type = String.isBlank(depTask.Relationship_Type__c) ? 'Related' : depTask.Relationship_Type__c;
-            // A task is blocking if Relationship Type is "Blocking Dependency" AND the task is actually blocking (not Completed/Closed/In Review/Removed)
-            // Use Is_Blocking__c field which is automatically calculated based on status
-            dt.isBlocking = depTask.Relationship_Type__c == 'Blocking Dependency' 
-                && depTask.Is_Blocking__c == true;
-            dt.isAtRisk = depTask.At_Risk_Due_to_Dependencies__c != null && depTask.At_Risk_Due_to_Dependencies__c == true;
-            // Note: depTask.Is_Blocking__c indicates if the dependent task is blocking others, not if it's blocked by this task
+            dt.id = rel.Task_A__c;
+            dt.name = rel.Task_A__r.Name;
+            dt.status = rel.Task_A__r.Status__c;
+            dt.priority = rel.Task_A__r.Priority__c;
+            dt.type = String.isBlank(rel.Relationship_Type__c) ? 'Related' : rel.Relationship_Type__c;
+            // A task is blocking if Relationship Type is "Blocking Dependency" AND the task is actually blocking
+            dt.isBlocking = rel.Relationship_Type__c == 'Blocking Dependency' 
+                && rel.Task_A__r.Is_Blocking__c == true;
+            dt.isAtRisk = rel.Task_A__r.At_Risk_Due_to_Dependencies__c != null && rel.Task_A__r.At_Risk_Due_to_Dependencies__c == true;
             result.dependentTasks.add(dt);
+        }
+        
+        // Sub tasks
+        result.subtasks = new List<DependencyTask>();
+        if (currentTask.Subtasks__r != null && !currentTask.Subtasks__r.isEmpty()) {
+            for (Project_Task__c subtask : currentTask.Subtasks__r) {
+                DependencyTask st = new DependencyTask();
+                st.id = subtask.Id;
+                st.name = subtask.Name;
+                st.status = subtask.Status__c;
+                st.priority = subtask.Priority__c;
+                st.type = 'Sub Task';
+                st.isBlocking = subtask.Is_Blocking__c != null && subtask.Is_Blocking__c == true;
+                st.isAtRisk = subtask.At_Risk_Due_to_Dependencies__c != null && subtask.At_Risk_Due_to_Dependencies__c == true;
+                result.subtasks.add(st);
+            }
         }
         
         return result;
@@ -977,6 +1003,7 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public DependencyTask parentTask;
         @AuraEnabled public DependencyTask relatedTask;
         @AuraEnabled public List<DependencyTask> dependentTasks;
+        @AuraEnabled public List<DependencyTask> subtasks;
         @AuraEnabled public Boolean isAtRisk;
         @AuraEnabled public Boolean isBlocking;
     }
