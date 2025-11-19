@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Task_B__c</fullName>
+    <description>Second task in the relationship. Task A depends on or is related to this task.</description>
+    <inlineHelpText>Select the second task in this relationship. Task A depends on or is related to this task.</inlineHelpText>
+    <label>Task B</label>
+    <referenceTo>Project_Task__c</referenceTo>
+    <relationshipLabel>Task B Relationships</relationshipLabel>
+    <relationshipName>Task_B_Relationships</relationshipName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <required>true</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Prevent_Self_Relationship</fullName>
+    <active>true</active>
+    <description>Prevents a task from being related to itself.</description>
+    <errorConditionFormula>Task_A__c = Task_B__c</errorConditionFormula>
+    <errorDisplayField>Task_B__c</errorDisplayField>
+    <errorMessage>Cannot create a relationship between a task and itself. Please select a different task.</errorMessage>
+</ValidationRule>
