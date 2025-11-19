@@ -302,19 +302,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     decorateTaskRecord(record) {
-        const hoverFields = (record.hoverFields || []).map(field => {
-            const rawValue = typeof field.value === 'string' ? field.value : (field.value ?? '');
-            const trimmedValue = typeof rawValue === 'string' ? rawValue.trim() : rawValue;
-            const displayValue = trimmedValue && trimmedValue.length > 0 ? trimmedValue : '—';
-            const isStatusField = field.apiName === 'Status__c';
-            return {
-                ...field,
-                displayValue,
-                valueClass: `hover-value${field.isLongText ? ' hover-value_multiline' : ''}`,
-                isStatus: isStatusField,
-                badgeClass: isStatusField ? this.getStatusBadgeClass(record.status) : ''
-            };
-        });
+        // Note: hoverFields decoration is now handled by taskHoverCard component
+        // Only decorate summaryFields here
         
         const summaryFields = (record.summaryFields || []).map(field => {
             const definition = this.summaryFieldDefinitionMap[field.apiName] || {};
@@ -349,7 +338,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         
         return {
             ...record,
-            hoverFields,
+            // hoverFields passed as-is to taskHoverCard component
             summaryFields
         };
     }

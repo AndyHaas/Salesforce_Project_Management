@@ -97,63 +97,8 @@
     flex-direction: column;
 }
 
-.task-hover-card {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    left: 0;
-    width: min(360px, 80vw);
-    background: var(--slds-g-color-neutral-base-100, #ffffff);
-    border: 1px solid var(--slds-g-color-border-base-4, #d8dde6);
-    border-radius: 0.25rem;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
-    padding: 0.75rem;
-    z-index: 10;
-    pointer-events: none;
-}
-
-.task-name-wrapper .task-hover-card,
-.subtask-name-wrapper .task-hover-card {
-    display: none;
-}
-
-.task-name-wrapper:hover .task-hover-card,
-.task-name-wrapper:focus-within .task-hover-card,
-.subtask-name-wrapper:hover .task-hover-card,
-.subtask-name-wrapper:focus-within .task-hover-card {
-    display: block;
-}
-
-.hover-title {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--slds-g-color-neutral-base-40, #706e6b);
-    margin-bottom: 0.4rem;
-}
-
-.hover-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.75rem;
-    font-size: 0.75rem;
-    margin-bottom: 0.25rem;
-    align-items: flex-start;
-}
-
-.hover-label {
-    font-weight: 600;
-    color: var(--slds-g-color-neutral-base-30, #514f4d);
-}
-
-.hover-value {
-    text-align: right;
-    color: var(--slds-g-color-neutral-base-20, #3e3e3c);
-}
-
-.hover-value_multiline {
-    text-align: left;
-    white-space: pre-line;
-}
+/* Hover card wrapper styling */
+/* Note: Visibility is handled by the taskHoverCard component itself */
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
