@@ -474,7 +474,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         
         let groups = [...this.statusGroups];
         
-        if (!this.showCompletedTasks) {
+        // When "My Tasks" mode is on, always show completed tasks (even if showCompletedTasks is false)
+        // Otherwise, respect the showCompletedTasks toggle
+        if (!this.showMyTasksOnly && !this.showCompletedTasks) {
             groups = groups.filter(group => group.status !== 'Completed');
         }
         
