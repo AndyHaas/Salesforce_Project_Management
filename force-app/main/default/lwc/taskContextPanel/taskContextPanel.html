@@ -80,7 +80,7 @@
                             </h3>
                             <template if:true={dependenciesExpanded}>
                                 <template for:each={dependencies} for:item="depTask">
-                                    <div key={depTask.id} class="context-item slds-m-bottom_small">
+                                    <div key={depTask.id} class={depTask.blockingContextItemClass}>
                                         <div class="slds-grid slds-grid_align-spread slds-wrap">
                                             <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3" data-id={depTask.id} onclick={navigateToTask}>
                                                 <div class="task-name-wrapper">
@@ -96,7 +96,7 @@
                                                     <template if:true={depTask.priority}>
                                                         <span class={depTask.priorityBadgeClass}>{depTask.priority}</span>
                                                     </template>
-                                                    <span class="slds-badge slds-badge_lightest context-type-badge">
+                                                    <span class={depTask.blockingBadgeClass}>
                                                         <template if:true={depTask.isBlocking}>
                                                             <lightning-icon icon-name="utility:ban" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
                                                             Blocking
@@ -144,7 +144,7 @@
                             </h3>
                             <template if:true={dependentTasksExpanded}>
                                 <template for:each={dependentTasks} for:item="depTask">
-                                    <div key={depTask.id} class="context-item slds-m-bottom_small">
+                                    <div key={depTask.id} class={depTask.blockingContextItemClass}>
                                         <div class="slds-grid slds-grid_align-spread slds-wrap">
                                             <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3" data-id={depTask.id} onclick={navigateToTask}>
                                                 <div class="task-name-wrapper">
@@ -160,7 +160,7 @@
                                                     <template if:true={depTask.priority}>
                                                         <span class={depTask.priorityBadgeClass}>{depTask.priority}</span>
                                                     </template>
-                                                    <span class="slds-badge slds-badge_lightest context-type-badge">
+                                                    <span class={depTask.blockingBadgeClass}>
                                                         <template if:true={depTask.isBlocking}>
                                                             <lightning-icon icon-name="utility:ban" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
                                                             Blocking
@@ -221,7 +221,7 @@
                             </template>
                             <template if:true={subtasksExpanded}>
                                 <template for:each={subtasks} for:item="subtask">
-                                    <div key={subtask.id} class="context-item slds-m-bottom_small" data-id={subtask.id} onclick={navigateToTask}>
+                                    <div key={subtask.id} class={subtask.blockingContextItemClass} data-id={subtask.id} onclick={navigateToTask}>
                                         <div class="slds-grid slds-grid_align-spread slds-wrap">
                                             <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
                                                 <div class="task-name-wrapper">
@@ -237,7 +237,7 @@
                                                     <template if:true={subtask.priority}>
                                                         <span class={subtask.priorityBadgeClass}>{subtask.priority}</span>
                                                     </template>
-                                                    <span class="slds-badge slds-badge_lightest context-type-badge">
+                                                    <span class={subtask.blockingBadgeClass}>
                                                         <template if:true={subtask.isBlocking}>
                                                             <lightning-icon icon-name="utility:ban" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
                                                             Blocking
