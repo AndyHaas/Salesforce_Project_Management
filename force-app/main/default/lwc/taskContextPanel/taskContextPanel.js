@@ -469,9 +469,14 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
                     task.blockingContextItemClass = task.isBlocking 
                         ? 'context-item context-item-blocking slds-m-bottom_small'
                         : 'context-item slds-m-bottom_small';
-                    task.blockingBadgeClass = task.isBlocking
-                        ? 'slds-badge blocking-badge context-type-badge'
-                        : 'slds-badge slds-badge_lightest context-type-badge';
+                    // Badge styling: red for "Blocking", orange for "Blocking Dependency" type, light gray for others
+                    if (task.isBlocking) {
+                        task.blockingBadgeClass = 'slds-badge blocking-badge context-type-badge';
+                    } else if (task.type === 'Blocking Dependency') {
+                        task.blockingBadgeClass = 'slds-badge blocking-dependency-badge context-type-badge';
+                    } else {
+                        task.blockingBadgeClass = 'slds-badge slds-badge_lightest context-type-badge';
+                    }
                 }
                 
                 return task;
@@ -556,25 +561,26 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     
     /**
      * @description Get CSS class for priority badge based on priority value
+     * Uses custom CSS classes to ensure colors display correctly
      */
     getPriorityBadgeClassForPriority(priority) {
         if (!priority) {
-            return 'slds-badge slds-badge_lightest';
+            return 'slds-badge priority-badge priority-badge-none';
         }
         
         const normalizedPriority = String(priority).toLowerCase();
         
         if (normalizedPriority === 'high') {
-            return 'slds-badge slds-badge_error';
+            return 'slds-badge priority-badge priority-badge-high';
         }
         if (normalizedPriority === 'medium') {
-            return 'slds-badge slds-badge_warning';
+            return 'slds-badge priority-badge priority-badge-medium';
         }
         if (normalizedPriority === 'low') {
-            return 'slds-badge slds-badge_success';
+            return 'slds-badge priority-badge priority-badge-low';
         }
         
-        return 'slds-badge slds-badge_lightest';
+        return 'slds-badge priority-badge priority-badge-none';
     }
     
     /**
