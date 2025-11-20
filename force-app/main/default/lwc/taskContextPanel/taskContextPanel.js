@@ -465,6 +465,13 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
                 if (task) {
                     task.statusBadgeClass = this.getStatusBadgeClassForStatus(task.status);
                     task.priorityBadgeClass = this.getPriorityBadgeClassForPriority(task.priority);
+                    // Add blocking classes
+                    task.blockingContextItemClass = task.isBlocking 
+                        ? 'context-item context-item-blocking slds-m-bottom_small'
+                        : 'context-item slds-m-bottom_small';
+                    task.blockingBadgeClass = task.isBlocking
+                        ? 'slds-badge blocking-badge context-type-badge'
+                        : 'slds-badge slds-badge_lightest context-type-badge';
                 }
                 
                 return task;
