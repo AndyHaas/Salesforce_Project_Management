@@ -244,6 +244,36 @@
     margin-right: 0.5rem;
 }
 
+/* Custom priority badge colors */
+.priority-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.priority-badge-high {
+    background-color: #c23934;
+    color: #ffffff;
+}
+
+.priority-badge-medium {
+    background-color: #ffb75d;
+    color: #080707;
+}
+
+.priority-badge-low {
+    background-color: #2e844a;
+    color: #ffffff;
+}
+
+.priority-badge-none {
+    background-color: #e5e5e5;
+    color: #080707;
+}
+
 /* Badge container styling - add padding when badges wrap to next row */
 .context-item .slds-m-top_x-small {
     display: flex;
@@ -285,9 +315,16 @@
     box-shadow: 0 2px 2px rgba(198, 57, 52, 0.2);
 }
 
-/* Blocking badge - red styling */
+/* Blocking badge - red styling (when task is actually blocking) */
 .blocking-badge {
     background-color: #c23934;
+    color: #ffffff;
+    margin-left: 0.5rem;
+}
+
+/* Blocking Dependency badge - orange styling (when relationship type is Blocking Dependency but task is not currently blocking) */
+.blocking-dependency-badge {
+    background-color: #ff6b35;
     color: #ffffff;
     margin-left: 0.5rem;
 }
