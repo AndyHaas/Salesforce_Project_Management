@@ -22,31 +22,30 @@
                         title="Tasks are filtered to show only those associated with the selected account(s)">
                     </lightning-badge>
                 </template>
-            <lightning-button
-                label={meModeButtonLabel}
-                variant={meModeButtonVariant}
-                icon-name={meModeButtonIcon}
-                onclick={handleMeModeToggle}
-                title={meModeButtonTitle}
-                class="slds-m-left_small">
-            </lightning-button>
-            <lightning-button
-                label={completedToggleLabel}
-                variant="neutral"
-                icon-name={completedToggleIcon}
-                onclick={handleCompletedToggle}
-                title={completedToggleTitle}
-                class="slds-m-left_small">
-            </lightning-button>
-            <lightning-button
-                label={expandCollapseAllLabel}
-                variant="neutral"
-                icon-name={expandCollapseAllIcon}
-                onclick={handleExpandCollapseAll}
-                disabled={expandCollapseAllDisabled}
-                title={expandCollapseAllTitle}
-                class="slds-m-left_small">
-            </lightning-button>
+                <lightning-button-group>
+                    <lightning-button
+                        label={meModeButtonLabel}
+                        variant={meModeButtonVariant}
+                        icon-name={meModeButtonIcon}
+                        onclick={handleMeModeToggle}
+                        title={meModeButtonTitle}>
+                    </lightning-button>
+                    <lightning-button
+                        label={completedToggleLabel}
+                        variant="neutral"
+                        icon-name={completedToggleIcon}
+                        onclick={handleCompletedToggle}
+                        title={completedToggleTitle}>
+                    </lightning-button>
+                    <lightning-button
+                        label={expandCollapseAllLabel}
+                        variant="neutral"
+                        icon-name={expandCollapseAllIcon}
+                        onclick={handleExpandCollapseAll}
+                        disabled={expandCollapseAllDisabled}
+                        title={expandCollapseAllTitle}>
+                    </lightning-button>
+                </lightning-button-group>
             </div>
         </div>
         <template if:true={error}>
