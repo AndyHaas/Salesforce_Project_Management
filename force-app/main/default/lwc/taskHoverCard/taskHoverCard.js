@@ -13,6 +13,7 @@ import { LightningElement, api } from 'lwc';
 
 export default class TaskHoverCard extends LightningElement {
     _isVisible = false;
+    _renderedRichTextFields = new Map();
     
     connectedCallback() {
         // Find the parent wrapper and add hover listeners
@@ -25,8 +26,50 @@ export default class TaskHoverCard extends LightningElement {
         }
     }
     
+    renderedCallback() {
+        // Render rich text fields using lwc:dom-manual
+        // This runs after every render, so we need to check if card is visible
+        if (this._isVisible && this.decoratedHoverFields && this.decoratedHoverFields.length > 0) {
+            // Use setTimeout to ensure DOM is fully rendered after template updates
+            setTimeout(() => {
+                this.decoratedHoverFields.forEach(field => {
+                    if (field.isRichText && field.apiName) {
+                        const richTextElement = this.template.querySelector(`[data-rich-text="${field.apiName}"]`);
+                        if (richTextElement) {
+                            // Use htmlValue (raw HTML) for rich text fields
+                            const currentValue = field.htmlValue || '';
+                            const lastRenderedValue = this._renderedRichTextFields.get(field.apiName);
+                            // Only update if value changed to avoid unnecessary DOM manipulation
+                            if (currentValue !== lastRenderedValue) {
+                                richTextElement.innerHTML = currentValue;
+                                this._renderedRichTextFields.set(field.apiName, currentValue);
+                            }
+                        }
+                    }
+                });
+            }, 0);
+        }
+    }
+    
     handleParentHover() {
         this._isVisible = true;
+        // Trigger render update when card becomes visible
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+            if (this.decoratedHoverFields && this.decoratedHoverFields.length > 0) {
+                this.decoratedHoverFields.forEach(field => {
+                    if (field.isRichText && field.apiName) {
+                        const richTextElement = this.template.querySelector(`[data-rich-text="${field.apiName}"]`);
+                        if (richTextElement) {
+                            // Use htmlValue (raw HTML) for rich text fields
+                            const htmlContent = field.htmlValue || '';
+                            richTextElement.innerHTML = htmlContent;
+                            this._renderedRichTextFields.set(field.apiName, htmlContent);
+                        }
+                    }
+                });
+            }
+        }, 50);
     }
     
     handleParentLeave() {
@@ -66,15 +109,34 @@ export default class TaskHoverCard extends LightningElement {
         
         return this.hoverFields.map(field => {
             const rawValue = typeof field.value === 'string' ? field.value : (field.value ?? '');
-            const trimmedValue = typeof rawValue === 'string' ? rawValue.trim() : rawValue;
-            const displayValue = trimmedValue && trimmedValue.length > 0 ? trimmedValue : '—';
             const isStatusField = field.apiName === 'Status__c';
+            const isRichText = field.isRichText === true;
+            
+            // For Status field, use taskStatus prop as the authoritative source
+            // For rich text fields, preserve the raw HTML value
+            // For other fields, use trimmed display value
+            let displayValue;
+            let htmlValue;
+            if (isStatusField) {
+                // Use taskStatus prop as the display value for Status field
+                displayValue = this.taskStatus && this.taskStatus.trim().length > 0 ? this.taskStatus.trim() : '—';
+                htmlValue = null;
+            } else if (isRichText) {
+                htmlValue = rawValue || '';
+                displayValue = htmlValue && htmlValue.length > 0 ? htmlValue : '—';
+            } else {
+                const trimmedValue = typeof rawValue === 'string' ? rawValue.trim() : rawValue;
+                displayValue = trimmedValue && trimmedValue.length > 0 ? trimmedValue : '—';
+                htmlValue = null;
+            }
             
             return {
                 ...field,
                 displayValue,
-                valueClass: `hover-value${field.isLongText ? ' hover-value_multiline' : ''}`,
+                htmlValue, // Store raw HTML for rich text fields
+                valueClass: `hover-value${field.isLongText ? ' hover-value_multiline' : ''}${isRichText ? ' hover-value_richtext' : ''}`,
                 isStatus: isStatusField,
+                isRichText: isRichText,
                 badgeClass: isStatusField ? this.getStatusBadgeClass(this.taskStatus) : ''
             };
         });

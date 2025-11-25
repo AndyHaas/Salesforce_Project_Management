@@ -138,6 +138,7 @@ public with sharing class ProjectTaskDashboardController {
             Object rawValue = record.get(apiName);
             hoverField.value = formatHoverFieldValue(rawValue, describe);
             hoverField.isLongText = describe != null && describe.getType() == Schema.DisplayType.TextArea;
+            hoverField.isRichText = describe != null && describe.getType().name() == 'HTML';
             values.add(hoverField);
         }
         return values;
@@ -260,6 +261,7 @@ public with sharing class ProjectTaskDashboardController {
             
             summaryValue.rawValue = rawValue != null ? String.valueOf(rawValue) : null;
             summaryValue.displayValue = formatHoverFieldValue(rawValue, describe);
+            summaryValue.isRichText = describe != null && describe.getType().name() == 'HTML';
             values.add(summaryValue);
         }
         
@@ -1179,6 +1181,7 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public String label;
         @AuraEnabled public String value;
         @AuraEnabled public Boolean isLongText;
+        @AuraEnabled public Boolean isRichText;
     }
     
     public class SummaryFieldValue {
@@ -1186,6 +1189,7 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public String label;
         @AuraEnabled public String displayValue;
         @AuraEnabled public String rawValue;
+        @AuraEnabled public Boolean isRichText;
     }
     
 }

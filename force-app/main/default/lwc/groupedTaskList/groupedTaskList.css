@@ -90,6 +90,19 @@
     min-width: 200px;
 }
 
+.actions-container {
+    flex-shrink: 1;
+    flex-grow: 0;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.button-group-wrapper {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
 .task-name-wrapper,
 .subtask-name-wrapper {
     position: relative;
