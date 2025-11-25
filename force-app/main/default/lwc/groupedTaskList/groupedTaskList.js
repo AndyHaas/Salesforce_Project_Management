@@ -8,11 +8,18 @@
  * - Used in: Standalone component, can be placed on any Lightning page
  * - Apex Controller: ProjectTaskDashboardController.getGroupedTasksWithSubtasks(), getAccounts()
  */
-import { LightningElement, api, wire } from 'lwc';
+import { LightningElement, api, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
+import { deleteRecord } from 'lightning/uiRecordApi';
+import { getObjectInfo } from 'lightning/uiObjectInfoApi';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { updateRecord } from 'lightning/uiRecordApi';
+import PROJECT_TASK_OBJECT from '@salesforce/schema/Project_Task__c';
 import getGroupedTasksWithSubtasks from '@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasks';
 import getAccounts from '@salesforce/apex/ProjectTaskDashboardController.getAccounts';
+import getDisplayDensity from '@salesforce/apex/DisplayDensityController.getDisplayDensity';
+import { refreshApex } from '@salesforce/apex';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
 import USER_ID from '@salesforce/user/Id';
 
@@ -30,12 +37,17 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     collapsedStatuses = new Set(); // Track collapsed status groups
     subscription = null;
     _filteredAccountIds = [];
+    refreshInterval = null; // Interval ID for periodic refresh
     showMyTasksOnly = false; // "Me" mode toggle
     showCompletedTasks = false; // Toggle Completed status visibility (default hidden)
     currentUserId = USER_ID; // Current user ID
     error;
     summaryFieldDefinitions = [];
     summaryFieldDefinitionMap = {};
+    @track editingTaskId = null; // Track which task is being edited inline
+    @track editingTaskName = ''; // Store the task name being edited
+    @track editingField = null; // Track which field is being edited: { taskId, fieldApiName, fieldValue }
+    objectPermissions = { canEdit: false, canDelete: false }; // Object-level permissions
     
     // Account filter dropdown
     accounts = [];
@@ -44,6 +56,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     // Responsive button handling
     useCompactMode = false; // When true, show buttons in menu
     resizeObserver = null;
+    
+    // Density mode: 'comfy' (default) or 'compact' - loaded from user's Salesforce preference
+    @track density = 'comfy';
     
     @wire(getAccounts)
     wiredAccounts({ error, data }) {
@@ -57,6 +72,23 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             ];
         } else if (error) {
             console.error('Error loading accounts:', error);
+        }
+    }
+    
+    @wire(getDisplayDensity)
+    wiredDisplayDensity({ error, data }) {
+        if (data) {
+            // Set density from user's Salesforce preference
+            this.density = data === 'compact' ? 'compact' : 'comfy';
+            // If data is already loaded, update row classes
+            if (this.statusGroups && this.statusGroups.length > 0) {
+                this.updateTaskRowClasses();
+                this.refreshFilteredStatusGroups();
+            }
+        } else if (error) {
+            console.warn('Error loading display density preference:', error);
+            // Default to 'comfy' if we can't load the preference
+            this.density = 'comfy';
         }
     }
     
@@ -105,6 +137,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                 },
                 { scope: APPLICATION_SCOPE }
             );
+            
         }
         
         // Set up resize observer for responsive button handling
@@ -114,19 +147,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     renderedCallback() {
         // Check container width after render
         this.checkContainerWidth();
-    }
-    
-    disconnectedCallback() {
-        if (this.subscription) {
-            unsubscribe(this.subscription);
-            this.subscription = null;
-        }
-        
-        // Clean up resize observer
-        if (this.resizeObserver) {
-            this.resizeObserver.disconnect();
-            this.resizeObserver = null;
-        }
     }
     
     setupResizeObserver() {
@@ -212,11 +232,72 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         }
     }
     
+    updateTaskRowClasses() {
+        // Use a custom padding class for compact mode that's between x-small and small
+        // We'll handle this with CSS instead of SLDS utility classes for better control
+        const paddingClass = this.density === 'compact' ? 'slds-p-around_x-small compact-padding' : 'slds-p-around_small';
+        this.statusGroups = this.statusGroups.map(statusGroup => ({
+            ...statusGroup,
+            tasks: statusGroup.tasks.map(task => {
+                const permissions = this.getTaskPermissions(task.id);
+                const hasMenu = permissions.canEdit || permissions.canDelete;
+                const newRowClass = hasMenu 
+                    ? `task-row slds-grid slds-grid_align-spread ${paddingClass} task-row-with-menu` 
+                    : `task-row slds-grid slds-grid_align-spread ${paddingClass}`;
+                
+                // Update subtasks as well
+                const updatedSubtasks = (task.subtasks || []).map(subtask => {
+                    const subtaskPermissions = this.getTaskPermissions(subtask.id);
+                    const subtaskHasMenu = subtaskPermissions.canEdit || subtaskPermissions.canDelete;
+                    const subtaskRowClass = subtaskHasMenu 
+                        ? `slds-grid slds-grid_align-spread ${paddingClass} subtask-row-with-menu` 
+                        : `slds-grid slds-grid_align-spread ${paddingClass}`;
+                    return {
+                        ...subtask,
+                        rowClass: subtaskRowClass
+                    };
+                });
+                
+                return {
+                    ...task,
+                    rowClass: newRowClass,
+                    subtasks: updatedSubtasks
+                };
+            })
+        }));
+    }
+    
+    get densityClass() {
+        return this.density === 'compact' ? 'density-compact' : 'density-comfy';
+    }
+    
+    get columnHeadersClass() {
+        return `column-headers slds-grid slds-grid_align-spread slds-border_bottom slds-text-body_small slds-text-color_weak ${this.density === 'comfy' ? 'column-headers-comfy' : ''} ${this.density === 'compact' ? 'column-headers-compact' : ''}`.trim();
+    }
+    
+    get subtasksContainerClass() {
+        return `subtasks-container slds-border_left ${this.density === 'comfy' ? 'subtasks-container-comfy' : ''} ${this.density === 'compact' ? 'subtasks-container-compact' : ''}`.trim();
+    }
+    
+    get subtaskItemClass() {
+        return `subtask-item slds-border_bottom ${this.density === 'comfy' ? 'subtask-item-comfy' : ''} ${this.density === 'compact' ? 'subtask-item-compact' : ''}`.trim();
+    }
+    
+    wiredGroupedTasksResult;
+    
     @wire(getGroupedTasksWithSubtasks, { accountIds: '$effectiveAccountIds' })
-    wiredGroupedTasks({ error, data }) {
+    wiredGroupedTasks(result) {
+        this.wiredGroupedTasksResult = result;
+        const { error, data } = result;
         if (data) {
             this.summaryFieldDefinitions = data.summaryFieldDefinitions || [];
             this.updateSummaryFieldDefinitionMap();
+            
+            // Set up periodic refresh for auto-refresh on task changes
+            if (!this.refreshInterval) {
+                this.setupPeriodicRefresh();
+            }
+            
             // Add status header style to each status group and icon info to each task
             this.statusGroups = (data.statusGroups || []).map(statusGroup => {
                 // Calculate total estimated hours for this status group
@@ -232,14 +313,71 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                     const subtasks = (task.subtasks || []).map(subtask => {
                         const subtaskHours = subtask.estimatedHours || 0;
                         totalEstimatedHours += subtaskHours;
-                        return this.decorateTaskRecord({
+                        const subtaskPermissions = this.getTaskPermissions(subtask.id);
+                        const subtaskHasMenu = subtaskPermissions.canEdit || subtaskPermissions.canDelete;
+                        const subtaskPaddingClass = this.density === 'compact' ? 'slds-p-around_x-small compact-padding' : 'slds-p-around_small';
+                        const decoratedSubtask = this.decorateTaskRecord({
                             ...subtask,
                             formattedDueDate: subtask.dueDate ? this.formatDate(subtask.dueDate) : '',
-                            formattedEstimatedHours: subtask.estimatedHours ? this.formatHours(subtask.estimatedHours) : ''
+                            formattedEstimatedHours: subtask.estimatedHours ? this.formatHours(subtask.estimatedHours) : '',
+                            isEditing: this.editingTaskId === subtask.id,
+                            canEdit: subtaskPermissions.canEdit,
+                            canDelete: subtaskPermissions.canDelete,
+                            showMenu: subtaskHasMenu,
+                            rowClass: subtaskHasMenu ? `slds-grid slds-grid_align-spread ${subtaskPaddingClass} subtask-row-with-menu` : `slds-grid slds-grid_align-spread ${subtaskPaddingClass}`
                         });
+                        // Update field editing state and computed properties
+                        if (decoratedSubtask.summaryFields) {
+                            decoratedSubtask.summaryFields = decoratedSubtask.summaryFields.map(field => {
+                                const dataTypeUpper = (field.dataType || '').toUpperCase();
+                                const isEditing = this.isFieldEditing(subtask.id, field.apiName);
+                                const isEditable = subtaskPermissions.canEdit && !field.isReference; // Editable if user can edit and field is not a reference
+                                let inputValue = '';
+                                let inputType = 'text';
+                                
+                                if (isEditing && this.editingField) {
+                                    if (dataTypeUpper === 'BOOLEAN') {
+                                        inputValue = this.editingField.fieldValue === 'true' || this.editingField.fieldValue === true;
+                                    } else {
+                                        inputValue = this.editingField.fieldValue || '';
+                                    }
+                                    
+                                    if (dataTypeUpper === 'DATE') {
+                                        inputType = 'date';
+                                    } else if (dataTypeUpper === 'DATETIME') {
+                                        inputType = 'datetime-local';
+                                    } else if (dataTypeUpper === 'DOUBLE' || dataTypeUpper === 'CURRENCY' || dataTypeUpper === 'PERCENT' || dataTypeUpper === 'INTEGER') {
+                                        inputType = 'number';
+                                    } else if (dataTypeUpper === 'BOOLEAN') {
+                                        inputType = 'checkbox';
+                                    }
+                                } else {
+                                    // Use raw value when not editing
+                                    if (dataTypeUpper === 'BOOLEAN') {
+                                        inputValue = field.rawValue === 'true' || field.rawValue === true;
+                                    } else {
+                                        inputValue = field.rawValue || '';
+                                    }
+                                }
+                                
+                                return {
+                                    ...field,
+                                    isEditing: isEditing,
+                                    hasDataType: !!field.dataType,
+                                    isBoolean: dataTypeUpper === 'BOOLEAN',
+                                    inputValue: inputValue,
+                                    inputType: inputType,
+                                    isEditable: isEditable
+                                };
+                            });
+                        }
+                        return decoratedSubtask;
                     });
                     
-                    return this.decorateTaskRecord({
+                    const permissions = this.getTaskPermissions(task.id);
+                    const hasMenu = permissions.canEdit || permissions.canDelete;
+                    const paddingClass = this.density === 'compact' ? 'slds-p-around_x-small compact-padding' : 'slds-p-around_small';
+                    const decoratedTask = this.decorateTaskRecord({
                         ...task,
                         isExpanded: isExpanded,
                         iconName: isExpanded ? 'utility:chevrondown' : 'utility:chevronright',
@@ -247,14 +385,66 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                         subtaskLabel: task.subtaskCount === 1 ? 'subtask' : 'subtasks',
                         formattedDueDate: task.dueDate ? this.formatDate(task.dueDate) : '',
                         formattedEstimatedHours: task.estimatedHours ? this.formatHours(task.estimatedHours) : '',
-                        subtasks: subtasks
+                        subtasks: subtasks,
+                        isEditing: this.editingTaskId === task.id,
+                        canEdit: permissions.canEdit,
+                        canDelete: permissions.canDelete,
+                        showMenu: hasMenu,
+                        rowClass: hasMenu ? `task-row slds-grid slds-grid_align-spread ${paddingClass} task-row-with-menu` : `task-row slds-grid slds-grid_align-spread ${paddingClass}`
                     });
+                    // Update field editing state and computed properties
+                    if (decoratedTask.summaryFields) {
+                        decoratedTask.summaryFields = decoratedTask.summaryFields.map(field => {
+                            const dataTypeUpper = (field.dataType || '').toUpperCase();
+                            const isEditing = this.isFieldEditing(task.id, field.apiName);
+                            const isEditable = permissions.canEdit && !field.isReference; // Editable if user can edit and field is not a reference
+                            let inputValue = '';
+                            let inputType = 'text';
+                            
+                            if (isEditing && this.editingField) {
+                                if (dataTypeUpper === 'BOOLEAN') {
+                                    inputValue = this.editingField.fieldValue === 'true' || this.editingField.fieldValue === true;
+                                } else {
+                                    inputValue = this.editingField.fieldValue || '';
+                                }
+                                
+                                if (dataTypeUpper === 'DATE') {
+                                    inputType = 'date';
+                                } else if (dataTypeUpper === 'DATETIME') {
+                                    inputType = 'datetime-local';
+                                } else if (dataTypeUpper === 'DOUBLE' || dataTypeUpper === 'CURRENCY' || dataTypeUpper === 'PERCENT' || dataTypeUpper === 'INTEGER') {
+                                    inputType = 'number';
+                                } else if (dataTypeUpper === 'BOOLEAN') {
+                                    inputType = 'checkbox';
+                                }
+                            } else {
+                                // Use raw value when not editing
+                                if (dataTypeUpper === 'BOOLEAN') {
+                                    inputValue = field.rawValue === 'true' || field.rawValue === true;
+                                } else {
+                                    inputValue = field.rawValue || '';
+                                }
+                            }
+                            
+                            return {
+                                ...field,
+                                isEditing: isEditing,
+                                hasDataType: !!field.dataType,
+                                isBoolean: dataTypeUpper === 'BOOLEAN',
+                                inputValue: inputValue,
+                                inputType: inputType,
+                                isEditable: isEditable
+                            };
+                        });
+                    }
+                    return decoratedTask;
                 });
                 
                 return {
                     ...statusGroup,
                     statusClass: this.getStatusClass(statusGroup.status),
                     headerStyle: this.getStatusHeaderStyle(statusGroup.status),
+                    headerClass: `status-header slds-border_bottom ${this.density === 'comfy' ? 'status-header-comfy' : ''} ${this.density === 'compact' ? 'status-header-compact' : ''}`.trim(),
                     totalEstimatedHours: totalEstimatedHours,
                     formattedTotalEstimatedHours: this.formatHours(totalEstimatedHours),
                     tasks: tasks
@@ -291,12 +481,17 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             ...statusGroup,
             tasks: statusGroup.tasks.map(task => {
                 const isExpanded = this.isTaskExpanded(task.id);
+                const permissions = this.getTaskPermissions(task.id);
                 return {
                     ...task,
                     isExpanded: isExpanded,
                     iconName: isExpanded ? 'utility:chevrondown' : 'utility:chevronright',
                     iconAltText: isExpanded ? 'Collapse' : 'Expand',
-                    subtaskLabel: task.subtaskCount === 1 ? 'subtask' : 'subtasks'
+                    subtaskLabel: task.subtaskCount === 1 ? 'subtask' : 'subtasks',
+                    isEditing: this.editingTaskId === task.id,
+                    canEdit: permissions.canEdit,
+                    canDelete: permissions.canDelete,
+                    showMenu: permissions.canEdit || permissions.canDelete
                 };
             })
         }));
@@ -431,9 +626,18 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             }
             
             const hasValue = displayValue !== null && displayValue !== undefined && (!(typeof displayValue === 'string') || displayValue.trim().length > 0);
+            const dataTypeUpper = (definition.dataType || '').toUpperCase();
             return {
                 ...field,
-                displayValue: hasValue ? displayValue : ''
+                displayValue: hasValue ? displayValue : '',
+                // Add field definition info for inline editing
+                dataType: definition.dataType,
+                isReference: definition.isReference,
+                label: definition.label || field.label,
+                // Add computed properties for template (will be updated in wiredGroupedTasks)
+                isEditing: false,
+                hasDataType: !!definition.dataType,
+                isBoolean: dataTypeUpper === 'BOOLEAN'
             };
         });
         
@@ -459,6 +663,37 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     
     get hasSummaryFields() {
         return this.summaryFieldDefinitions && this.summaryFieldDefinitions.length > 0;
+    }
+    
+    get columnCount() {
+        // Count columns: 1 for task name + number of data columns
+        if (this.hasSummaryFields) {
+            return 1 + this.summaryFieldDefinitions.length;
+        } else {
+            // Default fields: Account (if not filtered), Owner, Due Date, Priority, Est. Hours
+            const accountColumn = this.isFilteredByAccount ? 0 : 1;
+            return 1 + accountColumn + 4; // Task name + Account (maybe) + 4 default fields
+        }
+    }
+    
+    get gridTemplateColumns() {
+        // Create grid template: minmax for task name (widest column), then fixed widths for data columns, then auto for menu
+        const dataColumnWidth = '7.5rem';
+        const dataColumns = this.hasSummaryFields 
+            ? this.summaryFieldDefinitions.length 
+            : (this.isFilteredByAccount ? 4 : 5); // Account, Owner, Due Date, Priority, Est. Hours
+        
+        // Task name gets min 20rem and can grow, making it the widest column
+        // Add auto column at the end for the menu (always present, even if empty)
+        return `minmax(20rem, 1fr) repeat(${dataColumns}, ${dataColumnWidth}) auto`;
+    }
+    
+    get gridStyle() {
+        return `--grid-template-columns: ${this.gridTemplateColumns};`;
+    }
+    
+    get isFilteredByAccount() {
+        return this.effectiveAccountIds && this.effectiveAccountIds.length > 0;
     }
     
     get displayStatusGroups() {
@@ -664,8 +899,112 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     decorateStatusGroupsForDisplay(groups) {
         return groups.map(group => {
             const isCollapsed = this.isStatusCollapsed(group.status);
+            // Update field editing state for all tasks and subtasks
+            const tasks = (group.tasks || []).map(task => {
+                const updatedTask = { ...task };
+                const taskPermissions = this.getTaskPermissions(task.id);
+                // Update field editing state for task fields
+                if (updatedTask.summaryFields) {
+                    updatedTask.summaryFields = updatedTask.summaryFields.map(field => {
+                        const dataTypeUpper = (field.dataType || '').toUpperCase();
+                        const isEditing = this.isFieldEditing(task.id, field.apiName);
+                        const isEditable = taskPermissions.canEdit && !field.isReference; // Editable if user can edit and field is not a reference
+                        let inputValue = '';
+                        let inputType = 'text';
+                        
+                        if (isEditing && this.editingField) {
+                            if (dataTypeUpper === 'BOOLEAN') {
+                                inputValue = this.editingField.fieldValue === 'true' || this.editingField.fieldValue === true;
+                            } else {
+                                inputValue = this.editingField.fieldValue || '';
+                            }
+                            
+                            if (dataTypeUpper === 'DATE') {
+                                inputType = 'date';
+                            } else if (dataTypeUpper === 'DATETIME') {
+                                inputType = 'datetime-local';
+                            } else if (dataTypeUpper === 'DOUBLE' || dataTypeUpper === 'CURRENCY' || dataTypeUpper === 'PERCENT' || dataTypeUpper === 'INTEGER') {
+                                inputType = 'number';
+                            } else if (dataTypeUpper === 'BOOLEAN') {
+                                inputType = 'checkbox';
+                            }
+                        } else {
+                            // Use raw value when not editing
+                            if (dataTypeUpper === 'BOOLEAN') {
+                                inputValue = field.rawValue === 'true' || field.rawValue === true;
+                            } else {
+                                inputValue = field.rawValue || '';
+                            }
+                        }
+                        
+                        return {
+                            ...field,
+                            isEditing: isEditing,
+                            hasDataType: !!field.dataType,
+                            isBoolean: dataTypeUpper === 'BOOLEAN',
+                            inputValue: inputValue,
+                            inputType: inputType,
+                            isEditable: isEditable
+                        };
+                    });
+                }
+                // Update field editing state for subtask fields
+                if (updatedTask.subtasks) {
+                    updatedTask.subtasks = updatedTask.subtasks.map(subtask => {
+                        const updatedSubtask = { ...subtask };
+                        const subtaskPermissions = this.getTaskPermissions(subtask.id);
+                        if (updatedSubtask.summaryFields) {
+                            updatedSubtask.summaryFields = updatedSubtask.summaryFields.map(field => {
+                                const dataTypeUpper = (field.dataType || '').toUpperCase();
+                                const isEditing = this.isFieldEditing(subtask.id, field.apiName);
+                                const isEditable = subtaskPermissions.canEdit && !field.isReference; // Editable if user can edit and field is not a reference
+                                let inputValue = '';
+                                let inputType = 'text';
+                                
+                                if (isEditing && this.editingField) {
+                                    if (dataTypeUpper === 'BOOLEAN') {
+                                        inputValue = this.editingField.fieldValue === 'true' || this.editingField.fieldValue === true;
+                                    } else {
+                                        inputValue = this.editingField.fieldValue || '';
+                                    }
+                                    
+                                    if (dataTypeUpper === 'DATE') {
+                                        inputType = 'date';
+                                    } else if (dataTypeUpper === 'DATETIME') {
+                                        inputType = 'datetime-local';
+                                    } else if (dataTypeUpper === 'DOUBLE' || dataTypeUpper === 'CURRENCY' || dataTypeUpper === 'PERCENT' || dataTypeUpper === 'INTEGER') {
+                                        inputType = 'number';
+                                    } else if (dataTypeUpper === 'BOOLEAN') {
+                                        inputType = 'checkbox';
+                                    }
+                                } else {
+                                    // Use raw value when not editing
+                                    if (dataTypeUpper === 'BOOLEAN') {
+                                        inputValue = field.rawValue === 'true' || field.rawValue === true;
+                                    } else {
+                                        inputValue = field.rawValue || '';
+                                    }
+                                }
+                                
+                                return {
+                                    ...field,
+                                    isEditing: isEditing,
+                                    hasDataType: !!field.dataType,
+                                    isBoolean: dataTypeUpper === 'BOOLEAN',
+                                    inputValue: inputValue,
+                                    inputType: inputType,
+                                    isEditable: isEditable
+                                };
+                            });
+                        }
+                        return updatedSubtask;
+                    });
+                }
+                return updatedTask;
+            });
             return {
                 ...group,
+                tasks: tasks,
                 isCollapsed,
                 statusToggleIconName: isCollapsed ? 'utility:chevronright' : 'utility:chevrondown',
                 statusToggleAltText: isCollapsed ? 'Expand status group' : 'Collapse status group'
@@ -675,6 +1014,666 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     
     isStatusCollapsed(status) {
         return this.collapsedStatuses.has(status);
+    }
+    
+    // Check object-level permissions using wire adapter
+    @wire(getObjectInfo, { objectApiName: PROJECT_TASK_OBJECT })
+    wiredObjectInfo({ error, data }) {
+        if (data) {
+            this.objectPermissions = {
+                canEdit: data.updateable || false,
+                canDelete: data.deletable || false
+            };
+        } else if (error) {
+            console.error('Error loading object info:', error);
+            this.objectPermissions = { canEdit: false, canDelete: false };
+        }
+    }
+    
+    getTaskPermissions(taskId) {
+        // Use object-level permissions for all tasks
+        // Record-level permissions will be enforced by Salesforce when actions are attempted
+        return this.objectPermissions;
+    }
+    
+    hasAnyPermission(taskId) {
+        const perms = this.getTaskPermissions(taskId);
+        return perms.canEdit || perms.canDelete;
+    }
+    
+    // Inline editing handlers
+    handleTaskNameClick(event) {
+        const taskId = event.currentTarget.dataset.taskId;
+        if (!taskId) {
+            return;
+        }
+        
+        // Always navigate to record page - no restrictions
+        event.preventDefault();
+        event.stopPropagation();
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId: taskId,
+                actionName: 'view'
+            }
+        });
+    }
+    
+    // Handle double-click for inline editing (if user has edit permission)
+    handleTaskNameDoubleClick(event) {
+        const taskId = event.currentTarget.dataset.taskId;
+        if (!taskId) {
+            return;
+        }
+        
+        const task = this.findTaskById(taskId);
+        const permissions = this.getTaskPermissions(taskId);
+        
+        // If user has edit permission, enable inline editing on double-click
+        if (task && permissions.canEdit) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.editingTaskId = taskId;
+            this.editingTaskName = task.name || '';
+        }
+    }
+    
+    handleTaskNameChange(event) {
+        this.editingTaskName = event.target.value;
+    }
+    
+    async handleTaskNameSave(event) {
+        const taskId = this.editingTaskId;
+        if (!taskId || !this.editingTaskName || this.editingTaskName.trim() === '') {
+            this.cancelEdit();
+            return;
+        }
+        
+        try {
+            const fields = {
+                Id: taskId,
+                Name: this.editingTaskName.trim()
+            };
+            
+            await updateRecord({ fields });
+            
+            // Update the task in our local data
+            this.updateTaskName(taskId, this.editingTaskName.trim());
+            
+            this.showToast('Success', 'Task name updated successfully', 'success');
+            this.cancelEdit();
+        } catch (error) {
+            console.error('Error updating task name:', error);
+            this.showToast('Error', this.getErrorMessage(error), 'error');
+        }
+    }
+    
+    handleTaskNameKeyDown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            this.handleTaskNameSave(event);
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            this.cancelEdit();
+        }
+    }
+    
+    cancelEdit() {
+        this.editingTaskId = null;
+        this.editingTaskName = '';
+        this.editingField = null;
+        // Trigger reactive update to hide edit mode
+        this.refreshFilteredStatusGroups();
+    }
+    
+    // Inline field editing handlers
+    isFieldEditing(taskId, fieldApiName) {
+        return this.editingField && 
+               this.editingField.taskId === taskId && 
+               this.editingField.fieldApiName === fieldApiName;
+    }
+    
+    handleFieldHover(event) {
+        const taskId = event.currentTarget.dataset.taskId;
+        const fieldApiName = event.currentTarget.dataset.fieldApiName;
+        
+        if (!taskId || !fieldApiName) {
+            return;
+        }
+        
+        const permissions = this.getTaskPermissions(taskId);
+        if (!permissions.canEdit) {
+            return; // Don't show edit on hover if user can't edit
+        }
+        
+        // Find the field to check if it's a reference field
+        const task = this.findTaskById(taskId);
+        if (task) {
+            const field = (task.summaryFields || []).find(f => f.apiName === fieldApiName);
+            if (field && field.isReference) {
+                return; // Don't show edit on hover for reference fields
+            }
+        }
+        
+        // Add hover class for visual feedback (pencil icon will show via CSS)
+        event.currentTarget.classList.add('field-hover');
+    }
+    
+    handleFieldLeave(event) {
+        // Only remove hover class if not editing
+        if (!this.editingField || 
+            this.editingField.taskId !== event.currentTarget.dataset.taskId ||
+            this.editingField.fieldApiName !== event.currentTarget.dataset.fieldApiName) {
+            event.currentTarget.classList.remove('field-hover');
+        }
+    }
+    
+    handleFieldClick(event) {
+        // Prevent event from bubbling up (e.g., to task row click handlers)
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Get taskId and fieldApiName from the clicked element or its parent
+        let taskId = event.currentTarget.dataset.taskId;
+        let fieldApiName = event.currentTarget.dataset.fieldApiName;
+        
+        // If clicked on icon or child element, get from parent
+        if (!taskId || !fieldApiName) {
+            const parent = event.currentTarget.closest('[data-task-id]');
+            if (parent) {
+                taskId = parent.dataset.taskId;
+                fieldApiName = parent.dataset.fieldApiName;
+            }
+        }
+        
+        if (!taskId || !fieldApiName) {
+            return;
+        }
+        
+        const permissions = this.getTaskPermissions(taskId);
+        if (!permissions.canEdit) {
+            return; // Don't allow editing if user can't edit
+        }
+        
+        // Find the field value
+        const task = this.findTaskById(taskId);
+        if (!task) {
+            return;
+        }
+        
+        const field = (task.summaryFields || []).find(f => f.apiName === fieldApiName);
+        if (!field) {
+            return;
+        }
+        
+        // Don't allow editing reference fields (like OwnerId) - they need lookup components
+        if (field.isReference) {
+            return;
+        }
+        
+            // Open modal for editing
+            const modal = this.template.querySelector('c-field-edit-modal');
+            if (modal) {
+                const definition = this.summaryFieldDefinitionMap[fieldApiName] || {};
+                const picklistOptions = definition.picklistValues || [];
+                
+                modal.open(
+                    taskId,
+                    fieldApiName,
+                    field.label || fieldApiName,
+                    field.rawValue || '',
+                    field.dataType || definition.dataType || 'STRING',
+                    picklistOptions
+                );
+            }
+    }
+    
+    async handleFieldSaveFromModal(event) {
+        const { recordId, fieldApiName, newValue } = event.detail;
+        
+        // Update the local data immediately for responsive UI
+        this.updateFieldValue(recordId, fieldApiName, newValue, this.getFieldDataType(fieldApiName));
+        
+        // Refresh the wire to get latest data from server
+        try {
+            await refreshApex(this.wiredGroupedTasksResult);
+        } catch (error) {
+            console.warn('Error refreshing data after save:', error);
+            // Continue with local update even if refresh fails
+        }
+    }
+    
+    getFieldDataType(fieldApiName) {
+        const definition = this.summaryFieldDefinitionMap[fieldApiName];
+        return definition?.dataType || 'STRING';
+    }
+    
+    handleFieldValueChange(event) {
+        if (this.editingField) {
+            // For checkboxes, use checked property; for other inputs, use value
+            if (event.target.type === 'checkbox') {
+                this.editingField.fieldValue = event.target.checked;
+                // Auto-save boolean fields on change
+                this.handleFieldSave(event);
+                return;
+            } else {
+                this.editingField.fieldValue = event.target.value;
+            }
+            // Create a new object to trigger reactivity
+            this.editingField = { ...this.editingField };
+            // Trigger reactive update
+            this.refreshFilteredStatusGroups();
+        }
+    }
+    
+    async handleFieldSave(event) {
+        if (!this.editingField) {
+            return;
+        }
+        
+        const { taskId, fieldApiName, fieldValue, dataType } = this.editingField;
+        
+        try {
+            const fields = {
+                Id: taskId
+            };
+            
+            // Convert value based on field type
+            const dataTypeUpper = (dataType || '').toUpperCase();
+            if (dataTypeUpper === 'DATE') {
+                // For date fields, ensure proper format
+                fields[fieldApiName] = fieldValue || null;
+            } else if (dataTypeUpper === 'DATETIME') {
+                // For datetime fields, ensure proper format
+                fields[fieldApiName] = fieldValue || null;
+            } else if (dataTypeUpper === 'DOUBLE' || dataTypeUpper === 'CURRENCY' || dataTypeUpper === 'PERCENT') {
+                const numValue = fieldValue ? parseFloat(fieldValue) : null;
+                fields[fieldApiName] = isNaN(numValue) ? null : numValue;
+            } else if (dataTypeUpper === 'INTEGER') {
+                const intValue = fieldValue ? parseInt(fieldValue, 10) : null;
+                fields[fieldApiName] = isNaN(intValue) ? null : intValue;
+            } else if (dataTypeUpper === 'BOOLEAN') {
+                // Handle boolean values - can be true, false, 'true', 'false', or null
+                if (fieldValue === null || fieldValue === undefined || fieldValue === '') {
+                    fields[fieldApiName] = false;
+                } else {
+                    fields[fieldApiName] = fieldValue === 'true' || fieldValue === true;
+                }
+            } else {
+                // STRING, TEXTAREA, etc.
+                fields[fieldApiName] = fieldValue || null;
+            }
+            
+            await updateRecord({ fields });
+            
+            // Update the field in our local data
+            this.updateFieldValue(taskId, fieldApiName, fieldValue, dataType);
+            
+            this.showToast('Success', 'Field updated successfully', 'success');
+            this.cancelEdit();
+        } catch (error) {
+            console.error('Error updating field:', error);
+            this.showToast('Error', this.getErrorMessage(error), 'error');
+        }
+    }
+    
+    handleFieldKeyDown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            this.handleFieldSave(event);
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            this.cancelEdit();
+        }
+    }
+    
+    getFieldInputType(field) {
+        if (!field || !field.dataType) {
+            return 'text';
+        }
+        
+        const dataType = field.dataType.toUpperCase();
+        
+        if (dataType === 'DATE') {
+            return 'date';
+        } else if (dataType === 'DATETIME') {
+            return 'datetime-local';
+        } else if (dataType === 'DOUBLE' || dataType === 'CURRENCY' || dataType === 'PERCENT' || dataType === 'INTEGER') {
+            return 'number';
+        } else if (dataType === 'BOOLEAN') {
+            return 'checkbox';
+        } else {
+            return 'text';
+        }
+    }
+    
+    getFieldInputValue(field) {
+        if (!this.editingField) {
+            return '';
+        }
+        
+        const dataType = (field.dataType || '').toUpperCase();
+        if (dataType === 'BOOLEAN') {
+            return this.editingField.fieldValue === 'true' || this.editingField.fieldValue === true;
+        }
+        
+        return this.editingField.fieldValue || '';
+    }
+    
+    isBooleanField(field) {
+        if (!field || !field.dataType) {
+            return false;
+        }
+        return (field.dataType || '').toUpperCase() === 'BOOLEAN';
+    }
+    
+    hasDataType(field) {
+        return field && field.dataType;
+    }
+    
+    findTaskById(taskId) {
+        for (const statusGroup of this.statusGroups) {
+            for (const task of statusGroup.tasks) {
+                if (task.id === taskId) {
+                    return task;
+                }
+                if (task.subtasks) {
+                    for (const subtask of task.subtasks) {
+                        if (subtask.id === taskId) {
+                            return subtask;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    
+    updateFieldValue(taskId, fieldApiName, newValue, dataType) {
+        // Update field value in statusGroups
+        for (const statusGroup of this.statusGroups) {
+            for (const task of statusGroup.tasks) {
+                if (task.id === taskId) {
+                    const field = (task.summaryFields || []).find(f => f.apiName === fieldApiName);
+                    if (field) {
+                        // Update rawValue
+                        field.rawValue = newValue;
+                        // Format displayValue based on data type
+                        field.displayValue = this.formatFieldDisplayValue(fieldApiName, newValue, dataType);
+                        // Re-decorate the entire task to ensure all computed properties are updated
+                        const decorated = this.decorateTaskRecord(task);
+                        // Update the task with decorated properties
+                        Object.assign(task, decorated);
+                        // Force reactive update
+                        this.statusGroups = [...this.statusGroups];
+                        this.refreshFilteredStatusGroups();
+                        return;
+                    }
+                }
+                if (task.subtasks) {
+                    for (const subtask of task.subtasks) {
+                        if (subtask.id === taskId) {
+                            const field = (subtask.summaryFields || []).find(f => f.apiName === fieldApiName);
+                            if (field) {
+                                // Update rawValue
+                                field.rawValue = newValue;
+                                // Format displayValue based on data type
+                                field.displayValue = this.formatFieldDisplayValue(fieldApiName, newValue, dataType);
+                                // Re-decorate the entire subtask to ensure all computed properties are updated
+                                const decorated = this.decorateTaskRecord(subtask);
+                                // Update the subtask with decorated properties
+                                Object.assign(subtask, decorated);
+                                // Force reactive update
+                                this.statusGroups = [...this.statusGroups];
+                                this.refreshFilteredStatusGroups();
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    formatFieldDisplayValue(fieldApiName, rawValue, dataType) {
+        if (!rawValue && rawValue !== 0 && rawValue !== false) {
+            return '';
+        }
+        
+        const dataTypeUpper = (dataType || '').toUpperCase();
+        
+        // Format based on data type
+        if (dataTypeUpper === 'DATE' || dataTypeUpper === 'DATETIME') {
+            return this.formatDate(rawValue);
+        } else if (dataTypeUpper === 'PERCENT') {
+            const percentValue = parseFloat(rawValue);
+            if (!isNaN(percentValue)) {
+                return `${percentValue.toFixed(2)}%`;
+            }
+        } else if (dataTypeUpper === 'BOOLEAN') {
+            return rawValue === true || rawValue === 'true' ? 'Yes' : 'No';
+        } else if (fieldApiName && fieldApiName.endsWith('_Hours__c')) {
+            const hoursValue = parseFloat(rawValue);
+            if (!isNaN(hoursValue)) {
+                return this.formatHours(hoursValue);
+            }
+        }
+        
+        // For picklist fields, return the raw value (it's already the label from the server)
+        // For other types, return as string
+        return String(rawValue);
+    }
+    
+    updateTaskName(taskId, newName) {
+        this.statusGroups = this.statusGroups.map(statusGroup => ({
+            ...statusGroup,
+            tasks: statusGroup.tasks.map(task => {
+                if (task.id === taskId) {
+                    const permissions = this.getTaskPermissions(taskId);
+                    return { 
+                        ...task, 
+                        name: newName,
+                        isEditing: false,
+                        canEdit: permissions.canEdit,
+                        canDelete: permissions.canDelete,
+                        showMenu: permissions.canEdit || permissions.canDelete
+                    };
+                }
+                if (task.subtasks) {
+                    return {
+                        ...task,
+                        subtasks: task.subtasks.map(subtask => {
+                            if (subtask.id === taskId) {
+                                const subtaskPermissions = this.getTaskPermissions(taskId);
+                                return { 
+                                    ...subtask, 
+                                    name: newName,
+                                    isEditing: false,
+                                    canEdit: subtaskPermissions.canEdit,
+                                    canDelete: subtaskPermissions.canDelete,
+                                    showMenu: subtaskPermissions.canEdit || subtaskPermissions.canDelete
+                                };
+                            }
+                            return subtask;
+                        })
+                    };
+                }
+                return task;
+            })
+        }));
+        this.refreshFilteredStatusGroups();
+    }
+    
+    isEditingTask(taskId) {
+        return this.editingTaskId === taskId;
+    }
+    
+    // Helper methods for template expressions (LWC doesn't allow function calls in templates)
+    getEditingTaskId() {
+        return this.editingTaskId;
+    }
+    
+    getEditingTaskName() {
+        return this.editingTaskName;
+    }
+    
+    getObjectPermissions() {
+        return this.objectPermissions;
+    }
+    
+    // Menu handlers
+    handleMenuAction(event) {
+        const action = event.detail.value;
+        const taskId = event.currentTarget.dataset.taskId;
+        
+        if (action === 'edit') {
+            this.handleEditTask(taskId);
+        } else if (action === 'delete') {
+            this.handleDeleteTask(taskId);
+        }
+    }
+    
+    handleEditTask(taskId) {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId: taskId,
+                actionName: 'edit'
+            }
+        });
+    }
+    
+    async handleDeleteTask(taskId) {
+        // Note: In a production environment, you might want to add a confirmation modal
+        // For now, we'll proceed with delete and show appropriate toast messages
+        
+        try {
+            await deleteRecord(taskId);
+            this.showToast('Success', 'Task deleted successfully', 'success');
+            
+            // Remove task from local data
+            this.removeTaskFromData(taskId);
+        } catch (error) {
+            console.error('Error deleting task:', error);
+            this.showToast('Error', this.getErrorMessage(error), 'error');
+        }
+    }
+    
+    removeTaskFromData(taskId) {
+        this.statusGroups = this.statusGroups.map(statusGroup => {
+            const filteredTasks = statusGroup.tasks.filter(task => task.id !== taskId);
+            
+            // Also check subtasks
+            const tasksWithFilteredSubtasks = filteredTasks.map(task => {
+                if (task.subtasks) {
+                    const filteredSubtasks = task.subtasks.filter(subtask => subtask.id !== taskId);
+                    return {
+                        ...task,
+                        subtasks: filteredSubtasks,
+                        subtaskCount: filteredSubtasks.length,
+                        hasSubtasks: filteredSubtasks.length > 0
+                    };
+                }
+                return task;
+            });
+            
+            // Remove status group if no tasks remain
+            if (tasksWithFilteredSubtasks.length === 0) {
+                return null;
+            }
+            
+            return {
+                ...statusGroup,
+                tasks: tasksWithFilteredSubtasks,
+                taskCount: tasksWithFilteredSubtasks.length
+            };
+        }).filter(group => group !== null);
+        
+        this.refreshFilteredStatusGroups();
+    }
+    
+    getErrorMessage(error) {
+        if (error.body) {
+            if (Array.isArray(error.body)) {
+                return error.body.map(e => e.message).join(', ');
+            } else if (error.body.message) {
+                return error.body.message;
+            } else if (error.body.pageErrors && error.body.pageErrors.length > 0) {
+                return error.body.pageErrors[0].message;
+            }
+        }
+        return error.message || 'An unexpected error occurred';
+    }
+    
+    showToast(title, message, variant) {
+        const evt = new ShowToastEvent({
+            title: title,
+            message: message,
+            variant: variant,
+            mode: 'dismissable'
+        });
+        this.dispatchEvent(evt);
+    }
+    
+    /**
+     * @description Set up periodic refresh check for task changes
+     * This provides auto-refresh functionality to catch task changes (CDC)
+     * The wire service will also automatically refresh when reactive parameters change
+     * @private
+     */
+    setupPeriodicRefresh() {
+        // Clear any existing interval
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+        }
+        
+        // Check for changes every 30 seconds to catch task updates
+        // This ensures the list stays up-to-date when tasks are created or modified
+        this.refreshInterval = setInterval(() => {
+            if (this.wiredGroupedTasksResult && this.wiredGroupedTasksResult.data) {
+                // Refresh the wire service to get latest data
+                refreshApex(this.wiredGroupedTasksResult).catch(error => {
+                    console.warn('Error during periodic refresh:', error);
+                });
+            }
+        }, 30000); // 30 seconds
+    }
+    
+    /**
+     * @description Handle manual refresh button click
+     * Refreshes the task list data immediately
+     * @private
+     */
+    async handleManualRefresh() {
+        if (this.wiredGroupedTasksResult) {
+            try {
+                await refreshApex(this.wiredGroupedTasksResult);
+                this.showToast('Success', 'Task list refreshed', 'success');
+            } catch (error) {
+                console.error('Error refreshing task list:', error);
+                this.showToast('Error', 'Failed to refresh task list', 'error');
+            }
+        }
+    }
+    
+    disconnectedCallback() {
+        // Clean up periodic refresh interval
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+        }
+        
+        if (this.subscription) {
+            unsubscribe(this.subscription);
+            this.subscription = null;
+        }
+        
+        // Clean up resize observer
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
+        }
     }
 }
 
