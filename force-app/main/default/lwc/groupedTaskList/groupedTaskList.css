@@ -120,11 +120,37 @@
 
 /* Subtask indentation */
 .subtask-indent {
-    padding-left: 2rem !important; /* Indent subtasks visually */
+    padding-left: 2.5rem !important; /* Indent subtasks visually */
+    position: relative;
+}
+
+.subtask-indent::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--slds-g-color-border-base-3, #c9c9c9);
+    border-radius: 1px;
 }
 
 .subtask-row {
     background-color: var(--slds-g-color-neutral-base-99, #fafaf9);
+    border-left: 3px solid var(--slds-g-color-border-base-2, #b0adab);
+}
+
+.subtask-row:hover {
+    background-color: var(--slds-g-color-neutral-base-97, #f3f2f2);
+}
+
+.subtask-name-link {
+    font-weight: 400;
+    color: var(--slds-g-color-neutral-base-30, #444444);
+}
+
+.subtask-name-link:hover {
+    color: var(--slds-g-color-brand-base-60, #0176d3);
 }
 
 .task-name-link,
@@ -180,6 +206,10 @@
 
 .account-filter-combobox {
     min-width: 200px;
+}
+
+.account-filter-combobox span:first-child {
+    display: none !important;
 }
 
 .actions-container {
