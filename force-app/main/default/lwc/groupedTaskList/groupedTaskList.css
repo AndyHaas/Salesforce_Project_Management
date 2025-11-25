@@ -22,10 +22,40 @@
     background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
     font-weight: 600;
     border-bottom: 2px solid var(--slds-g-color-border-base-4, #e5e5e5);
+    display: grid;
+    grid-template-columns: var(--grid-template-columns, minmax(20rem, 1fr) repeat(4, 7.5rem) auto);
+    gap: 0;
+    align-items: center;
+    /* Remove any default padding/margin that might interfere */
+    padding: 0;
+    margin: 0;
 }
 
-.column-headers .task-details > div {
+.column-headers > .slds-col.slds-grow {
+    grid-column: 1;
+    min-width: 0; /* Allow text to wrap/truncate */
+    /* Match padding with data rows */
+    padding-left: var(--slds-spacing-small, 0.75rem);
+    padding-right: var(--slds-spacing-small, 0.75rem);
+    padding-top: var(--slds-spacing-small, 0.75rem);
+    padding-bottom: var(--slds-spacing-small, 0.75rem);
+}
+
+.column-headers > .summary-column-header {
     text-align: right;
+}
+
+/* Menu container - always positioned on the right */
+.task-menu-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 2.5rem;
+    padding-left: 0.5rem;
+}
+
+.task-action-menu {
+    flex-shrink: 0;
 }
 
 .task-item {
@@ -36,8 +66,106 @@
     background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
 }
 
-.task-row {
+.task-row,
+.subtask-row {
     min-height: 2.5rem;
+    display: grid;
+    grid-template-columns: var(--grid-template-columns, minmax(20rem, 1fr) repeat(4, 7.5rem) auto);
+    gap: 0;
+    align-items: center;
+    /* Remove any default padding/margin that might interfere */
+    margin: 0;
+    /* Padding is handled by density classes, but ensure consistency */
+}
+
+.task-row > .slds-col.slds-grow,
+.subtask-row > .slds-col.slds-grow {
+    grid-column: 1;
+    min-width: 0; /* Allow text to wrap/truncate */
+    /* Ensure padding matches header row */
+    box-sizing: border-box;
+}
+
+.task-row > .task-details,
+.task-row > .subtask-details,
+.subtask-row > .task-details,
+.subtask-row > .subtask-details {
+    display: contents; /* Make children part of the grid */
+}
+
+/* Density mode styles */
+.density-comfy .status-header-comfy {
+    padding: var(--slds-spacing-small, 0.75rem);
+}
+
+.density-compact .status-header-compact {
+    padding: 0.625rem; /* Between x-small (0.5rem) and small (0.75rem) for better balance */
+}
+
+.density-comfy .column-headers-comfy {
+    /* Padding is now on individual grid items, not the container */
+    padding: 0;
+}
+
+.density-compact .column-headers-compact {
+    /* Padding is now on individual grid items, not the container */
+    padding: 0;
+}
+
+/* Apply padding to header row grid items to match data rows */
+.density-comfy .column-headers-comfy > .slds-col.slds-grow {
+    padding: var(--slds-spacing-small, 0.75rem);
+}
+
+.density-compact .column-headers-compact > .slds-col.slds-grow {
+    padding: 0.625rem; /* Between x-small (0.5rem) and small (0.75rem) for better balance */
+}
+
+.density-comfy .column-headers-comfy > .summary-column-header {
+    padding-top: var(--slds-spacing-small, 0.75rem);
+    padding-bottom: var(--slds-spacing-small, 0.75rem);
+}
+
+.density-compact .column-headers-compact > .summary-column-header {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+}
+
+.density-comfy .subtasks-container-comfy {
+    padding-left: var(--slds-spacing-large, 1.5rem);
+}
+
+.density-compact .subtasks-container-compact {
+    padding-left: var(--slds-spacing-medium, 1rem);
+}
+
+.density-comfy .subtask-item-comfy {
+    padding: var(--slds-spacing-small, 0.75rem);
+}
+
+.density-compact .subtask-item-compact {
+    padding: 0.625rem; /* Between x-small (0.5rem) and small (0.75rem) for better balance */
+}
+
+.density-compact .task-row {
+    min-height: 2.375rem; /* Slightly increased from 2.25rem for better spacing */
+}
+
+.density-comfy .task-row {
+    min-height: 2.5rem;
+}
+
+/* Override SLDS padding utility for compact mode to use custom spacing */
+.density-compact .compact-padding {
+    padding: 0.625rem !important; /* 10px - between x-small (8px) and small (12px) */
+}
+
+.task-row-with-menu {
+    padding-right: 3rem; /* Add padding when menu is visible */
+}
+
+.subtask-row-with-menu {
+    padding-right: 3rem; /* Add padding when menu is visible */
 }
 
 .task-name-link,
@@ -48,6 +176,7 @@
     overflow-wrap: break-word;
     word-break: break-word;
     white-space: normal;
+    cursor: pointer;
 }
 
 .task-name-link:hover,
@@ -74,12 +203,40 @@
 .subtask-details {
     min-width: 20rem;
     flex-wrap: nowrap;
+    display: contents; /* Children become grid items */
 }
 
 .task-details > div,
 .subtask-details > div {
-    min-width: 5rem;
     text-align: right;
+}
+
+/* Column alignment for summary fields - fixed width to ensure alignment */
+.summary-column-header,
+.summary-column-data {
+    width: 7.5rem;
+    min-width: 7.5rem;
+    max-width: 7.5rem;
+    flex: 0 0 7.5rem;
+    text-align: right;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+    box-sizing: border-box;
+    /* Ensure vertical alignment matches */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.summary-column-header {
+    font-weight: 600;
+}
+
+.summary-column-data {
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .no-data-message {
@@ -110,8 +267,70 @@
     flex-direction: column;
 }
 
-/* Hover card wrapper styling */
-/* Note: Visibility is handled by the taskHoverCard component itself */
+.task-action-menu {
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* Inline editing styles */
+lightning-input {
+    min-width: 200px;
+}
+
+/* Field inline editing styles */
+.field-editable {
+    position: relative;
+    cursor: pointer;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.field-editable.field-hover {
+    background-color: var(--slds-g-color-neutral-base-95, #f3f3f2);
+}
+
+.field-editable .field-display-wrapper {
+    min-height: 1.5rem;
+    width: 100%;
+    gap: 0.25rem;
+}
+
+.field-editable .field-display {
+    flex: 1;
+    min-width: 0;
+}
+
+.field-editable .field-edit-icon {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+.field-editable:hover .field-edit-icon,
+.field-editable.field-hover .field-edit-icon {
+    opacity: 1;
+}
+
+.field-editable .field-input {
+    min-width: 150px;
+    max-width: 200px;
+}
+
+.field-editable .field-save-btn,
+.field-editable .field-cancel-btn {
+    margin-left: 0.25rem;
+}
+
+.field-editable .field-save-btn:hover {
+    background-color: var(--slds-g-color-success-base-50, #2e844a);
+    color: white;
+}
+
+.field-editable .field-cancel-btn:hover {
+    background-color: var(--slds-g-color-error-base-50, #c23934);
+    color: white;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

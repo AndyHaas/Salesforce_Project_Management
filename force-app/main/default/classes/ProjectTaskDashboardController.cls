@@ -203,17 +203,36 @@ public with sharing class ProjectTaskDashboardController {
             }
             FieldSetFieldDefinition definition = new FieldSetFieldDefinition();
             definition.apiName = member.getFieldPath();
-            definition.label = member.getLabel();
             definition.isNameField = definition.apiName == 'Name';
             
+            // Use DescribeFieldResult label if available (more accurate for special fields like OwnerId)
+            // Otherwise fall back to FieldSetMember label
             if (describeFieldMap != null && describeFieldMap.containsKey(definition.apiName)) {
                 Schema.DescribeFieldResult describe = describeFieldMap.get(definition.apiName).getDescribe();
+                definition.label = describe.getLabel(); // Use actual field label instead of FieldSetMember label
                 definition.dataType = describe.getType().name();
                 definition.isReference = describe.getType() == Schema.DisplayType.Reference;
                 if (definition.isReference) {
                     definition.referenceRelationshipName = describe.getRelationshipName();
                 }
+                
+                // Add picklist values if this is a picklist field
+                if (describe.getType() == Schema.DisplayType.Picklist || describe.getType() == Schema.DisplayType.MultiPicklist) {
+                    List<Schema.PicklistEntry> picklistEntries = describe.getPicklistValues();
+                    if (picklistEntries != null && !picklistEntries.isEmpty()) {
+                        definition.picklistValues = new List<PicklistOption>();
+                        for (Schema.PicklistEntry entry : picklistEntries) {
+                            if (entry.isActive()) {
+                                PicklistOption option = new PicklistOption();
+                                option.label = entry.getLabel();
+                                option.value = entry.getValue();
+                                definition.picklistValues.add(option);
+                            }
+                        }
+                    }
+                }
             } else {
+                definition.label = member.getLabel(); // Fallback to FieldSetMember label
                 definition.dataType = 'STRING';
                 definition.isReference = false;
             }
@@ -241,11 +260,15 @@ public with sharing class ProjectTaskDashboardController {
             
             SummaryFieldValue summaryValue = new SummaryFieldValue();
             summaryValue.apiName = member.getFieldPath();
-            summaryValue.label = member.getLabel();
             
             Schema.DescribeFieldResult describe = null;
             if (describeFieldMap != null && describeFieldMap.containsKey(summaryValue.apiName)) {
                 describe = describeFieldMap.get(summaryValue.apiName).getDescribe();
+                // Use DescribeFieldResult label if available (more accurate for special fields like OwnerId)
+                summaryValue.label = describe.getLabel();
+            } else {
+                // Fallback to FieldSetMember label
+                summaryValue.label = member.getLabel();
             }
             
             Object rawValue = record.get(summaryValue.apiName);
@@ -877,6 +900,12 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public Boolean isReference;
         @AuraEnabled public String referenceRelationshipName;
         @AuraEnabled public Boolean isNameField;
+        @AuraEnabled public List<PicklistOption> picklistValues;
+    }
+    
+    public class PicklistOption {
+        @AuraEnabled public String label;
+        @AuraEnabled public String value;
     }
     
     @AuraEnabled(cacheable=true)
