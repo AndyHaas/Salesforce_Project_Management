@@ -13,63 +13,80 @@ import { LightningElement, api } from 'lwc';
 
 export default class TaskHoverCard extends LightningElement {
     _isVisible = false;
-    _renderedRichTextFields = new Map();
+    _parentWrapper = null;
+    _boundHandlers = {
+        mouseenter: null,
+        mouseleave: null,
+        focusin: null,
+        focusout: null
+    };
     
     connectedCallback() {
-        // Find the parent wrapper and add hover listeners
-        const parentWrapper = this.template.host.closest('.task-name-wrapper, .subtask-name-wrapper');
-        if (parentWrapper) {
-            parentWrapper.addEventListener('mouseenter', this.handleParentHover.bind(this));
-            parentWrapper.addEventListener('mouseleave', this.handleParentLeave.bind(this));
-            parentWrapper.addEventListener('focusin', this.handleParentHover.bind(this));
-            parentWrapper.addEventListener('focusout', this.handleParentLeave.bind(this));
-        }
+        // Use setTimeout to ensure DOM is fully rendered before finding parent
+        // This is especially important when component is rendered inside loops or conditionally
+        setTimeout(() => {
+            // Try multiple approaches to find the parent wrapper
+            let parentWrapper = this.template.host.closest('.task-name-wrapper, .subtask-name-wrapper');
+            
+            // Fallback: if closest doesn't work, try traversing up the DOM tree
+            if (!parentWrapper) {
+                let element = this.template.host.parentElement;
+                while (element && !parentWrapper) {
+                    if (element.classList && 
+                        (element.classList.contains('task-name-wrapper') || 
+                         element.classList.contains('subtask-name-wrapper'))) {
+                        parentWrapper = element;
+                        break;
+                    }
+                    element = element.parentElement;
+                }
+            }
+            
+            if (parentWrapper) {
+                this._parentWrapper = parentWrapper;
+                // Store bound handlers for cleanup
+                this._boundHandlers.mouseenter = this.handleParentHover.bind(this);
+                this._boundHandlers.mouseleave = this.handleParentLeave.bind(this);
+                this._boundHandlers.focusin = this.handleParentHover.bind(this);
+                this._boundHandlers.focusout = this.handleParentLeave.bind(this);
+                
+                parentWrapper.addEventListener('mouseenter', this._boundHandlers.mouseenter);
+                parentWrapper.addEventListener('mouseleave', this._boundHandlers.mouseleave);
+                parentWrapper.addEventListener('focusin', this._boundHandlers.focusin);
+                parentWrapper.addEventListener('focusout', this._boundHandlers.focusout);
+            } else {
+                console.warn('taskHoverCard: Could not find parent wrapper (.task-name-wrapper or .subtask-name-wrapper)');
+            }
+        }, 0);
     }
     
-    renderedCallback() {
-        // Render rich text fields using lwc:dom-manual
-        // This runs after every render, so we need to check if card is visible
-        if (this._isVisible && this.decoratedHoverFields && this.decoratedHoverFields.length > 0) {
-            // Use setTimeout to ensure DOM is fully rendered after template updates
-            setTimeout(() => {
-                this.decoratedHoverFields.forEach(field => {
-                    if (field.isRichText && field.apiName) {
-                        const richTextElement = this.template.querySelector(`[data-rich-text="${field.apiName}"]`);
-                        if (richTextElement) {
-                            // Use htmlValue (raw HTML) for rich text fields
-                            const currentValue = field.htmlValue || '';
-                            const lastRenderedValue = this._renderedRichTextFields.get(field.apiName);
-                            // Only update if value changed to avoid unnecessary DOM manipulation
-                            if (currentValue !== lastRenderedValue) {
-                                richTextElement.innerHTML = currentValue;
-                                this._renderedRichTextFields.set(field.apiName, currentValue);
-                            }
-                        }
-                    }
-                });
-            }, 0);
+    disconnectedCallback() {
+        // Clean up event listeners
+        if (this._parentWrapper && this._boundHandlers) {
+            if (this._boundHandlers.mouseenter) {
+                this._parentWrapper.removeEventListener('mouseenter', this._boundHandlers.mouseenter);
+            }
+            if (this._boundHandlers.mouseleave) {
+                this._parentWrapper.removeEventListener('mouseleave', this._boundHandlers.mouseleave);
+            }
+            if (this._boundHandlers.focusin) {
+                this._parentWrapper.removeEventListener('focusin', this._boundHandlers.focusin);
+            }
+            if (this._boundHandlers.focusout) {
+                this._parentWrapper.removeEventListener('focusout', this._boundHandlers.focusout);
+            }
         }
+        this._parentWrapper = null;
+        this._boundHandlers = {
+            mouseenter: null,
+            mouseleave: null,
+            focusin: null,
+            focusout: null
+        };
     }
     
     handleParentHover() {
         this._isVisible = true;
-        // Trigger render update when card becomes visible
-        // Use setTimeout to ensure DOM is ready
-        setTimeout(() => {
-            if (this.decoratedHoverFields && this.decoratedHoverFields.length > 0) {
-                this.decoratedHoverFields.forEach(field => {
-                    if (field.isRichText && field.apiName) {
-                        const richTextElement = this.template.querySelector(`[data-rich-text="${field.apiName}"]`);
-                        if (richTextElement) {
-                            // Use htmlValue (raw HTML) for rich text fields
-                            const htmlContent = field.htmlValue || '';
-                            richTextElement.innerHTML = htmlContent;
-                            this._renderedRichTextFields.set(field.apiName, htmlContent);
-                        }
-                    }
-                });
-            }
-        }, 50);
     }
     
     handleParentLeave() {
@@ -113,27 +130,25 @@ export default class TaskHoverCard extends LightningElement {
             const isRichText = field.isRichText === true;
             
             // For Status field, use taskStatus prop as the authoritative source
-            // For rich text fields, preserve the raw HTML value
-            // For other fields, use trimmed display value
+            // For other fields, use lightning-formatted-rich-text which handles both HTML and plain text
             let displayValue;
-            let htmlValue;
+            let richTextValue;
             if (isStatusField) {
                 // Use taskStatus prop as the display value for Status field
                 displayValue = this.taskStatus && this.taskStatus.trim().length > 0 ? this.taskStatus.trim() : '—';
-                htmlValue = null;
-            } else if (isRichText) {
-                htmlValue = rawValue || '';
-                displayValue = htmlValue && htmlValue.length > 0 ? htmlValue : '—';
+                richTextValue = null;
             } else {
+                // For all non-status fields, use lightning-formatted-rich-text
+                // It handles both HTML (rich text) and plain text safely
                 const trimmedValue = typeof rawValue === 'string' ? rawValue.trim() : rawValue;
-                displayValue = trimmedValue && trimmedValue.length > 0 ? trimmedValue : '—';
-                htmlValue = null;
+                richTextValue = trimmedValue && trimmedValue.length > 0 ? trimmedValue : '';
+                displayValue = ''; // Not used when using lightning-formatted-rich-text
             }
             
             return {
                 ...field,
                 displayValue,
-                htmlValue, // Store raw HTML for rich text fields
+                richTextValue, // Value for lightning-formatted-rich-text (handles both HTML and plain text)
                 valueClass: `hover-value${field.isLongText ? ' hover-value_multiline' : ''}${isRichText ? ' hover-value_richtext' : ''}`,
                 isStatus: isStatusField,
                 isRichText: isRichText,

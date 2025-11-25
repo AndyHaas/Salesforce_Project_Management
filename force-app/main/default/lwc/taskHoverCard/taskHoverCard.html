@@ -11,12 +11,7 @@
                                 <span class={field.badgeClass}>{field.displayValue}</span>
                             </template>
                             <template if:false={field.isStatus}>
-                                <template if:true={field.isRichText}>
-                                    <div lwc:dom="manual" data-rich-text={field.apiName}></div>
-                                </template>
-                                <template if:false={field.isRichText}>
-                                    {field.displayValue}
-                                </template>
+                                <lightning-formatted-rich-text value={field.richTextValue}></lightning-formatted-rich-text>
                             </template>
                         </div>
                     </div>
