@@ -233,55 +233,15 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     updateTaskRowClasses() {
-        // Use a custom padding class for compact mode that's between x-small and small
-        // We'll handle this with CSS instead of SLDS utility classes for better control
-        const paddingClass = this.density === 'compact' ? 'slds-p-around_x-small compact-padding' : 'slds-p-around_small';
-        this.statusGroups = this.statusGroups.map(statusGroup => ({
-            ...statusGroup,
-            tasks: statusGroup.tasks.map(task => {
-                const permissions = this.getTaskPermissions(task.id);
-                const hasMenu = permissions.canEdit || permissions.canDelete;
-                const newRowClass = hasMenu 
-                    ? `task-row slds-grid slds-grid_align-spread ${paddingClass} task-row-with-menu` 
-                    : `task-row slds-grid slds-grid_align-spread ${paddingClass}`;
-                
-                // Update subtasks as well
-                const updatedSubtasks = (task.subtasks || []).map(subtask => {
-                    const subtaskPermissions = this.getTaskPermissions(subtask.id);
-                    const subtaskHasMenu = subtaskPermissions.canEdit || subtaskPermissions.canDelete;
-                    const subtaskRowClass = subtaskHasMenu 
-                        ? `slds-grid slds-grid_align-spread ${paddingClass} subtask-row-with-menu` 
-                        : `slds-grid slds-grid_align-spread ${paddingClass}`;
-                    return {
-                        ...subtask,
-                        rowClass: subtaskRowClass
-                    };
-                });
-                
-                return {
-                    ...task,
-                    rowClass: newRowClass,
-                    subtasks: updatedSubtasks
-                };
-            })
-        }));
+        // No longer needed - table structure handles alignment automatically
+        // This method is kept for backward compatibility but does nothing
     }
     
     get densityClass() {
         return this.density === 'compact' ? 'density-compact' : 'density-comfy';
     }
     
-    get columnHeadersClass() {
-        return `column-headers slds-grid slds-grid_align-spread slds-border_bottom slds-text-body_small slds-text-color_weak ${this.density === 'comfy' ? 'column-headers-comfy' : ''} ${this.density === 'compact' ? 'column-headers-compact' : ''}`.trim();
-    }
-    
-    get subtasksContainerClass() {
-        return `subtasks-container slds-border_left ${this.density === 'comfy' ? 'subtasks-container-comfy' : ''} ${this.density === 'compact' ? 'subtasks-container-compact' : ''}`.trim();
-    }
-    
-    get subtaskItemClass() {
-        return `subtask-item slds-border_bottom ${this.density === 'comfy' ? 'subtask-item-comfy' : ''} ${this.density === 'compact' ? 'subtask-item-compact' : ''}`.trim();
-    }
+    // Removed grid-related getters - now using HTML table structure
     
     wiredGroupedTasksResult;
     
@@ -315,7 +275,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                         totalEstimatedHours += subtaskHours;
                         const subtaskPermissions = this.getTaskPermissions(subtask.id);
                         const subtaskHasMenu = subtaskPermissions.canEdit || subtaskPermissions.canDelete;
-                        const subtaskPaddingClass = this.density === 'compact' ? 'slds-p-around_x-small compact-padding' : 'slds-p-around_small';
                         const decoratedSubtask = this.decorateTaskRecord({
                             ...subtask,
                             formattedDueDate: subtask.dueDate ? this.formatDate(subtask.dueDate) : '',
@@ -323,8 +282,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                             isEditing: this.editingTaskId === subtask.id,
                             canEdit: subtaskPermissions.canEdit,
                             canDelete: subtaskPermissions.canDelete,
-                            showMenu: subtaskHasMenu,
-                            rowClass: subtaskHasMenu ? `slds-grid slds-grid_align-spread ${subtaskPaddingClass} subtask-row-with-menu` : `slds-grid slds-grid_align-spread ${subtaskPaddingClass}`
+                            showMenu: subtaskHasMenu
                         });
                         // Update field editing state and computed properties
                         if (decoratedSubtask.summaryFields) {
@@ -376,7 +334,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                     
                     const permissions = this.getTaskPermissions(task.id);
                     const hasMenu = permissions.canEdit || permissions.canDelete;
-                    const paddingClass = this.density === 'compact' ? 'slds-p-around_x-small compact-padding' : 'slds-p-around_small';
                     const decoratedTask = this.decorateTaskRecord({
                         ...task,
                         isExpanded: isExpanded,
@@ -389,8 +346,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                         isEditing: this.editingTaskId === task.id,
                         canEdit: permissions.canEdit,
                         canDelete: permissions.canDelete,
-                        showMenu: hasMenu,
-                        rowClass: hasMenu ? `task-row slds-grid slds-grid_align-spread ${paddingClass} task-row-with-menu` : `task-row slds-grid slds-grid_align-spread ${paddingClass}`
+                        showMenu: hasMenu
                     });
                     // Update field editing state and computed properties
                     if (decoratedTask.summaryFields) {
@@ -665,32 +621,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this.summaryFieldDefinitions && this.summaryFieldDefinitions.length > 0;
     }
     
-    get columnCount() {
-        // Count columns: 1 for task name + number of data columns
-        if (this.hasSummaryFields) {
-            return 1 + this.summaryFieldDefinitions.length;
-        } else {
-            // Default fields: Account (if not filtered), Owner, Due Date, Priority, Est. Hours
-            const accountColumn = this.isFilteredByAccount ? 0 : 1;
-            return 1 + accountColumn + 4; // Task name + Account (maybe) + 4 default fields
-        }
-    }
-    
-    get gridTemplateColumns() {
-        // Create grid template: minmax for task name (widest column), then fixed widths for data columns, then auto for menu
-        const dataColumnWidth = '7.5rem';
-        const dataColumns = this.hasSummaryFields 
-            ? this.summaryFieldDefinitions.length 
-            : (this.isFilteredByAccount ? 4 : 5); // Account, Owner, Due Date, Priority, Est. Hours
-        
-        // Task name gets min 20rem and can grow, making it the widest column
-        // Add auto column at the end for the menu (always present, even if empty)
-        return `minmax(20rem, 1fr) repeat(${dataColumns}, ${dataColumnWidth}) auto`;
-    }
-    
-    get gridStyle() {
-        return `--grid-template-columns: ${this.gridTemplateColumns};`;
-    }
+    // Removed grid-related getters - now using HTML table structure which handles alignment automatically
     
     get isFilteredByAccount() {
         return this.effectiveAccountIds && this.effectiveAccountIds.length > 0;
