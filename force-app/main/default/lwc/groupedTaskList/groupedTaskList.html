@@ -14,7 +14,7 @@
                     </lightning-combobox>
                 </template>
             </div>
-            <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center">
+            <div class="slds-col actions-container slds-grid slds-grid_vertical-align-center">
                 <template if:true={isFilteredByAccount}>
                     <lightning-badge 
                         label="Filtered by Account" 
@@ -22,30 +22,59 @@
                         title="Tasks are filtered to show only those associated with the selected account(s)">
                     </lightning-badge>
                 </template>
-                <lightning-button-group>
-                    <lightning-button
-                        label={meModeButtonLabel}
-                        variant={meModeButtonVariant}
-                        icon-name={meModeButtonIcon}
-                        onclick={handleMeModeToggle}
-                        title={meModeButtonTitle}>
-                    </lightning-button>
-                    <lightning-button
-                        label={completedToggleLabel}
-                        variant="neutral"
-                        icon-name={completedToggleIcon}
-                        onclick={handleCompletedToggle}
-                        title={completedToggleTitle}>
-                    </lightning-button>
-                    <lightning-button
-                        label={expandCollapseAllLabel}
-                        variant="neutral"
-                        icon-name={expandCollapseAllIcon}
-                        onclick={handleExpandCollapseAll}
-                        disabled={expandCollapseAllDisabled}
-                        title={expandCollapseAllTitle}>
-                    </lightning-button>
-                </lightning-button-group>
+                <div class="button-group-wrapper">
+                    <lightning-button-group>
+                        <template if:false={useCompactMode}>
+                            <lightning-button
+                                label={meModeButtonLabel}
+                                variant={meModeButtonVariant}
+                                icon-name={meModeButtonIcon}
+                                onclick={handleMeModeToggle}
+                                title={meModeButtonTitle}>
+                            </lightning-button>
+                            <lightning-button
+                                label={completedToggleLabel}
+                                variant="neutral"
+                                icon-name={completedToggleIcon}
+                                onclick={handleCompletedToggle}
+                                title={completedToggleTitle}>
+                            </lightning-button>
+                            <lightning-button
+                                label={expandCollapseAllLabel}
+                                variant="neutral"
+                                icon-name={expandCollapseAllIcon}
+                                onclick={handleExpandCollapseAll}
+                                disabled={expandCollapseAllDisabled}
+                                title={expandCollapseAllTitle}>
+                            </lightning-button>
+                        </template>
+                        <template if:true={useCompactMode}>
+                            <lightning-button
+                                label={meModeButtonLabel}
+                                variant={meModeButtonVariant}
+                                icon-name={meModeButtonIcon}
+                                onclick={handleMeModeToggle}
+                                title={meModeButtonTitle}>
+                            </lightning-button>
+                            <lightning-button-menu 
+                                alternative-text="More actions" 
+                                variant="border-filled"
+                                onselect={handleMenuSelect}>
+                                <lightning-menu-item 
+                                    label={completedToggleLabel}
+                                    value="showCompleted"
+                                    icon-name={completedToggleIcon}>
+                                </lightning-menu-item>
+                                <lightning-menu-item 
+                                    label={expandCollapseAllLabel}
+                                    value="expandCollapseAll"
+                                    icon-name={expandCollapseAllIcon}
+                                    disabled={expandCollapseAllDisabled}>
+                                </lightning-menu-item>
+                            </lightning-button-menu>
+                        </template>
+                    </lightning-button-group>
+                </div>
             </div>
         </div>
         <template if:true={error}>

@@ -41,6 +41,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     accounts = [];
     selectedAccountId = null; // Selected account from dropdown
     
+    // Responsive button handling
+    useCompactMode = false; // When true, show buttons in menu
+    resizeObserver = null;
+    
     @wire(getAccounts)
     wiredAccounts({ error, data }) {
         if (data) {
@@ -102,12 +106,109 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                 { scope: APPLICATION_SCOPE }
             );
         }
+        
+        // Set up resize observer for responsive button handling
+        this.setupResizeObserver();
+    }
+    
+    renderedCallback() {
+        // Check container width after render
+        this.checkContainerWidth();
     }
     
     disconnectedCallback() {
         if (this.subscription) {
             unsubscribe(this.subscription);
             this.subscription = null;
+        }
+        
+        // Clean up resize observer
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
+        }
+    }
+    
+    setupResizeObserver() {
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+            const container = this.template.querySelector('.actions-container');
+            if (container && window.ResizeObserver) {
+                this.resizeObserver = new ResizeObserver(() => {
+                    // Use requestAnimationFrame to avoid multiple rapid checks
+                    requestAnimationFrame(() => {
+                        this.checkContainerWidth();
+                    });
+                });
+                this.resizeObserver.observe(container);
+                // Initial check
+                this.checkContainerWidth();
+            } else if (container) {
+                // Fallback if ResizeObserver not available
+                this.checkContainerWidth();
+            }
+        });
+    }
+    
+    checkContainerWidth() {
+        const container = this.template.querySelector('.actions-container');
+        if (!container) {
+            // If container not found, default to non-compact mode
+            if (this.useCompactMode) {
+                this.useCompactMode = false;
+            }
+            return;
+        }
+        
+        // Get the actual available width for buttons
+        // Account for badge if present
+        const badge = this.template.querySelector('lightning-badge');
+        const badgeWidth = badge && badge.offsetParent !== null ? (badge.offsetWidth || 0) + 16 : 0; // 16px for margin
+        
+        // Get container's available width - use getBoundingClientRect for accurate measurement
+        const containerRect = container.getBoundingClientRect();
+        let containerWidth = containerRect.width;
+        
+        // Fallback: if width is 0 or very small, try offsetWidth
+        if (!containerWidth || containerWidth < 10) {
+            containerWidth = container.offsetWidth || 0;
+        }
+        
+        // If still no width, check parent card
+        if (!containerWidth || containerWidth < 10) {
+            const card = this.template.querySelector('lightning-card');
+            if (card) {
+                const cardRect = card.getBoundingClientRect();
+                containerWidth = cardRect.width || card.offsetWidth || 0;
+            }
+        }
+        
+        // Available width for buttons = container width - badge width - padding
+        const availableWidth = containerWidth - badgeWidth - 32; // 32px for padding/margins
+        
+        // Threshold: if available width is less than 500px, use compact mode
+        // This accounts for button widths (approx 120px each for 3 buttons = 360px + spacing)
+        const threshold = 500;
+        const shouldUseCompactMode = availableWidth < threshold;
+        
+        if (shouldUseCompactMode !== this.useCompactMode) {
+            this.useCompactMode = shouldUseCompactMode;
+        }
+    }
+    
+    handleMenuSelect(event) {
+        const selectedValue = event.detail.value;
+        
+        switch(selectedValue) {
+            case 'myTasks':
+                this.handleMeModeToggle();
+                break;
+            case 'showCompleted':
+                this.handleCompletedToggle();
+                break;
+            case 'expandCollapseAll':
+                this.handleExpandCollapseAll();
+                break;
         }
     }
     
@@ -474,9 +575,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         
         let groups = [...this.statusGroups];
         
-        // When "My Tasks" mode is on, always show completed tasks (even if showCompletedTasks is false)
-        // Otherwise, respect the showCompletedTasks toggle
-        if (!this.showMyTasksOnly && !this.showCompletedTasks) {
+        // Always respect the showCompletedTasks toggle, regardless of "My Tasks" mode
+        if (!this.showCompletedTasks) {
             groups = groups.filter(group => group.status !== 'Completed');
         }
         

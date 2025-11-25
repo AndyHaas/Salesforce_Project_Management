@@ -11,7 +11,12 @@
                                 <span class={field.badgeClass}>{field.displayValue}</span>
                             </template>
                             <template if:false={field.isStatus}>
-                                {field.displayValue}
+                                <template if:true={field.isRichText}>
+                                    <div lwc:dom="manual" data-rich-text={field.apiName}></div>
+                                </template>
+                                <template if:false={field.isRichText}>
+                                    {field.displayValue}
+                                </template>
                             </template>
                         </div>
                     </div>
