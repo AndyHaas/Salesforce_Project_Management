@@ -991,25 +991,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         });
     }
     
-    // Handle double-click for inline editing (if user has edit permission)
-    handleTaskNameDoubleClick(event) {
-        const taskId = event.currentTarget.dataset.taskId;
-        if (!taskId) {
-            return;
-        }
-        
-        const task = this.findTaskById(taskId);
-        const permissions = this.getTaskPermissions(taskId);
-        
-        // If user has edit permission, enable inline editing on double-click
-        if (task && permissions.canEdit) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.editingTaskId = taskId;
-            this.editingTaskName = task.name || '';
-        }
-    }
-    
     handleTaskNameChange(event) {
         this.editingTaskName = event.target.value;
     }
