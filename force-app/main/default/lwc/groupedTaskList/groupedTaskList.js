@@ -18,6 +18,7 @@ import { updateRecord } from 'lightning/uiRecordApi';
 import PROJECT_TASK_OBJECT from '@salesforce/schema/Project_Task__c';
 import getGroupedTasksWithSubtasks from '@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasks';
 import getAccounts from '@salesforce/apex/ProjectTaskDashboardController.getAccounts';
+import getStatusColors from '@salesforce/apex/ProjectTaskDashboardController.getStatusColors';
 import getDisplayDensity from '@salesforce/apex/DisplayDensityController.getDisplayDensity';
 import { refreshApex } from '@salesforce/apex';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
@@ -48,6 +49,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @track editingTaskName = ''; // Store the task name being edited
     @track editingField = null; // Track which field is being edited: { taskId, fieldApiName, fieldValue }
     objectPermissions = { canEdit: false, canDelete: false }; // Object-level permissions
+    statusColors = {}; // Status colors from field metadata (loaded from Apex)
+    recordTypes = []; // Available record types for Project_Task__c
+    defaultRecordTypeId = null; // Default record type ID
     
     // Account filter dropdown
     accounts = [];
@@ -122,6 +126,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     connectedCallback() {
+        // Status colors will be loaded via wire service
+        // Initialize with empty object - will be populated by getStatusColors wire
+        
         if (this.messageContext) {
             this.subscription = subscribe(
                 this.messageContext,
@@ -252,6 +259,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (data) {
             this.summaryFieldDefinitions = data.summaryFieldDefinitions || [];
             this.updateSummaryFieldDefinitionMap();
+            // Update header classes after definitions are loaded
+            this.updateSummaryFieldHeaderClasses();
             
             // Set up periodic refresh for auto-refresh on task changes
             if (!this.refreshInterval) {
@@ -490,17 +499,35 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     getStatusHeaderStyle(status) {
-        const statusColors = {
-            'Backlog': 'background-color: #e5e5e5; color: #080707;', // Light gray
-            'Pending': 'background-color: #ffb75d; color: #080707;', // Orange/Warning
-            'In Progress': 'background-color: #0176d3; color: #ffffff;', // Blue
-            'In Review': 'background-color: #5B21B6; color: #ffffff;', // Deep purple/dark blue
-            'Blocked': 'background-color: #c23934; color: #ffffff;', // Red
-            'Completed': 'background-color: #2e844a; color: #ffffff;', // Green
-            'Removed': 'background-color: #706e6b; color: #ffffff;', // Gray
-            'Closed': 'background-color: #2e844a; color: #ffffff;' // Green
-        };
-        return statusColors[status] || 'background-color: #f3f3f3; color: #080707;';
+        // Use colors from Apex (which reads from field metadata)
+        // If not loaded yet, use default colors
+        const backgroundColor = this.statusColors[status] || this.getDefaultStatusColors()[status] || '#F3F3F3';
+        
+        // Determine text color based on background brightness
+        const textColor = this.getContrastTextColor(backgroundColor);
+        
+        return `background-color: ${backgroundColor}; color: ${textColor};`;
+    }
+    
+    /**
+     * @description Get contrasting text color (black or white) based on background color
+     */
+    getContrastTextColor(hexColor) {
+        if (!hexColor) return '#080707';
+        
+        // Remove # if present
+        const hex = hexColor.replace('#', '');
+        
+        // Convert to RGB
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        
+        // Calculate relative luminance
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        
+        // Return black for light colors, white for dark colors
+        return luminance > 0.5 ? '#080707' : '#ffffff';
     }
     
     formatDate(dateValue) {
@@ -947,6 +974,19 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this.collapsedStatuses.has(status);
     }
     
+    // Wire service to get status colors from Apex
+    @wire(getStatusColors)
+    wiredStatusColors({ error, data }) {
+        if (data) {
+            // Convert the map from Apex to a JavaScript object
+            this.statusColors = data || {};
+        } else if (error) {
+            console.error('Error loading status colors:', error);
+            // Fall back to default colors
+            this.statusColors = this.getDefaultStatusColors();
+        }
+    }
+    
     // Check object-level permissions using wire adapter
     @wire(getObjectInfo, { objectApiName: PROJECT_TASK_OBJECT })
     wiredObjectInfo({ error, data }) {
@@ -955,9 +995,62 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                 canEdit: data.updateable || false,
                 canDelete: data.deletable || false
             };
+            
+            // Extract record types
+            if (data.recordTypeInfos) {
+                const recordTypeEntries = Object.entries(data.recordTypeInfos);
+                this.recordTypes = recordTypeEntries
+                    .filter(([key, value]) => !value.master) // Exclude master record type
+                    .map(([key, value]) => ({
+                        label: value.name,
+                        value: key
+                    }))
+                    .sort((a, b) => a.label.localeCompare(b.label));
+                
+                // Set default record type (first available or master)
+                if (this.recordTypes.length > 0) {
+                    this.defaultRecordTypeId = this.recordTypes[0].value;
+                } else if (data.defaultRecordTypeId) {
+                    this.defaultRecordTypeId = data.defaultRecordTypeId;
+                }
+            }
+            
+            // Update summaryFieldDefinitions header classes when permissions are loaded
+            this.updateSummaryFieldHeaderClasses();
         } else if (error) {
             console.error('Error loading object info:', error);
             this.objectPermissions = { canEdit: false, canDelete: false };
+            this.updateSummaryFieldHeaderClasses();
+        }
+    }
+    
+    /**
+     * @description Get default status colors (fallback)
+     * These match the colors in Status__c.field-meta.xml
+     */
+    getDefaultStatusColors() {
+        return {
+            'Backlog': '#E5E5E5',
+            'Pending': '#FFB75D',
+            'In Progress': '#0176D3',
+            'In Review': '#5B21B6',
+            'Blocked': '#C23934',
+            'Completed': '#2E844A',
+            'Removed': '#706E6B',
+            'Closed': '#2E844A'
+        };
+    }
+    
+    updateSummaryFieldHeaderClasses() {
+        // Update header classes for summary field definitions based on editability
+        if (this.summaryFieldDefinitions && this.summaryFieldDefinitions.length > 0) {
+            this.summaryFieldDefinitions = this.summaryFieldDefinitions.map(field => {
+                const isEditable = this.isFieldEditable(field.apiName);
+                return {
+                    ...field,
+                    headerClass: `summary-header${isEditable ? ' summary-header-editable' : ''}`
+                };
+            });
         }
     }
     
@@ -970,6 +1063,18 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     hasAnyPermission(taskId) {
         const perms = this.getTaskPermissions(taskId);
         return perms.canEdit || perms.canDelete;
+    }
+    
+    isFieldEditable(fieldApiName) {
+        // A field is editable if user has edit permissions and field is not a reference
+        if (!this.objectPermissions.canEdit) {
+            return false;
+        }
+        const definition = this.summaryFieldDefinitionMap[fieldApiName];
+        if (!definition) {
+            return false;
+        }
+        return !definition.isReference;
     }
     
     // Inline editing handlers
@@ -1453,6 +1558,38 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                 recordId: taskId,
                 actionName: 'edit'
             }
+        });
+    }
+    
+    handleCreateNewTask() {
+        // Build navigation state with record type selection
+        const state = {};
+        
+        // Add URL parameters to force record type selection dialog
+        state.nooverride = '1';
+        state.useRecordTypeCheck = '1';
+        
+        // If there are multiple record types, don't pass recordTypeId to show the picker
+        // If there's only one record type, use it directly
+        if (this.recordTypes.length === 1 && this.defaultRecordTypeId) {
+            // Single record type - use it directly
+            state.recordTypeId = this.defaultRecordTypeId;
+        } else if (this.recordTypes.length > 1) {
+            // Multiple record types - don't pass recordTypeId so Salesforce shows the picker
+            // Optionally, we can pre-select the default if desired
+            // For now, we'll let Salesforce show the picker by not setting recordTypeId
+        } else if (this.defaultRecordTypeId) {
+            // Fallback: use default if available
+            state.recordTypeId = this.defaultRecordTypeId;
+        }
+        
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'Project_Task__c',
+                actionName: 'new'
+            },
+            state: state
         });
     }
     

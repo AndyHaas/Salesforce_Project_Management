@@ -34,6 +34,15 @@
                         onclick={handleManualRefresh}
                         class="slds-m-right_small">
                     </lightning-button-icon>
+                    <lightning-button-group class="slds-m-right_small">
+                        <lightning-button
+                            label="New Task"
+                            variant="brand"
+                            icon-name="utility:add"
+                            onclick={handleCreateNewTask}
+                            title="Create a new Project Task">
+                        </lightning-button>
+                    </lightning-button-group>
                     <lightning-button-group>
                         <template if:false={useCompactMode}>
                             <lightning-button
@@ -138,7 +147,7 @@
                                         </th>
                                         <template if:true={hasSummaryFields}>
                                             <template for:each={summaryFieldDefinitions} for:item="field">
-                                                <th key={field.apiName} class="summary-header">
+                                                <th key={field.apiName} class={field.headerClass}>
                                                     <strong>{field.label}</strong>
                                                 </th>
                                             </template>
