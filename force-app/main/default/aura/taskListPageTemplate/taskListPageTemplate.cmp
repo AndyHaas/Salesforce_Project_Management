@@ -1,0 +1,21 @@
+<aura:component implements="lightning:appHomeTemplate" access="global" description="Task List Page Template - Focused single-column layout">
+    <aura:attribute name="header" type="Aura.Component[]" />
+    <aura:attribute name="content" type="Aura.Component[]" />
+    
+    <div class="slds-grid slds-gutters slds-grid_vertical">
+        <div class="slds-col slds-size_1-of-1">
+            <div class="slds-m-bottom_medium">
+                <aura:iteration items="{!v.header}" var="component">
+                    {!component}
+                </aura:iteration>
+            </div>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <div class="slds-m-top_medium">
+                <aura:iteration items="{!v.content}" var="component">
+                    {!component}
+                </aura:iteration>
+            </div>
+        </div>
+    </div>
+</aura:component>

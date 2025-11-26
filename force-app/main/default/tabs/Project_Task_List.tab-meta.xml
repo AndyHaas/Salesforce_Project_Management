@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>View and manage project tasks in a detailed list view</description>
+    <flexiPage>Project_Task_List</flexiPage>
+    <label>Task List</label>
+    <motif>Custom14: Hands</motif>
+</CustomTab>

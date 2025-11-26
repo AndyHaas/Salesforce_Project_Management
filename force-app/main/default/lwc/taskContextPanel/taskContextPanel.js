@@ -20,6 +20,7 @@ import { refreshApex } from '@salesforce/apex';
 import { getRecord, getRecordNotifyChange, NotifyChangeRecordIds, RecordChange } from 'lightning/uiRecordApi';
 import getDependencyData from '@salesforce/apex/TaskContextController.getDependencyData';
 import deleteTaskRelationship from '@salesforce/apex/TaskContextController.deleteTaskRelationship';
+import getStatusColors from '@salesforce/apex/ProjectTaskDashboardController.getStatusColors';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 import PROGRESS_PERCENTAGE_FIELD from '@salesforce/schema/Project_Task__c.Progress_Percentage__c';
@@ -68,6 +69,22 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     
     // Message subscription
     _refreshSubscription = null;
+    
+    /**
+     * @description Status colors from field metadata (loaded from Apex)
+     * @type {Object}
+     */
+    statusColors = {};
+    
+    // Wire service to get status colors from Apex
+    @wire(getStatusColors)
+    wiredStatusColors({ error, data }) {
+        if (data) {
+            this.statusColors = data || {};
+        } else if (error) {
+            console.error('Error loading status colors in taskContextPanel:', error);
+        }
+    }
     
     /**
      * @description Wire service to fetch dependency data from Apex (includes subtask progress)
@@ -370,6 +387,13 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         return this.getStatusBadgeClassForStatus(this.parentTask.status);
     }
     
+    get parentTaskStatusBadgeStyle() {
+        if (!this.parentTask?.status) {
+            return '';
+        }
+        return this.getStatusBadgeStyle(this.parentTask.status);
+    }
+    
     get parentTaskPriorityBadgeClass() {
         if (!this.parentTask?.priority) {
             return 'slds-badge slds-badge_lightest';
@@ -464,6 +488,7 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
                 
                 if (task) {
                     task.statusBadgeClass = this.getStatusBadgeClassForStatus(task.status);
+                    task.statusBadgeStyle = this.getStatusBadgeStyle(task.status);
                     task.priorityBadgeClass = this.getPriorityBadgeClassForPriority(task.priority);
                     // Add blocking classes
                     task.blockingContextItemClass = task.isBlocking 
@@ -557,6 +582,48 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         };
         
         return statusClasses[statusStr] || statusClasses[normalizedStatus] || 'status-badge status-badge-default';
+    }
+    
+    /**
+     * @description Get inline style for status badge using dynamic colors from field metadata
+     * @param {String} status - Task status
+     * @returns {String} Inline style string
+     */
+    getStatusBadgeStyle(status) {
+        if (!status || !this.statusColors || Object.keys(this.statusColors).length === 0) {
+            return '';
+        }
+        
+        const backgroundColor = this.statusColors[status];
+        if (!backgroundColor) {
+            return '';
+        }
+        
+        // Determine text color based on background brightness
+        const textColor = this.getContrastTextColor(backgroundColor);
+        
+        return `background-color: ${backgroundColor}; color: ${textColor};`;
+    }
+    
+    /**
+     * @description Get contrasting text color (black or white) based on background color
+     */
+    getContrastTextColor(hexColor) {
+        if (!hexColor) return '#080707';
+        
+        // Remove # if present
+        const hex = hexColor.replace('#', '');
+        
+        // Convert to RGB
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        
+        // Calculate relative luminance
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        
+        // Return black for light colors, white for dark colors
+        return luminance > 0.5 ? '#080707' : '#ffffff';
     }
     
     /**

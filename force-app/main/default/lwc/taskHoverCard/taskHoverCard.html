@@ -8,7 +8,7 @@
                         <span class="hover-label">{field.label}</span>
                         <div class={field.valueClass}>
                             <template if:true={field.isStatus}>
-                                <span class={field.badgeClass}>{field.displayValue}</span>
+                                <span class={field.badgeClass} style={field.badgeStyle}>{field.displayValue}</span>
                             </template>
                             <template if:false={field.isStatus}>
                                 <lightning-formatted-rich-text value={field.richTextValue}></lightning-formatted-rich-text>

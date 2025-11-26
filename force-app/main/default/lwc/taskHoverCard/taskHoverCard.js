@@ -9,7 +9,8 @@
  * - Used by: groupedTaskList, taskContextPanel
  * - Accepts raw hoverFields from Apex and taskStatus for badge class computation
  */
-import { LightningElement, api } from 'lwc';
+import { LightningElement, api, wire } from 'lwc';
+import getStatusColors from '@salesforce/apex/ProjectTaskDashboardController.getStatusColors';
 
 export default class TaskHoverCard extends LightningElement {
     _isVisible = false;
@@ -116,6 +117,22 @@ export default class TaskHoverCard extends LightningElement {
     @api badgeStyle = 'slds';
     
     /**
+     * @description Status colors from field metadata (loaded from Apex)
+     * @type {Object}
+     */
+    statusColors = {};
+    
+    // Wire service to get status colors from Apex
+    @wire(getStatusColors)
+    wiredStatusColors({ error, data }) {
+        if (data) {
+            this.statusColors = data || {};
+        } else if (error) {
+            console.error('Error loading status colors in taskHoverCard:', error);
+        }
+    }
+    
+    /**
      * @description Decorated hover fields ready for display
      * @type {Array}
      */
@@ -152,7 +169,8 @@ export default class TaskHoverCard extends LightningElement {
                 valueClass: `hover-value${field.isLongText ? ' hover-value_multiline' : ''}${isRichText ? ' hover-value_richtext' : ''}`,
                 isStatus: isStatusField,
                 isRichText: isRichText,
-                badgeClass: isStatusField ? this.getStatusBadgeClass(this.taskStatus) : ''
+                badgeClass: isStatusField ? this.getStatusBadgeClass(this.taskStatus) : '',
+                badgeStyle: isStatusField && this.badgeStyle === 'custom' ? this.getStatusBadgeStyle(this.taskStatus) : ''
             };
         });
     }
@@ -224,6 +242,48 @@ export default class TaskHoverCard extends LightningElement {
         };
         
         return statusClasses[status] || statusClasses[normalizedStatus] || 'status-badge status-badge-default';
+    }
+    
+    /**
+     * @description Get inline style for status badge using dynamic colors from field metadata
+     * @param {String} status - Task status
+     * @returns {String} Inline style string
+     */
+    getStatusBadgeStyle(status) {
+        if (!status || !this.statusColors || Object.keys(this.statusColors).length === 0) {
+            return '';
+        }
+        
+        const backgroundColor = this.statusColors[status];
+        if (!backgroundColor) {
+            return '';
+        }
+        
+        // Determine text color based on background brightness
+        const textColor = this.getContrastTextColor(backgroundColor);
+        
+        return `background-color: ${backgroundColor}; color: ${textColor};`;
+    }
+    
+    /**
+     * @description Get contrasting text color (black or white) based on background color
+     */
+    getContrastTextColor(hexColor) {
+        if (!hexColor) return '#080707';
+        
+        // Remove # if present
+        const hex = hexColor.replace('#', '');
+        
+        // Convert to RGB
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        
+        // Calculate relative luminance
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        
+        // Return black for light colors, white for dark colors
+        return luminance > 0.5 ? '#080707' : '#ffffff';
     }
 }
 

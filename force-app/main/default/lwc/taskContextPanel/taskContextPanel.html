@@ -51,7 +51,7 @@
                                     <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
                                         <div class="slds-text-heading_small context-name">{parentTask.name}</div>
                                         <div class="slds-m-top_x-small">
-                                            <span class={parentTaskStatusBadgeClass}>{parentTask.status}</span>
+                                            <span class={parentTaskStatusBadgeClass} style={parentTaskStatusBadgeStyle}>{parentTask.status}</span>
                                             <template if:true={parentTask.priority}>
                                                 <span class={parentTaskPriorityBadgeClass}>{parentTask.priority}</span>
                                             </template>
@@ -92,7 +92,7 @@
                                                     </c-task-hover-card>
                                                 </div>
                                                 <div class="slds-m-top_x-small">
-                                                    <span class={depTask.statusBadgeClass}>{depTask.status}</span>
+                                                    <span class={depTask.statusBadgeClass} style={depTask.statusBadgeStyle}>{depTask.status}</span>
                                                     <template if:true={depTask.priority}>
                                                         <span class={depTask.priorityBadgeClass}>{depTask.priority}</span>
                                                     </template>
@@ -156,7 +156,7 @@
                                                     </c-task-hover-card>
                                                 </div>
                                                 <div class="slds-m-top_x-small">
-                                                    <span class={depTask.statusBadgeClass}>{depTask.status}</span>
+                                                    <span class={depTask.statusBadgeClass} style={depTask.statusBadgeStyle}>{depTask.status}</span>
                                                     <template if:true={depTask.priority}>
                                                         <span class={depTask.priorityBadgeClass}>{depTask.priority}</span>
                                                     </template>
@@ -233,7 +233,7 @@
                                                     </c-task-hover-card>
                                                 </div>
                                                 <div class="slds-m-top_x-small">
-                                                    <span class={subtask.statusBadgeClass}>{subtask.status}</span>
+                                                    <span class={subtask.statusBadgeClass} style={subtask.statusBadgeStyle}>{subtask.status}</span>
                                                     <template if:true={subtask.priority}>
                                                         <span class={subtask.priorityBadgeClass}>{subtask.priority}</span>
                                                     </template>

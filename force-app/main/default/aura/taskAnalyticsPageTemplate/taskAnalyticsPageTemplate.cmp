@@ -1,0 +1,47 @@
+<aura:component implements="lightning:appHomeTemplate" access="global" description="Task Analytics Page Template - Multi-column grid layout for charts and metrics">
+    <aura:attribute name="header" type="Aura.Component[]" />
+    <aura:attribute name="topRow" type="Aura.Component[]" />
+    <aura:attribute name="leftColumn" type="Aura.Component[]" />
+    <aura:attribute name="rightColumn" type="Aura.Component[]" />
+    <aura:attribute name="bottomRow" type="Aura.Component[]" />
+    
+    <div class="slds-grid slds-gutters slds-grid_vertical">
+        <!-- Header Section -->
+        <div class="slds-col slds-size_1-of-1 slds-m-bottom_medium">
+            <aura:iteration items="{!v.header}" var="component">
+                {!component}
+            </aura:iteration>
+        </div>
+        
+        <!-- Top Row - Full Width for Key Metrics -->
+        <div class="slds-col slds-size_1-of-1 slds-m-bottom_medium">
+            <aura:iteration items="{!v.topRow}" var="component">
+                {!component}
+            </aura:iteration>
+        </div>
+        
+        <!-- Two Column Layout for Charts and Metrics -->
+        <div class="slds-col slds-size_1-of-1">
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-2 slds-large-size_1-of-2">
+                    <aura:iteration items="{!v.leftColumn}" var="component">
+                        {!component}
+                    </aura:iteration>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-2 slds-large-size_1-of-2">
+                    <aura:iteration items="{!v.rightColumn}" var="component">
+                        {!component}
+                    </aura:iteration>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Row - Full Width -->
+        <div class="slds-col slds-size_1-of-1 slds-m-top_medium">
+            <aura:iteration items="{!v.bottomRow}" var="component">
+                {!component}
+            </aura:iteration>
+        </div>
+    </div>
+</aura:component>
+

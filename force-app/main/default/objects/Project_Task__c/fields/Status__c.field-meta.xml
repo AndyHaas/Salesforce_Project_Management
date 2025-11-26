@@ -15,41 +15,49 @@
             <sorted>false</sorted>
             <value>
                 <fullName>Backlog</fullName>
+                <color>#E5E5E5</color>
                 <default>true</default>
                 <label>Backlog</label>
             </value>
             <value>
                 <fullName>Pending</fullName>
+                <color>#FFB75D</color>
                 <default>false</default>
                 <label>Pending</label>
             </value>
             <value>
                 <fullName>In Progress</fullName>
+                <color>#0176D3</color>
                 <default>false</default>
                 <label>In Progress</label>
             </value>
             <value>
                 <fullName>In Review</fullName>
+                <color>#5B21B6</color>
                 <default>false</default>
                 <label>In Review</label>
             </value>
             <value>
                 <fullName>Blocked</fullName>
+                <color>#C23934</color>
                 <default>false</default>
                 <label>Blocked</label>
             </value>
             <value>
                 <fullName>Completed</fullName>
+                <color>#2E844A</color>
                 <default>false</default>
                 <label>Completed</label>
             </value>
             <value>
                 <fullName>Removed</fullName>
+                <color>#706E6B</color>
                 <default>false</default>
                 <label>Removed</label>
             </value>
             <value>
                 <fullName>Closed</fullName>
+                <color>#2E844A</color>
                 <default>false</default>
                 <label>Closed</label>
             </value>

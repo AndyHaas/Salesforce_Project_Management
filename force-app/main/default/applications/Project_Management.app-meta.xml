@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
-    <actionOverrides>
-        <actionName>Tab</actionName>
-        <content>Project_Task_Home_Page</content>
-        <formFactor>Large</formFactor>
-        <skipRecordTypeSelect>false</skipRecordTypeSelect>
-        <type>Flexipage</type>
-        <pageOrSobjectType>standard-home</pageOrSobjectType>
-    </actionOverrides>
     <brand>
         <headerColor>#0176D3</headerColor>
         <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
@@ -21,7 +13,8 @@
     <label>Project Management</label>
     <navType>Console</navType>
     <tabs>standard-home</tabs>
-    <tabs>Project_Tasks</tabs>
+    <tabs>Project_Task_List</tabs>
+    <tabs>Project_Task_Analytics</tabs>
     <tabs>Project_Task__c</tabs>
     <tabs>Release_Notes__c</tabs>
     <tabs>Release_Version__c</tabs>
@@ -29,10 +22,13 @@
     <uiType>Lightning</uiType>
     <workspaceConfig>
         <mappings>
-            <tab>Project_Task__c</tab>
+            <tab>Project_Task_List</tab>
         </mappings>
         <mappings>
-            <tab>Project_Tasks</tab>
+            <tab>Project_Task_Analytics</tab>
+        </mappings>
+        <mappings>
+            <tab>Project_Task__c</tab>
         </mappings>
         <mappings>
             <tab>Release_Notes__c</tab>

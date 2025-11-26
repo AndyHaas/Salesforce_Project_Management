@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="90" viewBox="0 0 120 90">
+  <rect width="120" height="90" fill="#f3f3f3" stroke="#d8dde6" stroke-width="1"/>
+  <!-- Header section -->
+  <rect x="5" y="5" width="110" height="15" fill="#0176d3" rx="2"/>
+  <text x="60" y="14" font-family="Arial" font-size="8" fill="white" text-anchor="middle">Header</text>
+  <!-- Content section -->
+  <rect x="5" y="25" width="110" height="60" fill="#ffffff" stroke="#d8dde6" stroke-width="1" rx="2"/>
+  <rect x="10" y="30" width="100" height="50" fill="#f3f3f3" stroke="#d8dde6" stroke-width="1" rx="2"/>
+  <text x="60" y="60" font-family="Arial" font-size="7" fill="#706e6b" text-anchor="middle">Single Column Content</text>
+</svg>

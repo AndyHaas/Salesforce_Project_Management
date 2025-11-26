@@ -9,56 +9,52 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;div style=&quot;text-align: center; padding: 24px 16px; background: #0176D3; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);&quot;&gt;&lt;h1 style=&quot;color: #FFFFFF; font-size: 32px; font-weight: 600; margin: 0; letter-spacing: -0.5px; font-family: 'Salesforce Sans', Arial, sans-serif;&quot;&gt;Project Task Management&lt;/h1&gt;&lt;p style=&quot;color: #B0E3FF; font-size: 16px; margin: 8px 0 0 0; font-weight: 300;&quot;&gt;Comprehensive dashboard for tracking and managing project tasks&lt;/p&gt;&lt;/div&gt;</value>
+                    <value>&lt;div style=&quot;text-align: center; padding: 24px 16px; background: #0176D3; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);&quot;&gt;&lt;h1 style=&quot;color: #FFFFFF; font-size: 32px; font-weight: 600; margin: 0; letter-spacing: -0.5px; font-family: &apos;Salesforce Sans&apos;, Arial, sans-serif;&quot;&gt;Project Task Analytics&lt;/h1&gt;&lt;p style=&quot;color: #B0E3FF; font-size: 16px; margin: 8px 0 0 0; font-weight: 300;&quot;&gt;Charts, metrics, and insights for analyzing project task performance&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText</identifier>
             </componentInstance>
         </itemInstances>
-        <mode>Replace</mode>
-        <name>region1</name>
-        <type>Region</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>showHoursMetrics</name>
-                    <value>false</value>
+                    <name>accountFilterOrder</name>
+                    <value>0</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>showPriorityBreakdown</name>
-                    <value>false</value>
+                    <name>dueDateMetricsOrder</name>
+                    <value>6</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>showProgressMetrics</name>
-                    <value>false</value>
+                    <name>hoursMetricsOrder</name>
+                    <value>1</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>showReviewStatusMetrics</name>
+                    <name>priorityBreakdownOrder</name>
+                    <value>2</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>progressMetricsOrder</name>
+                    <value>3</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reviewStatusMetricsOrder</name>
+                    <value>4</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showAccountFilter</name>
                     <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>showStatusBreakdown</name>
-                    <value>false</value>
+                    <name>showDueDateMetrics</name>
+                    <value>true</value>
                 </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showTaskList</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentName>projectTaskDashboard</componentName>
-                <identifier>c_projectTaskDashboard2</identifier>
-            </componentInstance>
-        </itemInstances>
-        <mode>Replace</mode>
-        <name>region2</name>
-        <type>Region</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
                 <componentInstanceProperties>
                     <name>showHoursMetrics</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showHoursMetricsChart</name>
                     <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -80,19 +76,21 @@
                 <componentInstanceProperties>
                     <name>showTaskList</name>
                     <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>statusBreakdownOrder</name>
+                    <value>5</value>
                 </componentInstanceProperties>
                 <componentName>projectTaskDashboard</componentName>
                 <identifier>c_projectTaskDashboard</identifier>
             </componentInstance>
         </itemInstances>
-        <mode>Replace</mode>
-        <name>region3</name>
+        <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-    <masterLabel>Project Task Home Page</masterLabel>
-    <parentFlexiPage>flowsapp__FlowAppHome_L</parentFlexiPage>
+    <masterLabel>Project Task Analytics</masterLabel>
     <template>
-        <name>flowsapp:homePageTemplateHeaderTwoColumnLeftSidebar</name>
+        <name>flexipage:defaultAppHomeTemplate</name>
     </template>
-    <type>HomePage</type>
+    <type>AppPage</type>
 </FlexiPage>

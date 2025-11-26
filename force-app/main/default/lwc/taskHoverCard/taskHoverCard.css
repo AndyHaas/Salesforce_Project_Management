@@ -79,18 +79,19 @@
     line-height: 1.2;
 }
 
+/* Status badge colors matching chart colors from Status__c field metadata */
 .status-badge-backlog {
-    background-color: #e5e5e5;
+    background-color: #E5E5E5;
     color: #080707;
 }
 
 .status-badge-pending {
-    background-color: #ffb75d;
+    background-color: #FFB75D;
     color: #080707;
 }
 
 .status-badge-in-progress {
-    background-color: #0176d3;
+    background-color: #0176D3;
     color: #ffffff;
 }
 
@@ -100,22 +101,22 @@
 }
 
 .status-badge-blocked {
-    background-color: #c23934;
+    background-color: #C23934;
     color: #ffffff;
 }
 
 .status-badge-completed {
-    background-color: #2e844a;
+    background-color: #2E844A;
     color: #ffffff;
 }
 
 .status-badge-removed {
-    background-color: #706e6b;
+    background-color: #706E6B;
     color: #ffffff;
 }
 
 .status-badge-closed {
-    background-color: #2e844a;
+    background-color: #2E844A;
     color: #ffffff;
 }
 
