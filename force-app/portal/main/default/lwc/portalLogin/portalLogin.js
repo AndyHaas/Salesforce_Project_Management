@@ -1,7 +1,7 @@
 import { LightningElement, track } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
 import verifyEmailAndSendOTP from '@salesforce/apex/PortalLoginController.verifyEmailAndSendOTP';
 import verifyOTPAndLogin from '@salesforce/apex/PortalLoginController.verifyOTPAndLogin';
-import { NavigationMixin } from 'lightning/navigation';
 
 export default class PortalLogin extends NavigationMixin(LightningElement) {
     @track email = '';
@@ -11,6 +11,25 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
     @track isLoading = false;
     @track errorMessage = '';
     @track successMessage = '';
+    @track stepTransition = false;
+    @track isSandbox = false;
+    @track sandboxOTPCode = ''; // OTP code for sandbox display
+
+    get showEmailStep() {
+        return this.step === 'email';
+    }
+
+    get showOTPStep() {
+        return this.step === 'otp';
+    }
+
+    get cardClass() {
+        return this.stepTransition ? 'login-card step-transition' : 'login-card';
+    }
+
+    get otpInputClass() {
+        return 'otp-input-container';
+    }
 
     handleEmailChange(event) {
         this.email = event.target.value;
@@ -21,6 +40,38 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
     handleOTPChange(event) {
         this.otpCode = event.target.value;
         this.errorMessage = '';
+        this.successMessage = '';
+    }
+
+    handleEmailInput(event) {
+        // Real-time email validation
+        this.email = event.target.value;
+        this.errorMessage = '';
+    }
+
+    handleOTPInput(event) {
+        // Auto-format and limit to 6 digits
+        let value = event.target.value.replace(/\D/g, '').substring(0, 6);
+        this.otpCode = value;
+        this.errorMessage = '';
+        
+        // Auto-submit when 6 digits are entered
+        if (value.length === 6) {
+            setTimeout(() => {
+                this.handleOTPSubmit();
+            }, 100);
+        }
+    }
+
+    handleKeyPress(event) {
+        // Allow Enter key to submit
+        if (event.key === 'Enter' && !this.isLoading) {
+            if (this.step === 'email') {
+                this.handleEmailSubmit();
+            } else if (this.step === 'otp') {
+                this.handleOTPSubmit();
+            }
+        }
     }
 
     async handleEmailSubmit() {
@@ -38,14 +89,46 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
             
             if (result.success) {
                 this.verificationId = result.verificationId;
-                this.step = 'otp';
                 this.successMessage = result.message;
+                this.isSandbox = result.isSandbox || false;
+                this.sandboxOTPCode = result.otpCode || '';
+                
+                // Transition to OTP step
+                this.stepTransition = true;
+                setTimeout(() => {
+                    this.step = 'otp';
+                    this.stepTransition = false;
+                    // Focus on OTP input
+                    setTimeout(() => {
+                        const otpInput = this.template.querySelector('.otp-input-container input');
+                        if (otpInput) {
+                            otpInput.focus();
+                        }
+                    }, 100);
+                }, 300);
             } else {
                 this.errorMessage = result.message;
             }
         } catch (error) {
             console.error('Error verifying email:', error);
-            this.errorMessage = error.body?.message || 'An error occurred. Please try again.';
+            console.error('Error details:', JSON.stringify(error, null, 2));
+            
+            // Extract error message from various possible error formats
+            let errorMsg = 'An error occurred. Please try again.';
+            if (error.body?.message) {
+                errorMsg = error.body.message;
+            } else if (error.body?.pageErrors && error.body.pageErrors.length > 0) {
+                errorMsg = error.body.pageErrors[0].message;
+            } else if (error.body?.fieldErrors) {
+                const fieldErrors = Object.values(error.body.fieldErrors).flat();
+                if (fieldErrors.length > 0) {
+                    errorMsg = fieldErrors[0].message;
+                }
+            } else if (error.message) {
+                errorMsg = error.message;
+            }
+            
+            this.errorMessage = errorMsg;
         } finally {
             this.isLoading = false;
         }
@@ -57,6 +140,12 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
             return;
         }
 
+        if (!this.verificationId) {
+            this.errorMessage = 'Verification session expired. Please start over.';
+            this.step = 'email';
+            return;
+        }
+
         this.isLoading = true;
         this.errorMessage = '';
         this.successMessage = '';
@@ -64,83 +153,95 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
         try {
             const result = await verifyOTPAndLogin({ 
                 email: this.email, 
-                otpCode: this.otpCode,
-                verificationId: this.verificationId
+                otpCode: this.otpCode, 
+                verificationId: this.verificationId 
             });
             
             if (result.success) {
                 this.successMessage = result.message;
-                // Redirect to Experience Cloud login page with username pre-filled
-                // If passwordless login is enabled in the org, the user won't need to enter a password
-                // Otherwise, they'll need to enter their password
-                this.redirectToLogin(result.username);
+                
+                // Transition effect before redirect
+                this.stepTransition = true;
+                
+                // Redirect to standard Salesforce login with username pre-filled
+                // Note: For true passwordless login, additional Auth.SessionManagement setup is needed
+                setTimeout(() => {
+                    this.redirectToLogin(result.username);
+                }, 500);
             } else {
                 this.errorMessage = result.message;
             }
         } catch (error) {
             console.error('Error verifying OTP:', error);
-            this.errorMessage = error.body?.message || 'An error occurred. Please try again.';
+            console.error('Error details:', JSON.stringify(error, null, 2));
+            
+            // Extract error message from various possible error formats
+            let errorMsg = 'Invalid verification code. Please try again.';
+            if (error.body?.message) {
+                errorMsg = error.body.message;
+            } else if (error.body?.pageErrors && error.body.pageErrors.length > 0) {
+                errorMsg = error.body.pageErrors[0].message;
+            } else if (error.body?.fieldErrors) {
+                const fieldErrors = Object.values(error.body.fieldErrors).flat();
+                if (fieldErrors.length > 0) {
+                    errorMsg = fieldErrors[0].message;
+                }
+            } else if (error.message) {
+                errorMsg = error.message;
+            }
+            
+            this.errorMessage = errorMsg;
         } finally {
             this.isLoading = false;
         }
     }
 
     handleBackToEmail() {
-        this.step = 'email';
-        this.otpCode = '';
-        this.verificationId = '';
-        this.errorMessage = '';
-        this.successMessage = '';
+        this.stepTransition = true;
+        setTimeout(() => {
+            this.otpCode = '';
+            this.verificationId = '';
+            this.sandboxOTPCode = '';
+            this.isSandbox = false;
+            this.step = 'email';
+            this.errorMessage = '';
+            this.successMessage = '';
+            this.stepTransition = false;
+        }, 300);
     }
 
     handleResendOTP() {
-        this.otpCode = '';
-        this.verificationId = '';
-        this.step = 'email';
-        this.errorMessage = '';
-        this.successMessage = '';
-        // Re-trigger email submission
+        this.stepTransition = true;
         setTimeout(() => {
-            this.handleEmailSubmit();
-        }, 100);
+            this.otpCode = '';
+            this.verificationId = '';
+            this.sandboxOTPCode = '';
+            this.isSandbox = false;
+            this.step = 'email';
+            this.errorMessage = '';
+            this.successMessage = '';
+            this.stepTransition = false;
+            // Re-trigger email submission
+            setTimeout(() => {
+                this.handleEmailSubmit();
+            }, 100);
+        }, 300);
     }
 
     redirectToLogin(username) {
         // Get the current Experience Cloud site URL
         const siteUrl = window.location.origin;
-        const communityPath = '/vforcesite'; // From network config
+        const communityPath = '/s'; // Standard Salesforce login path
         
-        // Redirect to the Experience Cloud login page
-        // Note: In Experience Cloud, after OTP verification, we need to redirect to the standard login
-        // The username is pre-filled, but the user may still need to enter password
-        // Alternatively, we can use Site.login() from Apex if passwordless login is configured
-        const loginUrl = `${siteUrl}${communityPath}/s/login?username=${encodeURIComponent(username)}`;
-        
-        // Redirect using window.location for external navigation
-        window.location.href = loginUrl;
+        // Redirect to Salesforce login with username pre-filled
+        // For passwordless login, you would need to implement Auth.SessionManagement
+        // For now, redirect to login page
+        window.location.href = `${siteUrl}${communityPath}/login?un=${encodeURIComponent(username)}`;
     }
 
     isValidEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
-    }
-
-    handleKeyPress(event) {
-        if (event.key === 'Enter') {
-            if (this.step === 'email') {
-                this.handleEmailSubmit();
-            } else if (this.step === 'otp') {
-                this.handleOTPSubmit();
-            }
-        }
-    }
-
-    get showEmailStep() {
-        return this.step === 'email';
-    }
-
-    get showOTPStep() {
-        return this.step === 'otp';
     }
 }
 

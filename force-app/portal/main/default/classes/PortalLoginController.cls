@@ -1,4 +1,4 @@
-public with sharing class PortalLoginController {
+public without sharing class PortalLoginController {
     
     // OTP expiration time in minutes
     private static final Integer OTP_EXPIRATION_MINUTES = 10;
@@ -84,17 +84,54 @@ public with sharing class PortalLoginController {
             String otpCode = generateOTP();
             String verificationId = storeOTP(contact.Id, email, otpCode);
             
-            // Send email with OTP
-            sendOTPEmail(contact, otpCode);
+            // Check if this is a sandbox org
+            Boolean isSandbox = isSandboxOrg();
+            
+            // Send email with OTP (attempt even in sandbox)
+            try {
+                sendOTPEmail(contact, otpCode);
+            } catch (Exception emailException) {
+                // In sandbox, email might fail but we'll show the code anyway
+                if (!isSandbox) {
+                    throw emailException; // Re-throw in production
+                }
+                System.debug('Email send failed in sandbox (expected): ' + emailException.getMessage());
+            }
             
             result.success = true;
-            result.message = 'A verification code has been sent to your email address.';
+            if (isSandbox) {
+                result.message = 'A verification code has been sent to your email address.';
+                result.message += ' (Sandbox Mode: Your code is ' + otpCode + ')';
+                result.otpCode = otpCode; // Include OTP code for sandbox display
+            } else {
+                result.message = 'A verification code has been sent to your email address.';
+            }
             result.verificationId = verificationId;
+            result.isSandbox = isSandbox;
             
+        } catch (AuraHandledException e) {
+            // Re-throw AuraHandledException to preserve the specific error message
+            System.debug('AuraHandledException in verifyEmailAndSendOTP: ' + e.getMessage());
+            throw e;
         } catch (Exception e) {
             System.debug('Error in verifyEmailAndSendOTP: ' + e.getMessage());
+            System.debug('Error type: ' + e.getTypeName());
             System.debug('Stack trace: ' + e.getStackTraceString());
-            result.message = 'An error occurred. Please try again or contact support.';
+            
+            // Provide more specific error messages based on exception type
+            String errorMessage = 'An error occurred. Please try again or contact support.';
+            if (e.getTypeName().contains('QueryException')) {
+                errorMessage = 'Database error occurred. Please contact support.';
+            } else if (e.getTypeName().contains('EmailException') || e.getMessage().contains('email')) {
+                errorMessage = 'Failed to send verification email. Please check your email address and try again.';
+            } else if (e.getMessage().contains('Cache')) {
+                errorMessage = 'OTP storage is temporarily unavailable. Please try again in a moment.';
+            } else if (e.getMessage() != null && !String.isBlank(e.getMessage())) {
+                // Include the actual error message if available
+                errorMessage = 'Error: ' + e.getMessage();
+            }
+            
+            result.message = errorMessage;
         }
         
         return result;
@@ -171,13 +208,46 @@ public with sharing class PortalLoginController {
             result.username = users[0].Username;
             result.userId = users[0].Id;
             
+        } catch (AuraHandledException e) {
+            // Re-throw AuraHandledException to preserve the specific error message
+            System.debug('AuraHandledException in verifyOTPAndLogin: ' + e.getMessage());
+            throw e;
         } catch (Exception e) {
             System.debug('Error in verifyOTPAndLogin: ' + e.getMessage());
+            System.debug('Error type: ' + e.getTypeName());
             System.debug('Stack trace: ' + e.getStackTraceString());
-            result.message = 'An error occurred during login. Please try again.';
+            
+            // Provide more specific error messages based on exception type
+            String errorMessage = 'An error occurred during login. Please try again.';
+            if (e.getTypeName().contains('QueryException')) {
+                errorMessage = 'Database error occurred. Please contact support.';
+            } else if (e.getMessage().contains('Cache')) {
+                errorMessage = 'OTP verification is temporarily unavailable. Please request a new code.';
+            } else if (e.getMessage() != null && !String.isBlank(e.getMessage())) {
+                // Include the actual error message if available
+                errorMessage = 'Error: ' + e.getMessage();
+            }
+            
+            result.message = errorMessage;
         }
         
         return result;
+    }
+    
+    /**
+     * Checks if the current org is a sandbox
+     */
+    private static Boolean isSandboxOrg() {
+        try {
+            // Check if org name contains common sandbox indicators
+            String orgId = UserInfo.getOrganizationId();
+            Organization org = [SELECT Id, InstanceName, IsSandbox FROM Organization WHERE Id = :orgId LIMIT 1];
+            return org.IsSandbox;
+        } catch (Exception e) {
+            System.debug('Error checking sandbox status: ' + e.getMessage());
+            // Default to false if we can't determine
+            return false;
+        }
     }
     
     /**
@@ -190,24 +260,44 @@ public with sharing class PortalLoginController {
     
     /**
      * Stores OTP in Platform Cache
-     * Falls back to a simple in-memory approach if cache is not available
+     * Falls back to default cache partition if named partition is not available
      */
     private static String storeOTP(String contactId, String email, String otpCode) {
         // Generate a unique verification ID
         Blob cryptoKey = Crypto.generateAesKey(128);
-        String verificationId = EncodingUtil.base64Encode(cryptoKey).substring(0, 32);
+        String base64Key = EncodingUtil.base64Encode(cryptoKey);
+        // Ensure we have at least 32 characters, pad if necessary
+        String verificationId = base64Key.length() >= 32 
+            ? base64Key.substring(0, 32) 
+            : base64Key + EncodingUtil.base64Encode(Blob.valueOf(String.valueOf(DateTime.now().getTime()))).substring(0, 32 - base64Key.length());
         
-        // Store in Platform Cache (if available)
+        Integer ttlSeconds = OTP_EXPIRATION_MINUTES * 60;
+        String otpKey = 'portal_otp_' + verificationId;
+        String emailKey = 'portal_email_' + verificationId;
+        String contactKey = 'portal_contact_' + verificationId;
+        String timestampKey = 'portal_timestamp_' + verificationId;
+        
+        // Try to use named partition first, fall back to default cache
         try {
-            Cache.Org.put('portal_otp_' + verificationId, otpCode, OTP_EXPIRATION_MINUTES * 60);
-            Cache.Org.put('portal_email_' + verificationId, email, OTP_EXPIRATION_MINUTES * 60);
-            Cache.Org.put('portal_contact_' + verificationId, contactId, OTP_EXPIRATION_MINUTES * 60);
-            Cache.Org.put('portal_timestamp_' + verificationId, String.valueOf(DateTime.now().getTime()), OTP_EXPIRATION_MINUTES * 60);
+            Cache.OrgPartition partition = Cache.Org.getPartition('PortalOTPCache');
+            partition.put(otpKey, otpCode, ttlSeconds);
+            partition.put(emailKey, email, ttlSeconds);
+            partition.put(contactKey, contactId, ttlSeconds);
+            partition.put(timestampKey, String.valueOf(DateTime.now().getTime()), ttlSeconds);
+            System.debug('OTP stored in named partition: PortalOTPCache');
         } catch (Exception e) {
-            System.debug('Platform Cache not available: ' + e.getMessage());
-            // In production, you might want to use a custom object to store OTPs
-            // For now, we'll throw an error if cache is not available
-            throw new AuraHandledException('OTP storage is temporarily unavailable. Please try again later.');
+            System.debug('Named partition not available, using default cache: ' + e.getMessage());
+            // Fall back to default cache partition
+            try {
+                Cache.Org.put(otpKey, otpCode, ttlSeconds);
+                Cache.Org.put(emailKey, email, ttlSeconds);
+                Cache.Org.put(contactKey, contactId, ttlSeconds);
+                Cache.Org.put(timestampKey, String.valueOf(DateTime.now().getTime()), ttlSeconds);
+                System.debug('OTP stored in default cache partition');
+            } catch (Exception defaultCacheException) {
+                System.debug('Platform Cache not available: ' + defaultCacheException.getMessage());
+                throw new AuraHandledException('OTP storage is temporarily unavailable. Please ensure Platform Cache is enabled in your org.');
+            }
         }
         
         return verificationId;
@@ -215,13 +305,31 @@ public with sharing class PortalLoginController {
     
     /**
      * Verifies OTP from Platform Cache
+     * Falls back to default cache partition if named partition is not available
      */
     private static Boolean verifyOTP(String verificationId, String email, String otpCode) {
         try {
-            // Retrieve from cache
-            String storedOTP = (String)Cache.Org.get('portal_otp_' + verificationId);
-            String storedEmail = (String)Cache.Org.get('portal_email_' + verificationId);
-            String timestampStr = (String)Cache.Org.get('portal_timestamp_' + verificationId);
+            String otpKey = 'portal_otp_' + verificationId;
+            String emailKey = 'portal_email_' + verificationId;
+            String timestampKey = 'portal_timestamp_' + verificationId;
+            
+            String storedOTP;
+            String storedEmail;
+            String timestampStr;
+            
+            // Try to retrieve from named partition first, fall back to default cache
+            try {
+                Cache.OrgPartition partition = Cache.Org.getPartition('PortalOTPCache');
+                storedOTP = (String)partition.get(otpKey);
+                storedEmail = (String)partition.get(emailKey);
+                timestampStr = (String)partition.get(timestampKey);
+            } catch (Exception e) {
+                System.debug('Named partition not available, using default cache: ' + e.getMessage());
+                // Fall back to default cache partition
+                storedOTP = (String)Cache.Org.get(otpKey);
+                storedEmail = (String)Cache.Org.get(emailKey);
+                timestampStr = (String)Cache.Org.get(timestampKey);
+            }
             
             if (String.isBlank(storedOTP) || String.isBlank(storedEmail)) {
                 return false; // OTP not found or expired
@@ -255,13 +363,30 @@ public with sharing class PortalLoginController {
     
     /**
      * Marks OTP as used by removing it from cache
+     * Falls back to default cache partition if named partition is not available
      */
     private static void markOTPAsUsed(String verificationId) {
         try {
-            Cache.Org.remove('portal_otp_' + verificationId);
-            Cache.Org.remove('portal_email_' + verificationId);
-            Cache.Org.remove('portal_contact_' + verificationId);
-            Cache.Org.remove('portal_timestamp_' + verificationId);
+            String otpKey = 'portal_otp_' + verificationId;
+            String emailKey = 'portal_email_' + verificationId;
+            String contactKey = 'portal_contact_' + verificationId;
+            String timestampKey = 'portal_timestamp_' + verificationId;
+            
+            // Try to remove from named partition first, fall back to default cache
+            try {
+                Cache.OrgPartition partition = Cache.Org.getPartition('PortalOTPCache');
+                partition.remove(otpKey);
+                partition.remove(emailKey);
+                partition.remove(contactKey);
+                partition.remove(timestampKey);
+            } catch (Exception e) {
+                System.debug('Named partition not available, using default cache: ' + e.getMessage());
+                // Fall back to default cache partition
+                Cache.Org.remove(otpKey);
+                Cache.Org.remove(emailKey);
+                Cache.Org.remove(contactKey);
+                Cache.Org.remove(timestampKey);
+            }
         } catch (Exception e) {
             System.debug('Error marking OTP as used: ' + e.getMessage());
         }
@@ -291,11 +416,54 @@ public with sharing class PortalLoginController {
             '<p>Thank you,<br/>Project Management Portal</p>'
         );
         
+        // Try to set org-wide email address if available
         try {
-            Messaging.sendEmail(new Messaging.SingleEmailMessage[]{email});
+            List<OrgWideEmailAddress> orgWideEmails = [
+                SELECT Id, Address, DisplayName 
+                FROM OrgWideEmailAddress 
+                WHERE IsAllowAllProfiles = true 
+                LIMIT 1
+            ];
+            if (!orgWideEmails.isEmpty()) {
+                email.setOrgWideEmailAddressId(orgWideEmails[0].Id);
+            }
+        } catch (Exception e) {
+            System.debug('Could not set org-wide email address: ' + e.getMessage());
+            // Continue without org-wide email address
+        }
+        
+        // Set save as activity to track email
+        email.setSaveAsActivity(false);
+        
+        try {
+            Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[]{email});
+            
+            // Check if email was sent successfully
+            if (results != null && !results.isEmpty()) {
+                Messaging.SendEmailResult result = results[0];
+                if (!result.isSuccess()) {
+                    String errorMsg = 'Email send failed: ';
+                    if (result.getErrors() != null && !result.getErrors().isEmpty()) {
+                        errorMsg += result.getErrors()[0].getMessage();
+                    } else {
+                        errorMsg += 'Unknown error';
+                    }
+                    System.debug('Email send error: ' + errorMsg);
+                    throw new AuraHandledException('Failed to send verification email. Please check email deliverability settings in Setup > Email Administration > Deliverability. Error: ' + errorMsg);
+                } else {
+                    System.debug('OTP email sent successfully to: ' + contact.Email);
+                }
+            } else {
+                System.debug('Email send returned null or empty results');
+                throw new AuraHandledException('Failed to send verification email. Email deliverability may be disabled. Please contact your administrator.');
+            }
+        } catch (AuraHandledException e) {
+            // Re-throw AuraHandledException as-is
+            throw e;
         } catch (Exception e) {
             System.debug('Error sending OTP email: ' + e.getMessage());
-            throw new AuraHandledException('Failed to send verification email: ' + e.getMessage());
+            System.debug('Stack trace: ' + e.getStackTraceString());
+            throw new AuraHandledException('Failed to send verification email: ' + e.getMessage() + '. Please check email deliverability settings in Setup > Email Administration > Deliverability.');
         }
     }
     
@@ -304,6 +472,8 @@ public with sharing class PortalLoginController {
         @AuraEnabled public Boolean success;
         @AuraEnabled public String message;
         @AuraEnabled public String verificationId;
+        @AuraEnabled public String otpCode; // Only populated in sandbox
+        @AuraEnabled public Boolean isSandbox; // Indicates if this is a sandbox org
     }
     
     public class LoginResult {
