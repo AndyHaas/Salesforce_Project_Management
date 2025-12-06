@@ -210,29 +210,54 @@ public without sharing class PortalLoginController {
             System.setPassword(user.Id, tempPassword);
             System.debug('Temporary password set for user: ' + user.Username);
             
-            // Authenticate the user using Site.login()
-            // This creates a session and returns a PageReference to redirect to
+            // Generate a login token for secure passwordless login
+            // Store username and password in cache temporarily (expires in 2 minutes)
+            Blob cryptoKey = Crypto.generateAesKey(128);
+            String hexKey = EncodingUtil.convertToHex(cryptoKey);
+            String timestampHex = EncodingUtil.convertToHex(Blob.valueOf(String.valueOf(DateTime.now().getTime())));
+            String loginToken = (hexKey + timestampHex).substring(0, 32);
+            
+            // Store login credentials in cache (short TTL for security)
+            Integer ttlSeconds = 120; // 2 minutes
+            String usernameKey = 'portalloginun' + loginToken;
+            String passwordKey = 'portalloginpw' + loginToken;
+            
             try {
-                PageReference loginPage = Site.login(user.Username, tempPassword, '/s/');
-                
-                if (loginPage != null) {
-                    // Get the URL from the PageReference
-                    String redirectUrl = loginPage.getUrl();
-                    System.debug('Login successful, redirect URL: ' + redirectUrl);
-                    
-                    result.success = true;
-                    result.message = 'Verification successful. Logging you in...';
-                    result.username = user.Username;
-                    result.userId = user.Id;
-                    result.sessionToken = redirectUrl; // Store redirect URL in sessionToken field
-                } else {
-                    throw new AuraHandledException('Login failed. Unable to create session.');
-                }
-            } catch (Exception loginException) {
-                System.debug('Error during Site.login(): ' + loginException.getMessage());
-                System.debug('Stack trace: ' + loginException.getStackTraceString());
-                throw new AuraHandledException('Login failed. Please try again or contact support.');
+                Cache.OrgPartition partition = Cache.Org.getPartition('PortalOTPCache');
+                partition.put(usernameKey, user.Username, ttlSeconds);
+                partition.put(passwordKey, tempPassword, ttlSeconds);
+            } catch (Exception e) {
+                // Fall back to default cache
+                Cache.Org.put(usernameKey, user.Username, ttlSeconds);
+                Cache.Org.put(passwordKey, tempPassword, ttlSeconds);
             }
+            
+            // Return URL to Visualforce page that will handle the login
+            // The Visualforce page will retrieve credentials from cache and call Site.login()
+            // Use Site.getBaseUrl() for Experience Cloud sites, or construct relative URL
+            String siteUrl;
+            try {
+                siteUrl = Site.getBaseUrl();
+            } catch (Exception e) {
+                // Fallback: use relative URL if Site.getBaseUrl() fails
+                siteUrl = '/apex/PortalAutoLogin';
+            }
+            
+            // If siteUrl doesn't start with http, it's relative - use as is
+            // Otherwise, append the path
+            String loginUrl;
+            if (siteUrl.startsWith('http')) {
+                loginUrl = siteUrl + '/apex/PortalAutoLogin?token=' + loginToken;
+            } else {
+                // Relative URL - frontend will construct full URL
+                loginUrl = '/apex/PortalAutoLogin?token=' + loginToken;
+            }
+            
+            result.success = true;
+            result.message = 'Verification successful. Logging you in...';
+            result.username = user.Username;
+            result.userId = user.Id;
+            result.sessionToken = loginUrl; // Store login URL in sessionToken field
             
         } catch (AuraHandledException e) {
             // Re-throw AuraHandledException to preserve the specific error message
