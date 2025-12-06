@@ -263,13 +263,13 @@ public without sharing class PortalLoginController {
      * Falls back to default cache partition if named partition is not available
      */
     private static String storeOTP(String contactId, String email, String otpCode) {
-        // Generate a unique verification ID
+        // Generate a unique verification ID using hex encoding (alphanumeric only)
+        // Platform Cache keys must be alphanumeric, so we use hex instead of base64
         Blob cryptoKey = Crypto.generateAesKey(128);
-        String base64Key = EncodingUtil.base64Encode(cryptoKey);
-        // Ensure we have at least 32 characters, pad if necessary
-        String verificationId = base64Key.length() >= 32 
-            ? base64Key.substring(0, 32) 
-            : base64Key + EncodingUtil.base64Encode(Blob.valueOf(String.valueOf(DateTime.now().getTime()))).substring(0, 32 - base64Key.length());
+        String hexKey = EncodingUtil.convertToHex(cryptoKey);
+        // Add timestamp for uniqueness and ensure at least 32 characters
+        String timestampHex = EncodingUtil.convertToHex(Blob.valueOf(String.valueOf(DateTime.now().getTime())));
+        String verificationId = (hexKey + timestampHex).substring(0, 32);
         
         Integer ttlSeconds = OTP_EXPIRATION_MINUTES * 60;
         String otpKey = 'portal_otp_' + verificationId;
