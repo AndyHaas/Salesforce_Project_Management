@@ -232,7 +232,8 @@ public without sharing class PortalLoginController {
             String loginToken = (hexKey + timestampHex).substring(0, 32);
             
             // Store login credentials in cache (short TTL for security)
-            Integer ttlSeconds = 120; // 2 minutes
+            // Platform Cache requires minimum TTL of 300 seconds (5 minutes)
+            Integer ttlSeconds = 300; // 5 minutes (minimum allowed by Platform Cache)
             String usernameKey = 'portalloginun' + loginToken;
             String passwordKey = 'portalloginpw' + loginToken;
             
