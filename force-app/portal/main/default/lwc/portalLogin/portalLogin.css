@@ -31,8 +31,8 @@ lightning-card {
     --slds-c-card-body-spacing-inline-end: 0;
 }
 
-/* Custom header styling */
-.slds-card__header {
+/* Custom header styling - using slot="header" */
+.custom-header {
     background: var(--mc-hero-gradient);
     padding: 2rem 1.5rem;
     text-align: center;
@@ -43,6 +43,7 @@ lightning-card {
     gap: 0.75rem;
     margin: 0;
     border-radius: 12px 12px 0 0;
+    width: 100%;
 }
 
 .header-icon {
@@ -50,7 +51,7 @@ lightning-card {
     margin-bottom: 0.5rem;
 }
 
-.slds-card__header-title {
+.header-title {
     color: var(--mc-text-light);
     font-family: var(--mc-font-display);
     font-weight: 600;
@@ -59,7 +60,7 @@ lightning-card {
     line-height: 1.2;
 }
 
-.slds-card__body {
+.card-body {
     padding: 2rem 1.5rem;
     background: var(--mc-text-light);
 }
@@ -161,11 +162,11 @@ strong {
         max-width: calc(100% - 2rem);
     }
     
-    .slds-card__header {
+    .custom-header {
         padding: 1.5rem 1rem;
     }
     
-    .slds-card__body {
+    .card-body {
         padding: 1.5rem 1rem;
     }
 }

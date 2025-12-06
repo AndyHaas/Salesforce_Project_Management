@@ -1,12 +1,12 @@
 <template>
     <lightning-card>
         <!-- Custom Header with Gradient -->
-        <div class="slds-card__header">
+        <div slot="header" class="custom-header">
             <lightning-icon icon-name="utility:user" size="large" class="header-icon"></lightning-icon>
-            <h1 class="slds-card__header-title">Welcome to the Portal</h1>
+            <h1 class="header-title">Welcome to the Portal</h1>
         </div>
         
-        <div class="slds-card__body">
+        <div class="card-body">
             <!-- Email Step -->
             <template if:true={showEmailStep}>
                 <div class="slds-text-align_center slds-m-bottom_medium">
