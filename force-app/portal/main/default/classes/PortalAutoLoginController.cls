@@ -33,14 +33,11 @@ public class PortalAutoLoginController {
             }
             
             // Clear the credentials from cache after retrieval (security)
-            try {
-                Cache.OrgPartition partition = Cache.Org.getPartition('PortalOTPCache');
-                partition.remove(usernameKey);
-                partition.remove(passwordKey);
-            } catch (Exception e) {
-                Cache.Org.remove(usernameKey);
-                Cache.Org.remove(passwordKey);
-            }
+            // Use the centralized method from PortalLoginController
+            PortalLoginController.clearLoginCredentialsCache(token);
+            
+            // Also clear any OTP cache entries that might be lingering for this user
+            // (We can't get the verificationId from here, but OTP entries will expire on their own)
             
             // Use Site.login() to authenticate the user
             // This works in Visualforce page context

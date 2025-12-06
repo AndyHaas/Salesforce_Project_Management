@@ -2,6 +2,7 @@ import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import verifyEmailAndSendOTP from '@salesforce/apex/PortalLoginController.verifyEmailAndSendOTP';
 import verifyOTPAndLogin from '@salesforce/apex/PortalLoginController.verifyOTPAndLogin';
+import clearPortalCache from '@salesforce/apex/PortalLoginController.clearPortalCache';
 
 export default class PortalLogin extends NavigationMixin(LightningElement) {
     @track email = '';
@@ -29,6 +30,23 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
 
     get otpInputClass() {
         return 'otp-input-container';
+    }
+
+    /**
+     * Lifecycle hook - called when component is inserted into the DOM
+     * Clear any stale portal cache entries for security
+     */
+    connectedCallback() {
+        // Clear portal cache on page load to ensure no stale entries
+        // This is a best practice for security - clear any lingering OTP or login tokens
+        clearPortalCache()
+            .then(() => {
+                console.log('Portal cache cleared on page load');
+            })
+            .catch((error) => {
+                // Non-critical - cache entries will expire on their own
+                console.warn('Could not clear portal cache:', error);
+            });
     }
 
     handleEmailChange(event) {
@@ -159,6 +177,17 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
             
             if (result.success) {
                 this.successMessage = result.message;
+                
+                // Clear portal cache after successful login for security
+                // This ensures no lingering OTP or login tokens remain
+                clearPortalCache()
+                    .then(() => {
+                        console.log('Portal cache cleared after successful login');
+                    })
+                    .catch((error) => {
+                        // Non-critical - cache entries will expire on their own
+                        console.warn('Could not clear portal cache after login:', error);
+                    });
                 
                 // Transition effect before redirect
                 this.stepTransition = true;
