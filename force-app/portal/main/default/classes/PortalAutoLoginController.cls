@@ -8,7 +8,9 @@ public class PortalAutoLoginController {
             
             if (String.isBlank(token)) {
                 System.debug('PortalAutoLogin: No login token provided');
-                return new PageReference('/s/login');
+                PageReference loginPage = new PageReference('/s/login');
+                loginPage.setRedirect(true);
+                return loginPage;
             }
             
             // Retrieve username and password from Platform Cache
@@ -43,6 +45,7 @@ public class PortalAutoLoginController {
                 // Redirect to login page with error message
                 PageReference loginPage = new PageReference('/s/login');
                 loginPage.getParameters().put('error', 'Login session expired. Please try again.');
+                loginPage.setRedirect(true);
                 return loginPage;
             }
             
@@ -58,6 +61,8 @@ public class PortalAutoLoginController {
                 // Clear the credentials from cache after successful login (security)
                 PortalLoginController.clearLoginCredentialsCache(token);
                 System.debug('PortalAutoLogin: Login successful, redirecting to: ' + loginResult.getUrl());
+                // Ensure redirect is set
+                loginResult.setRedirect(true);
                 return loginResult;
             } else {
                 System.debug('PortalAutoLogin: Site.login() returned null - login failed');
@@ -65,6 +70,7 @@ public class PortalAutoLoginController {
                 PortalLoginController.clearLoginCredentialsCache(token);
                 PageReference loginPage = new PageReference('/s/login');
                 loginPage.getParameters().put('error', 'Login failed. Please try again.');
+                loginPage.setRedirect(true);
                 return loginPage;
             }
         } catch (Exception e) {
@@ -74,6 +80,7 @@ public class PortalAutoLoginController {
             // Redirect to login page on error
             PageReference loginPage = new PageReference('/s/login');
             loginPage.getParameters().put('error', 'An error occurred during login. Please try again.');
+            loginPage.setRedirect(true);
             return loginPage;
         }
     }
