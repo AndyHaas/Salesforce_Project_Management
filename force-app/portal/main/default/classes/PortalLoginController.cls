@@ -274,24 +274,9 @@ public without sharing class PortalLoginController {
             
             // Return URL to Visualforce page that will handle the login
             // The Visualforce page will retrieve credentials from cache and call Site.login()
-            // Use Site.getBaseUrl() for Experience Cloud sites, or construct relative URL
-            String siteUrl;
-            try {
-                siteUrl = Site.getBaseUrl();
-            } catch (Exception e) {
-                // Fallback: use relative URL if Site.getBaseUrl() fails
-                siteUrl = '/apex/PortalAutoLogin';
-            }
-            
-            // If siteUrl doesn't start with http, it's relative - use as is
-            // Otherwise, append the path
-            String loginUrl;
-            if (siteUrl.startsWith('http')) {
-                loginUrl = siteUrl + '/apex/PortalAutoLogin?token=' + loginToken;
-            } else {
-                // Relative URL - frontend will construct full URL
-                loginUrl = '/apex/PortalAutoLogin?token=' + loginToken;
-            }
+            // For Experience Cloud sites, use /s/apex/ path prefix
+            // Relative URL - frontend will construct full URL from window.location.origin
+            String loginUrl = '/s/apex/PortalAutoLogin?token=' + loginToken;
             
             result.success = true;
             result.message = 'Verification successful. Logging you in...';
