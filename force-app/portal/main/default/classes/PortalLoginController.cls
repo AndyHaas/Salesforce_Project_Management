@@ -286,7 +286,8 @@ public without sharing class PortalLoginController {
             partition.put(timestampKey, String.valueOf(DateTime.now().getTime()), ttlSeconds);
             System.debug('OTP stored in named partition: PortalOTPCache');
         } catch (Exception e) {
-            System.debug('Named partition not available, using default cache: ' + e.getMessage());
+            System.debug('Named partition error - Type: ' + e.getTypeName() + ', Message: ' + e.getMessage());
+            System.debug('Stack trace: ' + e.getStackTraceString());
             // Fall back to default cache partition
             try {
                 Cache.Org.put(otpKey, otpCode, ttlSeconds);
@@ -295,8 +296,16 @@ public without sharing class PortalLoginController {
                 Cache.Org.put(timestampKey, String.valueOf(DateTime.now().getTime()), ttlSeconds);
                 System.debug('OTP stored in default cache partition');
             } catch (Exception defaultCacheException) {
-                System.debug('Platform Cache not available: ' + defaultCacheException.getMessage());
-                throw new AuraHandledException('OTP storage is temporarily unavailable. Please ensure Platform Cache is enabled in your org.');
+                System.debug('Default cache error - Type: ' + defaultCacheException.getTypeName() + ', Message: ' + defaultCacheException.getMessage());
+                System.debug('Stack trace: ' + defaultCacheException.getStackTraceString());
+                // Include the actual error message in the exception
+                String errorMsg = 'OTP storage is temporarily unavailable. ';
+                if (defaultCacheException.getMessage() != null && !String.isBlank(defaultCacheException.getMessage())) {
+                    errorMsg += 'Error: ' + defaultCacheException.getMessage();
+                } else {
+                    errorMsg += 'Please ensure Platform Cache is enabled in your org.';
+                }
+                throw new AuraHandledException(errorMsg);
             }
         }
         
