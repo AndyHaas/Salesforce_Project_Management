@@ -207,8 +207,22 @@ public without sharing class PortalLoginController {
             String tempPassword = generateSecurePassword();
             
             // Set the temporary password for the user
-            System.setPassword(user.Id, tempPassword);
-            System.debug('Temporary password set for user: ' + user.Username);
+            // This requires "Manage Users" or "Reset User Passwords" permission
+            try {
+                System.setPassword(user.Id, tempPassword);
+                System.debug('Temporary password set for user: ' + user.Username);
+            } catch (Exception passwordException) {
+                System.debug('Error setting password - Type: ' + passwordException.getTypeName() + ', Message: ' + passwordException.getMessage());
+                System.debug('Stack trace: ' + passwordException.getStackTraceString());
+                // If we can't set the password, we can't proceed with passwordless login
+                String errorMsg = 'Unable to set temporary password. ';
+                if (passwordException.getMessage() != null && !String.isBlank(passwordException.getMessage())) {
+                    errorMsg += 'Error: ' + passwordException.getMessage();
+                } else {
+                    errorMsg += 'Please ensure the user has proper permissions or contact support.';
+                }
+                throw new AuraHandledException(errorMsg);
+            }
             
             // Generate a login token for secure passwordless login
             // Store username and password in cache temporarily (expires in 2 minutes)
@@ -242,7 +256,14 @@ public without sharing class PortalLoginController {
                     System.debug('Default cache error - Type: ' + defaultCacheException.getTypeName() + ', Message: ' + defaultCacheException.getMessage());
                     System.debug('Stack trace: ' + defaultCacheException.getStackTraceString());
                     // If cache fails, we can't proceed with passwordless login
-                    throw new AuraHandledException('Unable to store login credentials. Please try again or contact support.');
+                    // Include the actual error message for debugging
+                    String errorMsg = 'Unable to store login credentials. ';
+                    if (defaultCacheException.getMessage() != null && !String.isBlank(defaultCacheException.getMessage())) {
+                        errorMsg += 'Error: ' + defaultCacheException.getMessage();
+                    } else {
+                        errorMsg += 'Please try again or contact support.';
+                    }
+                    throw new AuraHandledException(errorMsg);
                 }
             }
             
