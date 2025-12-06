@@ -1,6 +1,14 @@
 <template>
-    <lightning-card icon-name="utility:user">
-        <div class="slds-p-around_medium">
+    <lightning-card>
+        <!-- Custom Header with Gradient -->
+        <div class="slds-card__header">
+            <div class="slds-text-align_center">
+                <lightning-icon icon-name="utility:user" size="large" class="slds-m-bottom_small" style="--slds-c-icon-color-foreground-default: white;"></lightning-icon>
+                <h1 class="slds-card__header-title">Welcome to the Portal</h1>
+            </div>
+        </div>
+        
+        <div class="slds-card__body">
             <!-- Email Step -->
             <template if:true={showEmailStep}>
                 <div class="slds-text-align_center slds-m-bottom_medium">
@@ -22,20 +30,20 @@
                 </lightning-input>
 
                 <template if:true={errorMessage}>
-                    <div class="slds-m-bottom_small">
-                        <lightning-formatted-text
-                            value={errorMessage}
-                            class="slds-text-color_error">
-                        </lightning-formatted-text>
+                    <div class="slds-m-bottom_small slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                        <span class="slds-assistive-text">error</span>
+                        <div class="slds-text-color_error">
+                            {errorMessage}
+                        </div>
                     </div>
                 </template>
 
                 <template if:true={successMessage}>
-                    <div class="slds-m-bottom_small">
-                        <lightning-formatted-text
-                            value={successMessage}
-                            class="slds-text-color_success">
-                        </lightning-formatted-text>
+                    <div class="slds-m-bottom_small slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_success" role="alert">
+                        <span class="slds-assistive-text">success</span>
+                        <div class="slds-text-color_success">
+                            {successMessage}
+                        </div>
                     </div>
                 </template>
 
@@ -70,20 +78,20 @@
                 </lightning-input>
 
                 <template if:true={errorMessage}>
-                    <div class="slds-m-bottom_small">
-                        <lightning-formatted-text
-                            value={errorMessage}
-                            class="slds-text-color_error">
-                        </lightning-formatted-text>
+                    <div class="slds-m-bottom_small slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                        <span class="slds-assistive-text">error</span>
+                        <div class="slds-text-color_error">
+                            {errorMessage}
+                        </div>
                     </div>
                 </template>
 
                 <template if:true={successMessage}>
-                    <div class="slds-m-bottom_small">
-                        <lightning-formatted-text
-                            value={successMessage}
-                            class="slds-text-color_success">
-                        </lightning-formatted-text>
+                    <div class="slds-m-bottom_small slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_success" role="alert">
+                        <span class="slds-assistive-text">success</span>
+                        <div class="slds-text-color_success">
+                            {successMessage}
+                        </div>
                     </div>
                 </template>
 

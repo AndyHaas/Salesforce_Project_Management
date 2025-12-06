@@ -89,15 +89,36 @@ lightning-input label {
     font-weight: 500;
 }
 
+/* Notification/Alert styling */
+.slds-notify {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-family: var(--mc-font-primary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.slds-theme_error {
+    background-color: #fef7f7;
+    border-left: 4px solid var(--slds-g-color-error-base-10, #c23934);
+}
+
+.slds-theme_success {
+    background-color: #f0f9f7;
+    border-left: 4px solid var(--slds-g-color-success-base-10, #027e69);
+}
+
 /* Text colors */
 .slds-text-color_error {
     color: var(--slds-g-color-error-base-10, #c23934);
     font-family: var(--mc-font-primary);
+    font-weight: 500;
 }
 
 .slds-text-color_success {
     color: var(--slds-g-color-success-base-10, #027e69);
     font-family: var(--mc-font-primary);
+    font-weight: 500;
 }
 
 /* Body text */
