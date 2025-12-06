@@ -200,13 +200,15 @@ public without sharing class PortalLoginController {
             // Mark OTP as used
             markOTPAsUsed(verificationId);
             
-            // For passwordless login, we can use Site.login() if a password reset token is available
-            // or redirect to the login page with username pre-filled
-            // Note: True passwordless login requires additional setup (Auth.SessionManagement)
+            // For passwordless login, we'll redirect to the community home page
+            // The frontend will handle the redirect using the username
+            // Note: True passwordless authentication requires additional setup
+            // For now, we'll redirect to the login page with username pre-filled
             result.success = true;
             result.message = 'Verification successful.';
             result.username = users[0].Username;
             result.userId = users[0].Id;
+            result.sessionToken = null; // Not using session token for now
             
         } catch (AuraHandledException e) {
             // Re-throw AuraHandledException to preserve the specific error message
@@ -493,6 +495,7 @@ public without sharing class PortalLoginController {
         @AuraEnabled public String message;
         @AuraEnabled public String username;
         @AuraEnabled public String userId;
+        @AuraEnabled public String sessionToken; // Session token for passwordless login
     }
 }
 

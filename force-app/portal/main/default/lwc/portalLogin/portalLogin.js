@@ -163,10 +163,10 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
                 // Transition effect before redirect
                 this.stepTransition = true;
                 
-                // Redirect to standard Salesforce login with username pre-filled
-                // Note: For true passwordless login, additional Auth.SessionManagement setup is needed
+                // Redirect to community home page
+                // Note: For true passwordless login, additional authentication setup is needed
                 setTimeout(() => {
-                    this.redirectToLogin(result.username);
+                    this.redirectToCommunityHome();
                 }, 500);
             } else {
                 this.errorMessage = result.message;
@@ -228,15 +228,16 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
         }, 300);
     }
 
-    redirectToLogin(username) {
+    redirectToCommunityHome() {
         // Get the current Experience Cloud site URL
         const siteUrl = window.location.origin;
-        const communityPath = '/s'; // Standard Salesforce login path
+        const communityPath = '/s'; // Standard Salesforce community path
         
-        // Redirect to Salesforce login with username pre-filled
-        // For passwordless login, you would need to implement Auth.SessionManagement
-        // For now, redirect to login page
-        window.location.href = `${siteUrl}${communityPath}/login?un=${encodeURIComponent(username)}`;
+        // Redirect to community home page
+        // After OTP verification, redirect to the home page
+        // Note: For true passwordless login, you may need to implement
+        // additional authentication using Site.login() or Auth.SessionManagement
+        window.location.href = `${siteUrl}${communityPath}/`;
     }
 
     isValidEmail(email) {
