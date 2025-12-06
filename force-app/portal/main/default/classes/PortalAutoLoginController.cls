@@ -4,15 +4,18 @@ public class PortalAutoLoginController {
         try {
             // Get login token from URL parameter
             String token = ApexPages.currentPage().getParameters().get('token');
+            System.debug('PortalAutoLogin: Token received: ' + token);
             
             if (String.isBlank(token)) {
-                System.debug('No login token provided');
+                System.debug('PortalAutoLogin: No login token provided');
                 return new PageReference('/s/login');
             }
             
             // Retrieve username and password from Platform Cache
             String usernameKey = 'portalloginun' + token;
             String passwordKey = 'portalloginpw' + token;
+            
+            System.debug('PortalAutoLogin: Looking for credentials with keys: ' + usernameKey + ', ' + passwordKey);
             
             String username;
             String password;
@@ -21,39 +24,57 @@ public class PortalAutoLoginController {
                 Cache.OrgPartition partition = Cache.Org.getPartition('PortalOTPCache');
                 username = (String)partition.get(usernameKey);
                 password = (String)partition.get(passwordKey);
+                System.debug('PortalAutoLogin: Retrieved from named partition - Username: ' + (String.isNotBlank(username) ? 'found' : 'not found') + ', Password: ' + (String.isNotBlank(password) ? 'found' : 'not found'));
             } catch (Exception e) {
+                System.debug('PortalAutoLogin: Named partition error: ' + e.getMessage());
                 // Fall back to default cache
-                username = (String)Cache.Org.get(usernameKey);
-                password = (String)Cache.Org.get(passwordKey);
+                try {
+                    username = (String)Cache.Org.get(usernameKey);
+                    password = (String)Cache.Org.get(passwordKey);
+                    System.debug('PortalAutoLogin: Retrieved from default cache - Username: ' + (String.isNotBlank(username) ? 'found' : 'not found') + ', Password: ' + (String.isNotBlank(password) ? 'found' : 'not found'));
+                } catch (Exception defaultCacheException) {
+                    System.debug('PortalAutoLogin: Default cache error: ' + defaultCacheException.getMessage());
+                }
             }
             
             if (String.isBlank(username) || String.isBlank(password)) {
-                System.debug('Login credentials not found in cache for token: ' + token);
-                return new PageReference('/s/login');
+                System.debug('PortalAutoLogin: Login credentials not found in cache for token: ' + token);
+                System.debug('PortalAutoLogin: Username blank: ' + String.isBlank(username) + ', Password blank: ' + String.isBlank(password));
+                // Redirect to login page with error message
+                PageReference loginPage = new PageReference('/s/login');
+                loginPage.getParameters().put('error', 'Login session expired. Please try again.');
+                return loginPage;
             }
             
-            // Clear the credentials from cache after retrieval (security)
-            // Use the centralized method from PortalLoginController
-            PortalLoginController.clearLoginCredentialsCache(token);
-            
-            // Also clear any OTP cache entries that might be lingering for this user
-            // (We can't get the verificationId from here, but OTP entries will expire on their own)
+            System.debug('PortalAutoLogin: Credentials found, attempting login for username: ' + username);
             
             // Use Site.login() to authenticate the user
             // This works in Visualforce page context
             PageReference loginResult = Site.login(username, password, '/s/');
             
+            System.debug('PortalAutoLogin: Site.login() result: ' + (loginResult != null ? loginResult.getUrl() : 'null'));
+            
             if (loginResult != null) {
+                // Clear the credentials from cache after successful login (security)
+                PortalLoginController.clearLoginCredentialsCache(token);
+                System.debug('PortalAutoLogin: Login successful, redirecting to: ' + loginResult.getUrl());
                 return loginResult;
             } else {
-                System.debug('Site.login() returned null');
-                return new PageReference('/s/login');
+                System.debug('PortalAutoLogin: Site.login() returned null - login failed');
+                // Clear credentials even on failure (they're invalid anyway)
+                PortalLoginController.clearLoginCredentialsCache(token);
+                PageReference loginPage = new PageReference('/s/login');
+                loginPage.getParameters().put('error', 'Login failed. Please try again.');
+                return loginPage;
             }
         } catch (Exception e) {
-            System.debug('Error in autoLogin: ' + e.getMessage());
-            System.debug('Stack trace: ' + e.getStackTraceString());
+            System.debug('PortalAutoLogin: Exception in autoLogin: ' + e.getMessage());
+            System.debug('PortalAutoLogin: Exception type: ' + e.getTypeName());
+            System.debug('PortalAutoLogin: Stack trace: ' + e.getStackTraceString());
             // Redirect to login page on error
-            return new PageReference('/s/login');
+            PageReference loginPage = new PageReference('/s/login');
+            loginPage.getParameters().put('error', 'An error occurred during login. Please try again.');
+            return loginPage;
         }
     }
 }
