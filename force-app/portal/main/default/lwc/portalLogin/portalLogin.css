@@ -20,6 +20,15 @@
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
     border: none;
     overflow: hidden;
+    padding: 0;
+}
+
+/* Remove default card body padding to ensure header starts at top */
+lightning-card {
+    --slds-c-card-body-spacing-block-start: 0;
+    --slds-c-card-body-spacing-block-end: 0;
+    --slds-c-card-body-spacing-inline-start: 0;
+    --slds-c-card-body-spacing-inline-end: 0;
 }
 
 /* Custom header styling */
@@ -32,6 +41,8 @@
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
+    margin: 0;
+    border-radius: 12px 12px 0 0;
 }
 
 .header-icon {
