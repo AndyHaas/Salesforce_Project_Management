@@ -28,6 +28,15 @@
     padding: 2rem 1.5rem;
     text-align: center;
     color: var(--mc-text-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.header-icon {
+    --slds-c-icon-color-foreground-default: white;
+    margin-bottom: 0.5rem;
 }
 
 .slds-card__header-title {
@@ -36,6 +45,7 @@
     font-weight: 600;
     font-size: 1.5rem;
     margin: 0;
+    line-height: 1.2;
 }
 
 .slds-card__body {
@@ -90,35 +100,25 @@ lightning-input label {
 }
 
 /* Notification/Alert styling */
-.slds-notify {
-    padding: 0.75rem 1rem;
+.notification {
+    padding: 0.875rem 1rem;
     border-radius: 8px;
     font-family: var(--mc-font-primary);
     font-size: 0.875rem;
     line-height: 1.5;
+    font-weight: 500;
 }
 
-.slds-theme_error {
+.notification-error {
     background-color: #fef7f7;
-    border-left: 4px solid var(--slds-g-color-error-base-10, #c23934);
+    border-left: 4px solid #c23934;
+    color: #c23934;
 }
 
-.slds-theme_success {
+.notification-success {
     background-color: #f0f9f7;
-    border-left: 4px solid var(--slds-g-color-success-base-10, #027e69);
-}
-
-/* Text colors */
-.slds-text-color_error {
-    color: var(--slds-g-color-error-base-10, #c23934);
-    font-family: var(--mc-font-primary);
-    font-weight: 500;
-}
-
-.slds-text-color_success {
-    color: var(--slds-g-color-success-base-10, #027e69);
-    font-family: var(--mc-font-primary);
-    font-weight: 500;
+    border-left: 4px solid #027e69;
+    color: #027e69;
 }
 
 /* Body text */
@@ -135,10 +135,12 @@ strong {
 }
 
 /* Loading spinner container */
-.slds-is-relative {
+.loading-container {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 2rem 0;
+    min-height: 80px;
 }
 
 /* Responsive adjustments */
