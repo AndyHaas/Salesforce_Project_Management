@@ -163,10 +163,15 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
                 // Transition effect before redirect
                 this.stepTransition = true;
                 
-                // Redirect to community home page
-                // Note: For true passwordless login, additional authentication setup is needed
+                // Redirect using the URL from the server (passwordless login)
                 setTimeout(() => {
-                    this.redirectToCommunityHome();
+                    if (result.sessionToken) {
+                        // sessionToken contains the redirect URL from Site.login()
+                        window.location.href = result.sessionToken;
+                    } else {
+                        // Fallback to community home page
+                        this.redirectToCommunityHome();
+                    }
                 }, 500);
             } else {
                 this.errorMessage = result.message;

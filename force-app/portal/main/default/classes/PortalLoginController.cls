@@ -200,15 +200,39 @@ public without sharing class PortalLoginController {
             // Mark OTP as used
             markOTPAsUsed(verificationId);
             
-            // For passwordless login, we'll redirect to the community home page
-            // The frontend will handle the redirect using the username
-            // Note: True passwordless authentication requires additional setup
-            // For now, we'll redirect to the login page with username pre-filled
-            result.success = true;
-            result.message = 'Verification successful.';
-            result.username = users[0].Username;
-            result.userId = users[0].Id;
-            result.sessionToken = null; // Not using session token for now
+            // Passwordless login: Generate temporary password and authenticate user
+            User user = users[0];
+            
+            // Generate a secure temporary password
+            String tempPassword = generateSecurePassword();
+            
+            // Set the temporary password for the user
+            System.setPassword(user.Id, tempPassword);
+            System.debug('Temporary password set for user: ' + user.Username);
+            
+            // Authenticate the user using Site.login()
+            // This creates a session and returns a PageReference to redirect to
+            try {
+                PageReference loginPage = Site.login(user.Username, tempPassword, '/s/');
+                
+                if (loginPage != null) {
+                    // Get the URL from the PageReference
+                    String redirectUrl = loginPage.getUrl();
+                    System.debug('Login successful, redirect URL: ' + redirectUrl);
+                    
+                    result.success = true;
+                    result.message = 'Verification successful. Logging you in...';
+                    result.username = user.Username;
+                    result.userId = user.Id;
+                    result.sessionToken = redirectUrl; // Store redirect URL in sessionToken field
+                } else {
+                    throw new AuraHandledException('Login failed. Unable to create session.');
+                }
+            } catch (Exception loginException) {
+                System.debug('Error during Site.login(): ' + loginException.getMessage());
+                System.debug('Stack trace: ' + loginException.getStackTraceString());
+                throw new AuraHandledException('Login failed. Please try again or contact support.');
+            }
             
         } catch (AuraHandledException e) {
             // Re-throw AuraHandledException to preserve the specific error message
@@ -258,6 +282,22 @@ public without sharing class PortalLoginController {
     private static String generateOTP() {
         Integer otp = Integer.valueOf(Math.random() * 900000) + 100000;
         return String.valueOf(otp);
+    }
+    
+    /**
+     * Generates a secure temporary password for passwordless login
+     * Password must meet Salesforce requirements: at least 8 characters,
+     * contain letters and numbers
+     * Hex strings always contain both letters (a-f) and numbers (0-9)
+     */
+    private static String generateSecurePassword() {
+        // Generate a secure random password using crypto-secure random generation
+        Blob randomBlob = Crypto.generateAesKey(256);
+        String hexString = EncodingUtil.convertToHex(randomBlob);
+        
+        // Take first 12 characters (hex contains both letters and numbers, so this meets requirements)
+        // 12 characters ensures we have both letters and numbers
+        return hexString.substring(0, 12);
     }
     
     /**
