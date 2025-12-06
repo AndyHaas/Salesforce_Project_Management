@@ -272,10 +272,11 @@ public without sharing class PortalLoginController {
         String verificationId = (hexKey + timestampHex).substring(0, 32);
         
         Integer ttlSeconds = OTP_EXPIRATION_MINUTES * 60;
-        String otpKey = 'portal_otp_' + verificationId;
-        String emailKey = 'portal_email_' + verificationId;
-        String contactKey = 'portal_contact_' + verificationId;
-        String timestampKey = 'portal_timestamp_' + verificationId;
+        // Platform Cache keys must be alphanumeric - no underscores allowed
+        String otpKey = 'portalotp' + verificationId;
+        String emailKey = 'portalemail' + verificationId;
+        String contactKey = 'portalcontact' + verificationId;
+        String timestampKey = 'portaltimestamp' + verificationId;
         
         // Try to use named partition first, fall back to default cache
         try {
@@ -318,9 +319,10 @@ public without sharing class PortalLoginController {
      */
     private static Boolean verifyOTP(String verificationId, String email, String otpCode) {
         try {
-            String otpKey = 'portal_otp_' + verificationId;
-            String emailKey = 'portal_email_' + verificationId;
-            String timestampKey = 'portal_timestamp_' + verificationId;
+            // Platform Cache keys must be alphanumeric - no underscores allowed
+            String otpKey = 'portalotp' + verificationId;
+            String emailKey = 'portalemail' + verificationId;
+            String timestampKey = 'portaltimestamp' + verificationId;
             
             String storedOTP;
             String storedEmail;
@@ -376,10 +378,11 @@ public without sharing class PortalLoginController {
      */
     private static void markOTPAsUsed(String verificationId) {
         try {
-            String otpKey = 'portal_otp_' + verificationId;
-            String emailKey = 'portal_email_' + verificationId;
-            String contactKey = 'portal_contact_' + verificationId;
-            String timestampKey = 'portal_timestamp_' + verificationId;
+            // Platform Cache keys must be alphanumeric - no underscores allowed
+            String otpKey = 'portalotp' + verificationId;
+            String emailKey = 'portalemail' + verificationId;
+            String contactKey = 'portalcontact' + verificationId;
+            String timestampKey = 'portaltimestamp' + verificationId;
             
             // Try to remove from named partition first, fall back to default cache
             try {
