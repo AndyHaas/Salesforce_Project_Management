@@ -3,4 +3,6 @@
     <apiVersion>65.0</apiVersion>
     <label>Portal Auto Login</label>
     <description>Auto-login page for passwordless portal authentication</description>
+    <availableInTouch>false</availableInTouch>
+    <confirmationTokenRequired>false</confirmationTokenRequired>
 </ApexPage>
