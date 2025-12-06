@@ -222,14 +222,32 @@ public without sharing class PortalLoginController {
             String usernameKey = 'portalloginun' + loginToken;
             String passwordKey = 'portalloginpw' + loginToken;
             
+            // Try to store credentials in cache - if this fails, we can't proceed with passwordless login
+            Boolean cacheSuccess = false;
             try {
                 Cache.OrgPartition partition = Cache.Org.getPartition('PortalOTPCache');
                 partition.put(usernameKey, user.Username, ttlSeconds);
                 partition.put(passwordKey, tempPassword, ttlSeconds);
+                cacheSuccess = true;
+                System.debug('Login credentials stored in named partition: PortalOTPCache');
             } catch (Exception e) {
+                System.debug('Named partition error - Type: ' + e.getTypeName() + ', Message: ' + e.getMessage());
                 // Fall back to default cache
-                Cache.Org.put(usernameKey, user.Username, ttlSeconds);
-                Cache.Org.put(passwordKey, tempPassword, ttlSeconds);
+                try {
+                    Cache.Org.put(usernameKey, user.Username, ttlSeconds);
+                    Cache.Org.put(passwordKey, tempPassword, ttlSeconds);
+                    cacheSuccess = true;
+                    System.debug('Login credentials stored in default cache partition');
+                } catch (Exception defaultCacheException) {
+                    System.debug('Default cache error - Type: ' + defaultCacheException.getTypeName() + ', Message: ' + defaultCacheException.getMessage());
+                    System.debug('Stack trace: ' + defaultCacheException.getStackTraceString());
+                    // If cache fails, we can't proceed with passwordless login
+                    throw new AuraHandledException('Unable to store login credentials. Please try again or contact support.');
+                }
+            }
+            
+            if (!cacheSuccess) {
+                throw new AuraHandledException('Unable to store login credentials. Please try again or contact support.');
             }
             
             // Return URL to Visualforce page that will handle the login
@@ -270,13 +288,18 @@ public without sharing class PortalLoginController {
             
             // Provide more specific error messages based on exception type
             String errorMessage = 'An error occurred during login. Please try again.';
-            if (e.getTypeName().contains('QueryException')) {
+            String exceptionType = e.getTypeName();
+            String exceptionMessage = e.getMessage() != null ? e.getMessage() : '';
+            
+            if (exceptionType.contains('QueryException')) {
                 errorMessage = 'Database error occurred. Please contact support.';
-            } else if (e.getMessage().contains('Cache')) {
+            } else if (exceptionType.contains('SecurityException') || exceptionType.contains('NoAccessException')) {
+                errorMessage = 'Permission denied. Please contact your administrator.';
+            } else if (exceptionType.contains('Cache') || (exceptionMessage.contains('Cache') && exceptionMessage.contains('Platform Cache'))) {
                 errorMessage = 'OTP verification is temporarily unavailable. Please request a new code.';
-            } else if (e.getMessage() != null && !String.isBlank(e.getMessage())) {
+            } else if (String.isNotBlank(exceptionMessage)) {
                 // Include the actual error message if available
-                errorMessage = 'Error: ' + e.getMessage();
+                errorMessage = 'Error: ' + exceptionMessage;
             }
             
             result.message = errorMessage;
