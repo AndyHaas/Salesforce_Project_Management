@@ -179,25 +179,14 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
             if (result.success) {
                 this.successMessage = result.message;
                 
-                // Extract login token from sessionToken URL if present
-                // Format: /s/portal-auto-login?token=...
-                let loginToken = null;
+                // Redirect to Visualforce page that will handle the login using Site.login()
+                // Site.login() only works in Visualforce page context, not from Apex or LWC directly
                 if (result.sessionToken) {
-                    try {
-                        const url = new URL(result.sessionToken, window.location.origin);
-                        loginToken = url.searchParams.get('token');
-                    } catch (e) {
-                        // If sessionToken is a relative URL, parse it manually
-                        const match = result.sessionToken.match(/[?&]token=([^&]+)/);
-                        if (match) {
-                            loginToken = match[1];
-                        }
-                    }
-                }
-                
-                if (loginToken) {
-                    // Perform auto-login directly from this component
-                    await this.performAutoLogin(loginToken);
+                    // sessionToken contains the full URL to the Visualforce page: /s/apex/PortalAutoLogin?token=...
+                    const baseUrl = window.location.origin;
+                    const autoLoginUrl = baseUrl + result.sessionToken;
+                    console.log('Redirecting to auto-login page:', autoLoginUrl);
+                    window.location.href = autoLoginUrl;
                 } else {
                     // Fallback: redirect to community home page
                     this.redirectToCommunityHome();
@@ -290,19 +279,27 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
     }
     
     submitLoginForm(username, password, redirectUrl) {
+        // Try multiple approaches for Experience Cloud login
+        // Approach 1: Use the standard Salesforce login endpoint
+        const baseUrl = window.location.origin;
+        
+        // Try the community login endpoint first
+        let loginUrl = baseUrl + '/s/login';
+        
         // Create a form and submit it to the Experience Cloud login endpoint
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '/s/login'; // Experience Cloud login endpoint
+        form.action = loginUrl;
+        form.style.display = 'none'; // Hide the form
         
-        // Add username field
+        // Add username field (try both 'un' and 'username')
         const usernameInput = document.createElement('input');
         usernameInput.type = 'hidden';
         usernameInput.name = 'un';
         usernameInput.value = username;
         form.appendChild(usernameInput);
         
-        // Add password field
+        // Add password field (try both 'pw' and 'password')
         const passwordInput = document.createElement('input');
         passwordInput.type = 'hidden';
         passwordInput.name = 'pw';
@@ -313,12 +310,31 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
         const startUrlInput = document.createElement('input');
         startUrlInput.type = 'hidden';
         startUrlInput.name = 'startURL';
-        startUrlInput.value = redirectUrl;
+        startUrlInput.value = redirectUrl || '/s/';
         form.appendChild(startUrlInput);
+        
+        // Add retURL as alternative (some Salesforce forms use this)
+        const retUrlInput = document.createElement('input');
+        retUrlInput.type = 'hidden';
+        retUrlInput.name = 'retURL';
+        retUrlInput.value = redirectUrl || '/s/';
+        form.appendChild(retUrlInput);
         
         // Append form to body and submit
         document.body.appendChild(form);
-        form.submit();
+        console.log('Submitting login form to:', loginUrl);
+        console.log('Username:', username);
+        console.log('Redirect URL:', redirectUrl || '/s/');
+        
+        try {
+            form.submit();
+        } catch (error) {
+            console.error('Form submission error:', error);
+            // Fallback: try redirecting to home page with credentials in URL (not secure, but as last resort)
+            // Actually, don't do this - it's insecure. Instead, show an error.
+            this.errorMessage = 'Unable to complete login. Please contact support.';
+            this.isLoading = false;
+        }
     }
 
     redirectToCommunityHome() {
