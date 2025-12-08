@@ -272,11 +272,10 @@ public without sharing class PortalLoginController {
                 throw new AuraHandledException('Unable to store login credentials. Please try again or contact support.');
             }
             
-            // Return URL to Visualforce page that will handle the login
-            // The Visualforce page will retrieve credentials from cache and call Site.login()
-            // For Experience Cloud sites, use /s/apex/ path prefix
-            // Relative URL - frontend will construct full URL from window.location.origin
-            String loginUrl = '/s/apex/PortalAutoLogin?token=' + loginToken;
+            // Return URL to LWC page that will handle the login
+            // The LWC will retrieve credentials from cache and submit login form
+            // Access the view directly via its urlName
+            String loginUrl = '/s/portal-auto-login?token=' + loginToken;
             
             result.success = true;
             result.message = 'Verification successful. Logging you in...';
@@ -658,6 +657,69 @@ public without sharing class PortalLoginController {
         }
     }
     
+    /**
+     * Performs auto-login using credentials stored in cache
+     * Returns credentials for form submission (since Site.login() only works in Visualforce)
+     * @param loginToken The token used to retrieve login credentials
+     * @return AutoLoginResult containing username, password, and redirect URL
+     */
+    @AuraEnabled
+    public static AutoLoginResult performAutoLogin(String loginToken) {
+        AutoLoginResult result = new AutoLoginResult();
+        result.success = false;
+        result.message = '';
+        
+        try {
+            if (String.isBlank(loginToken)) {
+                result.message = 'No login token provided.';
+                return result;
+            }
+            
+            // Retrieve username and password from Platform Cache
+            String usernameKey = 'portalloginun' + loginToken;
+            String passwordKey = 'portalloginpw' + loginToken;
+            
+            String username;
+            String password;
+            
+            try {
+                Cache.OrgPartition partition = Cache.Org.getPartition('PortalOTPCache');
+                username = (String)partition.get(usernameKey);
+                password = (String)partition.get(passwordKey);
+            } catch (Exception e) {
+                System.debug('Error retrieving from named cache: ' + e.getMessage());
+                // Fall back to default cache
+                username = (String)Cache.Org.get(usernameKey);
+                password = (String)Cache.Org.get(passwordKey);
+            }
+            
+            if (String.isBlank(username) || String.isBlank(password)) {
+                result.message = 'Login session expired. Please try again.';
+                return result;
+            }
+            
+            // Clear credentials from cache immediately (security)
+            clearLoginCredentialsCache(loginToken);
+            
+            // Return credentials for form submission
+            // The LWC will submit a form to the login endpoint
+            result.success = true;
+            result.username = username;
+            result.password = password;
+            result.redirectUrl = '/s/'; // Community home page
+            result.message = 'Login credentials retrieved successfully.';
+            result.clearCache = true;
+            
+        } catch (Exception e) {
+            System.debug('Error in performAutoLogin: ' + e.getMessage());
+            System.debug('Error type: ' + e.getTypeName());
+            System.debug('Stack trace: ' + e.getStackTraceString());
+            result.message = 'An error occurred during login. Please try again.';
+        }
+        
+        return result;
+    }
+    
     // Wrapper classes
     public class LoginVerificationResult {
         @AuraEnabled public Boolean success;
@@ -673,6 +735,15 @@ public without sharing class PortalLoginController {
         @AuraEnabled public String username;
         @AuraEnabled public String userId;
         @AuraEnabled public String sessionToken; // Session token for passwordless login
+    }
+    
+    public class AutoLoginResult {
+        @AuraEnabled public Boolean success;
+        @AuraEnabled public String message;
+        @AuraEnabled public String username;
+        @AuraEnabled public String password;
+        @AuraEnabled public String redirectUrl;
+        @AuraEnabled public Boolean clearCache;
     }
 }
 
