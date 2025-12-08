@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>portalAutoLogin</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <types>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/portalAutoLogin</members>
+        <name>DigitalExperience</name>
+    </types>
+    <version>65.0</version>
+</Package>
+
