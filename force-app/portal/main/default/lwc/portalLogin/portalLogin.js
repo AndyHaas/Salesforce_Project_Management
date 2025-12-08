@@ -2,6 +2,7 @@ import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import verifyEmailAndSendOTP from '@salesforce/apex/PortalLoginController.verifyEmailAndSendOTP';
 import verifyOTPAndLogin from '@salesforce/apex/PortalLoginController.verifyOTPAndLogin';
+import performAutoLogin from '@salesforce/apex/PortalLoginController.performAutoLogin';
 import clearPortalCache from '@salesforce/apex/PortalLoginController.clearPortalCache';
 
 export default class PortalLogin extends NavigationMixin(LightningElement) {
@@ -178,30 +179,29 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
             if (result.success) {
                 this.successMessage = result.message;
                 
-                // Clear portal cache after successful login for security
-                // This ensures no lingering OTP or login tokens remain
-                clearPortalCache()
-                    .then(() => {
-                        console.log('Portal cache cleared after successful login');
-                    })
-                    .catch((error) => {
-                        // Non-critical - cache entries will expire on their own
-                        console.warn('Could not clear portal cache after login:', error);
-                    });
-                
-                // Transition effect before redirect
-                this.stepTransition = true;
-                
-                // Redirect using the URL from the server (passwordless login)
-                setTimeout(() => {
-                    if (result.sessionToken) {
-                        // sessionToken contains the redirect URL from Site.login()
-                        window.location.href = result.sessionToken;
-                    } else {
-                        // Fallback to community home page
-                        this.redirectToCommunityHome();
+                // Extract login token from sessionToken URL if present
+                // Format: /s/portal-auto-login?token=...
+                let loginToken = null;
+                if (result.sessionToken) {
+                    try {
+                        const url = new URL(result.sessionToken, window.location.origin);
+                        loginToken = url.searchParams.get('token');
+                    } catch (e) {
+                        // If sessionToken is a relative URL, parse it manually
+                        const match = result.sessionToken.match(/[?&]token=([^&]+)/);
+                        if (match) {
+                            loginToken = match[1];
+                        }
                     }
-                }, 500);
+                }
+                
+                if (loginToken) {
+                    // Perform auto-login directly from this component
+                    await this.performAutoLogin(loginToken);
+                } else {
+                    // Fallback: redirect to community home page
+                    this.redirectToCommunityHome();
+                }
             } else {
                 this.errorMessage = result.message;
             }
@@ -262,15 +262,71 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
         }, 300);
     }
 
+    async performAutoLogin(loginToken) {
+        try {
+            const result = await performAutoLogin({ loginToken: loginToken });
+            
+            if (result.success && result.username && result.password) {
+                // Submit login form to Experience Cloud login endpoint
+                this.submitLoginForm(result.username, result.password, result.redirectUrl || '/s/');
+            } else {
+                // Login failed - show error
+                this.errorMessage = result.message || 'Login failed. Please try again.';
+                this.isLoading = false;
+            }
+        } catch (error) {
+            console.error('Error during auto-login:', error);
+            let errorMessage = 'An error occurred during login. Please try again.';
+            
+            if (error.body?.message) {
+                errorMessage = error.body.message;
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            this.errorMessage = errorMessage;
+            this.isLoading = false;
+        }
+    }
+    
+    submitLoginForm(username, password, redirectUrl) {
+        // Create a form and submit it to the Experience Cloud login endpoint
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/s/login'; // Experience Cloud login endpoint
+        
+        // Add username field
+        const usernameInput = document.createElement('input');
+        usernameInput.type = 'hidden';
+        usernameInput.name = 'un';
+        usernameInput.value = username;
+        form.appendChild(usernameInput);
+        
+        // Add password field
+        const passwordInput = document.createElement('input');
+        passwordInput.type = 'hidden';
+        passwordInput.name = 'pw';
+        passwordInput.value = password;
+        form.appendChild(passwordInput);
+        
+        // Add start URL (where to redirect after login)
+        const startUrlInput = document.createElement('input');
+        startUrlInput.type = 'hidden';
+        startUrlInput.name = 'startURL';
+        startUrlInput.value = redirectUrl;
+        form.appendChild(startUrlInput);
+        
+        // Append form to body and submit
+        document.body.appendChild(form);
+        form.submit();
+    }
+
     redirectToCommunityHome() {
         // Get the current Experience Cloud site URL
         const siteUrl = window.location.origin;
         const communityPath = '/s'; // Standard Salesforce community path
         
         // Redirect to community home page
-        // After OTP verification, redirect to the home page
-        // Note: For true passwordless login, you may need to implement
-        // additional authentication using Site.login() or Auth.SessionManagement
         window.location.href = `${siteUrl}${communityPath}/`;
     }
 
