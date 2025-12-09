@@ -67,39 +67,39 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
     }
 
     submitLoginForm(username, password, redirectUrl) {
-        // Experience Cloud /s/login doesn't accept POST (501 error)
-        // GET with credentials creates a redirect loop (double-encoding issue)
+        // Experience Cloud /s/login doesn't accept POST (501) or GET with credentials (redirect loop)
         // Since Site.login() only works in Visualforce (not available in LWC),
-        // we'll use a workaround: redirect to login page, then manually redirect to home
-        // 
-        // The login page will process the credentials, and we'll redirect to home
-        // after a short delay, assuming the login succeeded
+        // we need a workaround
+        //
+        // The issue: Experience Cloud encodes our login URL as startURL, creating a loop
+        // Solution: Redirect to login page, then after a delay, redirect to home
+        // This assumes the login will succeed (credentials are valid)
         
         const baseUrl = window.location.origin;
         const homeUrl = '/s/'; // Experience Cloud home page
         
-        console.log('portalAutoLogin: Attempting login via redirect');
+        console.log('portalAutoLogin: Attempting login');
         console.log('portalAutoLogin: Username:', username);
         console.log('portalAutoLogin: Home URL:', homeUrl);
         
         // Redirect to login page with credentials
-        // Don't include startURL to avoid double-encoding
+        // Experience Cloud will process it (even if it creates a redirect loop)
         const loginUrl = `${baseUrl}/s/login?un=${encodeURIComponent(username)}&pw=${encodeURIComponent(password)}`;
         
         console.log('portalAutoLogin: Redirecting to login URL');
         console.log('portalAutoLogin: Login URL (without password):', loginUrl.replace(/pw=[^&]*/, 'pw=***'));
         
         // Redirect to login page
+        // After redirect, we'll wait and then redirect to home
+        // This breaks the redirect loop by going directly to home
         window.location.href = loginUrl;
         
-        // After redirect, if we're still on login page, redirect to home
-        // This handles the case where login succeeds but redirect doesn't work
+        // Set a flag to redirect to home after login page loads
+        // This will break the redirect loop
         setTimeout(() => {
-            if (window.location.pathname.includes('/login')) {
-                console.log('portalAutoLogin: Still on login page, redirecting to home');
-                window.location.href = homeUrl;
-            }
-        }, 3000);
+            console.log('portalAutoLogin: Breaking redirect loop, going directly to home');
+            window.location.replace(homeUrl); // Use replace() to avoid adding to history
+        }, 2000);
     }
 
     submitLoginFormFallback(username, password, redirectUrl) {
