@@ -19,9 +19,13 @@ We've created an **LWC-based auto-login component** that works with LWR sites.
    - Route: `/s/autologin`
    - View: Uses `portalAutoLogin` LWC component
 
+## Important: Route Deployment Limitation
+
+**LWR sites do NOT support route/view metadata deployment.** All attempts to deploy routes via metadata will fail. The route **must be created manually** in Experience Cloud Builder.
+
 ## Setup Instructions
 
-Since LWR sites have restrictions on metadata deployment for routes/views, you'll need to create the route manually:
+You'll need to create the route manually in Experience Cloud Builder:
 
 ### Step 1: Create the Route in Experience Cloud Builder
 

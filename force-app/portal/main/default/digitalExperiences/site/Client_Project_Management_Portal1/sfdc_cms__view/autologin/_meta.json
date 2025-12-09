@@ -1,6 +1,5 @@
 {
-  "apiName": "autologin",
-  "type": "sfdc_cms__view",
-  "path": "views"
+  "apiName" : "autologin",
+  "type" : "sfdc_cms__view",
+  "path" : "views"
 }
-
