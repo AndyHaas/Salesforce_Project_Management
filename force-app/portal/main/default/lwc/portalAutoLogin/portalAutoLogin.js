@@ -28,12 +28,25 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
             const result = await performAutoLogin({ loginToken: loginToken });
             console.log('portalAutoLogin: performAutoLogin result:', JSON.stringify(result));
 
-            if (result.success && result.username && result.password) {
-                console.log('portalAutoLogin: Credentials retrieved, submitting login form');
-                console.log('portalAutoLogin: Username:', result.username);
-                console.log('portalAutoLogin: Redirect URL:', result.redirectUrl || '/s/');
-                // Submit login form to Experience Cloud login endpoint
-                this.submitLoginForm(result.username, result.password, result.redirectUrl || '/s/');
+            if (result.success) {
+                // Check if REST API authentication was used
+                if (result.useRestApi && result.sessionId) {
+                    console.log('portalAutoLogin: REST API authentication successful');
+                    console.log('portalAutoLogin: Session ID received');
+                    console.log('portalAutoLogin: Instance URL:', result.instanceUrl);
+                    // Use REST API session to authenticate
+                    this.handleRestApiLogin(result.sessionId, result.instanceUrl, result.redirectUrl || '/s/');
+                } else if (result.username && result.password) {
+                    console.log('portalAutoLogin: Credentials retrieved, submitting login form');
+                    console.log('portalAutoLogin: Username:', result.username);
+                    console.log('portalAutoLogin: Redirect URL:', result.redirectUrl || '/s/');
+                    // Fallback: Submit login form to Experience Cloud login endpoint
+                    this.submitLoginForm(result.username, result.password, result.redirectUrl || '/s/');
+                } else {
+                    console.error('portalAutoLogin: No authentication method available');
+                    this.errorMessage = 'Authentication method not available. Please try again.';
+                    this.isLoading = false;
+                }
             } else {
                 // Login failed - show error and redirect to login
                 console.error('portalAutoLogin: Login failed -', result.message);
@@ -66,6 +79,39 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
         }
     }
 
+    handleRestApiLogin(sessionId, instanceUrl, redirectUrl) {
+        // REST API authentication succeeded - we have a session ID
+        // However, we need to create a proper Experience Cloud web session
+        // 
+        // Option 1: Use the session ID to redirect to a Salesforce endpoint that creates a web session
+        // Option 2: Set a cookie with the session ID (requires server-side support)
+        // Option 3: Redirect to home and let Salesforce handle session creation
+        //
+        // For now, we'll try redirecting to home - the session ID might be usable
+        // If this doesn't work, we may need a server-side endpoint to set the session cookie
+        
+        console.log('portalAutoLogin: Handling REST API login');
+        console.log('portalAutoLogin: Session ID:', sessionId ? 'Received' : 'Missing');
+        console.log('portalAutoLogin: Redirecting to home page');
+        
+        // Try redirecting to home - if the session ID is valid, it might work
+        // If not, we'll need to implement a server-side session creation endpoint
+        const homeUrl = redirectUrl || '/s/';
+        
+        // Store session ID temporarily (might be needed for API calls)
+        try {
+            sessionStorage.setItem('portal_session_id', sessionId);
+            sessionStorage.setItem('portal_instance_url', instanceUrl);
+        } catch (e) {
+            console.error('portalAutoLogin: Could not store session info:', e);
+        }
+        
+        // Redirect to home page
+        // Note: This might not work if the session ID doesn't create a web session
+        // In that case, we'll need a server-side endpoint to convert the API session to a web session
+        window.location.href = homeUrl;
+    }
+    
     submitLoginForm(username, password, redirectUrl) {
         // Experience Cloud /s/login doesn't accept POST (501) or GET with credentials (redirect loop)
         // Since Site.login() only works in Visualforce (not available in LWC),

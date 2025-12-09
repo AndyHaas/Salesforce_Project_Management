@@ -657,10 +657,10 @@ public without sharing class PortalLoginController {
     }
     
     /**
-     * Performs auto-login using credentials stored in cache
-     * Returns credentials for form submission (since Site.login() only works in Visualforce)
+     * Performs auto-login using REST API authentication
+     * Uses Connected App OAuth Username-Password flow to authenticate
      * @param loginToken The token used to retrieve login credentials
-     * @return AutoLoginResult containing username, password, and redirect URL
+     * @return AutoLoginResult containing session information or credentials for fallback
      */
     @AuraEnabled
     public static AutoLoginResult performAutoLogin(String loginToken) {
@@ -700,13 +700,32 @@ public without sharing class PortalLoginController {
             // Clear credentials from cache immediately (security)
             clearLoginCredentialsCache(loginToken);
             
-            // Return credentials for form submission
-            // The LWC will submit a form to the login endpoint
+            // Try REST API authentication first
+            try {
+                RestApiLoginResult restResult = authenticateViaRestApi(username, password);
+                if (restResult.success && String.isNotBlank(restResult.sessionId)) {
+                    // REST API authentication succeeded
+                    result.success = true;
+                    result.sessionId = restResult.sessionId;
+                    result.instanceUrl = restResult.instanceUrl;
+                    result.redirectUrl = '/s/';
+                    result.message = 'Authentication successful via REST API.';
+                    result.useRestApi = true;
+                    return result;
+                }
+            } catch (Exception restException) {
+                System.debug('REST API authentication failed: ' + restException.getMessage());
+                // Fall through to form submission fallback
+            }
+            
+            // Fallback: Return credentials for form submission
+            // This is used if REST API authentication is not configured
             result.success = true;
             result.username = username;
             result.password = password;
-            result.redirectUrl = '/s/'; // Community home page (Experience Cloud root)
+            result.redirectUrl = '/s/';
             result.message = 'Login credentials retrieved successfully.';
+            result.useRestApi = false;
             result.clearCache = true;
             
         } catch (Exception e) {
@@ -717,6 +736,119 @@ public without sharing class PortalLoginController {
         }
         
         return result;
+    }
+    
+    /**
+     * Authenticates user via Salesforce REST API using Username-Password OAuth flow
+     * Requires Connected App to be configured
+     * @param username The username to authenticate
+     * @param password The password to authenticate
+     * @return RestApiLoginResult containing session ID and instance URL
+     */
+    private static RestApiLoginResult authenticateViaRestApi(String username, String password) {
+        RestApiLoginResult result = new RestApiLoginResult();
+        result.success = false;
+        
+        try {
+            // Get Connected App credentials from Custom Metadata or Named Credential
+            // For now, we'll use a placeholder - these should be configured
+            String consumerKey = getConnectedAppConsumerKey();
+            String consumerSecret = getConnectedAppConsumerSecret();
+            
+            if (String.isBlank(consumerKey) || String.isBlank(consumerSecret)) {
+                System.debug('Connected App not configured - REST API authentication unavailable');
+                result.message = 'REST API authentication not configured.';
+                return result;
+            }
+            
+            // Get the login endpoint URL
+            String loginUrl = getLoginEndpoint();
+            
+            // Build the request
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint(loginUrl);
+            req.setMethod('POST');
+            req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+            
+            // Build the request body for Username-Password OAuth flow
+            String requestBody = 'grant_type=password' +
+                               '&client_id=' + EncodingUtil.urlEncode(consumerKey, 'UTF-8') +
+                               '&client_secret=' + EncodingUtil.urlEncode(consumerSecret, 'UTF-8') +
+                               '&username=' + EncodingUtil.urlEncode(username, 'UTF-8') +
+                               '&password=' + EncodingUtil.urlEncode(password, 'UTF-8');
+            
+            req.setBody(requestBody);
+            
+            // Make the HTTP callout
+            Http http = new Http();
+            HttpResponse res = http.send(req);
+            
+            if (res.getStatusCode() == 200) {
+                // Parse the response
+                Map<String, Object> responseMap = (Map<String, Object>)JSON.deserializeUntyped(res.getBody());
+                result.success = true;
+                result.sessionId = (String)responseMap.get('access_token');
+                result.instanceUrl = (String)responseMap.get('instance_url');
+                result.message = 'REST API authentication successful.';
+            } else {
+                System.debug('REST API authentication failed: ' + res.getStatusCode() + ' - ' + res.getBody());
+                result.message = 'Authentication failed: ' + res.getStatus();
+            }
+            
+        } catch (Exception e) {
+            System.debug('Error in authenticateViaRestApi: ' + e.getMessage());
+            System.debug('Stack trace: ' + e.getStackTraceString());
+            result.message = 'Error during REST API authentication: ' + e.getMessage();
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Gets the Connected App Consumer Key from Custom Metadata
+     * TODO: Create Custom Metadata Type to store this
+     * For now, returns empty string - should be configured
+     */
+    private static String getConnectedAppConsumerKey() {
+        // TODO: Retrieve from Custom Metadata Type
+        // For now, return empty - this needs to be configured
+        return '';
+    }
+    
+    /**
+     * Gets the Connected App Consumer Secret from Custom Metadata or Named Credential
+     * TODO: Use Named Credential for better security
+     * For now, returns empty string - should be configured
+     */
+    private static String getConnectedAppConsumerSecret() {
+        // TODO: Retrieve from Named Credential or Custom Metadata
+        // For now, return empty - this needs to be configured
+        return '';
+    }
+    
+    /**
+     * Gets the login endpoint URL based on org type
+     */
+    private static String getLoginEndpoint() {
+        // Determine if this is a sandbox or production
+        String orgId = UserInfo.getOrganizationId();
+        Organization org = [SELECT IsSandbox FROM Organization WHERE Id = :orgId LIMIT 1];
+        
+        if (org.IsSandbox) {
+            // For sandbox, use test.salesforce.com
+            return 'https://test.salesforce.com/services/oauth2/token';
+        } else {
+            // For production, use login.salesforce.com
+            return 'https://login.salesforce.com/services/oauth2/token';
+        }
+    }
+    
+    // Wrapper class for REST API login result
+    private class RestApiLoginResult {
+        Boolean success;
+        String message;
+        String sessionId;
+        String instanceUrl;
     }
     
     // Wrapper classes
@@ -743,6 +875,9 @@ public without sharing class PortalLoginController {
         @AuraEnabled public String password;
         @AuraEnabled public String redirectUrl;
         @AuraEnabled public Boolean clearCache;
+        @AuraEnabled public Boolean useRestApi; // Indicates if REST API was used
+        @AuraEnabled public String sessionId; // Session ID from REST API
+        @AuraEnabled public String instanceUrl; // Instance URL from REST API
     }
 }
 
