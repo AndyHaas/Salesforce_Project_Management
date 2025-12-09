@@ -104,9 +104,9 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
         form.appendChild(passwordInput);
 
         // Add start URL (where to redirect after successful login)
-        // Experience Cloud home page - try the root path first
-        // If that doesn't work, the user will be logged in and can navigate manually
-        const homeUrl = '/'; // Try root first (Experience Cloud will resolve to home)
+        // Home route has urlPrefix: "" which means it's at /s/
+        // Use /s/ explicitly for Experience Cloud home page
+        const homeUrl = '/s/'; // Experience Cloud home page
         const startUrlInput = document.createElement('input');
         startUrlInput.type = 'hidden';
         startUrlInput.name = 'startURL';
@@ -121,7 +121,7 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
         form.appendChild(retUrlInput);
         
         console.log('portalAutoLogin: startURL set to:', homeUrl);
-        console.log('portalAutoLogin: If redirect fails, user is still logged in and can navigate');
+        console.log('portalAutoLogin: Home route found with urlPrefix: "" (root of /s/)');
 
         // Append form to body
         document.body.appendChild(form);
