@@ -1,0 +1,13 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "Portal Auto Login",
+  "contentBody" : {
+    "activeViewId" : "autologin",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "standard",
+    "urlPrefix" : "autologin"
+  },
+  "urlName" : "autologin"
+}
+
