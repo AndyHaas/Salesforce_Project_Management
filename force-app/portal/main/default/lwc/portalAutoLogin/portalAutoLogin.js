@@ -24,13 +24,19 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
 
     async handleAutoLogin(loginToken) {
         try {
+            console.log('portalAutoLogin: Starting auto-login with token:', loginToken);
             const result = await performAutoLogin({ loginToken: loginToken });
+            console.log('portalAutoLogin: performAutoLogin result:', JSON.stringify(result));
 
             if (result.success && result.username && result.password) {
+                console.log('portalAutoLogin: Credentials retrieved, submitting login form');
+                console.log('portalAutoLogin: Username:', result.username);
+                console.log('portalAutoLogin: Redirect URL:', result.redirectUrl || '/s/');
                 // Submit login form to Experience Cloud login endpoint
                 this.submitLoginForm(result.username, result.password, result.redirectUrl || '/s/');
             } else {
                 // Login failed - show error and redirect to login
+                console.error('portalAutoLogin: Login failed -', result.message);
                 this.errorMessage = result.message || 'Login session expired. Please try again.';
                 this.isLoading = false;
                 
@@ -40,7 +46,8 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
                 }, 3000);
             }
         } catch (error) {
-            console.error('Error during auto-login:', error);
+            console.error('portalAutoLogin: Error during auto-login:', error);
+            console.error('portalAutoLogin: Error details:', JSON.stringify(error, null, 2));
             let errorMessage = 'An error occurred during login. Please try again.';
 
             if (error.body?.message) {
@@ -60,7 +67,54 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
     }
 
     submitLoginForm(username, password, redirectUrl) {
-        // Create a form and submit it to the Experience Cloud login endpoint
+        // Try using fetch API first to see if we get a better response
+        // If that doesn't work, fall back to form submission
+        const baseUrl = window.location.origin;
+        const loginUrl = baseUrl + '/s/login';
+
+        console.log('portalAutoLogin: Attempting login');
+        console.log('portalAutoLogin: Login URL:', loginUrl);
+        console.log('portalAutoLogin: Username:', username);
+        console.log('portalAutoLogin: Redirect URL:', redirectUrl);
+
+        // Create form data
+        const formData = new URLSearchParams();
+        formData.append('un', username);
+        formData.append('pw', password);
+        formData.append('startURL', redirectUrl || '/s/');
+        formData.append('retURL', redirectUrl || '/s/');
+
+        // Try fetch first to see response
+        fetch(loginUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: formData,
+            redirect: 'follow'
+        })
+        .then(response => {
+            console.log('portalAutoLogin: Fetch response status:', response.status);
+            console.log('portalAutoLogin: Fetch response URL:', response.url);
+            
+            // If fetch works, redirect to the response URL
+            if (response.ok || response.redirected) {
+                window.location.href = response.url || redirectUrl || '/s/';
+            } else {
+                // Fall back to form submission
+                console.log('portalAutoLogin: Fetch failed, trying form submission');
+                this.submitLoginFormFallback(username, password, redirectUrl);
+            }
+        })
+        .catch(error => {
+            console.error('portalAutoLogin: Fetch error:', error);
+            // Fall back to form submission
+            this.submitLoginFormFallback(username, password, redirectUrl);
+        });
+    }
+
+    submitLoginFormFallback(username, password, redirectUrl) {
+        // Fallback: Create a form and submit it to the Experience Cloud login endpoint
         const baseUrl = window.location.origin;
         const loginUrl = baseUrl + '/s/login';
 
@@ -68,15 +122,16 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
         form.method = 'POST';
         form.action = loginUrl;
         form.style.display = 'none';
+        form.setAttribute('id', 'auto-login-form');
 
-        // Add username field
+        // Add username field (Experience Cloud uses 'un')
         const usernameInput = document.createElement('input');
         usernameInput.type = 'hidden';
         usernameInput.name = 'un';
         usernameInput.value = username;
         form.appendChild(usernameInput);
 
-        // Add password field
+        // Add password field (Experience Cloud uses 'pw')
         const passwordInput = document.createElement('input');
         passwordInput.type = 'hidden';
         passwordInput.name = 'pw';
@@ -90,10 +145,22 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
         startUrlInput.value = redirectUrl || '/s/';
         form.appendChild(startUrlInput);
 
+        // Add retURL as alternative (some Salesforce forms use this)
+        const retUrlInput = document.createElement('input');
+        retUrlInput.type = 'hidden';
+        retUrlInput.name = 'retURL';
+        retUrlInput.value = redirectUrl || '/s/';
+        form.appendChild(retUrlInput);
+
         // Append form to body and submit
         document.body.appendChild(form);
-        console.log('Submitting login form to:', loginUrl);
-        form.submit();
+        console.log('portalAutoLogin: Form created, submitting...');
+        
+        // Add a small delay to ensure form is in DOM
+        setTimeout(() => {
+            console.log('portalAutoLogin: Submitting form now');
+            form.submit();
+        }, 100);
     }
 }
 
