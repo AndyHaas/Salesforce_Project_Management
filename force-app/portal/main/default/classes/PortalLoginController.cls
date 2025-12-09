@@ -274,7 +274,7 @@ public without sharing class PortalLoginController {
             
             // Return URL to LWC auto-login page (LWR compatible - Visualforce not supported in LWR)
             // The LWC will retrieve credentials and submit login form
-            String loginUrl = '/s/autologin?token=' + loginToken;
+            String loginUrl = '/autologin?token=' + loginToken;
             
             result.success = true;
             result.message = 'Verification successful. Logging you in...';
