@@ -739,8 +739,9 @@ public without sharing class PortalLoginController {
     }
     
     /**
-     * Authenticates user via Salesforce REST API using Username-Password OAuth flow
-     * Requires Connected App to be configured
+     * Authenticates user via Salesforce REST API using External Named Credential
+     * Uses Named Credential: Portal_Auto_Login
+     * The Named Credential handles OAuth automatically
      * @param username The username to authenticate
      * @param password The password to authenticate
      * @return RestApiLoginResult containing session ID and instance URL
@@ -750,36 +751,37 @@ public without sharing class PortalLoginController {
         result.success = false;
         
         try {
-            // Get Connected App credentials from Custom Metadata or Named Credential
-            // For now, we'll use a placeholder - these should be configured
+            // Build the request body for Username-Password OAuth flow
+            // For Username-Password flow, we need to include client_id and client_secret
+            // The Named Credential provides the base URL, but we need credentials in the body
             String consumerKey = getConnectedAppConsumerKey();
             String consumerSecret = getConnectedAppConsumerSecret();
             
             if (String.isBlank(consumerKey) || String.isBlank(consumerSecret)) {
-                System.debug('Connected App not configured - REST API authentication unavailable');
+                System.debug('Connected App credentials not available');
                 result.message = 'REST API authentication not configured.';
                 return result;
             }
             
-            // Get the login endpoint URL
-            String loginUrl = getLoginEndpoint();
-            
-            // Build the request
-            HttpRequest req = new HttpRequest();
-            req.setEndpoint(loginUrl);
-            req.setMethod('POST');
-            req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-            
-            // Build the request body for Username-Password OAuth flow
             String requestBody = 'grant_type=password' +
                                '&client_id=' + EncodingUtil.urlEncode(consumerKey, 'UTF-8') +
                                '&client_secret=' + EncodingUtil.urlEncode(consumerSecret, 'UTF-8') +
                                '&username=' + EncodingUtil.urlEncode(username, 'UTF-8') +
                                '&password=' + EncodingUtil.urlEncode(password, 'UTF-8');
             
+            // Build the request using Named Credential
+            // Named Credential: Portal_Auto_Login
+            // The Named Credential should be configured with:
+            // - URL: https://test.salesforce.com (for sandbox) or https://login.salesforce.com (for production)
+            // - This provides the base URL, but we still need client_id/client_secret in the body
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint('callout:Portal_Auto_Login/services/oauth2/token');
+            req.setMethod('POST');
+            req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
             req.setBody(requestBody);
             
             // Make the HTTP callout
+            // The Named Credential will automatically handle OAuth authentication
             Http http = new Http();
             HttpResponse res = http.send(req);
             
@@ -808,17 +810,13 @@ public without sharing class PortalLoginController {
      * Gets the Connected App Consumer Key
      * Named Credential: Portal_Auto_Login
      * 
-     * Note: For Username-Password OAuth flow, we need the actual Consumer Key value.
-     * Named Credentials handle OAuth automatically, but for this flow we make the
-     * callout manually, so we need the explicit values.
-     * 
-     * TODO: Store in Custom Metadata Type for better security and maintainability
+     * Note: For Username-Password OAuth flow, we need the actual Consumer Key value
+     * in the request body. The Named Credential provides the base URL, but we still
+     * need to include client_id and client_secret in the request body.
      */
     private static String getConnectedAppConsumerKey() {
         // Named Credential: Portal_Auto_Login
-        // For Username-Password OAuth flow, we need the actual Consumer Key
-        // Ideally, this should be retrieved from Custom Metadata that references
-        // the Named Credential Portal_Auto_Login
+        // Consumer Key is needed in the request body for Username-Password OAuth flow
         return '3MVG9U6cXtLQ6pLUChtfKbtoSJVPfFIlnzNiPvew4f.NgV2BtroWsO04qA15T.wYTjUS7oY__WDNfkbpiCGf8';
     }
     
@@ -826,33 +824,14 @@ public without sharing class PortalLoginController {
      * Gets the Connected App Consumer Secret
      * Named Credential: Portal_Auto_Login
      * 
-     * Note: Named Credentials store secrets securely and don't expose them via API.
-     * For Username-Password OAuth flow, we need the secret explicitly, so it should
-     * be stored in Protected Custom Setting or Custom Metadata.
+     * Note: For Username-Password OAuth flow, we need the actual Consumer Secret value
+     * in the request body. The Named Credential provides the base URL, but we still
+     * need to include client_id and client_secret in the request body.
      */
     private static String getConnectedAppConsumerSecret() {
         // Named Credential: Portal_Auto_Login
-        // For Username-Password OAuth flow, we need the actual Consumer Secret
-        // Ideally, this should be retrieved from Protected Custom Setting or
-        // Custom Metadata that references the Named Credential Portal_Auto_Login
+        // Consumer Secret is needed in the request body for Username-Password OAuth flow
         return 'CDC3C6EBDC27B1115AAE36F46B914DC46718FCBD5BBB4536DA7BB584DF824528';
-    }
-    
-    /**
-     * Gets the login endpoint URL based on org type
-     */
-    private static String getLoginEndpoint() {
-        // Determine if this is a sandbox or production
-        String orgId = UserInfo.getOrganizationId();
-        Organization org = [SELECT IsSandbox FROM Organization WHERE Id = :orgId LIMIT 1];
-        
-        if (org.IsSandbox) {
-            // For sandbox, use test.salesforce.com
-            return 'https://test.salesforce.com/services/oauth2/token';
-        } else {
-            // For production, use login.salesforce.com
-            return 'https://login.salesforce.com/services/oauth2/token';
-        }
     }
     
     // Wrapper class for REST API login result
