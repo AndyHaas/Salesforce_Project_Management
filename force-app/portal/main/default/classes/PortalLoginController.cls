@@ -805,25 +805,37 @@ public without sharing class PortalLoginController {
     }
     
     /**
-     * Gets the Connected App Consumer Key from Custom Metadata
-     * TODO: Create Custom Metadata Type to store this
-     * For now, returns empty string - should be configured
+     * Gets the Connected App Consumer Key
+     * Named Credential: Portal_Auto_Login
+     * 
+     * Note: For Username-Password OAuth flow, we need the actual Consumer Key value.
+     * Named Credentials handle OAuth automatically, but for this flow we make the
+     * callout manually, so we need the explicit values.
+     * 
+     * TODO: Store in Custom Metadata Type for better security and maintainability
      */
     private static String getConnectedAppConsumerKey() {
-        // TODO: Retrieve from Custom Metadata Type
-        // For now, return empty - this needs to be configured
-        return '';
+        // Named Credential: Portal_Auto_Login
+        // For Username-Password OAuth flow, we need the actual Consumer Key
+        // Ideally, this should be retrieved from Custom Metadata that references
+        // the Named Credential Portal_Auto_Login
+        return '3MVG9U6cXtLQ6pLUChtfKbtoSJVPfFIlnzNiPvew4f.NgV2BtroWsO04qA15T.wYTjUS7oY__WDNfkbpiCGf8';
     }
     
     /**
-     * Gets the Connected App Consumer Secret from Custom Metadata or Named Credential
-     * TODO: Use Named Credential for better security
-     * For now, returns empty string - should be configured
+     * Gets the Connected App Consumer Secret
+     * Named Credential: Portal_Auto_Login
+     * 
+     * Note: Named Credentials store secrets securely and don't expose them via API.
+     * For Username-Password OAuth flow, we need the secret explicitly, so it should
+     * be stored in Protected Custom Setting or Custom Metadata.
      */
     private static String getConnectedAppConsumerSecret() {
-        // TODO: Retrieve from Named Credential or Custom Metadata
-        // For now, return empty - this needs to be configured
-        return '';
+        // Named Credential: Portal_Auto_Login
+        // For Username-Password OAuth flow, we need the actual Consumer Secret
+        // Ideally, this should be retrieved from Protected Custom Setting or
+        // Custom Metadata that references the Named Credential Portal_Auto_Login
+        return 'CDC3C6EBDC27B1115AAE36F46B914DC46718FCBD5BBB4536DA7BB584DF824528';
     }
     
     /**
