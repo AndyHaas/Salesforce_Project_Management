@@ -67,8 +67,8 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
     }
 
     submitLoginForm(username, password, redirectUrl) {
-        // Try using fetch API first to see if we get a better response
-        // If that doesn't work, fall back to form submission
+        // Experience Cloud login - try direct form submission
+        // The form submission should work if credentials are valid
         const baseUrl = window.location.origin;
         const loginUrl = baseUrl + '/s/login';
 
@@ -76,41 +76,62 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
         console.log('portalAutoLogin: Login URL:', loginUrl);
         console.log('portalAutoLogin: Username:', username);
         console.log('portalAutoLogin: Redirect URL:', redirectUrl);
+        console.log('portalAutoLogin: Password length:', password ? password.length : 0);
 
-        // Create form data
-        const formData = new URLSearchParams();
-        formData.append('un', username);
-        formData.append('pw', password);
-        formData.append('startURL', redirectUrl || '/s/');
-        formData.append('retURL', redirectUrl || '/s/');
+        // Create form and submit directly
+        // Experience Cloud login form expects: un, pw, startURL
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = loginUrl;
+        form.style.display = 'none';
+        form.setAttribute('id', 'auto-login-form');
+        form.setAttribute('autocomplete', 'off');
 
-        // Try fetch first to see response
-        fetch(loginUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formData,
-            redirect: 'follow'
-        })
-        .then(response => {
-            console.log('portalAutoLogin: Fetch response status:', response.status);
-            console.log('portalAutoLogin: Fetch response URL:', response.url);
-            
-            // If fetch works, redirect to the response URL
-            if (response.ok || response.redirected) {
-                window.location.href = response.url || redirectUrl || '/s/';
-            } else {
-                // Fall back to form submission
-                console.log('portalAutoLogin: Fetch failed, trying form submission');
-                this.submitLoginFormFallback(username, password, redirectUrl);
-            }
-        })
-        .catch(error => {
-            console.error('portalAutoLogin: Fetch error:', error);
-            // Fall back to form submission
-            this.submitLoginFormFallback(username, password, redirectUrl);
-        });
+        // Add username field (required)
+        const usernameInput = document.createElement('input');
+        usernameInput.type = 'text';
+        usernameInput.name = 'un';
+        usernameInput.value = username;
+        usernameInput.autocomplete = 'username';
+        form.appendChild(usernameInput);
+
+        // Add password field (required)
+        const passwordInput = document.createElement('input');
+        passwordInput.type = 'password';
+        passwordInput.name = 'pw';
+        passwordInput.value = password;
+        passwordInput.autocomplete = 'current-password';
+        form.appendChild(passwordInput);
+
+        // Add start URL (where to redirect after successful login)
+        const startUrlInput = document.createElement('input');
+        startUrlInput.type = 'hidden';
+        startUrlInput.name = 'startURL';
+        startUrlInput.value = redirectUrl || '/s/';
+        form.appendChild(startUrlInput);
+
+        // Add retURL as well (some Salesforce forms use this)
+        const retUrlInput = document.createElement('input');
+        retUrlInput.type = 'hidden';
+        retUrlInput.name = 'retURL';
+        retUrlInput.value = redirectUrl || '/s/';
+        form.appendChild(retUrlInput);
+
+        // Append form to body
+        document.body.appendChild(form);
+        console.log('portalAutoLogin: Form created, submitting...');
+        console.log('portalAutoLogin: Form action:', form.action);
+        console.log('portalAutoLogin: Form method:', form.method);
+        
+        // Submit form immediately
+        // Note: This will cause a page navigation, so any code after this won't execute
+        try {
+            form.submit();
+        } catch (error) {
+            console.error('portalAutoLogin: Form submission error:', error);
+            this.errorMessage = 'Unable to submit login form. Please try again.';
+            this.isLoading = false;
+        }
     }
 
     submitLoginFormFallback(username, password, redirectUrl) {
