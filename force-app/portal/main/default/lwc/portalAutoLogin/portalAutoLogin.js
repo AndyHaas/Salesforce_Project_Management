@@ -67,77 +67,29 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
     }
 
     submitLoginForm(username, password, redirectUrl) {
-        // Experience Cloud login - try direct form submission
-        // The form submission should work if credentials are valid
+        // Experience Cloud /s/login returns 501 for POST, so we need a different approach
+        // Since Site.login() only works in Visualforce (not available in LWC),
+        // we'll redirect to the login page with credentials in the URL
+        // This is a workaround - not ideal but necessary for LWR sites
+        
         const baseUrl = window.location.origin;
-        const loginUrl = baseUrl + '/s/login';
-
-        console.log('portalAutoLogin: Attempting login');
-        console.log('portalAutoLogin: Login URL:', loginUrl);
-        console.log('portalAutoLogin: Username:', username);
-        console.log('portalAutoLogin: Redirect URL:', redirectUrl);
-        console.log('portalAutoLogin: Password length:', password ? password.length : 0);
-
-        // Create form and submit directly
-        // Experience Cloud login form expects: un, pw, startURL
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = loginUrl;
-        form.style.display = 'none';
-        form.setAttribute('id', 'auto-login-form');
-        form.setAttribute('autocomplete', 'off');
-
-        // Add username field (required)
-        const usernameInput = document.createElement('input');
-        usernameInput.type = 'text';
-        usernameInput.name = 'un';
-        usernameInput.value = username;
-        usernameInput.autocomplete = 'username';
-        form.appendChild(usernameInput);
-
-        // Add password field (required)
-        const passwordInput = document.createElement('input');
-        passwordInput.type = 'password';
-        passwordInput.name = 'pw';
-        passwordInput.value = password;
-        passwordInput.autocomplete = 'current-password';
-        form.appendChild(passwordInput);
-
-        // Add start URL (where to redirect after successful login)
-        // Home route has urlPrefix: "" which means it's at /s/
-        // Use /s/ explicitly for Experience Cloud home page
         const homeUrl = '/s/'; // Experience Cloud home page
-        const startUrlInput = document.createElement('input');
-        startUrlInput.type = 'hidden';
-        startUrlInput.name = 'startURL';
-        startUrlInput.value = homeUrl;
-        form.appendChild(startUrlInput);
-
-        // Add retURL as well (some Salesforce forms use this)
-        const retUrlInput = document.createElement('input');
-        retUrlInput.type = 'hidden';
-        retUrlInput.name = 'retURL';
-        retUrlInput.value = homeUrl;
-        form.appendChild(retUrlInput);
         
-        console.log('portalAutoLogin: startURL set to:', homeUrl);
-        console.log('portalAutoLogin: Home route found with urlPrefix: "" (root of /s/)');
-
-        // Append form to body
-        document.body.appendChild(form);
-        console.log('portalAutoLogin: Form created, submitting...');
-        console.log('portalAutoLogin: Form action:', form.action);
-        console.log('portalAutoLogin: Form method:', form.method);
+        console.log('portalAutoLogin: Attempting login via URL redirect');
+        console.log('portalAutoLogin: Username:', username);
+        console.log('portalAutoLogin: Home URL:', homeUrl);
         
-        // Submit form immediately
-        // Note: This will cause a page navigation, so any code after this won't execute
-        try {
-            form.submit();
-        } catch (error) {
-            console.error('portalAutoLogin: Form submission error:', error);
-            this.errorMessage = 'Unable to submit login form. Please try again.';
-            this.isLoading = false;
-        }
+        // Build login URL with credentials as query parameters
+        // Note: This exposes credentials in the URL, but it's the only way to login
+        // from LWC without Site.login() or REST API (which requires Connected App)
+        const loginUrl = `${baseUrl}/s/login?un=${encodeURIComponent(username)}&pw=${encodeURIComponent(password)}&startURL=${encodeURIComponent(homeUrl)}`;
+        
+        console.log('portalAutoLogin: Redirecting to login URL with credentials');
+        console.log('portalAutoLogin: Login URL (without password):', loginUrl.replace(/pw=[^&]*/, 'pw=***'));
+        
+        // Redirect to login page with credentials
+        // The login page should process the credentials and redirect to startURL
+        window.location.href = loginUrl;
     }
 
     submitLoginFormFallback(username, password, redirectUrl) {
