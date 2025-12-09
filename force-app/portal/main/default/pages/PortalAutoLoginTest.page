@@ -1,0 +1,13 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false">
+    <html>
+        <head>
+            <title>Test Page</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+            <h1>✅ Page is Accessible!</h1>
+            <p>If you can see this, the Visualforce page is working.</p>
+            <p>Token from URL: {!$CurrentPage.Parameters.token}</p>
+        </body>
+    </html>
+</apex:page>
+

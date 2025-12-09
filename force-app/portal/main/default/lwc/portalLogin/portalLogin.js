@@ -179,12 +179,10 @@ export default class PortalLogin extends NavigationMixin(LightningElement) {
             if (result.success) {
                 this.successMessage = result.message;
                 
-                // Redirect to Visualforce page that will handle the login using Site.login()
-                // Site.login() only works in Visualforce page context, not from Apex or LWC directly
-                // IMPORTANT: The Visualforce page must be added to the Experience Cloud site's
-                // allowed pages in Setup > Digital Experiences > All Sites > [Your Site] > Administration > Pages
+                // Redirect to LWC auto-login page (LWR compatible - Visualforce not supported in LWR)
+                // The LWC will retrieve credentials from cache and submit login form
                 if (result.sessionToken) {
-                    // sessionToken contains the full URL to the Visualforce page: /s/apex/PortalAutoLogin?token=...
+                    // sessionToken contains the full URL to the auto-login page: /s/portal-auto-login?token=...
                     const baseUrl = window.location.origin;
                     const autoLoginUrl = baseUrl + result.sessionToken;
                     console.log('Redirecting to auto-login page:', autoLoginUrl);

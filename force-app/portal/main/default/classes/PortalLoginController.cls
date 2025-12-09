@@ -272,9 +272,9 @@ public without sharing class PortalLoginController {
                 throw new AuraHandledException('Unable to store login credentials. Please try again or contact support.');
             }
             
-            // Return URL to Visualforce page that will handle the login using Site.login()
-            // Site.login() only works in Visualforce page context, not from Apex or LWC directly
-            String loginUrl = '/s/apex/PortalAutoLogin?token=' + loginToken;
+            // Return URL to LWC auto-login page (LWR compatible - Visualforce not supported in LWR)
+            // The LWC will retrieve credentials and submit login form
+            String loginUrl = '/s/autologin?token=' + loginToken;
             
             result.success = true;
             result.message = 'Verification successful. Logging you in...';
