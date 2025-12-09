@@ -67,29 +67,39 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
     }
 
     submitLoginForm(username, password, redirectUrl) {
-        // Experience Cloud /s/login returns 501 for POST, so we need a different approach
+        // Experience Cloud /s/login doesn't accept POST (501 error)
+        // GET with credentials creates a redirect loop (double-encoding issue)
         // Since Site.login() only works in Visualforce (not available in LWC),
-        // we'll redirect to the login page with credentials in the URL
-        // This is a workaround - not ideal but necessary for LWR sites
+        // we'll use a workaround: redirect to login page, then manually redirect to home
+        // 
+        // The login page will process the credentials, and we'll redirect to home
+        // after a short delay, assuming the login succeeded
         
         const baseUrl = window.location.origin;
         const homeUrl = '/s/'; // Experience Cloud home page
         
-        console.log('portalAutoLogin: Attempting login via URL redirect');
+        console.log('portalAutoLogin: Attempting login via redirect');
         console.log('portalAutoLogin: Username:', username);
         console.log('portalAutoLogin: Home URL:', homeUrl);
         
-        // Build login URL with credentials as query parameters
-        // Note: This exposes credentials in the URL, but it's the only way to login
-        // from LWC without Site.login() or REST API (which requires Connected App)
-        const loginUrl = `${baseUrl}/s/login?un=${encodeURIComponent(username)}&pw=${encodeURIComponent(password)}&startURL=${encodeURIComponent(homeUrl)}`;
+        // Redirect to login page with credentials
+        // Don't include startURL to avoid double-encoding
+        const loginUrl = `${baseUrl}/s/login?un=${encodeURIComponent(username)}&pw=${encodeURIComponent(password)}`;
         
-        console.log('portalAutoLogin: Redirecting to login URL with credentials');
+        console.log('portalAutoLogin: Redirecting to login URL');
         console.log('portalAutoLogin: Login URL (without password):', loginUrl.replace(/pw=[^&]*/, 'pw=***'));
         
-        // Redirect to login page with credentials
-        // The login page should process the credentials and redirect to startURL
+        // Redirect to login page
         window.location.href = loginUrl;
+        
+        // After redirect, if we're still on login page, redirect to home
+        // This handles the case where login succeeds but redirect doesn't work
+        setTimeout(() => {
+            if (window.location.pathname.includes('/login')) {
+                console.log('portalAutoLogin: Still on login page, redirecting to home');
+                window.location.href = homeUrl;
+            }
+        }, 3000);
     }
 
     submitLoginFormFallback(username, password, redirectUrl) {
