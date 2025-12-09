@@ -902,3 +902,140 @@ nav img[class*="icon"] {
         gap: 0 !important;
     }
 }
+
+/* ============================================
+   Login Page Styles - Modern & Clean Design
+   ============================================ */
+
+/* Login Page - Target by URL path or view type */
+body:has([data-view-type="login-main"]),
+body:has(c-portal-login),
+html body[class*="login"],
+body[data-page*="login"] {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
+    min-height: 100vh !important;
+}
+
+/* Login Page Content Region - Full height centered layout */
+[data-region-name="content"]:has(c-portal-login),
+[data-region-name="content"]:has([data-view-type="login-main"]),
+[data-region-name="content"]:has([class*="portalLogin"]) {
+    min-height: 100vh !important;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 2rem 1rem !important;
+}
+
+/* Login Page Section - Remove default styling and center */
+[data-region-name="content"] .community_layout\:section:has(c-portal-login),
+[data-region-name="content"] .community_layout\:section:has([class*="portalLogin"]),
+[data-region-name="content"] .community_layout\:section[data-view-type="login-main"] {
+    padding: 0 !important;
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: auto !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+}
+
+/* Login Page Column - Center alignment */
+[data-region-name="content"] [name="col1"]:has(c-portal-login),
+[data-region-name="content"] [name="col1"]:has([class*="portalLogin"]),
+[data-region-name="col1"]:has(c-portal-login) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Portal Login Component - Centered with max width */
+c-portal-login,
+[data-component-id*="portalLogin"],
+[class*="portalLogin"],
+lightning-base-form:has(c-portal-login) {
+    width: 100% !important;
+    max-width: 440px !important;
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+/* Hide header and footer on login page */
+body:has(c-portal-login) [data-region-name="header"],
+body:has(c-portal-login) [data-region-name="headerSection"],
+body:has([data-view-type="login-main"]) [data-region-name="header"],
+body:has([data-view-type="login-main"]) [data-region-name="headerSection"] {
+    display: none !important;
+}
+
+body:has(c-portal-login) [data-region-name="footer"],
+body:has(c-portal-login) [data-region-name="footerSection"],
+body:has([data-view-type="login-main"]) [data-region-name="footer"],
+body:has([data-view-type="login-main"]) [data-region-name="footerSection"] {
+    display: none !important;
+}
+
+/* Override default content area padding on login page */
+[data-region-name="content"]:has(c-portal-login) .community_layout\:section {
+    padding: 0 !important;
+}
+
+/* Login page main layout container */
+.dxp_layout\:main:has(c-portal-login),
+.dxp_layout\:main:has([class*="portalLogin"]) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 100vh !important;
+    padding: 2rem 1rem !important;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
+}
+
+/* Login Page Responsive Styles */
+@media (max-width: 480px) {
+    [data-region-name="content"]:has(c-portal-login),
+    [data-region-name="content"]:has([class*="portalLogin"]) {
+        padding: 1rem !important;
+    }
+    
+    c-portal-login,
+    [class*="portalLogin"] {
+        max-width: 100% !important;
+    }
+    
+    .dxp_layout\:main:has(c-portal-login),
+    .dxp_layout\:main:has([class*="portalLogin"]) {
+        padding: 1rem !important;
+    }
+}
+
+/* Ensure login component styles are not overridden */
+c-portal-login *,
+[class*="portalLogin"] * {
+    box-sizing: border-box !important;
+}
+
+/* Login page specific background */
+body:has(c-portal-login),
+body:has([data-view-type="login-main"]) {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
+}
+
+/* Remove default section margins on login page */
+[data-region-name="content"]:has(c-portal-login) .community_layout\:section,
+[data-region-name="content"]:has(c-portal-login) .community_layout\:section > * {
+    margin: 0 !important;
+}
+
+/* Ensure login card visibility */
+c-portal-login .login-container,
+c-portal-login .login-card {
+    position: relative !important;
+    z-index: 1 !important;
+}

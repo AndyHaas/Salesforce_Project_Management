@@ -1,6 +1,6 @@
 {
-  "path": "sfdc_cms__route/autologin",
+  "apiName": "autologin",
   "type": "sfdc_cms__route",
-  "apiName": "autologin"
+  "path": "routes"
 }
 
