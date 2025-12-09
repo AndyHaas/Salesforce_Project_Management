@@ -705,7 +705,7 @@ public without sharing class PortalLoginController {
             result.success = true;
             result.username = username;
             result.password = password;
-            result.redirectUrl = '/s/'; // Community home page
+            result.redirectUrl = '/s/'; // Community home page (Experience Cloud root)
             result.message = 'Login credentials retrieved successfully.';
             result.clearCache = true;
             

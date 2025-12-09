@@ -104,18 +104,24 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
         form.appendChild(passwordInput);
 
         // Add start URL (where to redirect after successful login)
+        // Experience Cloud home page - try the root path first
+        // If that doesn't work, the user will be logged in and can navigate manually
+        const homeUrl = '/'; // Try root first (Experience Cloud will resolve to home)
         const startUrlInput = document.createElement('input');
         startUrlInput.type = 'hidden';
         startUrlInput.name = 'startURL';
-        startUrlInput.value = redirectUrl || '/s/';
+        startUrlInput.value = homeUrl;
         form.appendChild(startUrlInput);
 
         // Add retURL as well (some Salesforce forms use this)
         const retUrlInput = document.createElement('input');
         retUrlInput.type = 'hidden';
         retUrlInput.name = 'retURL';
-        retUrlInput.value = redirectUrl || '/s/';
+        retUrlInput.value = homeUrl;
         form.appendChild(retUrlInput);
+        
+        console.log('portalAutoLogin: startURL set to:', homeUrl);
+        console.log('portalAutoLogin: If redirect fails, user is still logged in and can navigate');
 
         // Append form to body
         document.body.appendChild(form);
