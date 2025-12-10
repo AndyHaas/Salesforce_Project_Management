@@ -74,6 +74,27 @@ public without sharing class PortalProjectController {
             WHERE Project__c = :projectId
         ];
 
+        // Debug: Log task count
+        System.debug('PortalProjectController: Total tasks queried: ' + allTasks.size());
+        System.debug('PortalProjectController: Project ID: ' + projectId);
+        
+        // Debug: Check for completed tasks specifically
+        List<Project_Task__c> completedTasks = [
+            SELECT Id, Status__c
+            FROM Project_Task__c
+            WHERE Project__c = :projectId
+            AND Status__c = 'Completed'
+        ];
+        System.debug('PortalProjectController: Completed tasks query result: ' + completedTasks.size());
+        
+        // Debug: Check total count with aggregate
+        AggregateResult totalCount = [
+            SELECT COUNT(Id) total
+            FROM Project_Task__c
+            WHERE Project__c = :projectId
+        ];
+        System.debug('PortalProjectController: Aggregate total count: ' + totalCount.get('total'));
+
         // Count tasks by status
         Map<String, Integer> statusCounts = new Map<String, Integer>();
         Integer completedCount = 0;
@@ -102,6 +123,10 @@ public without sharing class PortalProjectController {
             }
         }
 
+        // Debug: Log status counts
+        System.debug('PortalProjectController: Status counts: ' + statusCounts);
+        System.debug('PortalProjectController: Completed count: ' + completedCount);
+
         // Build status counts list for response
         for (String statusKey : statusCounts.keySet()) {
             StatusCount sc = new StatusCount();
@@ -116,6 +141,9 @@ public without sharing class PortalProjectController {
         metrics.totalActualHours = totalActual;
         metrics.completedTasks = completedCount;
         metrics.openTasks = metrics.totalTasks - metrics.completedTasks;
+        
+        // Debug: Log final metrics
+        System.debug('PortalProjectController: Final metrics - Total: ' + metrics.totalTasks + ', Completed: ' + metrics.completedTasks + ', Open: ' + metrics.openTasks);
         result.taskMetrics = metrics;
 
         return result;
