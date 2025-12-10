@@ -31,6 +31,8 @@ public without sharing class PortalTaskController {
         }
         
         // Query task with all necessary fields
+        // Check access via Project's Account (Master-Detail relationship)
+        // Tasks are linked to Projects, and Projects are linked to Accounts
         List<Project_Task__c> tasks = [
             SELECT 
                 Id, Name, Description__c, Status__c, Priority__c,
@@ -39,7 +41,7 @@ public without sharing class PortalTaskController {
                 Review_Status_Icons__c,
                 Estimated_Hours__c, Actual_Hours__c,
                 Total_Estimated_Hours__c, Total_Actual_Hours__c,
-                Project__c, Project__r.Name, Project__r.Id,
+                Project__c, Project__r.Name, Project__r.Id, Project__r.Account__c,
                 Account__c, Account__r.Name,
                 Project_Manager__c, Project_Manager__r.Name,
                 Developer__c, Developer__r.Name,
@@ -51,7 +53,7 @@ public without sharing class PortalTaskController {
                 CreatedDate
             FROM Project_Task__c
             WHERE Id = :taskId
-            AND Account__c IN :accountIds
+            AND (Project__r.Account__c IN :accountIds OR Account__c IN :accountIds)
             LIMIT 1
         ];
         
