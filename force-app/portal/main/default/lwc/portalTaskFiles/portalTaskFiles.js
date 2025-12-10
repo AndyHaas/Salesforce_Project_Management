@@ -2,6 +2,8 @@ import { LightningElement, api, wire } from 'lwc';
 import { refreshApex } from '@salesforce/apex';
 import getTaskFiles from '@salesforce/apex/PortalTaskController.getTaskFiles';
 import linkFilesToTask from '@salesforce/apex/PortalTaskController.linkFilesToTask';
+import linkRecentFilesToTask from '@salesforce/apex/PortalTaskController.linkRecentFilesToTask';
+import deleteFile from '@salesforce/apex/PortalTaskController.deleteFile';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class PortalTaskFiles extends LightningElement {
@@ -33,35 +35,94 @@ export default class PortalTaskFiles extends LightningElement {
     async handleUploadFinished(event) {
         const uploadedFiles = event.detail.files;
         
-        if (uploadedFiles && uploadedFiles.length > 0) {
-            const contentVersionIds = uploadedFiles.map(file => file.contentVersionId).filter(id => id);
-            
-            if (contentVersionIds.length === 0) {
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Error',
-                        message: 'No files were uploaded successfully',
-                        variant: 'error'
-                    })
-                );
-                return;
-            }
-            
+        if (!uploadedFiles || uploadedFiles.length === 0) {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: 'No files were uploaded',
+                    variant: 'error'
+                })
+            );
+            return;
+        }
+        
+        // Extract contentVersionIds - check different possible property names
+        const contentVersionIds = uploadedFiles
+            .map(file => {
+                // Try different possible property names
+                return file.contentVersionId || file.documentId || file.id || file.versionId;
+            })
+            .filter(id => id);
+        
+        if (contentVersionIds.length === 0) {
+            // Try fallback method - link recent files
             try {
-                const result = await linkFilesToTask({ 
-                    taskId: this.recordId, 
-                    contentVersionIds: contentVersionIds 
-                });
+                const linkedIds = await linkRecentFilesToTask({ taskId: this.recordId });
                 
-                if (result) {
-                    // Refresh the file list
+                if (linkedIds && linkedIds.length > 0) {
                     await refreshApex(this._wiredTaskFilesResult);
-                    
-                    // Show success toast
                     this.dispatchEvent(
                         new ShowToastEvent({
                             title: 'Success',
-                            message: `${contentVersionIds.length} file(s) uploaded and linked successfully`,
+                            message: `${linkedIds.length} file(s) uploaded and linked successfully`,
+                            variant: 'success'
+                        })
+                    );
+                } else {
+                    await refreshApex(this._wiredTaskFilesResult);
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Warning',
+                            message: 'Files uploaded but could not be automatically linked. Please refresh the page.',
+                            variant: 'warning'
+                        })
+                    );
+                }
+            } catch (fallbackError) {
+                console.error('Error linking files:', fallbackError);
+                await refreshApex(this._wiredTaskFilesResult);
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: 'Files uploaded but could not be linked. Please contact support.',
+                        variant: 'error'
+                    })
+                );
+            }
+            return;
+        }
+        
+        try {
+            const result = await linkFilesToTask({ 
+                taskId: this.recordId, 
+                contentVersionIds: contentVersionIds 
+            });
+            
+            // Refresh the file list
+            await refreshApex(this._wiredTaskFilesResult);
+            
+            // Show success toast
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Success',
+                    message: `${contentVersionIds.length} file(s) uploaded and linked successfully`,
+                    variant: 'success'
+                })
+            );
+        } catch (error) {
+            console.error('Error linking files to task:', error);
+            
+            // Try fallback method
+            try {
+                const linkedIds = await linkRecentFilesToTask({ taskId: this.recordId });
+                
+                await refreshApex(this._wiredTaskFilesResult);
+                
+                if (linkedIds && linkedIds.length > 0) {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Success',
+                            message: `${linkedIds.length} file(s) uploaded and linked successfully`,
                             variant: 'success'
                         })
                     );
@@ -69,17 +130,18 @@ export default class PortalTaskFiles extends LightningElement {
                     this.dispatchEvent(
                         new ShowToastEvent({
                             title: 'Warning',
-                            message: 'Files uploaded but failed to link to task',
+                            message: 'Files uploaded but could not be linked. Please refresh the page.',
                             variant: 'warning'
                         })
                     );
                 }
-            } catch (error) {
-                console.error('Error linking files to task:', error);
+            } catch (fallbackError) {
+                console.error('Fallback also failed:', fallbackError);
+                await refreshApex(this._wiredTaskFilesResult);
                 this.dispatchEvent(
                     new ShowToastEvent({
                         title: 'Error',
-                        message: 'Failed to link files to task: ' + (error.body?.message || error.message || 'Unknown error'),
+                        message: 'Failed to link files: ' + (error.body?.message || error.message || 'Unknown error'),
                         variant: 'error'
                     })
                 );
@@ -167,5 +229,46 @@ export default class PortalTaskFiles extends LightningElement {
             month: 'short', 
             day: 'numeric' 
         });
+    }
+    
+    /**
+     * @description Handle file deletion
+     */
+    async handleDeleteFile(event) {
+        const fileId = event.currentTarget.dataset.fileId;
+        const fileName = event.currentTarget.dataset.fileName;
+        
+        if (!fileId) {
+            return;
+        }
+        
+        // Confirm deletion
+        if (!confirm(`Are you sure you want to delete "${fileName}"?`)) {
+            return;
+        }
+        
+        try {
+            await deleteFile({ contentDocumentId: fileId });
+            
+            // Refresh the file list
+            await refreshApex(this._wiredTaskFilesResult);
+            
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Success',
+                    message: 'File deleted successfully',
+                    variant: 'success'
+                })
+            );
+        } catch (error) {
+            console.error('Error deleting file:', error);
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: 'Failed to delete file: ' + (error.body?.message || error.message || 'Unknown error'),
+                    variant: 'error'
+                })
+            );
+        }
     }
 }

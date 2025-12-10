@@ -45,3 +45,12 @@
     font-size: 0.75rem;
     margin-left: 0.5rem;
 }
+
+.delete-button {
+    color: #c23934;
+    margin-left: auto;
+}
+
+.delete-button:hover {
+    color: #a23732;
+}

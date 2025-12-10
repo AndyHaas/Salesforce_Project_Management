@@ -26,6 +26,18 @@
                                 <span class="file-meta">
                                     ({file.formattedSize} • {file.formattedDate})
                                 </span>
+                                <template if:true={file.canDelete}>
+                                    <lightning-button-icon
+                                        icon-name="utility:delete"
+                                        variant="bare"
+                                        alternative-text="Delete file"
+                                        title="Delete file"
+                                        class="slds-m-left_small delete-button"
+                                        data-file-id={file.id}
+                                        data-file-name={file.title}
+                                        onclick={handleDeleteFile}>
+                                    </lightning-button-icon>
+                                </template>
                             </div>
                         </template>
                     </div>

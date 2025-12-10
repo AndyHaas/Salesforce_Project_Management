@@ -7,13 +7,7 @@
     padding: 1rem;
 }
 
-@media (max-width: 1024px) {
-    .task-detail-container {
-        grid-template-columns: 1fr;
-    }
-    
 .side-panel {
-    order: -1;
     min-width: 0;
 }
 
@@ -30,6 +24,15 @@
 .side-panel > *:last-child {
     margin-bottom: 0;
 }
+
+@media (max-width: 1024px) {
+    .task-detail-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .side-panel {
+        order: -1;
+    }
 }
 
 .main-content {
