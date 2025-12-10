@@ -21,6 +21,7 @@ import { getRecord, getRecordNotifyChange, NotifyChangeRecordIds, RecordChange }
 import getDependencyData from '@salesforce/apex/TaskContextController.getDependencyData';
 import deleteTaskRelationship from '@salesforce/apex/TaskContextController.deleteTaskRelationship';
 import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
+import getTaskFiles from '@salesforce/apex/TaskContextController.getTaskFiles';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 import PROGRESS_PERCENTAGE_FIELD from '@salesforce/schema/Project_Task__c.Progress_Percentage__c';
@@ -79,6 +80,10 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     _isLoading = true;
     _error = null;
     
+    // Files data
+    _files = [];
+    _filesError = null;
+    
     // UI state
     _subtasksExpanded = false;
     _dependentTasksExpanded = true;
@@ -104,6 +109,19 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
             this.statusColors = data || {};
         } else if (error) {
             console.error('Error loading status colors in taskContextPanel:', error);
+        }
+    }
+    
+    // Wire service to get files for the task
+    @wire(getTaskFiles, { taskId: '$recordId' })
+    wiredTaskFiles({ error, data }) {
+        if (data) {
+            this._files = data || [];
+            this._filesError = null;
+        } else if (error) {
+            console.error('Error loading task files:', error);
+            this._files = [];
+            this._filesError = error;
         }
     }
     
@@ -764,6 +782,110 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
      */
     get showCompletedButtonIcon() {
         return this._showCompleted ? 'utility:hide' : 'utility:preview';
+    }
+    
+    /**
+     * @description Get files for display
+     */
+    get files() {
+        if (!this._files || this._files.length === 0) {
+            return [];
+        }
+        
+        return this._files.map(file => ({
+            ...file,
+            downloadUrl: `/sfc/servlet.shepherd/document/download/${file.versionId}`,
+            formattedSize: this.formatFileSize(file.size),
+            formattedDate: this.formatFileDate(file.createdDate)
+        }));
+    }
+    
+    get hasFiles() {
+        return this._files && this._files.length > 0;
+    }
+    
+    get filesCount() {
+        return this._files ? this._files.length : 0;
+    }
+    
+    /**
+     * @description Format file size for display
+     */
+    formatFileSize(bytes) {
+        if (!bytes || bytes === 0) {
+            return '0 B';
+        }
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    /**
+     * @description Format file date for display
+     */
+    formatFileDate(dateValue) {
+        if (!dateValue) {
+            return '';
+        }
+        const date = new Date(dateValue);
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+        });
+    }
+    
+    /**
+     * @description Get files for display
+     */
+    get files() {
+        if (!this._files || this._files.length === 0) {
+            return [];
+        }
+        
+        return this._files.map(file => ({
+            ...file,
+            downloadUrl: `/sfc/servlet.shepherd/document/download/${file.versionId}`,
+            formattedSize: this.formatFileSize(file.size),
+            formattedDate: this.formatFileDate(file.createdDate)
+        }));
+    }
+    
+    get hasFiles() {
+        return this._files && this._files.length > 0;
+    }
+    
+    get filesCount() {
+        return this._files ? this._files.length : 0;
+    }
+    
+    /**
+     * @description Format file size for display
+     */
+    formatFileSize(bytes) {
+        if (!bytes || bytes === 0) {
+            return '0 B';
+        }
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    /**
+     * @description Format file date for display
+     */
+    formatFileDate(dateValue) {
+        if (!dateValue) {
+            return '';
+        }
+        const date = new Date(dateValue);
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+        });
     }
     
     

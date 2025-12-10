@@ -2,6 +2,7 @@ import { LightningElement, wire, track } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import getProjectDetail from '@salesforce/apex/PortalProjectController.getProjectDetail';
 import getProjectStatusColors from '@salesforce/apex/StatusColorController.getProjectStatusColors';
+import getProjectTaskFiles from '@salesforce/apex/PortalProjectController.getProjectTaskFiles';
 import { formatDate, formatBoolean } from 'c/portalCommon';
 
 export default class ProjectDetail extends LightningElement {
@@ -12,6 +13,8 @@ export default class ProjectDetail extends LightningElement {
     isLoading = true;
     error;
     statusColors = {};
+    _files = [];
+    _filesError = null;
 
     @wire(CurrentPageReference)
     resolvePageReference(pageRef) {
@@ -45,6 +48,19 @@ export default class ProjectDetail extends LightningElement {
             console.error('Error loading project status colors:', error);
             // Fall back to default colors
             this.statusColors = this.getDefaultStatusColors();
+        }
+    }
+    
+    // Wire service to get all files from all tasks in the project
+    @wire(getProjectTaskFiles, { projectId: '$projectId' })
+    wiredProjectTaskFiles({ error, data }) {
+        if (data) {
+            this._files = data || [];
+            this._filesError = null;
+        } else if (error) {
+            console.error('Error loading project task files:', error);
+            this._files = [];
+            this._filesError = error;
         }
     }
 
@@ -182,6 +198,58 @@ export default class ProjectDetail extends LightningElement {
 
     get displayInvoiced() {
         return formatBoolean(this.project?.invoiced, '—');
+    }
+    
+    /**
+     * @description Get files for display
+     */
+    get files() {
+        if (!this._files || this._files.length === 0) {
+            return [];
+        }
+        
+        return this._files.map(file => ({
+            ...file,
+            downloadUrl: `/sfc/servlet.shepherd/document/download/${file.versionId}`,
+            formattedSize: this.formatFileSize(file.size),
+            formattedDate: this.formatFileDate(file.createdDate)
+        }));
+    }
+    
+    get hasFiles() {
+        return this._files && this._files.length > 0;
+    }
+    
+    get filesCount() {
+        return this._files ? this._files.length : 0;
+    }
+    
+    /**
+     * @description Format file size for display
+     */
+    formatFileSize(bytes) {
+        if (!bytes || bytes === 0) {
+            return '0 B';
+        }
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    /**
+     * @description Format file date for display
+     */
+    formatFileDate(dateValue) {
+        if (!dateValue) {
+            return '';
+        }
+        const date = new Date(dateValue);
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+        });
     }
 
     formatError(err) {

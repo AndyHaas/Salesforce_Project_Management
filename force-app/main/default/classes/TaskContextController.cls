@@ -429,6 +429,43 @@ public without sharing class TaskContextController {
         @AuraEnabled public SubtaskProgressInfo subtaskProgress;
     }
     
+    /**
+     * @description Get files linked to a task
+     * @param taskId The Project Task ID
+     * @return List of FileInfo with file details
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<FileInfo> getTaskFiles(String taskId) {
+        if (String.isBlank(taskId)) {
+            return new List<FileInfo>();
+        }
+        
+        List<FileInfo> files = new List<FileInfo>();
+        
+        List<ContentDocumentLink> links = [
+            SELECT ContentDocumentId, ContentDocument.Title, ContentDocument.FileExtension,
+                   ContentDocument.ContentSize, ContentDocument.CreatedDate, ContentDocument.CreatedBy.Name,
+                   ContentDocument.LatestPublishedVersionId
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId = :taskId
+            ORDER BY ContentDocument.CreatedDate DESC
+        ];
+        
+        for (ContentDocumentLink link : links) {
+            FileInfo file = new FileInfo();
+            file.id = link.ContentDocumentId;
+            file.title = link.ContentDocument.Title;
+            file.extension = link.ContentDocument.FileExtension;
+            file.size = link.ContentDocument.ContentSize;
+            file.createdDate = link.ContentDocument.CreatedDate;
+            file.createdBy = link.ContentDocument.CreatedBy?.Name;
+            file.versionId = link.ContentDocument.LatestPublishedVersionId;
+            files.add(file);
+        }
+        
+        return files;
+    }
+    
     public class SubtaskProgressInfo {
         @AuraEnabled public Decimal progressPercentage;
         @AuraEnabled public Integer completedCount;
@@ -456,6 +493,16 @@ public without sharing class TaskContextController {
     public class RelationshipDetails {
         @AuraEnabled public String taskBId;
         @AuraEnabled public String relationshipType;
+    }
+    
+    public class FileInfo {
+        @AuraEnabled public String id;
+        @AuraEnabled public String title;
+        @AuraEnabled public String extension;
+        @AuraEnabled public Long size;
+        @AuraEnabled public DateTime createdDate;
+        @AuraEnabled public String createdBy;
+        @AuraEnabled public String versionId;
     }
 }
 

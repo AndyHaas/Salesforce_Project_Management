@@ -98,6 +98,44 @@
     color: #080707;
 }
 
+/* Files section styling */
+.files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.25rem;
+    background-color: #fafbfc;
+    transition: background-color 0.2s ease;
+}
+
+.file-item:hover {
+    background-color: #f3f2f2;
+}
+
+.file-link {
+    color: #0176d3;
+    text-decoration: none;
+    flex: 1;
+    margin-left: 0.5rem;
+}
+
+.file-link:hover {
+    text-decoration: underline;
+}
+
+.file-meta {
+    color: #706e6b;
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+}
+
 .metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
