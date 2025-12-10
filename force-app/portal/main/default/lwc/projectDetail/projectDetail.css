@@ -45,13 +45,57 @@
     color: #444;
 }
 
-.status-pill {
-    border-radius: 16px;
+/* Custom status badge styles */
+.status-badge {
+    display: inline-block;
     padding: 0.5rem 1rem;
+    border-radius: 16px;
     font-size: 0.875rem;
     font-weight: 600;
     min-width: 100px;
     text-align: center;
+    line-height: 1.2;
+}
+
+/* Project Status badge colors matching Project__c.Status__c.field-meta.xml */
+.status-badge-not-started {
+    background-color: #DDDDDD;
+    color: #080707;
+}
+
+.status-badge-rd {
+    background-color: #FF99FF;
+    color: #080707;
+}
+
+.status-badge-proposal {
+    background-color: #FF9966;
+    color: #080707;
+}
+
+.status-badge-development {
+    background-color: #FFCC33;
+    color: #080707;
+}
+
+.status-badge-qa {
+    background-color: #9999FF;
+    color: #080707;
+}
+
+.status-badge-deployed {
+    background-color: #33CC00;
+    color: #080707;
+}
+
+.status-badge-cancelled {
+    background-color: #CC0000;
+    color: #ffffff;
+}
+
+.status-badge-default {
+    background-color: #F3F3F3;
+    color: #080707;
 }
 
 .metrics {

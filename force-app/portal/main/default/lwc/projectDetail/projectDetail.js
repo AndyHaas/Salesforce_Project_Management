@@ -1,7 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import getProjectDetail from '@salesforce/apex/PortalProjectController.getProjectDetail';
-import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
+import getProjectStatusColors from '@salesforce/apex/StatusColorController.getProjectStatusColors';
 import { formatDate, formatBoolean } from 'c/portalCommon';
 
 export default class ProjectDetail extends LightningElement {
@@ -37,12 +37,12 @@ export default class ProjectDetail extends LightningElement {
         }
     }
 
-    @wire(getStatusColors)
+    @wire(getProjectStatusColors)
     wiredStatusColors({ error, data }) {
         if (data) {
             this.statusColors = data || {};
         } else if (error) {
-            console.error('Error loading status colors:', error);
+            console.error('Error loading project status colors:', error);
             // Fall back to default colors
             this.statusColors = this.getDefaultStatusColors();
         }
@@ -73,6 +73,36 @@ export default class ProjectDetail extends LightningElement {
         return this.project?.status || '—';
     }
 
+    get statusBadgeClass() {
+        const status = this.project?.status;
+        if (!status) {
+            return 'status-badge status-badge-default';
+        }
+        
+        const statusStr = String(status);
+        const normalizedStatus = statusStr.toLowerCase().replace(/\s+/g, '-');
+        
+        const statusClasses = {
+            'Not Started': 'status-badge status-badge-not-started',
+            'not started': 'status-badge status-badge-not-started',
+            'not-started': 'status-badge status-badge-not-started',
+            'R&D': 'status-badge status-badge-rd',
+            'r&d': 'status-badge status-badge-rd',
+            'Proposal': 'status-badge status-badge-proposal',
+            'proposal': 'status-badge status-badge-proposal',
+            'Development': 'status-badge status-badge-development',
+            'development': 'status-badge status-badge-development',
+            'Q&A': 'status-badge status-badge-qa',
+            'q&a': 'status-badge status-badge-qa',
+            'Deployed': 'status-badge status-badge-deployed',
+            'deployed': 'status-badge status-badge-deployed',
+            'Cancelled': 'status-badge status-badge-cancelled',
+            'cancelled': 'status-badge status-badge-cancelled'
+        };
+        
+        return statusClasses[status] || statusClasses[normalizedStatus] || 'status-badge status-badge-default';
+    }
+
     get statusBadgeStyle() {
         const status = this.project?.status;
         if (!status) {
@@ -90,15 +120,15 @@ export default class ProjectDetail extends LightningElement {
     }
 
     getDefaultStatusColors() {
+        // Project Status colors from Project__c.Status__c.field-meta.xml
         return {
-            'Backlog': '#E5E5E5',
-            'Pending': '#FFB75D',
-            'In Progress': '#0176D3',
-            'In Review': '#5B21B6',
-            'Blocked': '#C23934',
-            'Completed': '#2E844A',
-            'Removed': '#706E6B',
-            'Closed': '#2E844A'
+            'Not Started': '#DDDDDD',
+            'R&D': '#FF99FF',
+            'Proposal': '#FF9966',
+            'Development': '#FFCC33',
+            'Q&A': '#9999FF',
+            'Deployed': '#33CC00',
+            'Cancelled': '#CC0000'
         };
     }
 
