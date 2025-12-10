@@ -1,6 +1,36 @@
-.medium-card {
-    max-width: 1000px;
+.task-detail-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 1.5rem;
+    max-width: 1400px;
     margin: 0 auto;
+    padding: 1rem;
+}
+
+@media (max-width: 1024px) {
+    .task-detail-container {
+        grid-template-columns: 1fr;
+    }
+    
+.side-panel {
+    order: -1;
+    min-width: 0;
+}
+
+.side-panel :deep(lightning-card) {
+    height: fit-content;
+    position: sticky;
+    top: 1rem;
+}
+}
+
+.main-content {
+    min-width: 0;
+}
+
+.medium-card {
+    max-width: 100%;
+    margin: 0;
 }
 
 .page {

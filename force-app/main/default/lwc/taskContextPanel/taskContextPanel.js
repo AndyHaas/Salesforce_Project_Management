@@ -24,6 +24,7 @@ import getStatusColors from '@salesforce/apex/StatusColorController.getStatusCol
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 import PROGRESS_PERCENTAGE_FIELD from '@salesforce/schema/Project_Task__c.Progress_Percentage__c';
+import { ensureSitePath } from 'c/portalCommon';
 
 export default class TaskContextPanel extends NavigationMixin(LightningElement) {
     /**
@@ -37,6 +38,12 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
      * @type {boolean}
      */
     @api showLinkTaskButton;
+    
+    /**
+     * @description Whether component is in portal/Experience Cloud context. When true, uses portal navigation.
+     * @type {boolean}
+     */
+    @api isPortalMode = false;
     
     /**
      * @description Getter for showLinkTaskButton that defaults to true if not set
@@ -784,6 +791,7 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     
     /**
      * @description Navigate to a task record page
+     * Uses portal navigation if isPortalMode is true, otherwise uses standard Salesforce navigation
      */
     navigateToTask(event) {
         const taskId = event?.currentTarget?.dataset?.id;
@@ -793,13 +801,26 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
             return;
         }
         
-        this[NavigationMixin.Navigate]({
-            type: 'standard__recordPage',
-            attributes: {
-                recordId: taskId,
-                actionName: 'view'
-            }
-        });
+        // Use portal navigation if in portal mode
+        if (this.isPortalMode) {
+            const taskUrl = `/project-task/${taskId}`;
+            const targetUrl = ensureSitePath(taskUrl, { currentPathname: window.location.pathname });
+            this[NavigationMixin.Navigate]({
+                type: 'standard__webPage',
+                attributes: {
+                    url: targetUrl
+                }
+            });
+        } else {
+            // Use standard Salesforce navigation
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordPage',
+                attributes: {
+                    recordId: taskId,
+                    actionName: 'view'
+                }
+            });
+        }
     }
     
     /**

@@ -1,8 +1,10 @@
 <template>
-    <lightning-card title="Task Detail" class="medium-card">
-        <template if:true={taskId}>
-            <template if:true={hasData}>
-                <div class="page">
+    <div class="task-detail-container">
+        <div class="main-content">
+            <lightning-card title="Task Detail" class="medium-card">
+                <template if:true={taskId}>
+                    <template if:true={hasData}>
+                        <div class="page">
                     <!-- Header Section -->
                     <div class="header">
                         <div class="title-block">
@@ -166,4 +168,13 @@
             <p class="muted">No task id provided in URL.</p>
         </template>
     </lightning-card>
+        </div>
+        
+        <!-- Side Panel with Task Context -->
+        <template if:true={taskId}>
+            <div class="side-panel">
+                <c-task-context-panel record-id={taskId} show-link-task-button="false" is-portal-mode="true"></c-task-context-panel>
+            </div>
+        </template>
+    </div>
 </template>
