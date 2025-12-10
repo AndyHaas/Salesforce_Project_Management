@@ -10,32 +10,7 @@
             </p>
         </div>
 
-        <!-- Notification Badge for Tasks Needing Review -->
-        <template if:true={hasTasksNeedingReview}>
-            <div class="notification-card custom-card">
-                <div class="card-header notification-header">
-                    <lightning-icon icon-name="utility:bell" size="small" class="header-icon"></lightning-icon>
-                    <h2 class="card-title">Review Required</h2>
-                </div>
-                <div class="card-body">
-                    <div class="notification-content">
-                        <div class="notification-text">
-                            <p>You have <strong>{tasksNeedingReviewCount}</strong> task(s) ready for your review.</p>
-                        </div>
-                        <div class="notification-action">
-                            <lightning-button 
-                                label="View Tasks" 
-                                variant="brand"
-                                icon-name="utility:preview"
-                                onclick={handleViewReviewTasks}>
-                            </lightning-button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <!-- Active Projects and Open Tasks Section -->
+        <!-- Active Projects and Review Required Section -->
         <div class="two-column-layout">
             <!-- Active Projects Card -->
             <div class="custom-card">
@@ -70,11 +45,11 @@
                 </div>
             </div>
 
-            <!-- Open Tasks Card -->
+            <!-- Review Required Card -->
             <div class="custom-card">
-                <div class="card-header">
-                    <lightning-icon icon-name="utility:task" size="small" class="header-icon"></lightning-icon>
-                    <h2 class="card-title">Open Tasks</h2>
+                <div class="card-header notification-header">
+                    <lightning-icon icon-name="utility:bell" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Review Required</h2>
                 </div>
                 <div class="card-body">
                     <template if:true={isLoading}>
@@ -83,20 +58,24 @@
                         </div>
                     </template>
                     <template if:false={isLoading}>
-                        <template if:true={hasOpenTasks}>
-                            <lightning-datatable
-                                key-field="Id"
-                                data={tasksTableData}
-                                columns={tasksColumns}
-                                hide-checkbox-column
-                                show-row-number-column="false"
-                                onrowaction={handleTaskRowAction}
-                                onrowclick={handleTaskRowClick}>
-                            </lightning-datatable>
+                        <template if:true={hasTasksNeedingReview}>
+                            <div class="notification-content">
+                                <div class="notification-text">
+                                    <p>You have <strong>{tasksNeedingReviewCount}</strong> task(s) ready for your review.</p>
+                                </div>
+                                <div class="notification-action">
+                                    <lightning-button 
+                                        label="View Tasks" 
+                                        variant="brand"
+                                        icon-name="utility:preview"
+                                        onclick={handleViewReviewTasks}>
+                                    </lightning-button>
+                                </div>
+                            </div>
                         </template>
-                        <template if:false={hasOpenTasks}>
+                        <template if:false={hasTasksNeedingReview}>
                             <div class="empty-state">
-                                <p>No open tasks found.</p>
+                                <p>No tasks require review at this time.</p>
                             </div>
                         </template>
                     </template>
