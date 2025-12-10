@@ -231,15 +231,13 @@ public without sharing class PortalRecordListController {
             if (field != null) {
                 Schema.DescribeFieldResult fieldDescribe = field.getDescribe();
                 
-                // Check field-level security
-                if (fieldDescribe.isAccessible()) {
-                    ColumnMetadata col = new ColumnMetadata();
-                    col.fieldApiName = fieldApiName;
-                    col.label = fieldDescribe.getLabel();
-                    col.type = getFieldType(fieldDescribe.getType());
-                    col.sortable = true;
-                    columns.add(col);
-                }
+                // Build column metadata (bypassing FLS check since queries run in SYSTEM_MODE)
+                ColumnMetadata col = new ColumnMetadata();
+                col.fieldApiName = fieldApiName;
+                col.label = fieldDescribe.getLabel();
+                col.type = getFieldType(fieldDescribe.getType());
+                col.sortable = true;
+                columns.add(col);
             }
         }
         
