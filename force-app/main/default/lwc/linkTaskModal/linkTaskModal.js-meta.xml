@@ -7,7 +7,8 @@
     <targets>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
-        <target>lightning__RecordPage</target>
+        <target>
+        lightning__RecordPage</target>
         <target>lightning__AppPage</target>
     </targets>
 </LightningComponentBundle>
