@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="projectsObjectApiName" type="String" label="Projects Object API Name" default="Project__c" description="API name of the Projects object"/>
+            <property name="projectsFilterName" type="String" label="Projects Filter Name" default="All" description="Filter name for Projects list view"/>
+            <property name="projectTasksObjectApiName" type="String" label="Project Tasks Object API Name" default="Project_Task__c" description="API name of the Project Tasks object"/>
+            <property name="projectTasksFilterName" type="String" label="Project Tasks Filter Name" default="All" description="Filter name for Project Tasks list view"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
