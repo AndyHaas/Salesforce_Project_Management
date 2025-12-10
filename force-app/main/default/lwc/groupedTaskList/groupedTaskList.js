@@ -542,6 +542,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                     };
                 });
                 
+                // Apply filtering for completed and removed tasks based on toggle states
+                // This ensures only tasks for the specified project are shown, respecting showCompletedTasks and showRemovedTasks toggles
                 this.refreshFilteredStatusGroups();
                 this.error = undefined;
                 this.isLoading = false;
