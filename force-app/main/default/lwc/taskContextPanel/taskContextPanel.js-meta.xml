@@ -7,16 +7,20 @@
     <targets>
         <target>lightning__RecordPage</target>
         <target>lightning__AppPage</target>
-        <target>lightning__HomePage</target>
+        <target>
+        lightning__HomePage</target>
         <target>lightningCommunity__Page</target>
-        <target>lightningCommunity__Default</target>
+        <target>
+        lightningCommunity__Default</target>
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__RecordPage">
             <objects>
                 <object>Project_Task__c</object>
             </objects>
-            <property name="showLinkTaskButton" type="Boolean" default="true" label="Show Link Task Button" description="When enabled, displays the Link Task button in the component header."/>
+            <property name="showLinkTaskButton" type="Boolean" default="true"
+                label="Show Link Task Button"
+                description="When enabled, displays the Link Task button in the component header." />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
