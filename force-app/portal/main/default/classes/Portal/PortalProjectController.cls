@@ -78,14 +78,27 @@ public without sharing class PortalProjectController {
         System.debug('PortalProjectController: Total tasks queried: ' + allTasks.size());
         System.debug('PortalProjectController: Project ID: ' + projectId);
         
-        // Debug: Check for completed tasks specifically
+        // Debug: Check for completed tasks specifically with this project
         List<Project_Task__c> completedTasks = [
-            SELECT Id, Status__c
+            SELECT Id, Status__c, Project__c
             FROM Project_Task__c
             WHERE Project__c = :projectId
             AND Status__c = 'Completed'
         ];
         System.debug('PortalProjectController: Completed tasks query result: ' + completedTasks.size());
+        
+        // Debug: Check if there are ANY completed tasks for this account (regardless of project)
+        List<Project_Task__c> allCompletedForAccount = [
+            SELECT Id, Status__c, Project__c, Project__r.Name
+            FROM Project_Task__c
+            WHERE Account__c = :project.Account__c
+            AND Status__c = 'Completed'
+            LIMIT 10
+        ];
+        System.debug('PortalProjectController: All completed tasks for account: ' + allCompletedForAccount.size());
+        if (!allCompletedForAccount.isEmpty()) {
+            System.debug('PortalProjectController: Sample completed task Project: ' + allCompletedForAccount[0].Project__c + ' (' + allCompletedForAccount[0].Project__r?.Name + ')');
+        }
         
         // Debug: Check total count with aggregate
         AggregateResult totalCount = [
@@ -94,6 +107,15 @@ public without sharing class PortalProjectController {
             WHERE Project__c = :projectId
         ];
         System.debug('PortalProjectController: Aggregate total count: ' + totalCount.get('total'));
+        
+        // Debug: Check status breakdown with aggregate
+        List<AggregateResult> statusBreakdown = [
+            SELECT Status__c status, COUNT(Id) cnt
+            FROM Project_Task__c
+            WHERE Project__c = :projectId
+            GROUP BY Status__c
+        ];
+        System.debug('PortalProjectController: Status breakdown from aggregate: ' + statusBreakdown);
 
         // Count tasks by status
         Map<String, Integer> statusCounts = new Map<String, Integer>();
