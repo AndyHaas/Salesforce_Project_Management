@@ -66,11 +66,12 @@ public without sharing class PortalProjectController {
         TaskMetrics metrics = new TaskMetrics();
 
         // Query all tasks to get accurate counts and handle all statuses properly
+        // Note: Project__c is Master-Detail, so all tasks belong to this project
+        // Account__c filter removed to ensure we get all tasks for the project
         List<Project_Task__c> allTasks = [
-            SELECT Id, Status__c, Estimated_Hours__c, Actual_Hours__c
+            SELECT Id, Status__c, Estimated_Hours__c, Actual_Hours__c, Account__c
             FROM Project_Task__c
             WHERE Project__c = :projectId
-            AND Account__c = :project.Account__c
         ];
 
         // Count tasks by status
