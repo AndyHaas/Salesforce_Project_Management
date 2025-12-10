@@ -21,7 +21,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             }
         },
         { label: 'Status', fieldName: 'Status__c', type: 'text' },
-        { label: 'Hours', fieldName: 'Total_Time__c', type: 'number', typeAttributes: { minimumFractionDigits: 2 } }
+        { label: 'Burn Rate', fieldName: 'Burn_Rate__c', type: 'number', typeAttributes: { minimumFractionDigits: 2 } }
     ];
     
     // Data table columns for Tasks
@@ -83,7 +83,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             ...project,
             Name: project.Name,
             Status__c: project.Status__c || '',
-            Total_Time__c: project.Total_Time__c || 0
+            Burn_Rate__c: project.Burn_Rate__c || 0
         }));
     }
     

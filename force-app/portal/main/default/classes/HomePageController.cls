@@ -34,15 +34,15 @@ public with sharing class HomePageController {
             accountIds.add(contacts[0].AccountId);
         }
         
-        // Get Active Projects (Status != 'Closed' and Status != 'Completed')
+        // Get Active Projects (Invoiced__c = FALSE and Status__c NOT IN excluded statuses)
         List<Project__c> activeProjects = new List<Project__c>();
         if (!accountIds.isEmpty()) {
             activeProjects = [
-                SELECT Id, Name, Status__c, Total_Time__c, Account__c, Account__r.Name
+                SELECT Id, Name, Account__c, Burn_Rate__c, Status__c
                 FROM Project__c
                 WHERE Account__c IN :accountIds
-                AND Status__c != 'Closed'
-                AND Status__c != 'Completed'
+                AND Invoiced__c = FALSE
+                AND Status__c NOT IN ('Not Started', 'R&D', 'Proposal', 'Deployed', 'Cancelled')
                 ORDER BY CreatedDate DESC
                 LIMIT 10
             ];
