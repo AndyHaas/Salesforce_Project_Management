@@ -60,86 +60,41 @@
                                 title="Create a new Project Task">
                             </lightning-button>
                         </template>
-                        <template if:false={useCompactMode}>
+                        <lightning-button-menu 
+                            alternative-text="More actions" 
+                            variant="border-filled"
+                            menu-alignment="auto"
+                            onselect={handleMenuSelect}>
                             <template if:true={showMyTasksButton}>
-                                <lightning-button
+                                <lightning-menu-item 
                                     label={meModeButtonLabel}
-                                    variant={meModeButtonVariant}
-                                    icon-name={meModeButtonIcon}
-                                    onclick={handleMeModeToggle}
-                                    title={meModeButtonTitle}>
-                                </lightning-button>
+                                    value="myTasks"
+                                    icon-name={meModeButtonIcon}>
+                                </lightning-menu-item>
                             </template>
-                            <lightning-button
+                            <lightning-menu-item 
                                 label={completedToggleLabel}
-                                variant="neutral"
-                                icon-name={completedToggleIcon}
-                                onclick={handleCompletedToggle}
-                                title={completedToggleTitle}>
-                            </lightning-button>
-                            <lightning-button
+                                value="showCompleted"
+                                icon-name={completedToggleIcon}>
+                            </lightning-menu-item>
+                            <lightning-menu-item 
                                 label={removedToggleLabel}
-                                variant="neutral"
-                                icon-name={removedToggleIcon}
-                                onclick={handleRemovedToggle}
-                                title={removedToggleTitle}>
-                            </lightning-button>
-                            <lightning-button
+                                value="showRemoved"
+                                icon-name={removedToggleIcon}>
+                            </lightning-menu-item>
+                            <lightning-menu-item 
                                 label={expandCollapseAllLabel}
-                                variant="neutral"
+                                value="expandCollapseAll"
                                 icon-name={expandCollapseAllIcon}
-                                onclick={handleExpandCollapseAll}
-                                disabled={expandCollapseAllDisabled}
-                                title={expandCollapseAllTitle}>
-                            </lightning-button>
-                            <lightning-button
+                                disabled={expandCollapseAllDisabled}>
+                            </lightning-menu-item>
+                            <lightning-menu-item 
                                 label={expandCollapseAllSubtasksLabel}
-                                variant="neutral"
+                                value="expandCollapseAllSubtasks"
                                 icon-name={expandCollapseAllSubtasksIcon}
-                                onclick={handleExpandCollapseAllSubtasks}
-                                disabled={expandCollapseAllSubtasksDisabled}
-                                title={expandCollapseAllSubtasksTitle}>
-                            </lightning-button>
-                        </template>
-                        <template if:true={useCompactMode}>
-                            <template if:true={showMyTasksButton}>
-                                <lightning-button
-                                    label={meModeButtonLabel}
-                                    variant={meModeButtonVariant}
-                                    icon-name={meModeButtonIcon}
-                                    onclick={handleMeModeToggle}
-                                    title={meModeButtonTitle}>
-                                </lightning-button>
-                            </template>
-                            <lightning-button-menu 
-                                alternative-text="More actions" 
-                                variant="border-filled"
-                                menu-alignment="auto"
-                                onselect={handleMenuSelect}>
-                                <lightning-menu-item 
-                                    label={completedToggleLabel}
-                                    value="showCompleted"
-                                    icon-name={completedToggleIcon}>
-                                </lightning-menu-item>
-                                <lightning-menu-item 
-                                    label={removedToggleLabel}
-                                    value="showRemoved"
-                                    icon-name={removedToggleIcon}>
-                                </lightning-menu-item>
-                                <lightning-menu-item 
-                                    label={expandCollapseAllLabel}
-                                    value="expandCollapseAll"
-                                    icon-name={expandCollapseAllIcon}
-                                    disabled={expandCollapseAllDisabled}>
-                                </lightning-menu-item>
-                                <lightning-menu-item 
-                                    label={expandCollapseAllSubtasksLabel}
-                                    value="expandCollapseAllSubtasks"
-                                    icon-name={expandCollapseAllSubtasksIcon}
-                                    disabled={expandCollapseAllSubtasksDisabled}>
-                                </lightning-menu-item>
-                            </lightning-button-menu>
-                        </template>
+                                disabled={expandCollapseAllSubtasksDisabled}>
+                            </lightning-menu-item>
+                        </lightning-button-menu>
                     </lightning-button-group>
                 </div>
             </div>
