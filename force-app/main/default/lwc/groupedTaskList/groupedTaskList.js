@@ -75,6 +75,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     // Responsive button handling
     useCompactMode = false; // When true, show buttons in menu
     resizeObserver = null;
+    windowResizeHandler = null;
     
     // Density mode: 'comfy' (default) or 'compact' - loaded from user's Salesforce preference
     @track density = 'comfy';
@@ -302,8 +303,19 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                 // Fallback if ResizeObserver not available
                 this.checkContainerWidth();
             }
+            
+            // Also listen to window resize as a fallback
+            if (!this.windowResizeHandler) {
+                this.windowResizeHandler = () => {
+                    requestAnimationFrame(() => {
+                        this.checkContainerWidth();
+                    });
+                };
+                window.addEventListener('resize', this.windowResizeHandler);
+            }
         });
     }
+    
     
     checkContainerWidth() {
         const container = this.template.querySelector('.actions-container');
@@ -315,40 +327,87 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             return;
         }
         
-        // Get the actual available width for buttons
-        // Account for badge if present
-        const badge = this.template.querySelector('lightning-badge');
-        const badgeWidth = badge && badge.offsetParent !== null ? (badge.offsetWidth || 0) + 16 : 0; // 16px for margin
-        
-        // Get container's available width - use getBoundingClientRect for accurate measurement
-        const containerRect = container.getBoundingClientRect();
-        let containerWidth = containerRect.width;
-        
-        // Fallback: if width is 0 or very small, try offsetWidth
-        if (!containerWidth || containerWidth < 10) {
-            containerWidth = container.offsetWidth || 0;
-        }
-        
-        // If still no width, check parent card
-        if (!containerWidth || containerWidth < 10) {
-            const card = this.template.querySelector('lightning-card');
-            if (card) {
-                const cardRect = card.getBoundingClientRect();
-                containerWidth = cardRect.width || card.offsetWidth || 0;
+        // Use a more reliable approach: measure actual button group width
+        // Wait a bit to ensure DOM is fully rendered
+        setTimeout(() => {
+            const buttonGroupWrapper = this.template.querySelector('.button-group-wrapper');
+            if (!buttonGroupWrapper) {
+                return;
             }
-        }
-        
-        // Available width for buttons = container width - badge width - padding
-        const availableWidth = containerWidth - badgeWidth - 32; // 32px for padding/margins
-        
-        // Threshold: if available width is less than 500px, use compact mode
-        // This accounts for button widths (approx 120px each for 3 buttons = 360px + spacing)
-        const threshold = 500;
-        const shouldUseCompactMode = availableWidth < threshold;
-        
-        if (shouldUseCompactMode !== this.useCompactMode) {
-            this.useCompactMode = shouldUseCompactMode;
-        }
+            
+            // Get container's available width
+            const containerRect = container.getBoundingClientRect();
+            let containerWidth = containerRect.width;
+            
+            // Fallback: if width is 0 or very small, try offsetWidth
+            if (!containerWidth || containerWidth < 10) {
+                containerWidth = container.offsetWidth || 0;
+            }
+            
+            // If still no width, check parent card
+            if (!containerWidth || containerWidth < 10) {
+                const card = this.template.querySelector('lightning-card');
+                if (card) {
+                    const cardRect = card.getBoundingClientRect();
+                    containerWidth = cardRect.width || card.offsetWidth || 0;
+                }
+            }
+            
+            if (!containerWidth || containerWidth < 10) {
+                return; // Can't determine width, keep current mode
+            }
+            
+            // Account for badge if present
+            const badge = this.template.querySelector('lightning-badge');
+            const badgeWidth = badge && badge.offsetParent !== null ? (badge.offsetWidth || 0) + 16 : 0; // 16px for margin
+            
+            // Account for primary actions group (Refresh + New Task) - these stay visible
+            const primaryActionsGroup = buttonGroupWrapper.querySelector('.primary-actions-group');
+            let primaryActionsGroupWidth = 0;
+            if (primaryActionsGroup && primaryActionsGroup.offsetParent !== null) {
+                primaryActionsGroupWidth = primaryActionsGroup.getBoundingClientRect().width || primaryActionsGroup.offsetWidth || 0;
+                primaryActionsGroupWidth += 8; // 8px for margin
+            } else {
+                // Estimate if not rendered yet
+                primaryActionsGroupWidth = 48; // Refresh button icon ~32px + margin
+                if (!this.isPortalMode) {
+                    primaryActionsGroupWidth += 120; // New Task button ~120px
+                }
+                primaryActionsGroupWidth += 8; // margin
+            }
+            
+            // Calculate available width for the secondary actions button group
+            const availableWidth = containerWidth - badgeWidth - primaryActionsGroupWidth - 32; // 32px for padding/margins
+            
+            // Find the secondary actions button group (the one with action buttons)
+            const secondaryActionsGroup = buttonGroupWrapper.querySelector('.secondary-actions-group');
+            let mainButtonGroup = secondaryActionsGroup;
+            
+            let requiredWidth = 0;
+            
+            if (mainButtonGroup && mainButtonGroup.offsetParent !== null) {
+                // Measure actual rendered width
+                requiredWidth = mainButtonGroup.getBoundingClientRect().width || mainButtonGroup.offsetWidth || 0;
+            } else {
+                // Estimate based on number of buttons (if not rendered yet)
+                // Count buttons that would be shown in full mode
+                let buttonCount = 0;
+                if (this.showMyTasksButton) buttonCount++;
+                buttonCount += 2; // Completed, Removed
+                buttonCount += 2; // Expand All Statuses, Expand All Subtasks
+                
+                // Estimate: ~120px per button + 8px spacing between buttons
+                requiredWidth = (buttonCount * 120) + ((buttonCount - 1) * 8);
+            }
+            
+            // Use compact mode if required width exceeds available width
+            // Add a small buffer (20px) to prevent tight fits
+            const shouldUseCompactMode = availableWidth < (requiredWidth + 20);
+            
+            if (shouldUseCompactMode !== this.useCompactMode) {
+                this.useCompactMode = shouldUseCompactMode;
+            }
+        }, 100); // Small delay to ensure DOM is fully rendered
     }
     
     handleMenuSelect(event) {
@@ -2032,6 +2091,19 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     disconnectedCallback() {
+        // Clean up resize observer
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
+        }
+        
+        // Clean up window resize listener
+        if (this.windowResizeHandler) {
+            window.removeEventListener('resize', this.windowResizeHandler);
+            this.windowResizeHandler = null;
+        }
+        
+        // Clean up existing resources
         // Clean up periodic refresh interval
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
@@ -2047,6 +2119,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
             this.resizeObserver = null;
+        }
+        
+        // Clean up window resize listener
+        if (this.windowResizeHandler) {
+            window.removeEventListener('resize', this.windowResizeHandler);
+            this.windowResizeHandler = null;
         }
     }
 }

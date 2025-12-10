@@ -43,15 +43,14 @@
                     </lightning-badge>
                 </template>
                 <div class="button-group-wrapper">
-                    <lightning-button-icon
-                        icon-name="utility:refresh"
-                        variant="border-filled"
-                        alternative-text="Refresh task list"
-                        title="Refresh task list"
-                        onclick={handleManualRefresh}
-                        class="slds-m-right_small">
-                    </lightning-button-icon>
-                    <lightning-button-group class="slds-m-right_small">
+                    <lightning-button-group class="slds-m-right_small primary-actions-group">
+                        <lightning-button-icon
+                            icon-name="utility:refresh"
+                            variant="border-filled"
+                            alternative-text="Refresh task list"
+                            title="Refresh task list"
+                            onclick={handleManualRefresh}>
+                        </lightning-button-icon>
                         <template if:false={isPortalMode}>
                             <lightning-button
                                 label="New Task"
@@ -62,7 +61,7 @@
                             </lightning-button>
                         </template>
                     </lightning-button-group>
-                    <lightning-button-group>
+                    <lightning-button-group class="secondary-actions-group">
                         <template if:false={useCompactMode}>
                             <template if:true={showMyTasksButton}>
                                 <lightning-button
