@@ -1,6 +1,7 @@
 /**
  * @description Apex controller for Task Detail component
  * Provides task detail data for portal users
+ * Uses without sharing to allow portal users to create file records
  */
 public without sharing class PortalTaskController {
     
