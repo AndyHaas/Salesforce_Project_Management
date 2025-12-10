@@ -22,9 +22,8 @@ export const CONTACT_INFO = {
 
 export const NAV_LINKS = [
     { label: 'Home', href: '/home' },
-    { label: 'Account', href: '/account' },
-    { label: 'Projects', href: '/projects' },
-    { label: 'Tasks', href: '/tasks' }
+    { label: 'Projects', href: '/project/Project__c/Open_Projects' },
+    { label: 'Project Tasks', href: '/project-task/Project_Task__c/All' }
 ];
 
 export const RESOURCE_LINKS = [
