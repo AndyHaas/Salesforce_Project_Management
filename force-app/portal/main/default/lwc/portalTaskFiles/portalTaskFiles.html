@@ -26,18 +26,31 @@
                                 <span class="file-meta">
                                     ({file.formattedSize} • {file.formattedDate})
                                 </span>
-                                <template if:true={file.canDelete}>
-                                    <lightning-button-icon
-                                        icon-name="utility:delete"
-                                        variant="bare"
-                                        alternative-text="Delete file"
-                                        title="Delete file"
-                                        class="slds-m-left_small delete-button"
-                                        data-file-id={file.id}
-                                        data-file-name={file.title}
-                                        onclick={handleDeleteFile}>
-                                    </lightning-button-icon>
-                                </template>
+                                <div class="file-actions">
+                                    <template if:true={file.canPreview}>
+                                        <lightning-button-icon
+                                            icon-name="utility:preview"
+                                            variant="bare"
+                                            alternative-text="Preview file"
+                                            title="Preview file"
+                                            class="slds-m-left_small preview-button"
+                                            data-file-id={file.id}
+                                            onclick={handlePreviewFile}>
+                                        </lightning-button-icon>
+                                    </template>
+                                    <template if:true={file.canDelete}>
+                                        <lightning-button-icon
+                                            icon-name="utility:delete"
+                                            variant="bare"
+                                            alternative-text="Delete file"
+                                            title="Delete file"
+                                            class="slds-m-left_small delete-button"
+                                            data-file-id={file.id}
+                                            data-file-name={file.title}
+                                            onclick={handleDeleteFile}>
+                                        </lightning-button-icon>
+                                    </template>
+                                </div>
                             </div>
                         </template>
                     </div>
@@ -51,5 +64,56 @@
                 </template>
             </div>
         </lightning-card>
+        
+        <!-- File Preview Modal -->
+        <template if:true={showPreview}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large preview-modal" aria-labelledby="preview-modal-heading" aria-modal="true" aria-describedby="preview-modal-content">
+                <div class="slds-modal__container preview-modal-container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClosePreview}>
+                            <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="preview-modal-heading" class="slds-modal__title slds-hyphenate">
+                            {previewFile.title}
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="preview-modal-content">
+                        <template if:true={previewUrl}>
+                            <!-- PDF Preview -->
+                            <template if:true={isPdfPreview}>
+                                <iframe src={previewUrl} class="preview-iframe" frameborder="0" type="application/pdf"></iframe>
+                            </template>
+                            
+                            <!-- Image Preview -->
+                            <template if:true={isImagePreview}>
+                                <div class="image-preview-container">
+                                    <!-- Use iframe for ContentDistribution URLs, img tag for direct URLs -->
+                                    <template if:true={isContentDistributionUrl}>
+                                        <iframe src={previewUrl} class="preview-iframe preview-image-iframe" frameborder="0"></iframe>
+                                    </template>
+                                    <template if:false={isContentDistributionUrl}>
+                                        <img src={previewUrl} alt={previewFile.title} class="preview-image" />
+                                    </template>
+                                </div>
+                            </template>
+                            
+                        </template>
+                        <template if:false={previewUrl}>
+                            <div class="slds-text-align_center slds-p-around_medium">
+                                <p class="slds-text-body_regular">Unable to load preview. Please download the file to view it.</p>
+                            </div>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button-group>
+                            <lightning-button label="Download" variant="brand" onclick={handleDownloadFromPreview}></lightning-button>
+                            <lightning-button label="Close" variant="neutral" onclick={handleClosePreview}></lightning-button>
+                        </lightning-button-group>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
     </template>
 </template>

@@ -4,6 +4,7 @@ import getTaskFiles from '@salesforce/apex/PortalTaskController.getTaskFiles';
 import linkFilesToTask from '@salesforce/apex/PortalTaskController.linkFilesToTask';
 import linkRecentFilesToTask from '@salesforce/apex/PortalTaskController.linkRecentFilesToTask';
 import deleteFile from '@salesforce/apex/PortalTaskController.deleteFile';
+import getFilePreviewUrl from '@salesforce/apex/PortalTaskController.getFilePreviewUrl';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { ensureSitePath } from 'c/portalCommon';
 
@@ -13,6 +14,8 @@ export default class PortalTaskFiles extends LightningElement {
     _files = [];
     _filesError = null;
     _wiredTaskFilesResult;
+    _previewFile = null;
+    _showPreview = false;
     
     // Wire service to get files for the task
     @wire(getTaskFiles, { taskId: '$recordId' })
@@ -183,17 +186,28 @@ export default class PortalTaskFiles extends LightningElement {
         
         return this._files.map(file => {
             // Use the correct download URL format for Experience Cloud
-            // The URL should use version/download endpoint with ContentVersion ID
-            const baseUrl = `/sfc/servlet.shepherd/version/download/${file.versionId}`;
+            // Format: /sfc/servlet.shepherd/document/download/{ContentDocumentId}
+            const baseUrl = `/sfc/servlet.shepherd/document/download/${file.id}`;
             const downloadUrl = ensureSitePath(baseUrl, { 
                 currentPathname: window.location.pathname 
             });
             
+            // For preview, we'll use ContentDistribution for PDFs and images
+            // The preview URL will be generated on-demand when the preview button is clicked
+            // For now, set a placeholder that will be replaced
+            let previewUrl = downloadUrl;
+            // Preview URL will be generated via ContentDistribution when preview is clicked for PDFs and images
+            
+            // Determine if file can be previewed
+            const canPreview = this.isPreviewable(file.extension);
+            
             return {
                 ...file,
                 downloadUrl: downloadUrl,
+                previewUrl: previewUrl,
                 formattedSize: this.formatFileSize(file.size),
-                formattedDate: this.formatFileDate(file.createdDate)
+                formattedDate: this.formatFileDate(file.createdDate),
+                canPreview: canPreview
             };
         });
     }
@@ -239,6 +253,193 @@ export default class PortalTaskFiles extends LightningElement {
             month: 'short', 
             day: 'numeric' 
         });
+    }
+    
+    /**
+     * @description Check if a file type can be previewed
+     */
+    isPreviewable(extension) {
+        if (!extension) {
+            return false;
+        }
+        
+        const ext = extension.toLowerCase();
+        const previewableTypes = [
+            'pdf',
+            'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'
+        ];
+        
+        return previewableTypes.includes(ext);
+    }
+    
+    /**
+     * @description Get preview URL for a file using renditionDownload endpoint
+     */
+    getPreviewUrl(file) {
+        if (!file || !file.versionId) {
+            return null;
+        }
+        
+        const ext = (file.extension || '').toLowerCase();
+        
+        // Use renditionDownload endpoint with appropriate rendition parameter
+        if (ext === 'pdf') {
+            // For PDFs, use PDF rendition
+            const renditionUrl = `/sfc/servlet.shepherd/version/renditionDownload?versionId=${file.versionId}&rendition=PDF`;
+            return ensureSitePath(renditionUrl, { 
+                currentPathname: window.location.pathname 
+            });
+        } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) {
+            // For images, use SVGZ rendition
+            const renditionUrl = `/sfc/servlet.shepherd/version/renditionDownload?versionId=${file.versionId}&rendition=SVGZ`;
+            return ensureSitePath(renditionUrl, { 
+                currentPathname: window.location.pathname 
+            });
+        } else if (ext === 'svg') {
+            // For SVG files, use SVGZ rendition
+            const renditionUrl = `/sfc/servlet.shepherd/version/renditionDownload?versionId=${file.versionId}&rendition=SVGZ`;
+            return ensureSitePath(renditionUrl, { 
+                currentPathname: window.location.pathname 
+            });
+        } else {
+            // For other files, try PDF rendition
+            const renditionUrl = `/sfc/servlet.shepherd/version/renditionDownload?versionId=${file.versionId}&rendition=PDF`;
+            return ensureSitePath(renditionUrl, { 
+                currentPathname: window.location.pathname 
+            });
+        }
+    }
+    
+    /**
+     * @description Handle file preview
+     */
+    async handlePreviewFile(event) {
+        const fileId = event.currentTarget.dataset.fileId;
+        
+        // Find file from the mapped files array (which includes canPreview flag)
+        const file = this.files.find(f => f.id === fileId);
+        
+        if (file && file.canPreview) {
+            // Set the file first
+            this._previewFile = file;
+            this._showPreview = true;
+            
+            // For files that need ContentDistribution (PDFs, images, and Office docs),
+            // get the public preview URL
+            const ext = (file.extension || '').toLowerCase();
+            const needsContentDistribution = ext === 'pdf' || 
+                ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext) ||
+                ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext);
+            
+            if (file.versionId && needsContentDistribution) {
+                try {
+                    const previewUrl = await getFilePreviewUrl({ contentVersionId: file.versionId });
+                    // Update the preview file with the new URL
+                    this._previewFile = {
+                        ...this._previewFile,
+                        previewUrl: previewUrl
+                    };
+                } catch (error) {
+                    console.error('Error getting preview URL:', error);
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Preview Error',
+                            message: 'Unable to generate preview URL. Please try downloading the file.',
+                            variant: 'warning'
+                        })
+                    );
+                }
+            }
+        }
+    }
+    
+    /**
+     * @description Close preview modal
+     */
+    handleClosePreview() {
+        this._showPreview = false;
+        this._previewFile = null;
+    }
+    
+    /**
+     * @description Get preview file data
+     */
+    get previewFile() {
+        return this._previewFile;
+    }
+    
+    /**
+     * @description Get preview URL for current preview file
+     */
+    get previewUrl() {
+        if (!this._previewFile) {
+            return null;
+        }
+        // Use the previewUrl that was already generated (either from getter or ContentDistribution)
+        // Fallback to downloadUrl or generate one
+        return this._previewFile.previewUrl || this._previewFile.downloadUrl || this.getPreviewUrl(this._previewFile);
+    }
+    
+    /**
+     * @description Check if preview should be shown
+     */
+    get showPreview() {
+        return this._showPreview && this._previewFile;
+    }
+    
+    /**
+     * @description Get preview file type (for rendering logic)
+     */
+    get previewFileType() {
+        if (!this._previewFile || !this._previewFile.extension) {
+            return 'unknown';
+        }
+        
+        const ext = this._previewFile.extension.toLowerCase();
+        
+        if (ext === 'pdf') {
+            return 'pdf';
+        } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext)) {
+            return 'image';
+        }
+        
+        return 'unknown';
+    }
+    
+    /**
+     * @description Check if preview is PDF
+     */
+    get isPdfPreview() {
+        return this.previewFileType === 'pdf';
+    }
+    
+    /**
+     * @description Check if preview is image
+     */
+    get isImagePreview() {
+        return this.previewFileType === 'image';
+    }
+    
+    
+    /**
+     * @description Check if using ContentDistribution URL (for images and PDFs)
+     */
+    get isContentDistributionUrl() {
+        if (!this._previewFile || !this._previewFile.previewUrl) {
+            return false;
+        }
+        // ContentDistribution URLs typically contain 'contentdistribution' or are external URLs
+        const url = this._previewFile.previewUrl.toLowerCase();
+        return url.includes('contentdistribution') || url.includes('http://') || url.includes('https://');
+    }
+    
+    /**
+     * @description Handle download from preview modal
+     */
+    handleDownloadFromPreview() {
+        if (this._previewFile && this._previewFile.downloadUrl) {
+            window.open(this._previewFile.downloadUrl, '_blank');
+        }
     }
     
     /**

@@ -216,6 +216,56 @@ public without sharing class PortalTaskController {
     }
     
     /**
+     * @description Get preview URL for a file using ContentDistribution
+     * Creates a public distribution link for file preview in Experience Cloud
+     * @param contentVersionId The ContentVersion ID
+     * @return Public distribution URL for preview
+     */
+    @AuraEnabled
+    public static String getFilePreviewUrl(String contentVersionId) {
+        if (String.isBlank(contentVersionId)) {
+            throw new AuraHandledException('Content Version ID is required');
+        }
+        
+        try {
+            // Check if a ContentDistribution already exists for this version
+            List<ContentDistribution> existingDistributions = [
+                SELECT DistributionPublicUrl
+                FROM ContentDistribution
+                WHERE ContentVersionId = :contentVersionId
+                AND PreferencesAllowViewInBrowser = true
+                LIMIT 1
+            ];
+            
+            if (!existingDistributions.isEmpty()) {
+                return existingDistributions[0].DistributionPublicUrl;
+            }
+            
+            // Create a new ContentDistribution for preview
+            ContentDistribution dist = new ContentDistribution();
+            dist.ContentVersionId = contentVersionId;
+            dist.Name = 'Preview Distribution';
+            dist.PreferencesAllowViewInBrowser = true;
+            dist.PreferencesLinkLatestVersion = true;
+            dist.PreferencesAllowOriginalDownload = true;
+            
+            insert dist;
+            
+            // Query to get the public URL
+            ContentDistribution createdDist = [
+                SELECT DistributionPublicUrl
+                FROM ContentDistribution
+                WHERE Id = :dist.Id
+                LIMIT 1
+            ];
+            
+            return createdDist.DistributionPublicUrl;
+        } catch (Exception e) {
+            throw new AuraHandledException('Error creating preview URL: ' + e.getMessage());
+        }
+    }
+    
+    /**
      * @description Get files linked to a task
      * @param taskId The Project Task ID
      * @return List of FileInfo with file details
