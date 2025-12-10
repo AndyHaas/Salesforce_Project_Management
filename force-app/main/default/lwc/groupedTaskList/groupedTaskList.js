@@ -21,6 +21,7 @@ import getGroupedTasksWithSubtasksByProject from '@salesforce/apex/ProjectTaskDa
 import getAccounts from '@salesforce/apex/ProjectTaskDashboardController.getAccounts';
 import getStatusColors from '@salesforce/apex/ProjectTaskDashboardController.getStatusColors';
 import getCurrentUserAccountId from '@salesforce/apex/ProjectTaskDashboardController.getCurrentUserAccountId';
+import getCurrentUserContactId from '@salesforce/apex/ProjectTaskDashboardController.getCurrentUserContactId';
 import getDisplayDensity from '@salesforce/apex/DisplayDensityController.getDisplayDensity';
 import { refreshApex } from '@salesforce/apex';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
@@ -51,6 +52,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     showCompletedTasks = false; // Toggle Completed status visibility (default hidden)
     showRemovedTasks = false; // Toggle Removed status visibility (default hidden)
     currentUserId = USER_ID; // Current user ID
+    currentUserContactId = null; // Current user's Contact ID (for portal)
+    selectedContactId = null; // Selected Contact ID for filtering (for Salesforce)
+    showContactSelector = false; // Show Contact selector modal
     error;
     summaryFieldDefinitions = [];
     summaryFieldDefinitionMap = {};
@@ -99,6 +103,15 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             }
         } else if (error) {
             console.warn('Error loading current user account:', error);
+        }
+    }
+    
+    @wire(getCurrentUserContactId)
+    wiredUserContact({ error, data }) {
+        if (data) {
+            this.currentUserContactId = data;
+        } else if (error) {
+            console.warn('Error loading user contact:', error);
         }
     }
     
@@ -670,15 +683,25 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     isTaskAssignedToMe(task) {
-        // Check if current user is assigned as Project Manager, Developer, or Client User
+        // Check if current user/contact is assigned as Project Manager, Developer, or Client User
         // Handle undefined, null, and empty string values
         const projectManagerId = task.projectManagerId || '';
         const developerId = task.developerId || '';
         const clientUserId = task.clientUserId || '';
         
-        return projectManagerId === this.currentUserId ||
-               developerId === this.currentUserId ||
-               clientUserId === this.currentUserId;
+        // Determine which Contact ID to use for comparison
+        // Portal: use currentUserContactId; Salesforce: use selectedContactId
+        const contactIdToMatch = this.isPortalMode() 
+            ? this.currentUserContactId 
+            : this.selectedContactId;
+        
+        if (!contactIdToMatch) {
+            return false;
+        }
+        
+        return projectManagerId === contactIdToMatch ||
+               developerId === contactIdToMatch ||
+               clientUserId === contactIdToMatch;
     }
     
     getStatusBadgeClass(status) {
@@ -773,7 +796,17 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get meModeButtonLabel() {
+        if (this.showMyTasksOnly && !this.isPortalMode() && this.selectedContactId) {
+            return 'Show All';
+        }
         return this.showMyTasksOnly ? 'Show All' : 'My Tasks';
+    }
+    
+    get contactDisplayInfo() {
+        return [
+            { apiName: 'Name', label: 'Name' },
+            { apiName: 'Email', label: 'Email' }
+        ];
     }
     
     get meModeButtonTitle() {
@@ -844,8 +877,34 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     handleMeModeToggle() {
+        // In Salesforce context, show Contact selector if not already filtering
+        if (!this.isPortalMode() && !this.showMyTasksOnly && !this.selectedContactId) {
+            this.showContactSelector = true;
+            return;
+        }
+        
+        // If already filtering and toggling off, clear the filter
+        if (this.showMyTasksOnly && !this.isPortalMode()) {
+            this.selectedContactId = null;
+        }
+        
         this.showMyTasksOnly = !this.showMyTasksOnly;
         this.refreshFilteredStatusGroups();
+    }
+    
+    handleContactSelected(event) {
+        // lightning-record-picker provides recordId in event.detail.recordId
+        const contactId = event.detail.recordId;
+        if (contactId) {
+            this.selectedContactId = contactId;
+            this.showMyTasksOnly = true;
+            this.showContactSelector = false;
+            this.refreshFilteredStatusGroups();
+        }
+    }
+    
+    handleContactSelectorCancel() {
+        this.showContactSelector = false;
     }
     
     handleCompletedToggle() {

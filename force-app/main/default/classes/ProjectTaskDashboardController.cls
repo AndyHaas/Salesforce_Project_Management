@@ -825,6 +825,13 @@ public without sharing class ProjectTaskDashboardController {
         return null;
     }
     
+    @AuraEnabled(cacheable=true)
+    public static String getCurrentUserContactId() {
+        // Get current user's ContactId (for portal users)
+        User currentUser = [SELECT Id, ContactId FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+        return currentUser.ContactId;
+    }
+    
     // Wrapper classes
     public class StatusBreakdownResult {
         @AuraEnabled public Map<String, Integer> statusCounts;
