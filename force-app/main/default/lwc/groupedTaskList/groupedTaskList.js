@@ -740,15 +740,15 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     isTaskAssignedToMe(task) {
         // Check if current user/contact is assigned as Project Manager, Developer, or Client User
         // Handle undefined, null, and empty string values
-        const projectManagerId = task.projectManagerId || '';
-        const developerId = task.developerId || '';
-        const clientUserId = task.clientUserId || '';
+        const projectManagerId = task.projectManagerId ? String(task.projectManagerId) : '';
+        const developerId = task.developerId ? String(task.developerId) : '';
+        const clientUserId = task.clientUserId ? String(task.clientUserId) : '';
         
         // Determine which Contact ID to use for comparison
         // Portal: use currentUserContactId; Salesforce: use selectedContactId
         const contactIdToMatch = this.isPortalMode 
-            ? this.currentUserContactId 
-            : this.selectedContactId;
+            ? (this.currentUserContactId ? String(this.currentUserContactId) : null)
+            : (this.selectedContactId ? String(this.selectedContactId) : null);
         
         if (!contactIdToMatch) {
             return false;
@@ -1068,6 +1068,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     handleAccountChange(event) {
         this.selectedAccountId = event.detail.value || null;
         // The wire will automatically refresh when effectiveAccountIds changes
+        // But we also need to ensure Contact filter is reapplied after Account filter changes
+        // refreshFilteredStatusGroups() will be called by wiredGroupedTasks, but we ensure it's called here too
+        if (this.statusGroups && this.statusGroups.length > 0) {
+            this.refreshFilteredStatusGroups();
+        }
     }
     
     refreshFilteredStatusGroups() {

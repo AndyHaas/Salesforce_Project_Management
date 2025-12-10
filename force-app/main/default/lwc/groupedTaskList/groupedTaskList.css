@@ -222,6 +222,13 @@
     min-height: 5rem;
 }
 
+/* Card body overflow handling - allow Y and X scrolling */
+.slds-card__body_inner {
+    overflow-y: auto;
+    overflow-x: auto;
+    max-height: calc(100vh - 300px);
+}
+
 .account-filter-combobox {
     min-width: 200px;
 }
