@@ -52,11 +52,15 @@
     margin-left: auto;
 }
 
-.preview-button {
+.file-link {
+    cursor: pointer;
+}
+
+.download-button {
     color: #0176d3;
 }
 
-.preview-button:hover {
+.download-button:hover {
     color: #014486;
 }
 

@@ -233,9 +233,16 @@
         <!-- Side Panel with Task Context -->
         <template if:true={taskId}>
             <div class="side-panel">
-                <div class="side-panel-item">
-                    <c-task-context-panel record-id={taskId} show-link-task-button="false" is-portal-mode="true"></c-task-context-panel>
-                </div>
+                <template if:true={taskContextHasContent}>
+                    <div class="side-panel-item">
+                        <c-task-context-panel 
+                            record-id={taskId} 
+                            show-link-task-button="false" 
+                            is-portal-mode="true"
+                            oncontentchange={handleTaskContextContentChange}>
+                        </c-task-context-panel>
+                    </div>
+                </template>
                 <div class="side-panel-item">
                     <c-portal-task-files record-id={taskId}></c-portal-task-files>
                 </div>

@@ -20,24 +20,23 @@
                         <template for:each={files} for:item="file">
                             <div key={file.id} class="file-item">
                                 <lightning-icon icon-name="utility:file" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                                <a href={file.downloadUrl} download={file.title} target="_blank" rel="noopener noreferrer" class="file-link">
+                                <a href="javascript:void(0);" class="file-link" data-file-id={file.id} onclick={handleFileClick}>
                                     {file.title}
                                 </a>
                                 <span class="file-meta">
                                     ({file.formattedSize} • {file.formattedDate})
                                 </span>
                                 <div class="file-actions">
-                                    <template if:true={file.canPreview}>
-                                        <lightning-button-icon
-                                            icon-name="utility:preview"
-                                            variant="bare"
-                                            alternative-text="Preview file"
-                                            title="Preview file"
-                                            class="slds-m-left_small preview-button"
-                                            data-file-id={file.id}
-                                            onclick={handlePreviewFile}>
-                                        </lightning-button-icon>
-                                    </template>
+                                    <lightning-button-icon
+                                        icon-name="utility:download"
+                                        variant="bare"
+                                        alternative-text="Download file"
+                                        title="Download file"
+                                        class="slds-m-left_small download-button"
+                                        data-file-id={file.id}
+                                        data-file-url={file.downloadUrl}
+                                        onclick={handleDownloadFile}>
+                                    </lightning-button-icon>
                                     <template if:true={file.canDelete}>
                                         <lightning-button-icon
                                             icon-name="utility:delete"

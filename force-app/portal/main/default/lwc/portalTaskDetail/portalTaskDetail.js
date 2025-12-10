@@ -12,6 +12,14 @@ export default class PortalTaskDetail extends NavigationMixin(LightningElement) 
     isLoading = true;
     error;
     statusColors = {};
+    taskContextHasContent = false;
+    
+    /**
+     * @description Handle content change event from taskContextPanel
+     */
+    handleTaskContextContentChange(event) {
+        this.taskContextHasContent = event.detail.hasContent;
+    }
 
     @wire(CurrentPageReference)
     resolvePageReference(pageRef) {

@@ -311,6 +311,32 @@ export default class PortalTaskFiles extends LightningElement {
     }
     
     /**
+     * @description Handle file name click - opens preview if previewable, otherwise downloads
+     */
+    async handleFileClick(event) {
+        const fileId = event.currentTarget.dataset.fileId;
+        const file = this.files.find(f => f.id === fileId);
+        
+        if (file && file.canPreview) {
+            // Open preview for previewable files
+            await this.handlePreviewFile(event);
+        } else if (file) {
+            // Download non-previewable files
+            window.open(file.downloadUrl, '_blank');
+        }
+    }
+    
+    /**
+     * @description Handle download button click
+     */
+    handleDownloadFile(event) {
+        const downloadUrl = event.currentTarget.dataset.fileUrl;
+        if (downloadUrl) {
+            window.open(downloadUrl, '_blank');
+        }
+    }
+    
+    /**
      * @description Handle file preview
      */
     async handlePreviewFile(event) {

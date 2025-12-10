@@ -119,21 +119,25 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         
         if (error) {
             this._handleError(error);
+            this._notifyContentChange();
             return;
         }
         
         if (!data) {
             this._dependencyData = this._createEmptyDependencyData();
             this._error = null;
+            this._notifyContentChange();
             return;
         }
         
         try {
             this._dependencyData = this._processWireData(data);
             this._error = null;
+            this._notifyContentChange();
         } catch (processingError) {
             console.error('Error processing dependency data:', processingError);
             this._handleError('Failed to process dependency data');
+            this._notifyContentChange();
         }
     }
     
@@ -328,6 +332,31 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     
     get hasAnyDependencies() {
         return this.hasParentTask || this.hasDependencies || this.hasDependentTasks || this.hasSubtasks;
+    }
+    
+    /**
+     * @description Public API to check if component has any content to display
+     * Used by parent components to conditionally render this component
+     * @returns {boolean}
+     */
+    @api
+    get hasContent() {
+        // Only show if not loading, no error, and has dependencies
+        return !this.isLoading && !this.error && this.hasAnyDependencies;
+    }
+    
+    /**
+     * @description Notify parent component when content state changes
+     */
+    _notifyContentChange() {
+        // Use setTimeout to ensure reactive properties have updated
+        setTimeout(() => {
+            this.dispatchEvent(new CustomEvent('contentchange', {
+                detail: { hasContent: this.hasContent },
+                bubbles: true,
+                composed: true
+            }));
+        }, 0);
     }
     
     get isAtRisk() {
