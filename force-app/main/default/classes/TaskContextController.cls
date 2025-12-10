@@ -25,7 +25,7 @@ public without sharing class TaskContextController {
             return null;
         }
         
-        Project_Task__c currentTask = [
+        List<Project_Task__c> tasks = [
             SELECT Id, Parent_Task__c, Parent_Task__r.Name, Parent_Task__r.Status__c, Parent_Task__r.Priority__c,
                    Parent_Task__r.Total_Estimated_Hours__c, Parent_Task__r.Description__c,
                    At_Risk_Due_to_Dependencies__c, Is_Blocking__c,
@@ -37,6 +37,12 @@ public without sharing class TaskContextController {
             WHERE Id = :taskId
             LIMIT 1
         ];
+        
+        if (tasks.isEmpty()) {
+            return null;
+        }
+        
+        Project_Task__c currentTask = tasks[0];
         
         // Get hover field set for building hover cards
         Schema.FieldSet hoverFieldSet = Schema.SObjectType.Project_Task__c.fieldSets.getMap().get(TASK_HOVER_FIELD_SET);
