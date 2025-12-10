@@ -35,13 +35,15 @@
                         class="slds-m-right_small">
                     </lightning-button-icon>
                     <lightning-button-group class="slds-m-right_small">
-                        <lightning-button
-                            label="New Task"
-                            variant="brand"
-                            icon-name="utility:add"
-                            onclick={handleCreateNewTask}
-                            title="Create a new Project Task">
-                        </lightning-button>
+                        <template if:false={isPortalMode}>
+                            <lightning-button
+                                label="New Task"
+                                variant="brand"
+                                icon-name="utility:add"
+                                onclick={handleCreateNewTask}
+                                title="Create a new Project Task">
+                            </lightning-button>
+                        </template>
                     </lightning-button-group>
                     <lightning-button-group>
                         <template if:false={useCompactMode}>
@@ -97,18 +99,27 @@
                 </div>
             </div>
         </div>
-        <template if:true={error}>
+        <template if:true={isLoading}>
             <div class="slds-card__body slds-card__body_inner">
                 <div class="slds-text-align_center slds-p-around_medium">
-                    <lightning-icon icon-name="utility:error" size="small" class="slds-m-bottom_x-small"></lightning-icon>
-                    <p class="slds-text-body_regular slds-text-color_error">
-                        Error loading tasks. Please try again.
-                    </p>
+                    <lightning-spinner size="medium" variant="brand" alternative-text="Loading tasks"></lightning-spinner>
                 </div>
             </div>
         </template>
-        
-        <template if:true={hasData}>
+
+        <template if:false={isLoading}>
+            <template if:true={error}>
+                <div class="slds-card__body slds-card__body_inner">
+                    <div class="slds-text-align_center slds-p-around_medium">
+                        <lightning-icon icon-name="utility:error" size="small" class="slds-m-bottom_x-small"></lightning-icon>
+                        <p class="slds-text-body_regular slds-text-color_error">
+                            Error loading tasks. Please try again.
+                        </p>
+                    </div>
+                </div>
+            </template>
+            
+            <template if:true={hasData}>
             <div class="slds-card__body slds-card__body_inner">
                 <template for:each={displayStatusGroups} for:item="statusGroup">
                     <div key={statusGroup.status} class="status-group slds-m-bottom_large">
@@ -205,10 +216,12 @@
                                                             <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
                                                                 <lightning-input
                                                                     type="text"
+                                                                    label="Task Name"
                                                                     value={editingTaskName}
                                                                     onchange={handleTaskNameChange}
                                                                     onkeydown={handleTaskNameKeyDown}
-                                                                    class="slds-grow slds-m-right_x-small">
+                                                                    class="slds-grow slds-m-right_x-small"
+                                                                    variant="label-hidden">
                                                                 </lightning-input>
                                                                 <lightning-button-icon
                                                                     icon-name="utility:check"
@@ -307,10 +320,10 @@
                                                 </template>
                                                 
                                                 <td class="summary-cell">
-                                                    <template if:true={task.ownerName}>
-                                                        <div class="slds-text-body_small">{task.ownerName}</div>
+                                                    <template if:true={task.projectManagerName}>
+                                                        <div class="slds-text-body_small">{task.projectManagerName}</div>
                                                     </template>
-                                                    <template if:false={task.ownerName}>
+                                                    <template if:false={task.projectManagerName}>
                                                         <div class="slds-text-body_small slds-text-color_weak">—</div>
                                                     </template>
                                                 </td>
@@ -386,10 +399,12 @@
                                                                     <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
                                                                         <lightning-input
                                                                             type="text"
+                                                                            label="Subtask Name"
                                                                             value={editingTaskName}
                                                                             onchange={handleTaskNameChange}
                                                                             onkeydown={handleTaskNameKeyDown}
-                                                                            class="slds-grow slds-m-right_x-small">
+                                                                            class="slds-grow slds-m-right_x-small"
+                                                                            variant="label-hidden">
                                                                         </lightning-input>
                                                                         <lightning-button-icon
                                                                             icon-name="utility:check"
@@ -481,10 +496,10 @@
                                                             </template>
                                                             
                                                             <td class="summary-cell">
-                                                                <template if:true={subtask.ownerName}>
-                                                                    <div class="slds-text-body_small">{subtask.ownerName}</div>
+                                                                <template if:true={subtask.projectManagerName}>
+                                                                    <div class="slds-text-body_small">{subtask.projectManagerName}</div>
                                                                 </template>
-                                                                <template if:false={subtask.ownerName}>
+                                                                <template if:false={subtask.projectManagerName}>
                                                                     <div class="slds-text-body_small slds-text-color_weak">—</div>
                                                                 </template>
                                                             </td>
@@ -558,14 +573,15 @@
                 </template>
             </div>
         </template>
-        
-        <template if:false={hasData}>
-            <div class="slds-card__body slds-card__body_inner no-data-message">
-                <div class="slds-text-align_center slds-p-around_medium">
-                    <lightning-icon icon-name="utility:info" size="small" class="slds-m-bottom_x-small"></lightning-icon>
-                    <p class="slds-text-body_regular">No tasks available.</p>
+            
+            <template if:false={hasData}>
+                <div class="slds-card__body slds-card__body_inner no-data-message">
+                    <div class="slds-text-align_center slds-p-around_medium">
+                        <lightning-icon icon-name="utility:info" size="small" class="slds-m-bottom_x-small"></lightning-icon>
+                        <p class="slds-text-body_regular">No tasks available.</p>
+                    </div>
                 </div>
-            </div>
+            </template>
         </template>
     </lightning-card>
 </template>

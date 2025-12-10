@@ -18,7 +18,7 @@
  * 
  * NOTE: Task context panel functionality has been moved to TaskContextController
  */
-public with sharing class ProjectTaskDashboardController {
+public without sharing class ProjectTaskDashboardController {
 
     private static final String TASK_HOVER_FIELD_SET = 'Task_Hover_Fields';
     private static final String TASK_LIST_FIELD_SET = 'Project_Task_Dashboard_Table';
@@ -32,8 +32,9 @@ public with sharing class ProjectTaskDashboardController {
         'Estimated_Hours__c',
         'Actual_Hours__c',
         'Progress_Percentage__c',
-        'Owner.Id',
-        'Owner.Name',
+        'Project_Manager__c',
+        'Project_Manager__r.Name',
+        'Project_Manager__r.Id',
         'Developer__c',
         'Developer__r.Name',
         'Developer__r.Id',
@@ -55,8 +56,9 @@ public with sharing class ProjectTaskDashboardController {
         'Estimated_Hours__c',
         'Actual_Hours__c',
         'Progress_Percentage__c',
-        'Owner.Id',
-        'Owner.Name',
+        'Project_Manager__c',
+        'Project_Manager__r.Name',
+        'Project_Manager__r.Id',
         'Developer__c',
         'Developer__r.Name',
         'Developer__r.Id',
@@ -1057,8 +1059,8 @@ public with sharing class ProjectTaskDashboardController {
             taskWrapper.estimatedHours = task.Estimated_Hours__c;
             taskWrapper.actualHours = task.Actual_Hours__c;
             taskWrapper.progressPercentage = task.Progress_Percentage__c;
-            taskWrapper.ownerName = task.Owner != null ? task.Owner.Name : '';
-            taskWrapper.ownerId = task.Owner != null ? task.Owner.Id : '';
+            taskWrapper.projectManagerId = (task.Project_Manager__c != null) ? String.valueOf(task.Project_Manager__c) : '';
+            taskWrapper.projectManagerName = (task.Project_Manager__r != null) ? task.Project_Manager__r.Name : '';
             taskWrapper.developerName = (task.Developer__r != null) ? task.Developer__r.Name : '';
             taskWrapper.developerId = (task.Developer__c != null) ? String.valueOf(task.Developer__c) : '';
             taskWrapper.clientUserName = (task.Client_User__r != null) ? task.Client_User__r.Name : '';
@@ -1098,8 +1100,8 @@ public with sharing class ProjectTaskDashboardController {
                     subtaskInfo.estimatedHours = subtask.Estimated_Hours__c;
                     subtaskInfo.actualHours = subtask.Actual_Hours__c;
                     subtaskInfo.progressPercentage = subtask.Progress_Percentage__c;
-                    subtaskInfo.ownerName = subtask.Owner != null ? subtask.Owner.Name : '';
-                    subtaskInfo.ownerId = subtask.Owner != null ? subtask.Owner.Id : '';
+                    subtaskInfo.projectManagerId = (subtask.Project_Manager__c != null) ? String.valueOf(subtask.Project_Manager__c) : '';
+                    subtaskInfo.projectManagerName = (subtask.Project_Manager__r != null) ? subtask.Project_Manager__r.Name : '';
                     subtaskInfo.developerName = (subtask.Developer__r != null) ? subtask.Developer__r.Name : '';
                     subtaskInfo.developerId = (subtask.Developer__c != null) ? String.valueOf(subtask.Developer__c) : '';
                     subtaskInfo.clientUserName = (subtask.Client_User__r != null) ? subtask.Client_User__r.Name : '';
@@ -1172,6 +1174,183 @@ public with sharing class ProjectTaskDashboardController {
         
         return result;
     }
+
+    /**
+     * @description Get grouped tasks and subtasks filtered by project
+     * @param projectId Project__c Id to filter tasks
+     * @return GroupedTasksResult with status groups and subtasks
+     */
+    @AuraEnabled(cacheable=true)
+    public static GroupedTasksResult getGroupedTasksWithSubtasksByProject(Id projectId) {
+        if (projectId == null) {
+            throw new AuraHandledException('Project Id is required');
+        }
+
+        List<Project_Task__c> allTasks;
+        List<Schema.FieldSetMember> hoverFieldMembers = getTaskHoverFieldSetMembers();
+        List<Schema.FieldSetMember> summaryFieldMembers = getTaskSummaryFieldSetMembers();
+        Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe().fields.getMap();
+        List<FieldSetFieldDefinition> summaryFieldDefinitions = buildFieldSetDefinitions(summaryFieldMembers, describeFieldMap);
+
+        Set<String> parentFieldSet = new Set<String>(BASE_PARENT_TASK_FIELDS);
+        Set<String> subtaskFieldSet = new Set<String>(BASE_SUBTASK_FIELDS);
+
+        parentFieldSet.addAll(getFieldPaths(hoverFieldMembers));
+        subtaskFieldSet.addAll(getFieldPaths(hoverFieldMembers));
+        parentFieldSet.addAll(getFieldPaths(summaryFieldMembers));
+        subtaskFieldSet.addAll(getFieldPaths(summaryFieldMembers));
+
+        addFieldSetMembersToSelect(parentFieldSet, hoverFieldMembers, describeFieldMap);
+        addFieldSetMembersToSelect(subtaskFieldSet, hoverFieldMembers, describeFieldMap);
+        addFieldSetMembersToSelect(parentFieldSet, summaryFieldMembers, describeFieldMap);
+        addFieldSetMembersToSelect(subtaskFieldSet, summaryFieldMembers, describeFieldMap);
+
+        List<String> parentFieldList = new List<String>(parentFieldSet);
+        parentFieldList.sort();
+        List<String> subtaskFieldList = new List<String>(subtaskFieldSet);
+        subtaskFieldList.sort();
+        String parentFieldClause = String.join(parentFieldList, ', ');
+        String subtaskFieldClause = String.join(subtaskFieldList, ', ');
+        String baseQuery = 'SELECT ' + parentFieldClause +
+            ', (SELECT ' + subtaskFieldClause + ' FROM Subtasks__r ORDER BY CreatedDate ASC) FROM Project_Task__c ';
+        String orderClause = ' ORDER BY Status__c, CreatedDate DESC';
+
+        try {
+            String soql = baseQuery + 'WHERE Project__c = :projectId AND Parent_Task__c = null' + orderClause;
+            allTasks = Database.query(soql);
+        } catch (Exception e) {
+            System.debug('Error querying Project_Task__c by project: ' + e.getMessage());
+            System.debug('Stack trace: ' + e.getStackTraceString());
+            throw new AuraHandledException('Error loading tasks: ' + e.getMessage());
+        }
+
+        // Get task IDs for querying Chatter feed items
+        Set<Id> taskIds = new Set<Id>();
+        for (Project_Task__c task : allTasks) {
+            taskIds.add(task.Id);
+            if (task.Subtasks__r != null) {
+                for (Project_Task__c subtask : task.Subtasks__r) {
+                    taskIds.add(subtask.Id);
+                }
+            }
+        }
+
+        // Query latest Chatter feed items (comments) for all tasks
+        Map<Id, FeedItem> latestFeedItems = new Map<Id, FeedItem>();
+        if (!taskIds.isEmpty()) {
+            try {
+                List<FeedItem> feedItems = [
+                    SELECT Id, ParentId, Body, CreatedDate, CreatedBy.Name
+                    FROM FeedItem
+                    WHERE ParentId IN :taskIds
+                    AND Type = 'TextPost'
+                    ORDER BY CreatedDate DESC
+                ];
+
+                // Get the latest feed item for each task
+                for (FeedItem feedItem : feedItems) {
+                    if (!latestFeedItems.containsKey(feedItem.ParentId)) {
+                        latestFeedItems.put(feedItem.ParentId, feedItem);
+                    }
+                }
+            } catch (Exception e) {
+                System.debug('Error querying FeedItem: ' + e.getMessage());
+            }
+        }
+
+        // Group tasks by status
+        Map<String, List<TaskWithSubtasks>> tasksByStatus = new Map<String, List<TaskWithSubtasks>>();
+
+        for (Project_Task__c task : allTasks) {
+            String status = task.Status__c != null ? task.Status__c : 'Backlog';
+
+            if (!tasksByStatus.containsKey(status)) {
+                tasksByStatus.put(status, new List<TaskWithSubtasks>());
+            }
+
+            TaskWithSubtasks taskWrapper = new TaskWithSubtasks();
+            taskWrapper.id = task.Id;
+            taskWrapper.name = task.Name;
+            taskWrapper.status = task.Status__c;
+            taskWrapper.priority = task.Priority__c;
+            taskWrapper.dueDate = task.Due_Date__c;
+            taskWrapper.estimatedHours = task.Estimated_Hours__c;
+            taskWrapper.actualHours = task.Actual_Hours__c;
+            taskWrapper.progressPercentage = task.Progress_Percentage__c;
+            taskWrapper.projectManagerId = (task.Project_Manager__c != null) ? String.valueOf(task.Project_Manager__c) : '';
+            taskWrapper.projectManagerName = (task.Project_Manager__r != null) ? task.Project_Manager__r.Name : '';
+            taskWrapper.developerName = (task.Developer__r != null) ? task.Developer__r.Name : '';
+            taskWrapper.developerId = (task.Developer__c != null) ? String.valueOf(task.Developer__c) : '';
+            taskWrapper.clientUserName = (task.Client_User__r != null) ? task.Client_User__r.Name : '';
+            taskWrapper.clientUserId = (task.Client_User__c != null) ? String.valueOf(task.Client_User__c) : '';
+            taskWrapper.accountId = (task.Account__c != null) ? String.valueOf(task.Account__c) : '';
+            taskWrapper.accountName = (task.Account__r != null) ? task.Account__r.Name : '';
+            taskWrapper.createdDate = task.CreatedDate;
+            taskWrapper.description = task.Description__c != null ? task.Description__c : '';
+            taskWrapper.hasSubtasks = task.Subtasks__r != null && !task.Subtasks__r.isEmpty();
+            taskWrapper.subtaskCount = task.Subtasks__r != null ? task.Subtasks__r.size() : 0;
+
+            // Get latest Chatter comment for this task
+            if (latestFeedItems.containsKey(task.Id)) {
+                FeedItem latestComment = latestFeedItems.get(task.Id);
+                taskWrapper.latestComment = latestComment.Body != null ? latestComment.Body : '';
+                taskWrapper.latestCommentAuthor = latestComment.CreatedBy != null ? latestComment.CreatedBy.Name : '';
+                taskWrapper.latestCommentDate = latestComment.CreatedDate;
+            } else {
+                taskWrapper.latestComment = '';
+                taskWrapper.latestCommentAuthor = '';
+                taskWrapper.latestCommentDate = null;
+            }
+
+            taskWrapper.hoverFields = buildHoverFieldValues(task, hoverFieldMembers, describeFieldMap);
+            taskWrapper.summaryFields = buildSummaryFieldValues(task, summaryFieldMembers, describeFieldMap);
+
+            // Convert subtasks
+            taskWrapper.subtasks = new List<TaskInfo>();
+            if (task.Subtasks__r != null && !task.Subtasks__r.isEmpty()) {
+                for (Project_Task__c subtask : task.Subtasks__r) {
+                    TaskInfo subtaskInfo = new TaskInfo();
+                    subtaskInfo.id = subtask.Id;
+                    subtaskInfo.name = subtask.Name;
+                    subtaskInfo.status = subtask.Status__c;
+                    subtaskInfo.priority = subtask.Priority__c;
+                    subtaskInfo.dueDate = subtask.Due_Date__c;
+                    subtaskInfo.estimatedHours = subtask.Estimated_Hours__c;
+                    subtaskInfo.actualHours = subtask.Actual_Hours__c;
+                    subtaskInfo.progressPercentage = subtask.Progress_Percentage__c;
+                    subtaskInfo.projectManagerId = (subtask.Project_Manager__c != null) ? String.valueOf(subtask.Project_Manager__c) : '';
+                    subtaskInfo.projectManagerName = (subtask.Project_Manager__r != null) ? subtask.Project_Manager__r.Name : '';
+                    subtaskInfo.developerName = (subtask.Developer__r != null) ? subtask.Developer__r.Name : '';
+                    subtaskInfo.developerId = (subtask.Developer__c != null) ? String.valueOf(subtask.Developer__c) : '';
+                    subtaskInfo.clientUserName = (subtask.Client_User__r != null) ? subtask.Client_User__r.Name : '';
+                    subtaskInfo.clientUserId = (subtask.Client_User__c != null) ? String.valueOf(subtask.Client_User__c) : '';
+                    subtaskInfo.accountId = (subtask.Account__c != null) ? String.valueOf(subtask.Account__c) : '';
+                    subtaskInfo.accountName = (subtask.Account__r != null) ? subtask.Account__r.Name : '';
+                    subtaskInfo.createdDate = subtask.CreatedDate;
+                    subtaskInfo.description = subtask.Description__c != null ? subtask.Description__c : '';
+                    subtaskInfo.hoverFields = buildHoverFieldValues(subtask, hoverFieldMembers, describeFieldMap);
+                    subtaskInfo.summaryFields = buildSummaryFieldValues(subtask, summaryFieldMembers, describeFieldMap);
+                    taskWrapper.subtasks.add(subtaskInfo);
+                }
+            }
+
+            tasksByStatus.get(status).add(taskWrapper);
+        }
+
+        // Convert to list of StatusGroup objects
+        List<StatusGroup> statusGroups = new List<StatusGroup>();
+        for (String statusKey : tasksByStatus.keySet()) {
+            StatusGroup sg = new StatusGroup();
+            sg.status = statusKey;
+            sg.tasks = tasksByStatus.get(statusKey);
+            statusGroups.add(sg);
+        }
+
+        GroupedTasksResult result = new GroupedTasksResult();
+        result.statusGroups = statusGroups;
+        result.summaryFieldDefinitions = summaryFieldDefinitions;
+        return result;
+    }
     
     public class GroupedTasksResult {
         @AuraEnabled public List<StatusGroup> statusGroups;
@@ -1193,8 +1372,8 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public Decimal estimatedHours;
         @AuraEnabled public Decimal actualHours;
         @AuraEnabled public Decimal progressPercentage;
-        @AuraEnabled public String ownerName;
-        @AuraEnabled public String ownerId;
+        @AuraEnabled public String projectManagerName;
+        @AuraEnabled public String projectManagerId;
         @AuraEnabled public String developerName;
         @AuraEnabled public String developerId;
         @AuraEnabled public String clientUserName;
@@ -1222,8 +1401,8 @@ public with sharing class ProjectTaskDashboardController {
         @AuraEnabled public Decimal estimatedHours;
         @AuraEnabled public Decimal actualHours;
         @AuraEnabled public Decimal progressPercentage;
-        @AuraEnabled public String ownerName;
-        @AuraEnabled public String ownerId;
+        @AuraEnabled public String projectManagerName;
+        @AuraEnabled public String projectManagerId;
         @AuraEnabled public String developerName;
         @AuraEnabled public String developerId;
         @AuraEnabled public String clientUserName;

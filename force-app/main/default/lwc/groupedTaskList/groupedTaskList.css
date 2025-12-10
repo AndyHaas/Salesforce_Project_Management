@@ -7,6 +7,14 @@
     font-weight: 600;
 }
 
+/* Ensure status header text stays readable on portal theme overrides */
+.status-header,
+.status-header .status-header-content,
+.status-header h3,
+.status-header span {
+    color: #ffffff !important;
+}
+
 .status-header-content {
     display: flex;
     justify-content: space-between;

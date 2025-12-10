@@ -17,8 +17,10 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { updateRecord } from 'lightning/uiRecordApi';
 import PROJECT_TASK_OBJECT from '@salesforce/schema/Project_Task__c';
 import getGroupedTasksWithSubtasks from '@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasks';
+import getGroupedTasksWithSubtasksByProject from '@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasksByProject';
 import getAccounts from '@salesforce/apex/ProjectTaskDashboardController.getAccounts';
 import getStatusColors from '@salesforce/apex/ProjectTaskDashboardController.getStatusColors';
+import getCurrentUserAccountId from '@salesforce/apex/ProjectTaskDashboardController.getCurrentUserAccountId';
 import getDisplayDensity from '@salesforce/apex/DisplayDensityController.getDisplayDensity';
 import { refreshApex } from '@salesforce/apex';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
@@ -27,13 +29,17 @@ import USER_ID from '@salesforce/user/Id';
 export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @api recordId; // Automatically populated when on a record page (Account)
     @api accountId; // Can be set manually for App/Home pages
+    @api projectId; // Optional project filter
     @api showAccountFilter; // Show/hide the account filter dropdown
+    @api useCurrentUserAccount = false; // When true, default to current user's account if none supplied (for portal use)
     
     @wire(MessageContext)
     messageContext;
     
+    isExperienceSite = false; // Detect Experience Cloud context to adjust defaults
     statusGroups = [];
     filteredStatusGroups = []; // Filtered tasks based on "Me" mode and other toggles
+    isLoading = true; // Show spinner while fetching tasks
     expandedTasks = new Set(); // Track which tasks have expanded subtasks
     collapsedStatuses = new Set(); // Track collapsed status groups
     subscription = null;
@@ -56,6 +62,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     // Account filter dropdown
     accounts = [];
     selectedAccountId = null; // Selected account from dropdown
+    currentUserAccountId = null; // Account associated to the logged-in user (Experience Cloud)
     
     // Responsive button handling
     useCompactMode = false; // When true, show buttons in menu
@@ -79,6 +86,19 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         }
     }
     
+    @wire(getCurrentUserAccountId)
+    wiredUserAccount({ error, data }) {
+        if (data) {
+            this.currentUserAccountId = data;
+            // If no other filters are set and useCurrentUserAccount is enabled, apply the user account immediately
+            if (this.useCurrentUserAccount) {
+                this.refreshFilteredStatusGroups();
+            }
+        } else if (error) {
+            console.warn('Error loading current user account:', error);
+        }
+    }
+    
     @wire(getDisplayDensity)
     wiredDisplayDensity({ error, data }) {
         if (data) {
@@ -97,7 +117,15 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get effectiveAccountIds() {
-        // Priority: 1. Message channel filter, 2. recordId (from Account page), 3. selectedAccountId (from dropdown), 4. accountId property
+        if (this.projectId) {
+            return [];
+        }
+        // Portal: force current user's account (or none) to avoid showing all accounts
+        if (this.isExperienceSite) {
+            return this.currentUserAccountId ? [this.currentUserAccountId] : [];
+        }
+
+        // Priority (internal): 1. message channel filter, 2. recordId, 3. selectedAccountId, 4. accountId, 5. currentUserAccountId (when enabled)
         let accountIds = [];
         
         if (this._filteredAccountIds.length > 0) {
@@ -108,6 +136,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             accountIds = [this.selectedAccountId];
         } else if (this.accountId) {
             accountIds = [this.accountId];
+        } else if (this.useCurrentUserAccount && this.currentUserAccountId) {
+            accountIds = [this.currentUserAccountId];
         }
         
         // Filter out empty strings and null values
@@ -117,10 +147,16 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     get isFilteredByAccount() {
         return this.effectiveAccountIds.length > 0;
     }
+
+    get isPortalMode() {
+        return this.isExperienceSite === true;
+    }
     
     get shouldShowAccountFilter() {
-        // Don't show filter on Account record pages (already filtered by recordId)
-        // Default to true if not explicitly set to false
+        // Hide on Experience Cloud by default, and on Account record pages
+        if (this.isExperienceSite) {
+            return false;
+        }
         const showFilter = this.showAccountFilter !== false;
         return showFilter && !this.recordId;
     }
@@ -128,6 +164,13 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     connectedCallback() {
         // Status colors will be loaded via wire service
         // Initialize with empty object - will be populated by getStatusColors wire
+        // Detect Experience Cloud / community context to hide account filter by default
+        try {
+            const host = window?.location?.hostname || '';
+            this.isExperienceSite = /force\.com|live-preview|site\.com/i.test(host);
+        } catch (e) {
+            this.isExperienceSite = false;
+        }
         
         if (this.messageContext) {
             this.subscription = subscribe(
@@ -254,10 +297,16 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     
     @wire(getGroupedTasksWithSubtasks, { accountIds: '$effectiveAccountIds' })
     wiredGroupedTasks(result) {
+        if (this.projectId) {
+            return;
+        }
         this.wiredGroupedTasksResult = result;
         const { error, data } = result;
+        this.isLoading = !data && !error;
         if (data) {
-            this.summaryFieldDefinitions = data.summaryFieldDefinitions || [];
+            try {
+                const statusGroupsData = Array.isArray(data.statusGroups) ? data.statusGroups : [];
+                this.summaryFieldDefinitions = Array.isArray(data.summaryFieldDefinitions) ? data.summaryFieldDefinitions : [];
             this.updateSummaryFieldDefinitionMap();
             // Update header classes after definitions are loaded
             this.updateSummaryFieldHeaderClasses();
@@ -268,7 +317,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             }
             
             // Add status header style to each status group and icon info to each task
-            this.statusGroups = (data.statusGroups || []).map(statusGroup => {
+                this.statusGroups = statusGroupsData.map(statusGroup => {
                 // Calculate total estimated hours for this status group
                 let totalEstimatedHours = 0;
                 const tasks = (statusGroup.tasks || []).map(task => {
@@ -417,6 +466,16 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             });
             this.refreshFilteredStatusGroups();
             this.error = undefined;
+                this.isLoading = false;
+            } catch (e) {
+                console.error('Error processing grouped tasks response:', e);
+                this.error = e;
+                this.statusGroups = [];
+                this.filteredStatusGroups = [];
+                this.summaryFieldDefinitions = [];
+                this.updateSummaryFieldDefinitionMap();
+                this.isLoading = false;
+            }
         } else if (error) {
             console.error('Error loading grouped tasks:', error);
             this.error = error;
@@ -424,6 +483,27 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             this.filteredStatusGroups = [];
             this.summaryFieldDefinitions = [];
             this.updateSummaryFieldDefinitionMap();
+            this.isLoading = false;
+        }
+    }
+
+    @wire(getGroupedTasksWithSubtasksByProject, { projectId: '$projectId' })
+    wiredGroupedTasksByProject(result) {
+        if (!this.projectId) {
+            return;
+        }
+        this.wiredGroupedTasksResult = result;
+        const { error, data } = result;
+        this.isLoading = !data && !error;
+        if (data) {
+            this.statusGroups = Array.isArray(data.statusGroups) ? data.statusGroups : [];
+            this.summaryFieldDefinitions = Array.isArray(data.summaryFieldDefinitions) ? data.summaryFieldDefinitions : [];
+            this.filteredStatusGroups = this.filterStatusGroups(this.statusGroups);
+            this.error = undefined;
+        } else if (error) {
+            // eslint-disable-next-line no-console
+            console.error('Error loading grouped tasks by project:', error);
+            this.error = { message: this.getErrorMessage(error) };
         }
     }
     
@@ -480,17 +560,29 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this.isTaskExpanded(taskId) ? 'Collapse' : 'Expand';
     }
     
+    getPortalTaskUrl(taskId) {
+        return `/project-task/${taskId}`;
+    }
+    
+    navigateToTask(taskId) {
+        if (!taskId) return;
+        if (this.isPortalMode) {
+            // Use Experience Cloud-friendly URL
+            window.location.assign(this.getPortalTaskUrl(taskId));
+            return;
+        }
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId: taskId,
+                actionName: 'view'
+            }
+        });
+    }
+    
     handleTaskClick(event) {
         const taskId = event.currentTarget.dataset.taskId;
-        if (taskId) {
-            this[NavigationMixin.Navigate]({
-                type: 'standard__recordPage',
-                attributes: {
-                    recordId: taskId,
-                    actionName: 'view'
-                }
-            });
-        }
+        this.navigateToTask(taskId);
     }
     
     getStatusClass(status) {
@@ -555,13 +647,13 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     isTaskAssignedToMe(task) {
-        // Check if current user is assigned as Owner, Developer, or Client User
+        // Check if current user is assigned as Project Manager, Developer, or Client User
         // Handle undefined, null, and empty string values
-        const ownerId = task.ownerId || '';
+        const projectManagerId = task.projectManagerId || '';
         const developerId = task.developerId || '';
         const clientUserId = task.clientUserId || '';
         
-        return ownerId === this.currentUserId ||
+        return projectManagerId === this.currentUserId ||
                developerId === this.currentUserId ||
                clientUserId === this.currentUserId;
     }
@@ -1045,7 +1137,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         // Update header classes for summary field definitions based on editability
         if (this.summaryFieldDefinitions && this.summaryFieldDefinitions.length > 0) {
             this.summaryFieldDefinitions = this.summaryFieldDefinitions.map(field => {
-                const isEditable = this.isFieldEditable(field.apiName);
+                const isEditable = !this.isPortalMode && this.isFieldEditable(field.apiName);
                 return {
                     ...field,
                     headerClass: `summary-header${isEditable ? ' summary-header-editable' : ''}`
@@ -1055,6 +1147,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     getTaskPermissions(taskId) {
+        // In portal mode, disable edit/delete
+        if (this.isPortalMode) {
+            return { canEdit: false, canDelete: false };
+        }
         // Use object-level permissions for all tasks
         // Record-level permissions will be enforced by Salesforce when actions are attempted
         return this.objectPermissions;
@@ -1084,16 +1180,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             return;
         }
         
-        // Always navigate to record page - no restrictions
+        // Navigate with portal-aware routing
         event.preventDefault();
         event.stopPropagation();
-        this[NavigationMixin.Navigate]({
-            type: 'standard__recordPage',
-            attributes: {
-                recordId: taskId,
-                actionName: 'view'
-            }
-        });
+        this.navigateToTask(taskId);
     }
     
     handleTaskNameChange(event) {

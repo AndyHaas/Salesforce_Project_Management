@@ -5,7 +5,7 @@
     <description>Developer assigned to work on this task. The user responsible for implementing the task.</description>
     <inlineHelpText>Select the Developer who is assigned to work on this task. This field is typically left blank for parent tasks and populated for subtasks.</inlineHelpText>
     <label>Developer</label>
-    <referenceTo>User</referenceTo>
+    <referenceTo>Contact</referenceTo>
     <relationshipLabel>Developer Tasks</relationshipLabel>
     <relationshipName>Developer_Tasks</relationshipName>
     <required>false</required>

@@ -7,15 +7,16 @@
     <label>Client User</label>
     <lookupFilter>
         <active>true</active>
-        <errorMessage>Client User must be related to the account to be associated with this Project Task.</errorMessage>
+        <errorMessage>Client User must be related to the account to be
+        associated with this Project Task.</errorMessage>
         <filterItems>
             <field>$Source.Account__c</field>
             <operation>equals</operation>
-            <valueField>User.Contact.AccountId</valueField>
+            <valueField>Contact.AccountId</valueField>
         </filterItems>
         <isOptional>false</isOptional>
     </lookupFilter>
-    <referenceTo>User</referenceTo>
+    <referenceTo>Contact</referenceTo>
     <relationshipLabel>Client Tasks</relationshipLabel>
     <relationshipName>Client_Tasks</relationshipName>
     <required>false</required>

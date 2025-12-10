@@ -11,7 +11,8 @@
                 <identifier>RecordNameField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-ede2f14b-b69c-4c50-9a75-a88814f5aa33</name>
+        <name>
+        Facet-ede2f14b-b69c-4c50-9a75-a88814f5aa33</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -102,7 +103,8 @@
                 <identifier>RecordReview_Status_Icons_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-e22fd93c-6c2d-4c55-8957-d94bb562a5fe</name>
+        <name>
+        Facet-e22fd93c-6c2d-4c55-8957-d94bb562a5fe</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -169,7 +171,8 @@
                 <identifier>runtime_sales_pathassistant_pathAssistant</identifier>
             </componentInstance>
         </itemInstances>
-        <name>header</name>
+        <name>
+        header</name>
         <type>Region</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -205,7 +208,8 @@
                 <identifier>RecordDescription_cField2</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-0f4a9c2a-39e9-4ebb-8d5b-01eda2a46ed5</name>
+        <name>
+        Facet-0f4a9c2a-39e9-4ebb-8d5b-01eda2a46ed5</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -239,7 +243,8 @@
                 <identifier>RecordAccount_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-6a97d751-3bd1-444d-893a-9f767b7b7cfe</name>
+        <name>
+        Facet-6a97d751-3bd1-444d-893a-9f767b7b7cfe</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -263,7 +268,8 @@
                 <identifier>flexipage_column2</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-09ad76f9-0a57-426f-a45c-764bdcdf6330</name>
+        <name>
+        Facet-09ad76f9-0a57-426f-a45c-764bdcdf6330</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -277,7 +283,8 @@
                 <identifier>RecordDescription_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-5ba90d44-5de9-4235-985e-9c37f9d7ed19</name>
+        <name>
+        Facet-5ba90d44-5de9-4235-985e-9c37f9d7ed19</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -291,7 +298,8 @@
                 <identifier>flexipage_column7</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-aeb3b1a8-f139-460a-b6fb-6b72eb4fe701</name>
+        <name>
+        Facet-aeb3b1a8-f139-460a-b6fb-6b72eb4fe701</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -301,8 +309,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.OwnerId</fieldItem>
-                <identifier>RecordOwnerIdField2</identifier>
+                <fieldItem>Record.Project_Manager__c</fieldItem>
+                <identifier>RecordProject_Manager_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -325,7 +333,8 @@
                 <identifier>RecordClient_User_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-4c076fb6-300e-4ea2-8965-30424bc44ce5</name>
+        <name>
+        Facet-4c076fb6-300e-4ea2-8965-30424bc44ce5</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -339,7 +348,8 @@
                 <identifier>flexipage_column13</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-f4af010e-3b86-4fe7-a0ea-7f86d84e1423</name>
+        <name>
+        Facet-f4af010e-3b86-4fe7-a0ea-7f86d84e1423</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -363,7 +373,8 @@
                 <identifier>RecordActual_Hours_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-1442ebc6-d700-4472-87f5-5cb92fcd09a6</name>
+        <name>
+        Facet-1442ebc6-d700-4472-87f5-5cb92fcd09a6</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -387,7 +398,8 @@
                 <identifier>RecordTotal_Actual_Hours_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-b502d69b-f03e-4542-a68f-dc93cbc61861</name>
+        <name>
+        Facet-b502d69b-f03e-4542-a68f-dc93cbc61861</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -411,7 +423,8 @@
                 <identifier>flexipage_column10</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-ee113da9-ed94-4726-8b78-19426749225b</name>
+        <name>
+        Facet-ee113da9-ed94-4726-8b78-19426749225b</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -425,7 +438,8 @@
                 <identifier>RecordReview_Status_Icons_cField2</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-092e13f0-d729-457b-b2c9-9644e763d3d1</name>
+        <name>
+        Facet-092e13f0-d729-457b-b2c9-9644e763d3d1</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -496,7 +510,8 @@
                 </visibilityRule>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-7509fb2e-6971-41a7-afd8-3c4649af9964</name>
+        <name>
+        Facet-7509fb2e-6971-41a7-afd8-3c4649af9964</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -520,7 +535,8 @@
                 <identifier>flexipage_column12</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-f110517d-33d0-4a23-bb0d-3df31d2ee6ec</name>
+        <name>
+        Facet-f110517d-33d0-4a23-bb0d-3df31d2ee6ec</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -534,7 +550,8 @@
                 <identifier>RecordParent_Task_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-b09a5c45-3dda-4957-a962-2be2ba7a9dcb</name>
+        <name>
+        Facet-b09a5c45-3dda-4957-a962-2be2ba7a9dcb</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -548,7 +565,8 @@
                 <identifier>flexipage_column_dependencies</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-dependencies-column</name>
+        <name>
+        Facet-dependencies-column</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -574,7 +592,8 @@
                 <identifier>RecordRelease_Notes_rRelease_Version_rNameField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-d4d31fb0-5d34-42d7-8251-8c24623a6df5</name>
+        <name>
+        Facet-d4d31fb0-5d34-42d7-8251-8c24623a6df5</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -584,7 +603,8 @@
                 <identifier>RecordRelease_Notes_rRelease_Notes_Text_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-06a6af8c-9744-400d-9a55-6a8976c7e495</name>
+        <name>
+        Facet-06a6af8c-9744-400d-9a55-6a8976c7e495</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -608,7 +628,8 @@
                 <identifier>flexipage_column4</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-d7d2c13d-7b64-4d59-8285-802c8f5e24ac</name>
+        <name>
+        Facet-d7d2c13d-7b64-4d59-8285-802c8f5e24ac</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -624,7 +645,8 @@
                 <identifier>RecordParent_Task_rPriority_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-5eb8c79f-0771-472d-80c2-4364bae5668b</name>
+        <name>
+        Facet-5eb8c79f-0771-472d-80c2-4364bae5668b</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -634,7 +656,8 @@
                 <identifier>RecordParent_Task_rDescription_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-e2a67eeb-2a40-4a5c-9df6-1d38a36aa697</name>
+        <name>
+        Facet-e2a67eeb-2a40-4a5c-9df6-1d38a36aa697</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -658,7 +681,8 @@
                 <identifier>flexipage_column6</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-cc2a54f2-6b26-4f18-b03f-4ba79e3e425e</name>
+        <name>
+        Facet-cc2a54f2-6b26-4f18-b03f-4ba79e3e425e</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -819,7 +843,8 @@
                 </visibilityRule>
             </componentInstance>
         </itemInstances>
-        <name>Facet-oy9cklta36</name>
+        <name>
+        Facet-oy9cklta36</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -841,7 +866,8 @@
                 <identifier>force_relatedListContainer</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-sldpl1j58ed</name>
+        <name>
+        Facet-sldpl1j58ed</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -881,16 +907,13 @@
                 <identifier>flexipage_tab3</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-0rfk8h3whyef</name>
+        <name>
+        Facet-0rfk8h3whyef</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Tabs</value>
-                </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>tabs</name>
                     <value>Facet-0rfk8h3whyef</value>
@@ -983,7 +1006,8 @@
                 <identifier>lst_dynamicRelatedList2</identifier>
             </componentInstance>
         </itemInstances>
-        <name>main</name>
+        <name>
+        main</name>
         <type>Region</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -993,7 +1017,8 @@
                 <identifier>forceChatter_recordFeedContainer</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-1f307f66-4dc8-4de3-b9fb-d7d07a84501f</name>
+        <name>
+        Facet-1f307f66-4dc8-4de3-b9fb-d7d07a84501f</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -1023,7 +1048,8 @@
                 <identifier>force_relatedListSingleContainer</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-8ckxe1d5fz8</name>
+        <name>
+        Facet-8ckxe1d5fz8</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -1059,7 +1085,8 @@
                 <identifier>flexipage_tab5</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-7e1f03f7-68f8-4b27-910a-e1a140f380d2</name>
+        <name>
+        Facet-7e1f03f7-68f8-4b27-910a-e1a140f380d2</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -1071,7 +1098,13 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #FFF4E5; padding: 12px; border-radius: 4px; border-left: 4px solid #FFB75D;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;🚫 This Task is Blocking Other Tasks&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This task is currently blocking other tasks from proceeding. Complete this task to unblock dependent tasks. Check the &lt;strong&gt;Dependencies&lt;/strong&gt; component below to see which tasks are waiting on this one.&lt;/p&gt;&lt;/div&gt;</value>
+                    <value>&lt;div style=&quot;background-color: #FFF4E5; padding: 12px;
+        border-radius: 4px; border-left: 4px solid #FFB75D;&quot;&gt;&lt;p style=&quot;margin: 0 0
+        8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;🚫 This Task is Blocking
+        Other Tasks&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color:
+        #3E3E3C;&quot;&gt;This task is currently blocking other tasks from proceeding. Complete this
+        task to unblock dependent tasks. Check the &lt;strong&gt;Dependencies&lt;/strong&gt;
+        component below to see which tasks are waiting on this one.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText_blocking_others</identifier>
@@ -1092,7 +1125,13 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #FFEBEE; padding: 12px; border-radius: 4px; border-left: 4px solid #C23934;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⚠️ Task Blocked by Dependencies&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This task is at risk due to blocking dependencies. Check the &lt;strong&gt;Dependencies&lt;/strong&gt; tab to see which tasks must be completed first. The task cannot proceed until all blocking dependencies are resolved.&lt;/p&gt;&lt;/div&gt;</value>
+                    <value>&lt;div style=&quot;background-color: #FFEBEE; padding: 12px;
+        border-radius: 4px; border-left: 4px solid #C23934;&quot;&gt;&lt;p style=&quot;margin: 0 0
+        8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⚠️ Task Blocked by
+        Dependencies&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color:
+        #3E3E3C;&quot;&gt;This task is at risk due to blocking dependencies. Check the
+        &lt;strong&gt;Dependencies&lt;/strong&gt; tab to see which tasks must be completed first.
+        The task cannot proceed until all blocking dependencies are resolved.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText_blocked_dependencies</identifier>
@@ -1123,7 +1162,16 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #F3F2F2; padding: 12px; border-radius: 4px; border-left: 4px solid #0176D3;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⚠️ Cannot Submit for Client Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;To submit this task for client approval, you must first assign a &lt;strong&gt;Client User&lt;/strong&gt; in the User Details section below.&lt;/p&gt;&lt;p style=&quot;margin: 8px 0 0 0; color: #3E3E3C;&quot;&gt;&lt;strong&gt;Why?&lt;/strong&gt; The Client User is the person who will receive and review the approval request. Once assigned, you can use the &quot;Submit for Client Approval&quot; quick action to begin the approval workflow.&lt;/p&gt;&lt;/div&gt;</value>
+                    <value>&lt;div style=&quot;background-color: #F3F2F2; padding: 12px;
+        border-radius: 4px; border-left: 4px solid #0176D3;&quot;&gt;&lt;p style=&quot;margin: 0 0
+        8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⚠️ Cannot Submit for Client
+        Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;To
+        submit this task for client approval, you must first assign a &lt;strong&gt;Client
+        User&lt;/strong&gt; in the User Details section below.&lt;/p&gt;&lt;p style=&quot;margin:
+        8px 0 0 0; color: #3E3E3C;&quot;&gt;&lt;strong&gt;Why?&lt;/strong&gt; The Client User is the
+        person who will receive and review the approval request. Once assigned, you can use the
+        &quot;Submit for Client Approval&quot; quick action to begin the approval
+        workflow.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText</identifier>
@@ -1150,12 +1198,18 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #E8F5E9; padding: 12px; border-radius: 4px; border-left: 4px solid #04844B;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;✅ Ready to Submit for Client Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This task is ready to submit for client approval. Use the &lt;strong&gt;&quot;Submit for Client Approval&quot;&lt;/strong&gt; quick action above to begin the approval workflow.&lt;/p&gt;&lt;/div&gt;</value>
+                    <value>&lt;div style=&quot;background-color: #E8F5E9; padding: 12px;
+        border-radius: 4px; border-left: 4px solid #04844B;&quot;&gt;&lt;p style=&quot;margin: 0 0
+        8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;✅ Ready to Submit for Client
+        Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This
+        task is ready to submit for client approval. Use the &lt;strong&gt;&quot;Submit for Client
+        Approval&quot;&lt;/strong&gt; quick action above to begin the approval
+        workflow.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText_ready_to_submit</identifier>
                 <visibilityRule>
-                    <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                    <booleanFilter>1 AND 2</booleanFilter>
                     <criteria>
                         <leftValue>{!Record.Status__c}</leftValue>
                         <operator>EQUAL</operator>
@@ -1165,11 +1219,6 @@
                         <leftValue>{!Record.Ready_for_Client_Review__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>false</rightValue>
-                    </criteria>
-                    <criteria>
-                        <leftValue>{!Record.Has_Client_User_Defined__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>true</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
@@ -1182,7 +1231,13 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #FFF3E0; padding: 12px; border-radius: 4px; border-left: 4px solid #FF9800;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⏳ Waiting for Client Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This task has been submitted for client approval. The client will receive an email notification to review this task. Once approved, the status will automatically change to &lt;strong&gt;Pending&lt;/strong&gt; and a developer can be assigned.&lt;/p&gt;&lt;/div&gt;</value>
+                    <value>&lt;div style=&quot;background-color: #FFF3E0; padding: 12px;
+        border-radius: 4px; border-left: 4px solid #FF9800;&quot;&gt;&lt;p style=&quot;margin: 0 0
+        8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⏳ Waiting for Client
+        Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This
+        task has been submitted for client approval. The client will receive an email notification
+        to review this task. Once approved, the status will automatically change to
+        &lt;strong&gt;Pending&lt;/strong&gt; and a developer can be assigned.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText_waiting_client_approval</identifier>
@@ -1214,21 +1269,20 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #F3F2F2; padding: 12px; border-radius: 4px; border-left: 4px solid #0176D3;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;👤 Assign a Developer&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This task has been approved for development. Assign a &lt;strong&gt;Developer&lt;/strong&gt; in the User Details section above to begin work on this task.&lt;/p&gt;&lt;/div&gt;</value>
+                    <value>&lt;div style=&quot;background-color: #F3F2F2; padding: 12px;
+        border-radius: 4px; border-left: 4px solid #0176D3;&quot;&gt;&lt;p style=&quot;margin: 0 0
+        8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;👤 Assign a
+        Developer&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This
+        task has been approved for development. Assign a &lt;strong&gt;Developer&lt;/strong&gt; in
+        the User Details section above to begin work on this task.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText_assign_developer</identifier>
                 <visibilityRule>
-                    <booleanFilter>1 AND 2</booleanFilter>
                     <criteria>
                         <leftValue>{!Record.Status__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>Pending</rightValue>
-                    </criteria>
-                    <criteria>
-                        <leftValue>{!Record.Has_Developer__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>false</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
@@ -1241,7 +1295,14 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #E3F2FD; padding: 12px; border-radius: 4px; border-left: 4px solid #0176D3;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;💻 Ready for PM Review&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;When development is complete, use the &lt;strong&gt;&quot;Submit for PM Review&quot;&lt;/strong&gt; quick action above to begin the review process. This will change the status to &lt;strong&gt;In Review&lt;/strong&gt; and trigger the PM/Code Reviewer approval workflow.&lt;/p&gt;&lt;/div&gt;</value>
+                    <value>&lt;div style=&quot;background-color: #E3F2FD; padding: 12px;
+        border-radius: 4px; border-left: 4px solid #0176D3;&quot;&gt;&lt;p style=&quot;margin: 0 0
+        8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;💻 Ready for PM
+        Review&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;When
+        development is complete, use the &lt;strong&gt;&quot;Submit for PM
+        Review&quot;&lt;/strong&gt; quick action above to begin the review process. This will change
+        the status to &lt;strong&gt;In Review&lt;/strong&gt; and trigger the PM/Code Reviewer
+        approval workflow.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText_ready_pm_review</identifier>
@@ -1262,7 +1323,13 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #FFF3E0; padding: 12px; border-radius: 4px; border-left: 4px solid #FF9800;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⏳ Waiting for PM/Code Reviewer Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This task is awaiting PM/Code Reviewer approval. Once approved, the task will automatically proceed to client completion approval. The PM/Code Reviewer will receive an email notification to review this task.&lt;/p&gt;&lt;/div&gt;</value>
+                    <value>&lt;div style=&quot;background-color: #FFF3E0; padding: 12px;
+        border-radius: 4px; border-left: 4px solid #FF9800;&quot;&gt;&lt;p style=&quot;margin: 0 0
+        8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⏳ Waiting for PM/Code
+        Reviewer Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color:
+        #3E3E3C;&quot;&gt;This task is awaiting PM/Code Reviewer approval. Once approved, the task
+        will automatically proceed to client completion approval. The PM/Code Reviewer will receive
+        an email notification to review this task.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText_waiting_pm_approval</identifier>
@@ -1289,7 +1356,13 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;div style=&quot;background-color: #FFF3E0; padding: 12px; border-radius: 4px; border-left: 4px solid #FF9800;&quot;&gt;&lt;p style=&quot;margin: 0 0 8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;✅ PM Approved - Waiting for Client Completion Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;PM/Code Reviewer has approved this task. The client will receive an email notification to approve completion. Once approved, the status will automatically change to &lt;strong&gt;Completed&lt;/strong&gt;.&lt;/p&gt;&lt;/div&gt;</value>
+                    <value>&lt;div style=&quot;background-color: #FFF3E0; padding: 12px;
+        border-radius: 4px; border-left: 4px solid #FF9800;&quot;&gt;&lt;p style=&quot;margin: 0 0
+        8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;✅ PM Approved - Waiting for
+        Client Completion Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color:
+        #3E3E3C;&quot;&gt;PM/Code Reviewer has approved this task. The client will receive an email
+        notification to approve completion. Once approved, the status will automatically change to
+        &lt;strong&gt;Completed&lt;/strong&gt;.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText_waiting_client_completion</identifier>
@@ -1346,10 +1419,6 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Tabs</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>tabs</name>
                     <value>Facet-7e1f03f7-68f8-4b27-910a-e1a140f380d2</value>
                 </componentInstanceProperties>
@@ -1357,7 +1426,8 @@
                 <identifier>flexipage_tabset</identifier>
             </componentInstance>
         </itemInstances>
-        <name>sidebar</name>
+        <name>
+        sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
     <masterLabel>Project Task Record Page</masterLabel>
