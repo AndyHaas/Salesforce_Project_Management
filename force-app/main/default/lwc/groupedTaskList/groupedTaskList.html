@@ -95,6 +95,14 @@
                                 disabled={expandCollapseAllDisabled}
                                 title={expandCollapseAllTitle}>
                             </lightning-button>
+                            <lightning-button
+                                label={expandCollapseAllSubtasksLabel}
+                                variant="neutral"
+                                icon-name={expandCollapseAllSubtasksIcon}
+                                onclick={handleExpandCollapseAllSubtasks}
+                                disabled={expandCollapseAllSubtasksDisabled}
+                                title={expandCollapseAllSubtasksTitle}>
+                            </lightning-button>
                         </template>
                         <template if:true={useCompactMode}>
                             <template if:true={showMyTasksButton}>
@@ -126,6 +134,12 @@
                                     value="expandCollapseAll"
                                     icon-name={expandCollapseAllIcon}
                                     disabled={expandCollapseAllDisabled}>
+                                </lightning-menu-item>
+                                <lightning-menu-item 
+                                    label={expandCollapseAllSubtasksLabel}
+                                    value="expandCollapseAllSubtasks"
+                                    icon-name={expandCollapseAllSubtasksIcon}
+                                    disabled={expandCollapseAllSubtasksDisabled}>
                                 </lightning-menu-item>
                             </lightning-button-menu>
                         </template>

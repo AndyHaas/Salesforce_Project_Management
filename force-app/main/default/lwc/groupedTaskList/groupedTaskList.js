@@ -367,6 +367,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             case 'expandCollapseAll':
                 this.handleExpandCollapseAll();
                 break;
+            case 'expandCollapseAllSubtasks':
+                this.handleExpandCollapseAllSubtasks();
+                break;
         }
     }
     
@@ -927,6 +930,52 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this.filteredStatusGroups.every(group => this.isStatusCollapsed(group.status));
     }
     
+    get areAllSubtasksExpanded() {
+        if (!this.filteredStatusGroups || this.filteredStatusGroups.length === 0) {
+            return false;
+        }
+        // Get all tasks that have subtasks
+        const tasksWithSubtasks = [];
+        this.filteredStatusGroups.forEach(group => {
+            group.tasks.forEach(task => {
+                if (task.hasSubtasks && task.subtaskCount > 0) {
+                    tasksWithSubtasks.push(task.id);
+                }
+            });
+        });
+        
+        if (tasksWithSubtasks.length === 0) {
+            return false; // No tasks with subtasks, so can't be "all expanded"
+        }
+        
+        // Check if all tasks with subtasks are expanded
+        return tasksWithSubtasks.every(taskId => this.isTaskExpanded(taskId));
+    }
+    
+    get expandCollapseAllSubtasksLabel() {
+        return this.areAllSubtasksExpanded ? 'Collapse All Subtasks' : 'Expand All Subtasks';
+    }
+    
+    get expandCollapseAllSubtasksTitle() {
+        return this.areAllSubtasksExpanded
+            ? 'Collapse all subtasks'
+            : 'Expand all subtasks';
+    }
+    
+    get expandCollapseAllSubtasksIcon() {
+        return this.areAllSubtasksExpanded ? 'utility:chevronup' : 'utility:chevrondown';
+    }
+    
+    get expandCollapseAllSubtasksDisabled() {
+        if (!this.filteredStatusGroups || this.filteredStatusGroups.length === 0) {
+            return true;
+        }
+        // Disable if no tasks have subtasks
+        return !this.filteredStatusGroups.some(group => 
+            group.tasks.some(task => task.hasSubtasks && task.subtaskCount > 0)
+        );
+    }
+    
     handleMeModeToggle() {
         // Portal: toggle filter using current user's Contact ID
         if (this.isPortalMode) {
@@ -989,6 +1038,32 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         
         this.collapsedStatuses = new Set(updatedSet);
         this.refreshFilteredStatusGroups();
+    }
+    
+    handleExpandCollapseAllSubtasks() {
+        const shouldExpand = !this.areAllSubtasksExpanded;
+        const updatedSet = new Set(this.expandedTasks);
+        
+        // Get all task IDs that have subtasks
+        const tasksWithSubtasks = [];
+        this.filteredStatusGroups.forEach(group => {
+            group.tasks.forEach(task => {
+                if (task.hasSubtasks && task.subtaskCount > 0) {
+                    tasksWithSubtasks.push(task.id);
+                }
+            });
+        });
+        
+        if (shouldExpand) {
+            // Expand all subtasks
+            tasksWithSubtasks.forEach(taskId => updatedSet.add(taskId));
+        } else {
+            // Collapse all subtasks
+            tasksWithSubtasks.forEach(taskId => updatedSet.delete(taskId));
+        }
+        
+        this.expandedTasks = new Set(updatedSet);
+        this.updateTaskIcons();
     }
     
     handleAccountChange(event) {
