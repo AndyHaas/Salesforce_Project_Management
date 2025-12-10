@@ -316,16 +316,16 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
 
     handleNavigateToRecord(event) {
         const recordId = event.currentTarget?.dataset?.recordId;
-        if (!recordId) {
+        if (!recordId || typeof window === 'undefined') {
             return;
         }
-        this[NavigationMixin.Navigate]({
-            type: 'standard__recordPage',
-            attributes: {
-                recordId,
-                actionName: 'view'
-            }
-        });
+
+        // Experience Cloud path may be prefixed with /s; keep it if present
+        const hasSitePrefix = window.location.pathname.startsWith('/s/');
+        const sitePrefix = hasSitePrefix ? '/s' : '';
+        const targetPath = `${sitePrefix}/project/${recordId}`;
+
+        window.location.assign(targetPath);
     }
 
     formatDateTime(value) {
