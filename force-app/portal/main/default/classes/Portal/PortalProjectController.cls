@@ -65,60 +65,54 @@ public without sharing class PortalProjectController {
         // Aggregate task metrics scoped to this project (and account as an extra guard)
         TaskMetrics metrics = new TaskMetrics();
 
-        // Group by status with count - null values are grouped together in SOQL
-        List<AggregateResult> statusAgg = [
-            SELECT Status__c status, COUNT(Id) cnt
+        // Query all tasks to get accurate counts and handle all statuses properly
+        List<Project_Task__c> allTasks = [
+            SELECT Id, Status__c, Estimated_Hours__c, Actual_Hours__c
             FROM Project_Task__c
             WHERE Project__c = :projectId
             AND Account__c = :project.Account__c
-            GROUP BY Status__c
         ];
 
+        // Count tasks by status
         Map<String, Integer> statusCounts = new Map<String, Integer>();
+        Integer completedCount = 0;
+        Decimal totalEstimated = 0;
+        Decimal totalActual = 0;
         
-        for (AggregateResult ar : statusAgg) {
-            String status = (String) ar.get('status');
-            Long cntLong = (Long) ar.get('cnt');
-            Integer cnt = cntLong != null ? cntLong.intValue() : 0;
+        for (Project_Task__c task : allTasks) {
+            String status = task.Status__c;
+            String displayStatus = String.isBlank(status) ? 'Backlog' : status.trim();
             
-            // Handle null status as 'Backlog' for display
-            String displayStatus = status != null ? status.trim() : 'Backlog';
-            statusCounts.put(displayStatus, cnt);
+            // Count by status
+            Integer currentCount = statusCounts.containsKey(displayStatus) ? statusCounts.get(displayStatus) : 0;
+            statusCounts.put(displayStatus, currentCount + 1);
             
+            // Count completed tasks
+            if (String.isNotBlank(status) && status.trim().equalsIgnoreCase('Completed')) {
+                completedCount++;
+            }
+            
+            // Sum hours
+            if (task.Estimated_Hours__c != null) {
+                totalEstimated += task.Estimated_Hours__c;
+            }
+            if (task.Actual_Hours__c != null) {
+                totalActual += task.Actual_Hours__c;
+            }
+        }
+
+        // Build status counts list for response
+        for (String statusKey : statusCounts.keySet()) {
             StatusCount sc = new StatusCount();
-            sc.status = displayStatus;
-            sc.count = cnt;
+            sc.status = statusKey;
+            sc.count = statusCounts.get(statusKey);
             metrics.statusCounts.add(sc);
         }
 
-        // Get totals with aggregation
-        AggregateResult totals = [
-            SELECT COUNT(Id) totalTasks,
-                SUM(Estimated_Hours__c) totalEstimated,
-                SUM(Actual_Hours__c) totalActual
-            FROM Project_Task__c
-            WHERE Project__c = :projectId
-            AND Account__c = :project.Account__c
-        ];
-
-        // Handle aggregate results - Long for COUNT, Decimal for SUM
-        Object totalTasksObj = totals.get('totalTasks');
-        Object totalEstimatedObj = totals.get('totalEstimated');
-        Object totalActualObj = totals.get('totalActual');
-        
-        metrics.totalTasks = totalTasksObj != null ? ((Long) totalTasksObj).intValue() : 0;
-        metrics.totalEstimatedHours = totalEstimatedObj != null ? (Decimal) totalEstimatedObj : 0;
-        metrics.totalActualHours = totalActualObj != null ? (Decimal) totalActualObj : 0;
-
-        // Find completed count by checking all status keys case-insensitively
-        Integer completedCount = 0;
-        for (String statusKey : statusCounts.keySet()) {
-            if (statusKey != null && statusKey.equalsIgnoreCase('Completed')) {
-                completedCount = statusCounts.get(statusKey);
-                break;
-            }
-        }
-        
+        // Set metrics
+        metrics.totalTasks = allTasks.size();
+        metrics.totalEstimatedHours = totalEstimated;
+        metrics.totalActualHours = totalActual;
         metrics.completedTasks = completedCount;
         metrics.openTasks = metrics.totalTasks - metrics.completedTasks;
         result.taskMetrics = metrics;
