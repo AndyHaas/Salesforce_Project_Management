@@ -262,13 +262,6 @@ button,
     transition: all 0.2s ease;
 }
 
-/* Cards */
-.slds-card,
-[class*="card"] {
-    border-radius: var(--mc-radius-lg);
-    box-shadow: var(--mc-shadow-md);
-    border: none;
-}
 
 /* Form Elements */
 input,

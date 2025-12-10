@@ -1,40 +1,316 @@
-.home-page-container {
-    padding: 1rem;
-    min-height: 100vh;
+:host {
+    --primary-blue: #355d7c;
+    --secondary-blue: #4d86b2;
+    --accent-orange: #f59e0b;
+    --success-green: #10b981;
+    --bg-light: #f8fafc;
+    --bg-white: #ffffff;
+    --text-dark: #1e293b;
+    --text-light: #64748b;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
+:host {
+    display: block;
+    color: var(--text-dark) !important;
+    background: transparent;
+}
+
+.home-page-container {
+    padding: 2rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    color: var(--text-dark) !important;
+}
+
+/* Welcome Section */
 .welcome-section {
     text-align: center;
-    padding: 2rem 0;
+    padding: 3rem 0 2.5rem;
+    margin-bottom: 2.5rem;
 }
 
 .welcome-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--lwc-colorTextDefault, #080707);
-    margin-bottom: 0.5rem;
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--primary-blue) !important; /* Fallback for browsers that don't support gradient text */
 }
 
 .welcome-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-light) !important;
+    font-weight: 400;
+    margin-top: 0.5rem;
+}
+
+/* Custom Card Styles */
+.custom-card {
+    background: var(--bg-white) !important;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-dark) !important;
+}
+
+.custom-card:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-2px);
+}
+
+/* Card Header */
+.card-header {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%) !important;
+    color: white !important;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: none;
+}
+
+.notification-header {
+    background: linear-gradient(135deg, var(--accent-orange) 0%, #f97316 100%) !important;
+}
+
+.header-icon {
+    --slds-c-icon-color-foreground-default: white !important;
+    color: white !important;
+}
+
+.header-icon lightning-icon {
+    --slds-c-icon-color-foreground-default: white !important;
+    color: white !important;
+}
+
+.card-title {
+    color: white !important;
+    font-weight: 600;
     font-size: 1.125rem;
-    color: var(--lwc-colorTextWeak, #706e6b);
+    margin: 0;
+    line-height: 1.2;
 }
 
-.slds-table_container {
-    margin: 1rem 0;
+/* Card Body */
+.card-body {
+    padding: 1.5rem;
+    flex: 1;
+    background: var(--bg-white) !important;
+    color: var(--text-dark) !important;
 }
 
-.slds-table th {
-    background-color: var(--lwc-colorBackground, #f3f2f2);
+.card-body * {
+    color: var(--text-dark) !important;
+}
+
+/* Notification Card */
+.notification-card {
+    border: 2px solid var(--accent-orange) !important;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%) !important;
+    margin-bottom: 2rem;
+}
+
+.notification-card .card-body {
+    background: transparent !important;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.notification-text {
+    flex: 1;
+    min-width: 200px;
+}
+
+.notification-text p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-dark) !important;
+    line-height: 1.5;
+}
+
+.notification-text strong {
+    color: var(--accent-orange) !important;
     font-weight: 600;
 }
 
-.slds-table td a {
-    color: var(--lwc-colorTextLink, #0176d3);
-    text-decoration: none;
+.notification-action {
+    flex-shrink: 0;
 }
 
-.slds-table td a:hover {
-    text-decoration: underline;
+/* Two Column Layout */
+.two-column-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
+@media (min-width: 768px) {
+    .two-column-layout {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Three Column Layout */
+.three-column-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+    .three-column-layout {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .three-column-layout {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Coming Soon Cards */
+.coming-soon-card {
+    position: relative;
+}
+
+.coming-soon-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--secondary-blue), var(--accent-orange));
+    z-index: 1;
+}
+
+.coming-soon-content {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.coming-soon-content p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-light) !important;
+    font-weight: 500;
+}
+
+/* Loading State */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 1.5rem;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-light) !important;
+}
+
+/* Data Table Styling */
+lightning-datatable {
+    border-radius: 8px;
+    overflow: hidden;
+    color: var(--text-dark) !important;
+}
+
+/* Buttons */
+lightning-button {
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+lightning-button[variant="brand"] {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%) !important;
+    border: none !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+lightning-button[variant="brand"]:hover {
+    box-shadow: var(--shadow-md) !important;
+    transform: translateY(-1px);
+}
+
+/* Ensure all text is visible */
+p, h1, h2, h3, h4, h5, h6, span, div {
+    color: inherit;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .home-page-container {
+        padding: 1rem;
+    }
+    
+    .welcome-title {
+        font-size: 2rem;
+    }
+    
+    .welcome-subtitle {
+        font-size: 1rem;
+    }
+    
+    .notification-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .notification-action {
+        width: 100%;
+    }
+    
+    .notification-action lightning-button {
+        width: 100%;
+    }
+}
+
+/* Smooth Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.custom-card {
+    animation: fadeIn 0.5s ease-out;
+}

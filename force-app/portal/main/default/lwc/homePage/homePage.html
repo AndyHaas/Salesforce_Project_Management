@@ -1,46 +1,51 @@
 <template>
     <div class="home-page-container">
         <!-- Welcome Section -->
-        <div class="welcome-section slds-m-bottom_large">
+        <div class="welcome-section">
             <h1 class="welcome-title">
                 Welcome<template if:true={userFirstName}> {userFirstName}</template>!
             </h1>
             <p class="welcome-subtitle">
-                <lightning-formatted-text value="Manage your projects and tasks from here."></lightning-formatted-text>
+                Manage your projects and tasks from here.
             </p>
         </div>
 
-            <!-- Notification Badge for Tasks Needing Review -->
-            <template if:true={hasTasksNeedingReview}>
-                <div class="slds-m-bottom_large">
-                    <lightning-card title="Review Required" icon-name="utility:notification">
-                        <div class="slds-p-around_medium">
-                            <lightning-layout multiple-rows>
-                                <lightning-layout-item size="12" medium-device-size="8" large-device-size="8">
-                                    <lightning-formatted-text 
-                                        value="You have {tasksNeedingReviewCount} task(s) ready for your review."
-                                        class="slds-text-heading_small">
-                                    </lightning-formatted-text>
-                                </lightning-layout-item>
-                                <lightning-layout-item size="12" medium-device-size="4" large-device-size="4" class="slds-text-align_right">
-                                    <lightning-button 
-                                        label="View Tasks" 
-                                        variant="brand"
-                                        icon-name="utility:preview"
-                                        onclick={handleViewReviewTasks}>
-                                    </lightning-button>
-                                </lightning-layout-item>
-                            </lightning-layout>
-                        </div>
-                    </lightning-card>
+        <!-- Notification Badge for Tasks Needing Review -->
+        <template if:true={hasTasksNeedingReview}>
+            <div class="notification-card custom-card">
+                <div class="card-header notification-header">
+                    <lightning-icon icon-name="utility:bell" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Review Required</h2>
                 </div>
-            </template>
+                <div class="card-body">
+                    <div class="notification-content">
+                        <div class="notification-text">
+                            <p>You have <strong>{tasksNeedingReviewCount}</strong> task(s) ready for your review.</p>
+                        </div>
+                        <div class="notification-action">
+                            <lightning-button 
+                                label="View Tasks" 
+                                variant="brand"
+                                icon-name="utility:preview"
+                                onclick={handleViewReviewTasks}>
+                            </lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
 
-            <!-- Active Projects Section -->
-            <div class="slds-m-bottom_large">
-                <lightning-card title="Active Projects" icon-name="utility:projects">
+        <!-- Active Projects and Open Tasks Section -->
+        <div class="two-column-layout">
+            <!-- Active Projects Card -->
+            <div class="custom-card">
+                <div class="card-header">
+                    <lightning-icon icon-name="utility:briefcase" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Active Projects</h2>
+                </div>
+                <div class="card-body">
                     <template if:true={isLoading}>
-                        <div class="slds-p-around_medium">
+                        <div class="loading-container">
                             <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
                         </div>
                     </template>
@@ -57,22 +62,23 @@
                             </lightning-datatable>
                         </template>
                         <template if:false={hasActiveProjects}>
-                            <div class="slds-p-around_medium">
-                                <lightning-formatted-text 
-                                    value="No active projects found."
-                                    class="slds-text-align_center">
-                                </lightning-formatted-text>
+                            <div class="empty-state">
+                                <p>No active projects found.</p>
                             </div>
                         </template>
                     </template>
-                </lightning-card>
+                </div>
             </div>
 
-            <!-- Open Tasks Section -->
-            <div class="slds-m-bottom_large">
-                <lightning-card title="Open Tasks" icon-name="utility:task">
+            <!-- Open Tasks Card -->
+            <div class="custom-card">
+                <div class="card-header">
+                    <lightning-icon icon-name="utility:task" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Open Tasks</h2>
+                </div>
+                <div class="card-body">
                     <template if:true={isLoading}>
-                        <div class="slds-p-around_medium">
+                        <div class="loading-container">
                             <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
                         </div>
                     </template>
@@ -89,50 +95,52 @@
                             </lightning-datatable>
                         </template>
                         <template if:false={hasOpenTasks}>
-                            <div class="slds-p-around_medium">
-                                <lightning-formatted-text 
-                                    value="No open tasks found."
-                                    class="slds-text-align_center">
-                                </lightning-formatted-text>
+                            <div class="empty-state">
+                                <p>No open tasks found.</p>
                             </div>
                         </template>
                     </template>
-                </lightning-card>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coming Soon Cards Section -->
+        <div class="three-column-layout">
+            <div class="custom-card coming-soon-card">
+                <div class="card-header">
+                    <lightning-icon icon-name="utility:money" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Billing & Invoices</h2>
+                </div>
+                <div class="card-body">
+                    <div class="coming-soon-content">
+                        <p>Coming Soon</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Coming Soon Cards Section -->
-            <lightning-layout multiple-rows class="slds-m-top_large">
-                <lightning-layout-item size="12" medium-device-size="4" large-device-size="4">
-                    <lightning-card title="Billing & Invoices" icon-name="utility:money">
-                        <div class="slds-p-around_medium">
-                            <lightning-formatted-text 
-                                value="Coming Soon"
-                                class="slds-text-align_center slds-text-color_weak">
-                            </lightning-formatted-text>
-                        </div>
-                    </lightning-card>
-                </lightning-layout-item>
-                <lightning-layout-item size="12" medium-device-size="4" large-device-size="4">
-                    <lightning-card title="Account Management" icon-name="utility:account">
-                        <div class="slds-p-around_medium">
-                            <lightning-formatted-text 
-                                value="Coming Soon"
-                                class="slds-text-align_center slds-text-color_weak">
-                            </lightning-formatted-text>
-                        </div>
-                    </lightning-card>
-                </lightning-layout-item>
-                <lightning-layout-item size="12" medium-device-size="4" large-device-size="4">
-                    <lightning-card title="Contact Management" icon-name="utility:contact">
-                        <div class="slds-p-around_medium">
-                            <lightning-formatted-text 
-                                value="Coming Soon"
-                                class="slds-text-align_center slds-text-color_weak">
-                            </lightning-formatted-text>
-                        </div>
-                    </lightning-card>
-                </lightning-layout-item>
-            </lightning-layout>
+            <div class="custom-card coming-soon-card">
+                <div class="card-header">
+                    <lightning-icon icon-name="utility:account" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Account Management</h2>
+                </div>
+                <div class="card-body">
+                    <div class="coming-soon-content">
+                        <p>Coming Soon</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom-card coming-soon-card">
+                <div class="card-header">
+                    <lightning-icon icon-name="utility:contact" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Contact Management</h2>
+                </div>
+                <div class="card-body">
+                    <div class="coming-soon-content">
+                        <p>Coming Soon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
-

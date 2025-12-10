@@ -9,6 +9,7 @@
 }
 
 .portal-header {
+    background: linear-gradient(135deg, #355d7c 0%, #4d86b2 100%) !important;
     border-bottom: 2px solid var(--milestone-orange);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     position: sticky;
