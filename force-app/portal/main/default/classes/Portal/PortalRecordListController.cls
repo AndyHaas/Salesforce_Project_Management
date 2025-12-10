@@ -54,13 +54,13 @@ public without sharing class PortalRecordListController {
             // Build SOQL query with bind variables
             QueryResult queryResult = buildSoqlQuery(objectApiName, fieldList, whereResult, result.pageSize, result.pageNumber);
 
-            // Execute query with bind variables (USER_MODE enforces FLS/sharing for caller)
-            List<SObject> records = Database.queryWithBinds(queryResult.soql, queryResult.bindMap, AccessLevel.USER_MODE);
+            // Execute query with bind variables in system mode to avoid community access limits
+            List<SObject> records = Database.queryWithBinds(queryResult.soql, queryResult.bindMap, AccessLevel.SYSTEM_MODE);
             result.records = records;
             
             // Get total count
             CountResult countResult = getTotalCount(objectApiName, whereResult);
-            result.totalRecords = Database.countQueryWithBinds(countResult.soql, countResult.bindMap, AccessLevel.USER_MODE);
+            result.totalRecords = Database.countQueryWithBinds(countResult.soql, countResult.bindMap, AccessLevel.SYSTEM_MODE);
             result.totalPages = (Integer)Math.ceil((Double)result.totalRecords / result.pageSize);
             
             // Build column metadata

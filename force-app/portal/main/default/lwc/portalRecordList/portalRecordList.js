@@ -233,6 +233,34 @@ export default class PortalRecordList extends LightningElement {
         return this.error.message || 'Unable to load data';
     }
 
+    /**
+     * Columns to render in the HTML table (already provided by Apex)
+     */
+    get tableColumns() {
+        return this.columns || [];
+    }
+
+    /**
+     * Rows prepared for HTML table rendering.
+     * Each row has a key and cells array aligning with columns.
+     */
+    get tableRows() {
+        if (!this.records || !this.tableColumns.length) {
+            return [];
+        }
+        return this.records.map((record, rowIndex) => {
+            const cells = this.tableColumns.map((col, colIndex) => {
+                const value = record[col.fieldName];
+                return {
+                    key: `${rowIndex}-${colIndex}`,
+                    value: value !== undefined && value !== null ? value : ''
+                };
+            });
+            const rowKey = record.Id || rowIndex;
+            return { key: rowKey, cells };
+        });
+    }
+
     get cardTitle() {
         // Don't expose object information if access is denied
         if (this.accessDenied) {

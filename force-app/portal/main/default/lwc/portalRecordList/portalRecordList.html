@@ -8,12 +8,30 @@
             </template>
             <template if:false={error}>
                 <template if:true={hasData}>
-                    <lightning-datatable
-                        key-field="Id"
-                        data={records}
-                        columns={columns}
-                        hide-checkbox-column>
-                    </lightning-datatable>
+                    <div class="table-container slds-p-horizontal_medium slds-p-vertical_small">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <thead>
+                                <tr>
+                                    <template for:each={tableColumns} for:item="col">
+                                        <th key={col.fieldName} scope="col">
+                                            <div class="slds-truncate" title={col.label}>{col.label}</div>
+                                        </th>
+                                    </template>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={tableRows} for:item="row">
+                                    <tr key={row.key}>
+                                        <template for:each={row.cells} for:item="cell">
+                                            <td key={cell.key}>
+                                                <div class="slds-truncate" title={cell.value}>{cell.value}</div>
+                                            </td>
+                                        </template>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
                 </template>
                 <template if:false={hasData}>
                     <div class="slds-p-around_medium">
