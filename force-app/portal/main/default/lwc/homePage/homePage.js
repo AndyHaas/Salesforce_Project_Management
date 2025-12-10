@@ -1,5 +1,6 @@
 import { LightningElement, wire, api } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
+import { ensureSitePath } from 'c/portalCommon';
 import getHomePageData from '@salesforce/apex/HomePageController.getHomePageData';
 
 export default class HomePage extends NavigationMixin(LightningElement) {
@@ -143,16 +144,11 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     }
 
     navigateToUrl(url) {
-        const isExperienceCloud = window.location.pathname.startsWith('/s/');
-        
-        if (isExperienceCloud && !url.startsWith('/s/')) {
-            url = '/s' + (url.startsWith('/') ? url : '/' + url);
-        }
-        
+        const targetUrl = ensureSitePath(url, { currentPathname: window.location.pathname });
         this[NavigationMixin.Navigate]({
             type: 'standard__webPage',
             attributes: {
-                url: url
+                url: targetUrl
             }
         });
     }
