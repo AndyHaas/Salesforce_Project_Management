@@ -82,7 +82,7 @@ public without sharing class PortalProjectController {
             Integer cnt = (Integer) ar.get('cnt');
             
             // Handle null status as 'Backlog' for display
-            String displayStatus = status != null ? status : 'Backlog';
+            String displayStatus = status != null ? status.trim() : 'Backlog';
             statusCounts.put(displayStatus, cnt);
             
             StatusCount sc = new StatusCount();
@@ -90,8 +90,8 @@ public without sharing class PortalProjectController {
             sc.count = cnt;
             metrics.statusCounts.add(sc);
             
-            // Count completed tasks (case-insensitive check)
-            if (status != null && status.equalsIgnoreCase('Completed')) {
+            // Count completed tasks (case-insensitive check with trim)
+            if (status != null && status.trim().equalsIgnoreCase('Completed')) {
                 completedCount = cnt;
             }
         }
@@ -106,10 +106,20 @@ public without sharing class PortalProjectController {
             AND Account__c = :project.Account__c
         ];
 
-        metrics.totalTasks = totals.get('totalTasks') == null ? 0 : (Integer) totals.get('totalTasks');
-        metrics.totalEstimatedHours = totals.get('totalEstimated') == null ? 0 : (Decimal) totals.get('totalEstimated');
-        metrics.totalActualHours = totals.get('totalActual') == null ? 0 : (Decimal) totals.get('totalActual');
+        // Handle aggregate results - Long for COUNT, Decimal for SUM
+        Object totalTasksObj = totals.get('totalTasks');
+        Object totalEstimatedObj = totals.get('totalEstimated');
+        Object totalActualObj = totals.get('totalActual');
+        
+        metrics.totalTasks = totalTasksObj != null ? ((Long) totalTasksObj).intValue() : 0;
+        metrics.totalEstimatedHours = totalEstimatedObj != null ? (Decimal) totalEstimatedObj : 0;
+        metrics.totalActualHours = totalActualObj != null ? (Decimal) totalActualObj : 0;
 
+        // If we didn't find completed in the loop, check the statusCounts map as fallback
+        if (completedCount == 0 && statusCounts.containsKey('Completed')) {
+            completedCount = statusCounts.get('Completed');
+        }
+        
         metrics.completedTasks = completedCount;
         metrics.openTasks = metrics.totalTasks - metrics.completedTasks;
         result.taskMetrics = metrics;
