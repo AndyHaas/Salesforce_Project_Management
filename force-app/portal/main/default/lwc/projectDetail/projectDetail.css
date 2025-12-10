@@ -1,0 +1,174 @@
+.page {
+    padding: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .page {
+        padding: 1rem;
+    }
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.eyebrow {
+    margin: 0;
+    color: #597fad;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.project-name {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.meta {
+    margin: 0.1rem 0 0;
+    color: #444;
+}
+
+.status-pill {
+    background: #e8f3ff;
+    border-radius: 16px;
+    padding: 0 0.5rem;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.metric {
+    background: #fafbfc;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 0.85rem 1rem;
+}
+
+.metric .label {
+    margin: 0;
+    color: #666;
+    font-size: 0.75rem;
+}
+
+.metric .value {
+    margin: 0.1rem 0 0;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.details {
+    margin-bottom: 1.25rem;
+    color: #444;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem 1rem;
+}
+
+.detail-item {
+    display: flex;
+    gap: 0.4rem;
+    align-items: baseline;
+}
+
+.detail-value {
+    color: #222;
+}
+
+.details .label,
+.detail-item .label {
+    font-weight: 600;
+    margin: 0;
+}
+
+.tasks {
+    margin-top: 1rem;
+}
+
+.tasks-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-group {
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+    background: #fff;
+}
+
+.status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.status-header h4 {
+    margin: 0;
+}
+
+.count {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.task-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    border-top: 1px solid #f0f0f0;
+}
+
+.task-row:first-of-type {
+    border-top: none;
+}
+
+.task-name {
+    margin: 0;
+    font-weight: 600;
+}
+
+.task-meta {
+    margin: 0;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.task-hours {
+    display: flex;
+    gap: 0.5rem;
+    color: #444;
+}
+
+.muted {
+    color: #666;
+}
+
+.error {
+    color: #c23934;
+    margin: 0.5rem 0;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+}

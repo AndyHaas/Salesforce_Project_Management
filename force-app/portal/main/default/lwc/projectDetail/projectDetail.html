@@ -1,0 +1,123 @@
+<template>
+    <lightning-card title="Project Detail">
+        <template if:true={projectId}>
+            <template if:true={hasData}>
+                <div class="page">
+                    <div class="header">
+                        <div class="title-block">
+                            <p class="eyebrow">Project</p>
+                            <h2 class="project-name">{project.name}</h2>
+                            <p class="meta">Account: {displayAccount}</p>
+                        </div>
+                        <lightning-badge class="status-pill" label={displayStatus}></lightning-badge>
+                    </div>
+
+                    <div class="metrics">
+                        <div class="metric">
+                            <p class="label">Total Tasks</p>
+                            <p class="value">{taskMetrics.totalTasks}</p>
+                        </div>
+                        <div class="metric">
+                            <p class="label">Open Tasks</p>
+                            <p class="value">{taskMetrics.openTasks}</p>
+                        </div>
+                        <div class="metric">
+                            <p class="label">Completed/Closed</p>
+                            <p class="value">{taskMetrics.completedTasks}</p>
+                        </div>
+                        <div class="metric">
+                            <p class="label">Est. Hours</p>
+                            <p class="value">{taskMetrics.totalEstimatedHours}</p>
+                        </div>
+                        <div class="metric">
+                            <p class="label">Actual Hours</p>
+                            <p class="value">{taskMetrics.totalActualHours}</p>
+                        </div>
+                        <div class="metric">
+                            <p class="label">Burn Rate</p>
+                            <p class="value">{project.burnRate}</p>
+                        </div>
+                    </div>
+
+                    <div class="details">
+                        <div class="detail-item">
+                            <span class="label">Invoiced</span>
+                            <span class="detail-value">{project.invoiced}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Created</span>
+                            <span class="detail-value">{displayCreatedDate}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Start Date</span>
+                            <span class="detail-value">{displayStartDate}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">End Date</span>
+                            <span class="detail-value">{displayEndDate}</span>
+                        </div>
+                    </div>
+
+                    <div class="tasks">
+                        <div class="tasks-header">
+                            <h3>Project Tasks</h3>
+                            <template if:true={tasksLoading}>
+                                <lightning-spinner size="small"></lightning-spinner>
+                            </template>
+                        </div>
+
+                        <template if:true={tasksError}>
+                            <p class="error">{tasksError}</p>
+                        </template>
+
+                        <template if:true={hasTasks}>
+                            <template for:each={statusGroups} for:item="group">
+                                <section key={group.key} class="status-group">
+                                    <div class="status-header">
+                                        <h4>{group.status}</h4>
+                                        <span class="count">{group.tasks.length} {group.taskLabel}</span>
+                                    </div>
+                                    <ul>
+                                        <template for:each={group.tasks} for:item="task">
+                                            <li key={task.id} class="task-row">
+                                                <div>
+                                                    <p class="task-name">{task.name}</p>
+                                                    <p class="task-meta">
+                                                        <span>{task.priority}</span>
+                                                        <span if:true={task.dueDate}> • Due {task.dueDate}</span>
+                                                    </p>
+                                                </div>
+                                                <div class="task-hours">
+                                                    <span title="Estimated Hours">{task.estimatedHours}</span>
+                                                    <span title="Actual Hours">{task.actualHours}</span>
+                                                </div>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </section>
+                            </template>
+                        </template>
+
+                        <template if:false={hasTasks}>
+                            <p class="muted">No tasks found for this project.</p>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={error}>
+                <p class="error">{error}</p>
+            </template>
+
+            <template if:true={isLoading}>
+                <div class="center">
+                    <lightning-spinner alternative-text="Loading project" size="medium"></lightning-spinner>
+                </div>
+            </template>
+        </template>
+
+        <template if:false={projectId}>
+            <p class="muted">No project id provided in URL.</p>
+        </template>
+    </lightning-card>
+</template>
