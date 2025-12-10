@@ -299,4 +299,70 @@ public without sharing class PortalProjectController {
         @AuraEnabled public Decimal actualHours;
         @AuraEnabled public Decimal progressPercentage;
     }
+    
+    /**
+     * @description Get all files linked to all tasks in a project
+     * @param projectId The Project ID
+     * @return List of FileInfo with file details
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<FileInfo> getProjectTaskFiles(Id projectId) {
+        if (projectId == null) {
+            return new List<FileInfo>();
+        }
+        
+        // Get all task IDs for this project
+        List<Project_Task__c> tasks = [
+            SELECT Id
+            FROM Project_Task__c
+            WHERE Project__c = :projectId
+        ];
+        
+        if (tasks.isEmpty()) {
+            return new List<FileInfo>();
+        }
+        
+        Set<Id> taskIds = new Set<Id>();
+        for (Project_Task__c task : tasks) {
+            taskIds.add(task.Id);
+        }
+        
+        List<FileInfo> files = new List<FileInfo>();
+        
+        // Get all files linked to any task in this project
+        List<ContentDocumentLink> links = [
+            SELECT ContentDocumentId, ContentDocument.Title, ContentDocument.FileExtension,
+                   ContentDocument.ContentSize, ContentDocument.CreatedDate, ContentDocument.CreatedBy.Name,
+                   ContentDocument.LatestPublishedVersionId, LinkedEntityId
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId IN :taskIds
+            ORDER BY ContentDocument.CreatedDate DESC
+        ];
+        
+        for (ContentDocumentLink link : links) {
+            FileInfo file = new FileInfo();
+            file.id = link.ContentDocumentId;
+            file.title = link.ContentDocument.Title;
+            file.extension = link.ContentDocument.FileExtension;
+            file.size = link.ContentDocument.ContentSize;
+            file.createdDate = link.ContentDocument.CreatedDate;
+            file.createdBy = link.ContentDocument.CreatedBy?.Name;
+            file.versionId = link.ContentDocument.LatestPublishedVersionId;
+            file.taskId = link.LinkedEntityId; // Track which task this file belongs to
+            files.add(file);
+        }
+        
+        return files;
+    }
+    
+    public class FileInfo {
+        @AuraEnabled public String id;
+        @AuraEnabled public String title;
+        @AuraEnabled public String extension;
+        @AuraEnabled public Long size;
+        @AuraEnabled public DateTime createdDate;
+        @AuraEnabled public String createdBy;
+        @AuraEnabled public String versionId;
+        @AuraEnabled public String taskId; // For project files, track which task it belongs to
+    }
 }
