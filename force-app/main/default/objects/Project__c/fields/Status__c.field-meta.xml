@@ -12,36 +12,43 @@
             <sorted>false</sorted>
             <value>
                 <fullName>Not Started</fullName>
+                <color>#DDDDDD</color>
                 <default>true</default>
                 <label>Not Started</label>
             </value>
             <value>
                 <fullName>R&amp;D</fullName>
+                <color>#FF99FF</color>
                 <default>false</default>
                 <label>R&amp;D</label>
             </value>
             <value>
                 <fullName>Proposal</fullName>
+                <color>#FF9966</color>
                 <default>false</default>
                 <label>Proposal</label>
             </value>
             <value>
                 <fullName>Development</fullName>
+                <color>#FFCC33</color>
                 <default>false</default>
                 <label>Development</label>
             </value>
             <value>
                 <fullName>Q&amp;A</fullName>
+                <color>#9999FF</color>
                 <default>false</default>
                 <label>Q&amp;A</label>
             </value>
             <value>
                 <fullName>Deployed</fullName>
+                <color>#33CC00</color>
                 <default>false</default>
                 <label>Deployed</label>
             </value>
             <value>
                 <fullName>Cancelled</fullName>
+                <color>#CC0000</color>
                 <default>false</default>
                 <label>Cancelled</label>
             </value>

@@ -1,29 +1,25 @@
 /**
  * @description Shared controller for status color utilities
  * Used by both portal and main Salesforce components
+ * Returns status colors that match the values defined in Status__c.field-meta.xml
  */
 public without sharing class StatusColorController {
     
     /**
      * @description Get status colors from Status__c field metadata
-     * Returns a map of status values to their chart colors
+     * Returns colors that match the chart colors defined in Project_Task__c.Status__c.field-meta.xml
      * 
-     * NOTE: Chart colors are stored in the field metadata XML but are not directly
-     * accessible via the standard Schema API. This method returns colors that match
-     * the chart colors defined in Status__c.field-meta.xml.
-     * 
-     * When the field metadata is updated (via Salesforce UI or CLI), this method
-     * should be updated to reflect the new colors, or enhanced to use Metadata API
-     * for true dynamic retrieval.
+     * NOTE: These values are hardcoded to match the field metadata.
+     * When the field metadata is updated, this method should be updated to reflect the new colors.
      * 
      * @return Map<String, String> Status value to color hex code
      */
     @AuraEnabled(cacheable=true)
     public static Map<String, String> getStatusColors() {
-        // Chart colors from Status__c.field-meta.xml
+        // Chart colors from Project_Task__c.Status__c.field-meta.xml
         // These match the colors defined in the field metadata
         // When the field metadata is updated, update this map to match
-        Map<String, String> statusColors = new Map<String, String>{
+        return new Map<String, String>{
             'Backlog' => '#E5E5E5',
             'Pending' => '#FFB75D',
             'In Progress' => '#0176D3',
@@ -32,11 +28,5 @@ public without sharing class StatusColorController {
             'Completed' => '#2E844A',
             'Removed' => '#706E6B'
         };
-        
-        // TODO: Enhance this method to use Metadata API or Tooling API
-        // to dynamically retrieve colors from the field metadata XML
-        // This would make it truly dynamic without code changes
-        
-        return statusColors;
     }
 }
