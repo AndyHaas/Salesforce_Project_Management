@@ -21,15 +21,10 @@
     height: fit-content;
     position: sticky;
     top: 1rem;
-    margin-bottom: 1rem;
-}
-
-.side-panel :deep(lightning-card:last-child) {
-    margin-bottom: 0;
 }
 
 .side-panel > * {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .side-panel > *:last-child {
