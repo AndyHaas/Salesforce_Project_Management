@@ -34,36 +34,80 @@ export default class PortalTaskFiles extends LightningElement {
         const uploadedFiles = event.detail.files;
         
         if (uploadedFiles && uploadedFiles.length > 0) {
-            const contentVersionIds = uploadedFiles.map(file => file.contentVersionId);
+            const contentVersionIds = uploadedFiles.map(file => file.contentVersionId).filter(id => id);
+            
+            if (contentVersionIds.length === 0) {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: 'No files were uploaded successfully',
+                        variant: 'error'
+                    })
+                );
+                return;
+            }
             
             try {
-                await linkFilesToTask({ 
+                const result = await linkFilesToTask({ 
                     taskId: this.recordId, 
                     contentVersionIds: contentVersionIds 
                 });
                 
-                // Refresh the file list
-                await refreshApex(this._wiredTaskFilesResult);
-                
-                // Show success toast
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Success',
-                        message: `${uploadedFiles.length} file(s) uploaded successfully`,
-                        variant: 'success'
-                    })
-                );
+                if (result) {
+                    // Refresh the file list
+                    await refreshApex(this._wiredTaskFilesResult);
+                    
+                    // Show success toast
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Success',
+                            message: `${contentVersionIds.length} file(s) uploaded and linked successfully`,
+                            variant: 'success'
+                        })
+                    );
+                } else {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Warning',
+                            message: 'Files uploaded but failed to link to task',
+                            variant: 'warning'
+                        })
+                    );
+                }
             } catch (error) {
                 console.error('Error linking files to task:', error);
                 this.dispatchEvent(
                     new ShowToastEvent({
                         title: 'Error',
-                        message: 'Failed to link files to task: ' + (error.body?.message || error.message),
+                        message: 'Failed to link files to task: ' + (error.body?.message || error.message || 'Unknown error'),
                         variant: 'error'
                     })
                 );
             }
         }
+    }
+    
+    /**
+     * @description Handle file upload errors
+     */
+    handleUploadError(event) {
+        const error = event.detail;
+        console.error('File upload error:', error);
+        
+        let errorMessage = 'Failed to upload file';
+        if (error && error.message) {
+            errorMessage = error.message;
+        } else if (error && typeof error === 'string') {
+            errorMessage = error;
+        }
+        
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Upload Error',
+                message: errorMessage,
+                variant: 'error'
+            })
+        );
     }
     
     /**

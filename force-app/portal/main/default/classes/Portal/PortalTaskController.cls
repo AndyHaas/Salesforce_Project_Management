@@ -77,56 +77,66 @@ public without sharing class PortalTaskController {
     @AuraEnabled
     public static Boolean linkFilesToTask(String taskId, List<String> contentVersionIds) {
         if (String.isBlank(taskId) || contentVersionIds == null || contentVersionIds.isEmpty()) {
-            return false;
+            throw new AuraHandledException('Task ID and content version IDs are required');
         }
         
-        // Get ContentDocument IDs from ContentVersion IDs
-        List<ContentVersion> contentVersions = [
-            SELECT ContentDocumentId
-            FROM ContentVersion
-            WHERE Id IN :contentVersionIds
-        ];
-        
-        if (contentVersions.isEmpty()) {
-            return false;
-        }
-        
-        Set<Id> contentDocumentIds = new Set<Id>();
-        for (ContentVersion cv : contentVersions) {
-            contentDocumentIds.add(cv.ContentDocumentId);
-        }
-        
-        // Check if links already exist
-        List<ContentDocumentLink> existingLinks = [
-            SELECT ContentDocumentId
-            FROM ContentDocumentLink
-            WHERE LinkedEntityId = :taskId
-            AND ContentDocumentId IN :contentDocumentIds
-        ];
-        
-        Set<Id> existingContentDocumentIds = new Set<Id>();
-        for (ContentDocumentLink link : existingLinks) {
-            existingContentDocumentIds.add(link.ContentDocumentId);
-        }
-        
-        // Create new links for documents that aren't already linked
-        List<ContentDocumentLink> newLinks = new List<ContentDocumentLink>();
-        for (Id docId : contentDocumentIds) {
-            if (!existingContentDocumentIds.contains(docId)) {
-                ContentDocumentLink link = new ContentDocumentLink();
-                link.LinkedEntityId = taskId;
-                link.ContentDocumentId = docId;
-                link.ShareType = 'V'; // Viewer access
-                link.Visibility = 'AllUsers';
-                newLinks.add(link);
+        try {
+            // Get ContentDocument IDs from ContentVersion IDs
+            List<ContentVersion> contentVersions = [
+                SELECT ContentDocumentId
+                FROM ContentVersion
+                WHERE Id IN :contentVersionIds
+            ];
+            
+            if (contentVersions.isEmpty()) {
+                throw new AuraHandledException('No content versions found for the provided IDs');
             }
+            
+            Set<Id> contentDocumentIds = new Set<Id>();
+            for (ContentVersion cv : contentVersions) {
+                if (cv.ContentDocumentId != null) {
+                    contentDocumentIds.add(cv.ContentDocumentId);
+                }
+            }
+            
+            if (contentDocumentIds.isEmpty()) {
+                throw new AuraHandledException('No content documents found');
+            }
+            
+            // Check if links already exist
+            List<ContentDocumentLink> existingLinks = [
+                SELECT ContentDocumentId
+                FROM ContentDocumentLink
+                WHERE LinkedEntityId = :taskId
+                AND ContentDocumentId IN :contentDocumentIds
+            ];
+            
+            Set<Id> existingContentDocumentIds = new Set<Id>();
+            for (ContentDocumentLink link : existingLinks) {
+                existingContentDocumentIds.add(link.ContentDocumentId);
+            }
+            
+            // Create new links for documents that aren't already linked
+            List<ContentDocumentLink> newLinks = new List<ContentDocumentLink>();
+            for (Id docId : contentDocumentIds) {
+                if (!existingContentDocumentIds.contains(docId)) {
+                    ContentDocumentLink link = new ContentDocumentLink();
+                    link.LinkedEntityId = taskId;
+                    link.ContentDocumentId = docId;
+                    link.ShareType = 'V'; // Viewer access
+                    link.Visibility = 'AllUsers';
+                    newLinks.add(link);
+                }
+            }
+            
+            if (!newLinks.isEmpty()) {
+                insert newLinks;
+            }
+            
+            return true;
+        } catch (Exception e) {
+            throw new AuraHandledException('Error linking files to task: ' + e.getMessage());
         }
-        
-        if (!newLinks.isEmpty()) {
-            insert newLinks;
-        }
-        
-        return true;
     }
     
     /**

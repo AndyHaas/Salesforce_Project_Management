@@ -8,8 +8,8 @@
                         label="Upload Files"
                         name="fileUpload"
                         accept={acceptedFormats}
-                        record-id={recordId}
                         onuploadfinished={handleUploadFinished}
+                        onerror={handleUploadError}
                         multiple>
                     </lightning-file-upload>
                 </div>
