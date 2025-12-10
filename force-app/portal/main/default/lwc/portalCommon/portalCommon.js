@@ -70,3 +70,59 @@ export function ensureSitePath(path, { currentPathname = '' } = {}) {
 
     return normalized;
 }
+
+/**
+ * Get normalized field type string from Salesforce DisplayType or type string.
+ * This maps Salesforce field types to normalized type strings used across portal components.
+ * @param {string} displayType - Salesforce DisplayType string (e.g., 'PERCENT', 'CURRENCY') or normalized type
+ * @param {object} options - Optional field metadata
+ * @param {boolean} options.isHtmlFormatted - Whether the field is HTML formatted (for TextArea)
+ * @param {number} options.length - Field length (for TextArea)
+ * @returns {string} Normalized field type ('percent', 'currency', 'number', 'date', 'datetime', 'time', 'boolean', 'email', 'phone', 'url', 'richtext', 'textarea', 'text')
+ */
+export function getFieldType(displayType, options = {}) {
+    if (!displayType) {
+        return 'text';
+    }
+
+    const typeUpper = String(displayType).toUpperCase();
+
+    // Map Salesforce DisplayType to normalized type strings
+    if (typeUpper === 'PERCENT') {
+        return 'percent';
+    } else if (typeUpper === 'CURRENCY') {
+        return 'currency';
+    } else if (typeUpper === 'DOUBLE' || typeUpper === 'INTEGER' || typeUpper === 'LONG') {
+        return 'number';
+    } else if (typeUpper === 'DATE') {
+        return 'date';
+    } else if (typeUpper === 'DATETIME') {
+        return 'datetime';
+    } else if (typeUpper === 'TIME') {
+        return 'time';
+    } else if (typeUpper === 'BOOLEAN') {
+        return 'boolean';
+    } else if (typeUpper === 'EMAIL') {
+        return 'email';
+    } else if (typeUpper === 'PHONE') {
+        return 'phone';
+    } else if (typeUpper === 'URL') {
+        return 'url';
+    } else if (typeUpper === 'TEXTAREA') {
+        // Differentiate between TextArea variants
+        if (options.isHtmlFormatted === true) {
+            return 'richtext';
+        } else if (options.length && options.length > 255) {
+            return 'textarea';
+        } else {
+            return 'textarea';
+        }
+    } else {
+        // If already a normalized type, return as-is; otherwise default to 'text'
+        const normalizedTypes = ['percent', 'currency', 'number', 'date', 'datetime', 'time', 'boolean', 'email', 'phone', 'url', 'richtext', 'textarea', 'text'];
+        if (normalizedTypes.includes(displayType.toLowerCase())) {
+            return displayType.toLowerCase();
+        }
+        return 'text';
+    }
+}
