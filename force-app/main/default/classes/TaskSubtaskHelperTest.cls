@@ -7,21 +7,6 @@ private class TaskSubtaskHelperTest {
         Account testAccount = new Account(Name = 'Test Account');
         insert testAccount;
         
-        // Create test User for OwnerId
-        User testUser = new User(
-            FirstName = 'Test',
-            LastName = 'User',
-            Email = 'testuser@example.com',
-            Username = 'testuser' + System.currentTimeMillis() + '@example.com',
-            Alias = 'tuser',
-            TimeZoneSidKey = 'America/New_York',
-            LocaleSidKey = 'en_US',
-            EmailEncodingKey = 'UTF-8',
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1].Id,
-            LanguageLocaleKey = 'en_US'
-        );
-        insert testUser;
-        
         // Create test Contact for Client_User__c (User lookup requires User with Contact relationship)
         Contact testContact = new Contact(
             FirstName = 'Test',
@@ -40,8 +25,7 @@ private class TaskSubtaskHelperTest {
             Name = 'Parent Task',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
-            Priority__c = 'High',
-            OwnerId = testUser.Id
+            Priority__c = 'High'
             // Client_User__c left null to avoid lookup filter validation
         );
         insert parentTask;
@@ -51,8 +35,7 @@ private class TaskSubtaskHelperTest {
             Name = 'Parent Task 2',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
-            Priority__c = 'Medium',
-            OwnerId = testUser.Id
+            Priority__c = 'Medium'
             // Client_User__c left null to avoid lookup filter validation
         );
         insert parentTask2;
@@ -62,8 +45,7 @@ private class TaskSubtaskHelperTest {
             Name = 'Parent Task 3',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
-            Priority__c = 'Low',
-            OwnerId = testUser.Id
+            Priority__c = 'Low'
             // Client_User__c left null to avoid lookup filter validation
         );
         insert parentTask3;
@@ -98,7 +80,7 @@ private class TaskSubtaskHelperTest {
     @isTest
     static void testPopulateSubtaskUsers_WithParent() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
-        Project_Task__c parentTask = [SELECT Id, OwnerId, Client_User__c FROM Project_Task__c WHERE Name = 'Parent Task' LIMIT 1];
+        Project_Task__c parentTask = [SELECT Id, Client_User__c FROM Project_Task__c WHERE Name = 'Parent Task' LIMIT 1];
         
         Test.startTest();
         Project_Task__c subtask = new Project_Task__c(
@@ -111,24 +93,21 @@ private class TaskSubtaskHelperTest {
         insert subtask;
         Test.stopTest();
         
-        // Verify subtask has OwnerId and Client_User__c populated from parent
-        Project_Task__c insertedSubtask = [SELECT Id, OwnerId, Client_User__c FROM Project_Task__c WHERE Id = :subtask.Id];
-        System.assertEquals(parentTask.OwnerId, insertedSubtask.OwnerId, 'Subtask OwnerId should be populated from parent');
+        // Verify subtask has Client_User__c populated from parent
+        Project_Task__c insertedSubtask = [SELECT Id, Client_User__c FROM Project_Task__c WHERE Id = :subtask.Id];
         System.assertEquals(parentTask.Client_User__c, insertedSubtask.Client_User__c, 'Subtask Client_User__c should be populated from parent');
     }
     
     @isTest
     static void testPopulateSubtaskUsers_WithoutParent() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
-        User testUser = [SELECT Id FROM User WHERE FirstName = 'Test' AND LastName = 'User' LIMIT 1];
         
         Test.startTest();
         Project_Task__c standaloneTask = new Project_Task__c(
             Name = 'Standalone Task',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
-            Priority__c = 'High',
-            OwnerId = testUser.Id
+            Priority__c = 'High'
         );
         insert standaloneTask;
         Test.stopTest();
@@ -141,23 +120,7 @@ private class TaskSubtaskHelperTest {
     @isTest
     static void testPopulateSubtaskUsers_ExistingOwnerId() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
-        Project_Task__c parentTask = [SELECT Id, OwnerId, Client_User__c FROM Project_Task__c WHERE Name = 'Parent Task' LIMIT 1];
-        User testUser = [SELECT Id FROM User WHERE Email = 'testuser@example.com' LIMIT 1];
-        
-        // Create another user
-        User anotherUser = new User(
-            FirstName = 'Another',
-            LastName = 'User',
-            Email = 'anotheruser@example.com',
-            Username = 'anotheruser' + System.currentTimeMillis() + '@example.com',
-            Alias = 'auser',
-            TimeZoneSidKey = 'America/New_York',
-            LocaleSidKey = 'en_US',
-            EmailEncodingKey = 'UTF-8',
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1].Id,
-            LanguageLocaleKey = 'en_US'
-        );
-        insert anotherUser;
+        Project_Task__c parentTask = [SELECT Id, Client_User__c FROM Project_Task__c WHERE Name = 'Parent Task' LIMIT 1];
         
         Test.startTest();
         Project_Task__c subtask = new Project_Task__c(
@@ -165,15 +128,13 @@ private class TaskSubtaskHelperTest {
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
             Priority__c = 'High',
-            Parent_Task__c = parentTask.Id,
-            OwnerId = anotherUser.Id // Already has OwnerId
+            Parent_Task__c = parentTask.Id
         );
         insert subtask;
         Test.stopTest();
         
-        // Verify subtask keeps its existing OwnerId but gets Client_User__c from parent
-        Project_Task__c insertedSubtask = [SELECT Id, OwnerId, Client_User__c FROM Project_Task__c WHERE Id = :subtask.Id];
-        System.assertEquals(anotherUser.Id, insertedSubtask.OwnerId, 'Subtask should keep existing OwnerId');
+        // Verify subtask gets Client_User__c from parent
+        Project_Task__c insertedSubtask = [SELECT Id, Client_User__c FROM Project_Task__c WHERE Id = :subtask.Id];
         System.assertEquals(parentTask.Client_User__c, insertedSubtask.Client_User__c, 'Subtask Client_User__c should be populated from parent');
     }
     
@@ -529,87 +490,24 @@ private class TaskSubtaskHelperTest {
     // ============================================
     
     @isTest
-    static void testPopulateSubtaskUsers_VerifyBothFieldsSet() {
-        // Test that OwnerId is explicitly set from parent when creating subtask
+    static void testPopulateSubtaskUsers_VerifyClientUserSet() {
+        // Test that Client_User__c is explicitly set from parent when creating subtask
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
-        // Use parent task from setup (which has OwnerId set)
-        Project_Task__c parentTask = [SELECT Id, OwnerId FROM Project_Task__c WHERE Name = 'Parent Task' LIMIT 1];
-        
-        // Verify parent has OwnerId set
-        System.assertNotEquals(null, parentTask.OwnerId, 'Parent task should have OwnerId set');
+        Project_Task__c parentTask = [SELECT Id, Client_User__c FROM Project_Task__c WHERE Name = 'Parent Task' LIMIT 1];
         
         Test.startTest();
         Project_Task__c subtask = new Project_Task__c(
-            Name = 'Subtask Verify OwnerId Set',
+            Name = 'Subtask Verify Client User Set',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
             Priority__c = 'High',
             Parent_Task__c = parentTask.Id
-            // Intentionally not setting OwnerId - should be populated from parent by trigger
         );
         insert subtask;
         Test.stopTest();
         
-        // Re-query parent to get latest OwnerId value
-        Project_Task__c parentTaskLatest = [SELECT Id, OwnerId FROM Project_Task__c WHERE Id = :parentTask.Id];
-        
-        // Verify OwnerId is set (not null) - this verifies populateSubtaskUsers is being called
-        Project_Task__c insertedSubtask = [SELECT Id, OwnerId FROM Project_Task__c WHERE Id = :subtask.Id];
-        System.assertNotEquals(null, insertedSubtask.OwnerId, 'Subtask OwnerId must not be null - populateSubtaskUsers must set this value');
-        
-        // Verify OwnerId matches parent (this verifies the correct value is set)
-        // Note: If this fails, it indicates populateSubtaskUsers may not be copying OwnerId correctly
-        System.assertEquals(parentTaskLatest.OwnerId, insertedSubtask.OwnerId, 
-            'Subtask OwnerId must match parent OwnerId exactly to verify populateSubtaskUsers sets the correct value. Parent OwnerId: ' + parentTaskLatest.OwnerId + ', Subtask OwnerId: ' + insertedSubtask.OwnerId);
-    }
-    
-    @isTest
-    static void testPopulateSubtaskUsers_VerifyOnlyClientUserSetWhenOwnerExists() {
-        // Test that when OwnerId is already set, it is preserved (not overwritten)
-        Account testAccount = [SELECT Id FROM Account LIMIT 1];
-        User testUser = [SELECT Id FROM User WHERE FirstName = 'Test' AND LastName = 'User' LIMIT 1];
-        
-        // Create parent task
-        Project_Task__c parentTask = new Project_Task__c(
-            Name = 'Parent Task For Owner Test',
-            Status__c = 'Backlog',
-            Account__c = testAccount.Id,
-            Priority__c = 'High',
-            OwnerId = testUser.Id
-        );
-        insert parentTask;
-        
-        // Create a different user
-        User differentUser = new User(
-            FirstName = 'Different',
-            LastName = 'User',
-            Email = 'differentuser@example.com',
-            Username = 'differentuser' + System.currentTimeMillis() + '@example.com',
-            Alias = 'duser',
-            TimeZoneSidKey = 'America/New_York',
-            LocaleSidKey = 'en_US',
-            EmailEncodingKey = 'UTF-8',
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1].Id,
-            LanguageLocaleKey = 'en_US'
-        );
-        insert differentUser;
-        
-        Test.startTest();
-        Project_Task__c subtask = new Project_Task__c(
-            Name = 'Subtask With Existing Owner',
-            Status__c = 'Backlog',
-            Account__c = testAccount.Id,
-            Priority__c = 'High',
-            Parent_Task__c = parentTask.Id,
-            OwnerId = differentUser.Id // Pre-set OwnerId
-        );
-        insert subtask;
-        Test.stopTest();
-        
-        // Verify OwnerId is preserved (not overwritten by parent)
-        Project_Task__c insertedSubtask = [SELECT Id, OwnerId FROM Project_Task__c WHERE Id = :subtask.Id];
-        System.assertEquals(differentUser.Id, insertedSubtask.OwnerId, 'Subtask OwnerId must remain as pre-set value and NOT be overwritten by parent');
-        System.assertNotEquals(parentTask.OwnerId, insertedSubtask.OwnerId, 'Subtask OwnerId should NOT match parent since it was pre-set');
+        Project_Task__c insertedSubtask = [SELECT Id, Client_User__c FROM Project_Task__c WHERE Id = :subtask.Id];
+        System.assertEquals(parentTask.Client_User__c, insertedSubtask.Client_User__c, 'Subtask Client_User__c must match parent');
     }
     
     @isTest

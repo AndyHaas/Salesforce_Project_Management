@@ -8,7 +8,7 @@
  * - Used in: ProjectTaskTrigger (after insert, after update)
  * - Called by: TaskDependencyHelper.assessDependencyRisk()
  */
-public with sharing class TaskDependencyHelper {
+public without sharing class TaskDependencyHelper {
     public static void assessDependencyRisk(List<Project_Task__c> tasks) {
         assessDependencyRisk(tasks, null);
     }

@@ -2,7 +2,7 @@
  * @description Helper class for managing subtask relationships and validations
  * 
  * Handles:
- * - Populating subtask users from parent task (OwnerId, Client_User__c)
+ * - Populating subtask client user from parent task (Client_User__c)
  * - Updating parent task status based on subtask status changes
  * - Validating that parent tasks cannot be closed if they have open subtasks
  * 
@@ -12,10 +12,10 @@
  *              TaskSubtaskHelper.updateParentTaskStatus()
  *              TaskSubtaskHelper.validateParentCanBeClosed()
  */
-public with sharing class TaskSubtaskHelper {
+public without sharing class TaskSubtaskHelper {
     
     /**
-     * @description Populates OwnerId and Client_User__c from parent task when creating subtasks
+     * @description Populates Client_User__c from parent task when creating subtasks
      * @param tasks List of Project_Task__c records being inserted
      */
     public static void populateSubtaskUsers(List<Project_Task__c> tasks) {
@@ -32,29 +32,17 @@ public with sharing class TaskSubtaskHelper {
             return;
         }
         
-        // Query parent tasks to get OwnerId and Client_User__c
+        // Query parent tasks to get Client_User__c
         Map<Id, Project_Task__c> parentTasksMap = new Map<Id, Project_Task__c>([
-            SELECT Id, OwnerId, Client_User__c
+            SELECT Id, Client_User__c
             FROM Project_Task__c
             WHERE Id IN :parentTaskIds
         ]);
-        
-        // Populate fields from parent
-        // Get current user ID to detect if OwnerId was defaulted vs explicitly set
-        Id currentUserId = UserInfo.getUserId();
         
         for (Project_Task__c task : tasks) {
             if (task.Parent_Task__c != null) {
                 Project_Task__c parentTask = parentTasksMap.get(task.Parent_Task__c);
                 if (parentTask != null) {
-                    // Set OwnerId from parent if:
-                    // 1. OwnerId is null, OR
-                    // 2. OwnerId is the current user (default assignment) and parent has a different OwnerId
-                    // This preserves manual assignments to other users while overriding default assignments
-                    if (task.OwnerId == null || 
-                        (task.OwnerId == currentUserId && parentTask.OwnerId != currentUserId)) {
-                        task.OwnerId = parentTask.OwnerId;
-                    }
                     if (task.Client_User__c == null) {
                         task.Client_User__c = parentTask.Client_User__c;
                     }

@@ -2,7 +2,7 @@
  * @description Controller to retrieve user's Display Density preference from Salesforce
  * Uses the User Interface API to get the active theme's display density setting
  */
-public with sharing class DisplayDensityController {
+public without sharing class DisplayDensityController {
     /**
      * @description Retrieves the current user's Display Density preference
      * @return String - 'Comfy' or 'Compact' (defaults to 'Comfy' if unable to retrieve)

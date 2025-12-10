@@ -8,7 +8,7 @@
  * - Used in: ProjectTaskTrigger (after insert, after update, after delete)
  * - Called by: TaskProgressCalculator.calculateProgress()
  */
-public with sharing class TaskProgressCalculator {
+public without sharing class TaskProgressCalculator {
     public static void calculateProgress(List<Project_Task__c> tasks) {
         Set<Id> parentTaskIds = new Set<Id>();
         

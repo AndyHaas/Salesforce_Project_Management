@@ -10,7 +10,7 @@
  *   - linkTaskModal: createTaskRelationship(), updateTaskRelationship(), getRelationshipDetails()
  *   - taskContextPanel: deleteTaskRelationship()
  */
-public with sharing class TaskContextController {
+public without sharing class TaskContextController {
     
     private static final String TASK_HOVER_FIELD_SET = 'Task_Hover_Fields';
     
