@@ -7,7 +7,7 @@
  * - Open Tasks list
  * - Tasks needing client review count
  */
-public with sharing class HomePageController {
+public without sharing class HomePageController {
     
     /**
      * @description Get home page data including user info, projects, and tasks
@@ -17,21 +17,19 @@ public with sharing class HomePageController {
     public static HomePageData getHomePageData() {
         HomePageData data = new HomePageData();
         
-        // Get current user info
-        User currentUser = [SELECT Id, FirstName, LastName FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
-        data.userFirstName = currentUser.FirstName;
-        
-        // Get user's account (assuming Contact is linked to Account)
-        List<Contact> contacts = [
-            SELECT Id, AccountId, Account.Name 
-            FROM Contact 
-            WHERE Id IN (SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId())
+        // Get current user info with AccountId and ContactId
+        User currentUser = [
+            SELECT Id, AccountId, ContactId, FirstName, IsActive, LastName 
+            FROM User 
+            WHERE Id = :UserInfo.getUserId() 
             LIMIT 1
         ];
+        data.userFirstName = currentUser.FirstName;
         
+        // Get user's account ID
         Set<Id> accountIds = new Set<Id>();
-        if (!contacts.isEmpty() && contacts[0].AccountId != null) {
-            accountIds.add(contacts[0].AccountId);
+        if (currentUser.AccountId != null) {
+            accountIds.add(currentUser.AccountId);
         }
         
         // Get Active Projects (Invoiced__c = FALSE and Status__c NOT IN excluded statuses)
