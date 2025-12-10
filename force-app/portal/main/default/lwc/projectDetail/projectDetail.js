@@ -88,6 +88,15 @@ export default class ProjectDetail extends LightningElement {
         return `${percentValue.toFixed(2)}%`;
     }
 
+    get displayInvoiced() {
+        const invoiced = this.project?.invoiced;
+        if (invoiced === undefined || invoiced === null) {
+            return '—';
+        }
+        // Format boolean as Yes/No
+        return invoiced === true || invoiced === 'true' ? 'Yes' : 'No';
+    }
+
     formatDate(value) {
         if (!value) {
             return '—';
