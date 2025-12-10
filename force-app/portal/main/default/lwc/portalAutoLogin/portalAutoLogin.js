@@ -29,23 +29,23 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
             console.log('portalAutoLogin: performAutoLogin result:', JSON.stringify(result));
 
             if (result.success) {
-                // Check if REST API authentication was used
-                if (result.useRestApi && result.sessionId) {
-                    console.log('portalAutoLogin: REST API authentication successful');
-                    console.log('portalAutoLogin: Session ID received');
-                    console.log('portalAutoLogin: Instance URL:', result.instanceUrl);
-                    // Use REST API session to authenticate
-                    this.handleRestApiLogin(result.sessionId, result.instanceUrl, result.redirectUrl || '/s/');
-                } else if (result.username && result.password) {
+                // Always use GET with credentials for web session creation
+                // REST API sessions don't create web session cookies, so we need to use the login endpoint
+                if (result.username && result.password) {
                     console.log('portalAutoLogin: Credentials retrieved, submitting login form');
                     console.log('portalAutoLogin: Username:', result.username);
                     console.log('portalAutoLogin: Redirect URL:', result.redirectUrl || '/s/');
-                    // Fallback: Submit login form to Experience Cloud login endpoint
-                    this.submitLoginForm(result.username, result.password, result.redirectUrl || '/s/');
+                    // Submit login form via POST
+                    this.submitLoginForm(result.username, result.password, result.redirectUrl || '/s/', result.loginToken);
                 } else {
-                    console.error('portalAutoLogin: No authentication method available');
-                    this.errorMessage = 'Authentication method not available. Please try again.';
+                    console.error('portalAutoLogin: No credentials available');
+                    this.errorMessage = 'Authentication credentials not available. Please try again.';
                     this.isLoading = false;
+                    
+                    // Redirect to login page after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = '/s/login';
+                    }, 3000);
                 }
             } else {
                 // Login failed - show error and redirect to login
@@ -79,123 +79,69 @@ export default class PortalAutoLogin extends NavigationMixin(LightningElement) {
         }
     }
 
-    handleRestApiLogin(sessionId, instanceUrl, redirectUrl) {
-        // REST API authentication succeeded - we have a session ID
-        // However, we need to create a proper Experience Cloud web session
-        // 
-        // Option 1: Use the session ID to redirect to a Salesforce endpoint that creates a web session
-        // Option 2: Set a cookie with the session ID (requires server-side support)
-        // Option 3: Redirect to home and let Salesforce handle session creation
-        //
-        // For now, we'll try redirecting to home - the session ID might be usable
-        // If this doesn't work, we may need a server-side endpoint to set the session cookie
-        
-        console.log('portalAutoLogin: Handling REST API login');
-        console.log('portalAutoLogin: Session ID:', sessionId ? 'Received' : 'Missing');
-        console.log('portalAutoLogin: Redirecting to home page');
-        
-        // Try redirecting to home - if the session ID is valid, it might work
-        // If not, we'll need to implement a server-side session creation endpoint
-        const homeUrl = redirectUrl || '/s/';
-        
-        // Store session ID temporarily (might be needed for API calls)
-        try {
-            sessionStorage.setItem('portal_session_id', sessionId);
-            sessionStorage.setItem('portal_instance_url', instanceUrl);
-        } catch (e) {
-            console.error('portalAutoLogin: Could not store session info:', e);
-        }
-        
-        // Redirect to home page
-        // Note: This might not work if the session ID doesn't create a web session
-        // In that case, we'll need a server-side endpoint to convert the API session to a web session
-        window.location.href = homeUrl;
-    }
-    
-    submitLoginForm(username, password, redirectUrl) {
+    async submitLoginForm(username, password, redirectUrl, loginToken) {
         // Experience Cloud /s/login doesn't accept POST (501) or GET with credentials (redirect loop)
-        // Since Site.login() only works in Visualforce (not available in LWC),
-        // we need a workaround
-        //
-        // The issue: Experience Cloud encodes our login URL as startURL, creating a loop
-        // Solution: Redirect to login page, then after a delay, redirect to home
-        // This assumes the login will succeed (credentials are valid)
-        
+        // Use Apex REST endpoint that uses Site.login() server-side
         const baseUrl = window.location.origin;
-        const homeUrl = '/s/'; // Experience Cloud home page
-        
-        console.log('portalAutoLogin: Attempting login');
+        const restEndpoint = baseUrl + '/services/apexrest/portal/autologin/';
+        const homeUrl = redirectUrl || '/s/';
+
+        console.log('portalAutoLogin: Using REST endpoint for login');
         console.log('portalAutoLogin: Username:', username);
-        console.log('portalAutoLogin: Home URL:', homeUrl);
-        
-        // Redirect to login page with credentials
-        // Experience Cloud will process it (even if it creates a redirect loop)
-        const loginUrl = `${baseUrl}/s/login?un=${encodeURIComponent(username)}&pw=${encodeURIComponent(password)}`;
-        
-        console.log('portalAutoLogin: Redirecting to login URL');
-        console.log('portalAutoLogin: Login URL (without password):', loginUrl.replace(/pw=[^&]*/, 'pw=***'));
-        
-        // Redirect to login page
-        // After redirect, we'll wait and then redirect to home
-        // This breaks the redirect loop by going directly to home
-        window.location.href = loginUrl;
-        
-        // Set a flag to redirect to home after login page loads
-        // This will break the redirect loop
-        setTimeout(() => {
-            console.log('portalAutoLogin: Breaking redirect loop, going directly to home');
-            window.location.replace(homeUrl); // Use replace() to avoid adding to history
-        }, 2000);
+        console.log('portalAutoLogin: REST Endpoint:', restEndpoint);
+        console.log('portalAutoLogin: Redirect URL:', homeUrl);
+
+        try {
+            // Call REST endpoint to perform login
+            const response = await fetch(restEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    token: loginToken
+                })
+            });
+
+            const result = await response.json();
+            console.log('portalAutoLogin: REST endpoint response:', result);
+
+            if (response.ok && result.success === 'true' && result.redirectUrl) {
+                // Login successful - redirect to the URL returned by Site.login()
+                console.log('portalAutoLogin: Login successful, redirecting to:', result.redirectUrl);
+                window.location.href = result.redirectUrl;
+            } else {
+                // Login failed
+                console.error('portalAutoLogin: Login failed -', result.error || 'Unknown error');
+                this.errorMessage = result.error || 'Login failed. Please try again.';
+                this.isLoading = false;
+                
+                // Clear cache on failure
+                if (loginToken) {
+                    try {
+                        // Call Apex to clear cache (we can't do this from LWC directly)
+                        // Cache will expire naturally
+                    } catch (e) {
+                        console.error('portalAutoLogin: Error clearing cache:', e);
+                    }
+                }
+                
+                // Redirect to login page after 3 seconds
+                setTimeout(() => {
+                    window.location.href = '/s/login';
+                }, 3000);
+            }
+        } catch (error) {
+            console.error('portalAutoLogin: Error calling REST endpoint:', error);
+            this.errorMessage = 'An error occurred during login. Please try again.';
+            this.isLoading = false;
+            
+            // Redirect to login page after 3 seconds
+            setTimeout(() => {
+                window.location.href = '/s/login';
+            }, 3000);
+        }
     }
 
-    submitLoginFormFallback(username, password, redirectUrl) {
-        // Fallback: Create a form and submit it to the Experience Cloud login endpoint
-        const baseUrl = window.location.origin;
-        const loginUrl = baseUrl + '/s/login';
-
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = loginUrl;
-        form.style.display = 'none';
-        form.setAttribute('id', 'auto-login-form');
-
-        // Add username field (Experience Cloud uses 'un')
-        const usernameInput = document.createElement('input');
-        usernameInput.type = 'hidden';
-        usernameInput.name = 'un';
-        usernameInput.value = username;
-        form.appendChild(usernameInput);
-
-        // Add password field (Experience Cloud uses 'pw')
-        const passwordInput = document.createElement('input');
-        passwordInput.type = 'hidden';
-        passwordInput.name = 'pw';
-        passwordInput.value = password;
-        form.appendChild(passwordInput);
-
-        // Add start URL (where to redirect after login)
-        const startUrlInput = document.createElement('input');
-        startUrlInput.type = 'hidden';
-        startUrlInput.name = 'startURL';
-        startUrlInput.value = redirectUrl || '/s/';
-        form.appendChild(startUrlInput);
-
-        // Add retURL as alternative (some Salesforce forms use this)
-        const retUrlInput = document.createElement('input');
-        retUrlInput.type = 'hidden';
-        retUrlInput.name = 'retURL';
-        retUrlInput.value = redirectUrl || '/s/';
-        form.appendChild(retUrlInput);
-
-        // Append form to body and submit
-        document.body.appendChild(form);
-        console.log('portalAutoLogin: Form created, submitting...');
-        
-        // Add a small delay to ensure form is in DOM
-        setTimeout(() => {
-            console.log('portalAutoLogin: Submitting form now');
-            form.submit();
-        }, 100);
-    }
 }
 
