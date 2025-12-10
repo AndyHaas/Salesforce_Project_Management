@@ -1,5 +1,5 @@
 <template>
-    <lightning-card title="Project Tasks">
+    <lightning-card title={cardTitle}>
         <template if:true={isReady}>
             <template if:true={error}>
                 <div class="slds-p-around_medium slds-text-color_error">
@@ -24,7 +24,12 @@
         </template>
         <template if:false={isReady}>
             <div class="slds-p-around_medium slds-text-color_error">
-                Missing URL parameters for objectApiName or filterName.
+                <template if:true={accessDenied}>
+                    Access denied.
+                </template>
+                <template if:false={accessDenied}>
+                    Unable to load data. Please check the URL parameters.
+                </template>
             </div>
         </template>
     </lightning-card>

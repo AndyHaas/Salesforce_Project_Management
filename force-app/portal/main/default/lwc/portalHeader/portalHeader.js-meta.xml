@@ -8,10 +8,15 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
-            <property name="projectsObjectApiName" type="String" label="Projects Object API Name" default="Project__c" description="API name of the Projects object"/>
-            <property name="projectsFilterName" type="String" label="Projects Filter Name" default="All" description="Filter name for Projects list view"/>
-            <property name="projectTasksObjectApiName" type="String" label="Project Tasks Object API Name" default="Project_Task__c" description="API name of the Project Tasks object"/>
-            <property name="projectTasksFilterName" type="String" label="Project Tasks Filter Name" default="All" description="Filter name for Project Tasks list view"/>
+            <property name="projectsObjectApiName" type="String" label="Projects Object API Name"
+                default="Project__c" description="API name of the Projects object" />
+            <property name="projectsFilterName" type="String" label="Projects Filter Name"
+                default="Open_Projects" description="Filter name for Projects list view" />
+            <property name="projectTasksObjectApiName" type="String"
+                label="Project Tasks Object API Name" default="Project_Task__c"
+                description="API name of the Project Tasks object" />
+            <property name="projectTasksFilterName" type="String" label="Project Tasks Filter Name"
+                default="All" description="Filter name for Project Tasks list view" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

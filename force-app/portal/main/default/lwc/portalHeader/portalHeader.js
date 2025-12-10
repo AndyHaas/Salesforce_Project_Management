@@ -24,7 +24,7 @@ export default class PortalHeader extends LightningElement {
      * @description Filter name for Projects list view
      * @type {string}
      */
-    @api projectsFilterName = 'All';
+    @api projectsFilterName = 'Open_Projects';
 
     /**
      * @description Object API name for Project Tasks (default: Project_Task__c)
