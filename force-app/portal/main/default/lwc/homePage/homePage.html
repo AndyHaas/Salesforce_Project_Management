@@ -26,15 +26,37 @@
                     </template>
                     <template if:false={isLoading}>
                         <template if:true={hasActiveProjects}>
-                            <lightning-datatable
-                                key-field="Id"
-                                data={projectsTableData}
-                                columns={projectsColumns}
-                                hide-checkbox-column
-                                show-row-number-column="false"
-                                onrowaction={handleProjectRowAction}
-                                onrowclick={handleProjectRowClick}>
-                            </lightning-datatable>
+                            <div class="table-container">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                    <thead>
+                                        <tr>
+                                            <template for:each={projectsColumns} for:item="col">
+                                                <th key={col.fieldName} scope="col">
+                                                    <div class="slds-truncate" title={col.label}>{col.label}</div>
+                                                </th>
+                                            </template>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={projectsTableRows} for:item="row">
+                                            <tr key={row.key} class="project-row" data-record-id={row.recordId} onclick={handleProjectRowClick}>
+                                                <template for:each={row.cells} for:item="cell">
+                                                    <td key={cell.key}>
+                                                        <div class="slds-truncate" title={cell.value}>
+                                                            <template if:true={cell.isLink}>
+                                                                <a href="javascript:void(0);" data-record-id={cell.recordId} onclick={handleProjectRowClick} class="project-link">{cell.value}</a>
+                                                            </template>
+                                                            <template if:false={cell.isLink}>
+                                                                {cell.value}
+                                                            </template>
+                                                        </div>
+                                                    </td>
+                                                </template>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
                         </template>
                         <template if:false={hasActiveProjects}>
                             <div class="empty-state">

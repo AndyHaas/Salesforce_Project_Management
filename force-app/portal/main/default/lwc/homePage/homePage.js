@@ -1,6 +1,6 @@
 import { LightningElement, wire, api } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
-import { ensureSitePath } from 'c/portalCommon';
+import { ensureSitePath, formatPercent, formatFieldValue } from 'c/portalCommon';
 import getHomePageData from '@salesforce/apex/HomePageController.getHomePageData';
 
 export default class HomePage extends NavigationMixin(LightningElement) {
@@ -54,27 +54,65 @@ export default class HomePage extends NavigationMixin(LightningElement) {
         return this.tasksNeedingReviewCount > 0;
     }
     
-    get projectsTableData() {
-        return this.activeProjects.map(project => ({
-            ...project,
-            Name: project.Name,
-            Status__c: project.Status__c || '',
-            Burn_Rate__c: project.Burn_Rate__c || 0
-        }));
+    get projectsTableRows() {
+        if (!this.activeProjects || !this.projectsColumns.length) {
+            return [];
+        }
+        
+        return this.activeProjects.map((project, rowIndex) => {
+            const rowKey = project.Id || rowIndex;
+            
+            const cells = this.projectsColumns.map((col, colIndex) => {
+                let displayValue = project[col.fieldName];
+                let isLink = false;
+                
+                // Format based on field type
+                if (displayValue !== undefined && displayValue !== null && displayValue !== '') {
+                    if (col.type === 'percent') {
+                        displayValue = formatPercent(displayValue);
+                    } else {
+                        displayValue = formatFieldValue(displayValue, col.type || 'text');
+                    }
+                } else {
+                    displayValue = '';
+                }
+                
+                // Name column is clickable
+                const isNameColumn = col.fieldName === 'Name';
+                if (isNameColumn && project.Id) {
+                    isLink = true;
+                }
+                
+                return {
+                    key: `${rowIndex}-${colIndex}`,
+                    value: displayValue !== undefined && displayValue !== null ? String(displayValue) : '',
+                    isLink: isLink,
+                    recordId: isNameColumn ? project.Id : null
+                };
+            });
+            
+            return {
+                key: rowKey,
+                recordId: project.Id,
+                cells: cells
+            };
+        });
     }
 
     handleProjectRowClick(event) {
-        const row = event.detail.row;
-        if (row && row.Id) {
-            this.navigateToRecord(row.Id, 'Project__c');
+        // Prevent default link behavior if clicking on a link
+        if (event.target.tagName === 'A') {
+            event.preventDefault();
         }
-    }
-
-    handleProjectRowAction(event) {
-        const action = event.detail.action;
-        const row = event.detail.row;
-        if (action.name === 'view' || action.name === 'navigate') {
-            this.navigateToRecord(row.Id, 'Project__c');
+        
+        // Get record ID from the row or the clicked element
+        const recordId = event.currentTarget?.dataset?.recordId || 
+                        event.target?.closest('[data-record-id]')?.dataset?.recordId ||
+                        event.target?.closest('.project-row')?.dataset?.recordId;
+        
+        if (recordId) {
+            event.stopPropagation();
+            this.navigateToRecord(recordId, 'Project__c');
         }
     }
 
