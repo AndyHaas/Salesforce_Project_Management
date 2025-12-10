@@ -259,7 +259,7 @@ public without sharing class PortalRecordListController {
                 col.fieldApiName = fieldApiName;
                 col.relationshipName = fieldDescribe.getRelationshipName();
                 col.label = fieldDescribe.getLabel();
-                col.type = getFieldType(fieldDescribe.getType());
+                col.type = getFieldType(fieldDescribe);
                 col.sortable = true;
                 columns.add(col);
             }
@@ -270,19 +270,42 @@ public without sharing class PortalRecordListController {
     
     /**
      * @description Convert Schema.DisplayType to string type for datatable
+     * Uses DescribeFieldResult to differentiate between TextArea variants
      */
-    private static String getFieldType(Schema.DisplayType displayType) {
-        if (displayType == Schema.DisplayType.Currency || 
-            displayType == Schema.DisplayType.Double || 
+    private static String getFieldType(Schema.DescribeFieldResult fieldDescribe) {
+        Schema.DisplayType displayType = fieldDescribe.getType();
+        
+        if (displayType == Schema.DisplayType.Percent) {
+            return 'percent';
+        } else if (displayType == Schema.DisplayType.Currency) {
+            return 'currency';
+        } else if (displayType == Schema.DisplayType.Double || 
             displayType == Schema.DisplayType.Integer ||
-            displayType == Schema.DisplayType.Percent) {
+            displayType == Schema.DisplayType.Long) {
             return 'number';
         } else if (displayType == Schema.DisplayType.Date) {
             return 'date';
         } else if (displayType == Schema.DisplayType.DateTime) {
-            return 'date';
+            return 'datetime';
+        } else if (displayType == Schema.DisplayType.Time) {
+            return 'time';
         } else if (displayType == Schema.DisplayType.Boolean) {
             return 'boolean';
+        } else if (displayType == Schema.DisplayType.Email) {
+            return 'email';
+        } else if (displayType == Schema.DisplayType.Phone) {
+            return 'phone';
+        } else if (displayType == Schema.DisplayType.URL) {
+            return 'url';
+        } else if (displayType == Schema.DisplayType.TextArea) {
+            // Differentiate between TextArea variants using DescribeFieldResult methods
+            if (fieldDescribe.isHtmlFormatted()) {
+                return 'richtext';
+            } else if (fieldDescribe.getLength() > 255) {
+                return 'textarea';
+            } else {
+                return 'textarea';
+            }
         } else {
             return 'text';
         }

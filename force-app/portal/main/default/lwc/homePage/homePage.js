@@ -22,7 +22,7 @@ export default class HomePage extends NavigationMixin(LightningElement) {
             }
         },
         { label: 'Status', fieldName: 'Status__c', type: 'text' },
-        { label: 'Burn Rate', fieldName: 'Burn_Rate__c', type: 'number', typeAttributes: { minimumFractionDigits: 2 } }
+        { label: 'Burn Rate', fieldName: 'Burn_Rate__c', type: 'percent', typeAttributes: { step: '0.01' } }
     ];
     
     // Data table columns for Tasks

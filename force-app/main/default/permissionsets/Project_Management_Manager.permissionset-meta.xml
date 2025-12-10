@@ -16,7 +16,8 @@
         <apexClass>TaskProgressCalculator</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>Enhanced access to Project Management Tool for managers - can view all records and manage team tasks</description>
+    <description>Enhanced access to Project Management Tool for managers - can view all records and
+        manage team tasks</description>
     <fieldPermissions>
         <editable>true</editable>
         <field>Project_Task__c.Actual_Hours__c</field>

@@ -14,6 +14,9 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
     accessDenied = false;
     pageSize = 10;
     pageNumber = 1;
+    isLoading = true;
+    _previousObjectApiName;
+    _previousFilterName;
 
     logDebug(message, payload = {}) {
         if (!DEBUG) {
@@ -135,14 +138,23 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
         pageNumber: '$pageNumber'
     })
     wiredRecordList({ error, data }) {
+        // Reset loading state when parameters change
+        if (this.objectApiName !== this._previousObjectApiName || this.filterName !== this._previousFilterName) {
+            this.isLoading = true;
+            this._previousObjectApiName = this.objectApiName;
+            this._previousFilterName = this.filterName;
+        }
+        
         // Don't proceed if access was denied due to invalid parameters
         if (this.accessDenied) {
+            this.isLoading = false;
             return;
         }
 
         if (data) {
             this.recordListData = data;
             this.error = undefined;
+            this.isLoading = false;
             this.logDebug('Record list data loaded', {
                 objectApiName: this.objectApiName,
                 filterName: this.filterName,
@@ -171,6 +183,7 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
                 message: this.isAccessError(error) ? 'Access denied' : 'Unable to load data'
             };
             this.recordListData = undefined;
+            this.isLoading = false;
             
             // If it's an access error, mark as denied
             if (this.isAccessError(error)) {
@@ -256,6 +269,8 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
 
             const cells = this.tableColumns.map((col, colIndex) => {
                 let displayValue = record[col.fieldName];
+                let isLink = false;
+                let linkUrl = null;
 
                 // If this is a reference, prefer the related Name
                 if (col.relationshipName && record[col.relationshipName]) {
@@ -265,17 +280,73 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
                     }
                 }
 
-                // Format dates/datetimes to browser-local YYYY-MM-DD HH:MM
-                if (col.type === 'date' || col.type === 'datetime') {
-                    displayValue = this.formatDateTime(displayValue);
+                // Format based on field type
+                if (displayValue !== undefined && displayValue !== null && displayValue !== '') {
+                    if (col.type === 'date') {
+                        displayValue = this.formatDate(displayValue);
+                    } else if (col.type === 'datetime') {
+                        displayValue = this.formatDateTime(displayValue);
+                    } else if (col.type === 'time') {
+                        displayValue = this.formatTime(displayValue);
+                    } else if (col.type === 'percent') {
+                        // Salesforce stores as decimal 0-1, display as percentage
+                        const percentValue = parseFloat(displayValue);
+                        if (!isNaN(percentValue)) {
+                            displayValue = `${(percentValue * 100).toFixed(2)}%`;
+                        }
+                    } else if (col.type === 'currency') {
+                        const currencyValue = parseFloat(displayValue);
+                        if (!isNaN(currencyValue)) {
+                            displayValue = new Intl.NumberFormat('en-US', {
+                                style: 'currency',
+                                currency: 'USD',
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(currencyValue);
+                        }
+                    } else if (col.type === 'number') {
+                        const numValue = parseFloat(displayValue);
+                        if (!isNaN(numValue)) {
+                            // Format with appropriate decimal places
+                            displayValue = numValue % 1 === 0 
+                                ? numValue.toString() 
+                                : numValue.toFixed(2);
+                        }
+                    } else if (col.type === 'boolean') {
+                        displayValue = displayValue === true || displayValue === 'true' ? 'Yes' : 'No';
+                    } else if (col.type === 'email') {
+                        // Keep email as-is but mark as link
+                        isLink = true;
+                        linkUrl = `mailto:${displayValue}`;
+                    } else if (col.type === 'phone') {
+                        displayValue = this.formatPhone(displayValue);
+                    } else if (col.type === 'url') {
+                        // Keep URL as-is but mark as link
+                        isLink = true;
+                        linkUrl = displayValue.startsWith('http') ? displayValue : `https://${displayValue}`;
+                    } else if (col.type === 'richtext') {
+                        // Strip HTML tags for display in table
+                        displayValue = this.stripHtml(displayValue);
+                    } else if (col.type === 'textarea') {
+                        // Truncate long text areas
+                        const maxLength = 100;
+                        if (typeof displayValue === 'string' && displayValue.length > maxLength) {
+                            displayValue = displayValue.substring(0, maxLength) + '...';
+                        }
+                    }
                 }
 
                 const isNameColumn = col.fieldName === 'Name';
+                if (isNameColumn && record.Id) {
+                    isLink = true;
+                    linkUrl = null; // Will use recordId for navigation
+                }
 
                 return {
                     key: `${rowIndex}-${colIndex}`,
-                    value: displayValue !== undefined && displayValue !== null ? displayValue : '',
-                    isLink: isNameColumn && !!record.Id,
+                    value: displayValue !== undefined && displayValue !== null ? String(displayValue) : '',
+                    isLink: isLink || (isNameColumn && !!record.Id),
+                    linkUrl: linkUrl,
                     recordId: isNameColumn ? record.Id : null
                 };
             });
@@ -328,12 +399,27 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
         window.location.assign(targetPath);
     }
 
+    formatDate(value) {
+        if (!value) {
+            return '';
+        }
+        const date = new Date(value);
+        if (isNaN(date.getTime())) {
+            return value;
+        }
+        const pad = (n) => String(n).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        const mm = pad(date.getMonth() + 1);
+        const dd = pad(date.getDate());
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
     formatDateTime(value) {
         if (!value) {
             return '';
         }
         const date = new Date(value);
-        if (isNaN(date)) {
+        if (isNaN(date.getTime())) {
             return value;
         }
         const pad = (n) => String(n).padStart(2, '0');
@@ -343,6 +429,48 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
         const hh = pad(date.getHours());
         const min = pad(date.getMinutes());
         return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    }
+
+    formatTime(value) {
+        if (!value) {
+            return '';
+        }
+        // Salesforce Time is typically in milliseconds since midnight
+        if (typeof value === 'number') {
+            const hours = Math.floor(value / (1000 * 60 * 60));
+            const minutes = Math.floor((value % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((value % (1000 * 60)) / 1000);
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        }
+        return String(value);
+    }
+
+    formatPhone(value) {
+        if (!value) {
+            return '';
+        }
+        // Remove all non-digit characters
+        const digits = String(value).replace(/\D/g, '');
+        if (digits.length === 10) {
+            // Format as (XXX) XXX-XXXX
+            return `(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6)}`;
+        } else if (digits.length === 11 && digits.startsWith('1')) {
+            // Format as +1 (XXX) XXX-XXXX
+            return `+1 (${digits.substring(1, 4)}) ${digits.substring(4, 7)}-${digits.substring(7)}`;
+        }
+        // Return original if doesn't match standard formats
+        return String(value);
+    }
+
+    stripHtml(html) {
+        if (!html || typeof html !== 'string') {
+            return html;
+        }
+        // Remove HTML tags and decode HTML entities
+        const tmp = document.createElement('DIV');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
     }
 
     /**

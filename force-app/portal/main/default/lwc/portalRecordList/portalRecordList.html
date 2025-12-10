@@ -1,5 +1,11 @@
 <template>
     <lightning-card title={cardTitle}>
+        <template if:true={isLoading}>
+            <div class="slds-p-around_medium slds-text-align_center">
+                <lightning-spinner size="medium" variant="brand" alternative-text="Loading"></lightning-spinner>
+            </div>
+        </template>
+        <template if:false={isLoading}>
         <template if:true={isReady}>
             <template if:true={error}>
                 <div class="slds-p-around_medium slds-text-color_error">
@@ -26,7 +32,12 @@
                                             <td key={cell.key}>
                                                 <div class="slds-truncate" title={cell.value}>
                                                     <template if:true={cell.isLink}>
-                                                        <a href="javascript:void(0);" data-record-id={cell.recordId} onclick={handleNavigateToRecord}>{cell.value}</a>
+                                                        <template if:true={cell.linkUrl}>
+                                                            <a href={cell.linkUrl} target="_blank" rel="noopener noreferrer">{cell.value}</a>
+                                                        </template>
+                                                        <template if:false={cell.linkUrl}>
+                                                            <a href="javascript:void(0);" data-record-id={cell.recordId} onclick={handleNavigateToRecord}>{cell.value}</a>
+                                                        </template>
                                                     </template>
                                                     <template if:false={cell.isLink}>
                                                         {cell.value}
@@ -56,6 +67,7 @@
                     Unable to load data. Please check the URL parameters.
                 </template>
             </div>
+        </template>
         </template>
     </lightning-card>
 </template>

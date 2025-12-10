@@ -103,6 +103,18 @@ export default class ProjectDetail extends LightningElement {
         return this.formatDate(this.project?.endDate);
     }
 
+    get displayBurnRate() {
+        const burnRate = this.project?.burnRate;
+        if (burnRate === undefined || burnRate === null) {
+            return '—';
+        }
+        const percentValue = parseFloat(burnRate);
+        if (isNaN(percentValue)) {
+            return '—';
+        }
+        return `${(percentValue * 100).toFixed(2)}%`;
+    }
+
     formatDate(value) {
         if (!value) {
             return '—';
