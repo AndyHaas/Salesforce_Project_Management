@@ -265,6 +265,11 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
                     }
                 }
 
+                // Format dates/datetimes to browser-local YYYY-MM-DD HH:MM
+                if (col.type === 'date' || col.type === 'datetime') {
+                    displayValue = this.formatDateTime(displayValue);
+                }
+
                 const isNameColumn = col.fieldName === 'Name';
 
                 return {
@@ -321,6 +326,23 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
                 actionName: 'view'
             }
         });
+    }
+
+    formatDateTime(value) {
+        if (!value) {
+            return '';
+        }
+        const date = new Date(value);
+        if (isNaN(date)) {
+            return value;
+        }
+        const pad = (n) => String(n).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        const mm = pad(date.getMonth() + 1);
+        const dd = pad(date.getDate());
+        const hh = pad(date.getHours());
+        const min = pad(date.getMinutes());
+        return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
     }
 
     /**
