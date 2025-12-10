@@ -9,7 +9,7 @@
  * - Apex Controller: ProjectTaskDashboardController.getGroupedTasksWithSubtasks(), getAccounts()
  */
 import { LightningElement, api, wire, track } from 'lwc';
-import { NavigationMixin } from 'lightning/navigation';
+import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
 import { deleteRecord } from 'lightning/uiRecordApi';
 import { getObjectInfo } from 'lightning/uiObjectInfoApi';
@@ -39,6 +39,40 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     
     @wire(MessageContext)
     messageContext;
+    
+    @wire(CurrentPageReference)
+    resolvePageReference(pageRef) {
+        // Only extract projectId from URL if it's not already set via @api
+        if (this.projectId) {
+            return;
+        }
+        
+        if (!pageRef) {
+            return;
+        }
+
+        const { attributes = {}, state = {} } = pageRef;
+        let projectId = state.recordId || attributes.recordId || state.c__projectId;
+
+        // If not found in page reference, try parsing URL pathname
+        if (!projectId && typeof window !== 'undefined') {
+            let pathname = window.location.pathname || '';
+            pathname = pathname.replace(/^\/s/, '');
+            const parts = pathname.split('/').filter(Boolean);
+            const projectIdx = parts.indexOf('project');
+            if (projectIdx !== -1 && projectIdx + 1 < parts.length) {
+                projectId = decodeURIComponent(parts[projectIdx + 1]);
+            }
+        }
+
+        // Only update if we found a projectId and it's different from current
+        // IMPORTANT: Don't clear statusGroups here - let the wire service handle it
+        if (projectId && projectId !== this.projectId) {
+            console.log('[DEBUG] resolvePageReference - Extracted projectId from URL:', projectId);
+            // Set projectId - the wire service will reactively update
+            this.projectId = projectId;
+        }
+    }
     
     isExperienceSite = false; // Detect Experience Cloud context to adjust defaults (fallback if context not set)
     statusGroups = [];
@@ -320,10 +354,13 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     
     @wire(getGroupedTasksWithSubtasks, { accountIds: '$effectiveAccountIds' })
     wiredGroupedTasks(result) {
+        // DEBUG: Log when this wire is called
+        console.log('[DEBUG] wiredGroupedTasks called - projectId:', this.projectId, 'hasData:', !!result?.data);
+        
         if (this.projectId) {
-            // Clear statusGroups to prevent mixing project and account data
-            this.statusGroups = [];
-            this.filteredStatusGroups = [];
+            // Don't clear statusGroups here - we're using project-based query
+            // Just return early to prevent account-based query from running
+            console.log('[DEBUG] wiredGroupedTasks - projectId is set, skipping account-based query');
             return;
         }
         this.wiredGroupedTasksResult = result;
@@ -515,8 +552,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     @wire(getGroupedTasksWithSubtasksByProject, { projectId: '$projectId' })
     wiredGroupedTasksByProject(result) {
+        // DEBUG: Always log when this wire method is called
+        console.log('[DEBUG] wiredGroupedTasksByProject called - projectId:', this.projectId, 'hasData:', !!result?.data, 'hasError:', !!result?.error);
+        
         if (!this.projectId) {
             // Clear statusGroups when projectId is removed
+            console.log('[DEBUG] wiredGroupedTasksByProject - No projectId, clearing data');
             this.statusGroups = [];
             this.filteredStatusGroups = [];
             // Reset toggle states when switching away from project view
@@ -524,11 +565,23 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             this.showRemovedTasks = false;
             return;
         }
+        
+        // Validate projectId format (should be 15 or 18 character Salesforce ID)
+        if (typeof this.projectId !== 'string' || (this.projectId.length !== 15 && this.projectId.length !== 18)) {
+            console.error('[DEBUG] wiredGroupedTasksByProject - Invalid projectId format:', this.projectId);
+            this.error = { message: 'Invalid project ID format' };
+            return;
+        }
+        
         this.wiredGroupedTasksResult = result;
         const { error, data } = result;
         this.isLoading = !data && !error;
         if (data) {
             try {
+                // DEBUG: Log project ID and data received
+                console.log('[DEBUG] wiredGroupedTasksByProject - Project ID:', this.projectId);
+                console.log('[DEBUG] wiredGroupedTasksByProject - Status groups count:', data.statusGroups?.length || 0);
+                
                 // Clear any existing statusGroups first to prevent data mixing
                 // This ensures we only use project-specific data
                 this.statusGroups = [];
@@ -537,6 +590,14 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                 this.showCompletedTasks = false;
                 this.showRemovedTasks = false;
                 const statusGroupsData = Array.isArray(data.statusGroups) ? data.statusGroups : [];
+                
+                // DEBUG: Log status groups and their tasks
+                console.log('[DEBUG] wiredGroupedTasksByProject - Status groups (raw):', statusGroupsData.map(sg => ({
+                    status: sg.status,
+                    taskCount: sg.tasks?.length || 0,
+                    taskNames: sg.tasks?.map(t => t.name).slice(0, 5) || [],
+                    hasTasks: !!(sg.tasks && sg.tasks.length > 0)
+                })));
                 this.summaryFieldDefinitions = Array.isArray(data.summaryFieldDefinitions) ? data.summaryFieldDefinitions : [];
                 this.updateSummaryFieldDefinitionMap();
                 this.updateSummaryFieldHeaderClasses();
@@ -546,21 +607,158 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                     // Calculate total estimated hours for this status group
                     let totalEstimatedHours = 0;
                     const tasks = (statusGroup.tasks || []).map(task => {
-                        if (task.estimatedHours != null) {
-                            totalEstimatedHours += task.estimatedHours;
+                        const isExpanded = this.isTaskExpanded(task.id);
+                        
+                        // Add parent task hours
+                        const parentHours = task.estimatedHours || 0;
+                        totalEstimatedHours += parentHours;
+                        
+                        // Add subtask hours
+                        const subtasks = (task.subtasks || []).map(subtask => {
+                            const subtaskHours = subtask.estimatedHours || 0;
+                            totalEstimatedHours += subtaskHours;
+                            const subtaskPermissions = this.getTaskPermissions(subtask.id);
+                            const subtaskHasMenu = subtaskPermissions.canEdit || subtaskPermissions.canDelete;
+                            const decoratedSubtask = this.decorateTaskRecord({
+                                ...subtask,
+                                formattedDueDate: subtask.dueDate ? this.formatDate(subtask.dueDate) : '',
+                                formattedEstimatedHours: subtask.estimatedHours ? this.formatHours(subtask.estimatedHours) : '',
+                                isEditing: this.editingTaskId === subtask.id,
+                                canEdit: subtaskPermissions.canEdit,
+                                canDelete: subtaskPermissions.canDelete,
+                                showMenu: subtaskHasMenu
+                            });
+                            // Update field editing state and computed properties
+                            if (decoratedSubtask.summaryFields) {
+                                decoratedSubtask.summaryFields = decoratedSubtask.summaryFields.map(field => {
+                                    const dataTypeUpper = (field.dataType || '').toUpperCase();
+                                    const isEditing = this.isFieldEditing(subtask.id, field.apiName);
+                                    const isEditable = subtaskPermissions.canEdit && !field.isReference;
+                                    let inputValue = '';
+                                    let inputType = 'text';
+                                    
+                                    if (isEditing && this.editingField) {
+                                        if (dataTypeUpper === 'BOOLEAN') {
+                                            inputValue = this.editingField.fieldValue === 'true' || this.editingField.fieldValue === true;
+                                        } else {
+                                            inputValue = this.editingField.fieldValue || '';
+                                        }
+                                        
+                                        if (dataTypeUpper === 'DATE') {
+                                            inputType = 'date';
+                                        } else if (dataTypeUpper === 'DATETIME') {
+                                            inputType = 'datetime-local';
+                                        } else if (dataTypeUpper === 'DOUBLE' || dataTypeUpper === 'CURRENCY' || dataTypeUpper === 'PERCENT' || dataTypeUpper === 'INTEGER') {
+                                            inputType = 'number';
+                                        } else if (dataTypeUpper === 'BOOLEAN') {
+                                            inputType = 'checkbox';
+                                        }
+                                    } else {
+                                        // Use raw value when not editing
+                                        if (dataTypeUpper === 'BOOLEAN') {
+                                            inputValue = field.rawValue === 'true' || field.rawValue === true;
+                                        } else {
+                                            inputValue = field.rawValue || '';
+                                        }
+                                    }
+                                    
+                                    return {
+                                        ...field,
+                                        isEditing: isEditing,
+                                        hasDataType: !!field.dataType,
+                                        isBoolean: dataTypeUpper === 'BOOLEAN',
+                                        inputValue: inputValue,
+                                        inputType: inputType,
+                                        isEditable: isEditable
+                                    };
+                                });
+                            }
+                            return decoratedSubtask;
+                        });
+                        
+                        const permissions = this.getTaskPermissions(task.id);
+                        const hasMenu = permissions.canEdit || permissions.canDelete;
+                        const decoratedTask = this.decorateTaskRecord({
+                            ...task,
+                            isExpanded: isExpanded,
+                            iconName: isExpanded ? 'utility:chevrondown' : 'utility:chevronright',
+                            iconAltText: isExpanded ? 'Collapse' : 'Expand',
+                            subtaskLabel: task.subtaskCount === 1 ? 'subtask' : 'subtasks',
+                            formattedDueDate: task.dueDate ? this.formatDate(task.dueDate) : '',
+                            formattedEstimatedHours: task.estimatedHours ? this.formatHours(task.estimatedHours) : '',
+                            subtasks: subtasks,
+                            isEditing: this.editingTaskId === task.id,
+                            canEdit: permissions.canEdit,
+                            canDelete: permissions.canDelete,
+                            showMenu: hasMenu
+                        });
+                        // Update field editing state and computed properties
+                        if (decoratedTask.summaryFields) {
+                            decoratedTask.summaryFields = decoratedTask.summaryFields.map(field => {
+                                const dataTypeUpper = (field.dataType || '').toUpperCase();
+                                const isEditing = this.isFieldEditing(task.id, field.apiName);
+                                const isEditable = permissions.canEdit && !field.isReference;
+                                let inputValue = '';
+                                let inputType = 'text';
+                                
+                                if (isEditing && this.editingField) {
+                                    if (dataTypeUpper === 'BOOLEAN') {
+                                        inputValue = this.editingField.fieldValue === 'true' || this.editingField.fieldValue === true;
+                                    } else {
+                                        inputValue = this.editingField.fieldValue || '';
+                                    }
+                                    
+                                    if (dataTypeUpper === 'DATE') {
+                                        inputType = 'date';
+                                    } else if (dataTypeUpper === 'DATETIME') {
+                                        inputType = 'datetime-local';
+                                    } else if (dataTypeUpper === 'DOUBLE' || dataTypeUpper === 'CURRENCY' || dataTypeUpper === 'PERCENT' || dataTypeUpper === 'INTEGER') {
+                                        inputType = 'number';
+                                    } else if (dataTypeUpper === 'BOOLEAN') {
+                                        inputType = 'checkbox';
+                                    }
+                                } else {
+                                    // Use raw value when not editing
+                                    if (dataTypeUpper === 'BOOLEAN') {
+                                        inputValue = field.rawValue === 'true' || field.rawValue === true;
+                                    } else {
+                                        inputValue = field.rawValue || '';
+                                    }
+                                }
+                                
+                                return {
+                                    ...field,
+                                    isEditing: isEditing,
+                                    hasDataType: !!field.dataType,
+                                    isBoolean: dataTypeUpper === 'BOOLEAN',
+                                    inputValue: inputValue,
+                                    inputType: inputType,
+                                    isEditable: isEditable
+                                };
+                            });
                         }
-                        return this.decorateTaskForDisplay(task);
+                        return decoratedTask;
                     });
                     
                     return {
                         ...statusGroup,
-                        tasks: tasks,
+                        statusClass: this.getStatusClass(statusGroup.status),
+                        headerStyle: this.getStatusHeaderStyle(statusGroup.status),
+                        headerClass: `status-header slds-border_bottom ${this.density === 'comfy' ? 'status-header-comfy' : ''} ${this.density === 'compact' ? 'status-header-compact' : ''}`.trim(),
                         totalEstimatedHours: totalEstimatedHours,
-                        badgeColor: this.getStatusBadgeColor(statusGroup.status),
-                        badgeVariant: this.getStatusBadgeVariant(statusGroup.status),
-                        textColor: this.getContrastTextColor(this.getStatusBadgeColor(statusGroup.status))
+                        formattedTotalEstimatedHours: this.formatHours(totalEstimatedHours),
+                        tasks: tasks,
+                        taskCount: tasks.length
                     };
                 });
+                
+                // DEBUG: Log status groups after processing
+                console.log('[DEBUG] wiredGroupedTasksByProject - Status groups (processed):', this.statusGroups.map(sg => ({
+                    status: sg.status,
+                    taskCount: sg.tasks?.length || 0,
+                    taskNames: sg.tasks?.map(t => t.name).slice(0, 5) || [],
+                    hasTasks: !!(sg.tasks && sg.tasks.length > 0)
+                })));
                 
                 // Apply filtering for completed and removed tasks based on toggle states
                 // This ensures only tasks for the specified project are shown, respecting showCompletedTasks and showRemovedTasks toggles
@@ -877,14 +1075,29 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get hasCompletedTasks() {
+        // Only check for completed tasks when filtering by project
+        // When projectId is undefined, we shouldn't show the toggle
+        if (!this.projectId) {
+            return false;
+        }
+        
         // Check if there are any completed tasks in the status groups
         if (!this.statusGroups || this.statusGroups.length === 0) {
             return false;
         }
-        return this.statusGroups.some(group => {
-            const status = (group.status || '').trim();
+        
+        // Ensure statusGroups is an array of objects, not strings
+        if (typeof this.statusGroups[0] === 'string') {
+            // If statusGroups is an array of strings, check if 'Completed' is in it
+            return this.statusGroups.includes('Completed');
+        }
+        
+        const hasCompleted = this.statusGroups.some(group => {
+            const status = (group?.status || '').trim();
             return status === 'Completed';
         });
+        console.log('[DEBUG] hasCompletedTasks - Project ID:', this.projectId, 'Has completed:', hasCompleted, 'Status groups count:', this.statusGroups.length);
+        return hasCompleted;
     }
     
     get removedToggleLabel() {
@@ -902,12 +1115,25 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get hasRemovedTasks() {
+        // Only check for removed tasks when filtering by project
+        // When projectId is undefined, we shouldn't show the toggle
+        if (!this.projectId) {
+            return false;
+        }
+        
         // Check if there are any removed tasks in the status groups
         if (!this.statusGroups || this.statusGroups.length === 0) {
             return false;
         }
+        
+        // Ensure statusGroups is an array of objects, not strings
+        if (typeof this.statusGroups[0] === 'string') {
+            // If statusGroups is an array of strings, check if 'Removed' is in it
+            return this.statusGroups.includes('Removed');
+        }
+        
         return this.statusGroups.some(group => {
-            const status = (group.status || '').trim();
+            const status = (group?.status || '').trim();
             return status === 'Removed';
         });
     }
@@ -1007,8 +1233,18 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     handleCompletedToggle() {
+        console.log('[DEBUG] handleCompletedToggle - Project ID:', this.projectId, 'Current state:', this.showCompletedTasks, 'New state:', !this.showCompletedTasks);
+        console.log('[DEBUG] handleCompletedToggle - Status groups before filter:', this.statusGroups.map(sg => ({
+            status: sg.status,
+            taskCount: sg.tasks?.length || 0
+        })));
         this.showCompletedTasks = !this.showCompletedTasks;
         this.refreshFilteredStatusGroups();
+        console.log('[DEBUG] handleCompletedToggle - Filtered status groups after toggle:', this.filteredStatusGroups.map(sg => ({
+            status: sg.status,
+            taskCount: sg.tasks?.length || 0,
+            taskNames: sg.tasks?.map(t => t.name).slice(0, 5) || []
+        })));
     }
     
     handleRemovedToggle() {
@@ -1090,22 +1326,40 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         
         let groups = [...this.statusGroups];
         
+        // DEBUG: Log initial state
+        if (this.projectId) {
+            console.log('[DEBUG] refreshFilteredStatusGroups - Project ID:', this.projectId);
+            console.log('[DEBUG] refreshFilteredStatusGroups - Initial groups:', groups.map(sg => ({
+                status: sg.status,
+                taskCount: sg.tasks?.length || 0
+            })));
+            console.log('[DEBUG] refreshFilteredStatusGroups - showCompletedTasks:', this.showCompletedTasks, 'showRemovedTasks:', this.showRemovedTasks);
+        }
+        
         // Always respect the showCompletedTasks toggle, regardless of "My Tasks" mode
         // Use trim() to handle any whitespace issues and ensure exact match
         if (!this.showCompletedTasks) {
+            const beforeCount = groups.length;
             groups = groups.filter(group => {
                 const status = (group.status || '').trim();
                 return status !== 'Completed';
             });
+            if (this.projectId && beforeCount !== groups.length) {
+                console.log('[DEBUG] refreshFilteredStatusGroups - Filtered out Completed, groups before:', beforeCount, 'after:', groups.length);
+            }
         }
         
         // Always respect the showRemovedTasks toggle, regardless of "My Tasks" mode
         // Use trim() to handle any whitespace issues and ensure exact match
         if (!this.showRemovedTasks) {
+            const beforeCount = groups.length;
             groups = groups.filter(group => {
                 const status = (group.status || '').trim();
                 return status !== 'Removed';
             });
+            if (this.projectId && beforeCount !== groups.length) {
+                console.log('[DEBUG] refreshFilteredStatusGroups - Filtered out Removed, groups before:', beforeCount, 'after:', groups.length);
+            }
         }
         
         // Apply Contact filter if selected (works additively with Account filter)
@@ -1115,6 +1369,21 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         }
         
         this.filteredStatusGroups = this.decorateStatusGroupsForDisplay(groups);
+        
+        // DEBUG: Log filtered status groups after decoration
+        if (this.projectId) {
+            console.log('[DEBUG] refreshFilteredStatusGroups - After decoration:', {
+                filteredGroupsCount: this.filteredStatusGroups.length,
+                groupsWithTasks: this.filteredStatusGroups.filter(g => g.tasks && g.tasks.length > 0).length,
+                totalTasks: this.filteredStatusGroups.reduce((sum, g) => sum + (g.tasks?.length || 0), 0),
+                hasData: this.hasData,
+                groups: this.filteredStatusGroups.map(g => ({
+                    status: g.status,
+                    taskCount: g.tasks?.length || 0,
+                    isCollapsed: g.isCollapsed
+                }))
+            });
+        }
     }
     
     filterGroupsForCurrentUser(groups) {

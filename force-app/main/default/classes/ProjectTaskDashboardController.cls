@@ -32,6 +32,7 @@ public without sharing class ProjectTaskDashboardController {
         'Estimated_Hours__c',
         'Actual_Hours__c',
         'Progress_Percentage__c',
+        'Project__c',
         'Project_Manager__c',
         'Project_Manager__r.Name',
         'Project_Manager__r.Id',
@@ -56,6 +57,7 @@ public without sharing class ProjectTaskDashboardController {
         'Estimated_Hours__c',
         'Actual_Hours__c',
         'Progress_Percentage__c',
+        'Project__c',
         'Project_Manager__c',
         'Project_Manager__r.Name',
         'Project_Manager__r.Id',
@@ -1249,6 +1251,9 @@ public without sharing class ProjectTaskDashboardController {
             throw new AuraHandledException('Project Id is required');
         }
 
+        // DEBUG: Log the project ID being used
+        System.debug('getGroupedTasksWithSubtasksByProject - Project ID: ' + projectId);
+
         List<Project_Task__c> allTasks;
         List<Schema.FieldSetMember> hoverFieldMembers = getTaskHoverFieldSetMembers();
         List<Schema.FieldSetMember> summaryFieldMembers = getTaskSummaryFieldSetMembers();
@@ -1280,7 +1285,15 @@ public without sharing class ProjectTaskDashboardController {
 
         try {
             String soql = baseQuery + 'WHERE Project__c = :projectId AND Parent_Task__c = null' + orderClause;
+            System.debug('getGroupedTasksWithSubtasksByProject - SOQL Query: ' + soql);
             allTasks = Database.query(soql);
+            System.debug('getGroupedTasksWithSubtasksByProject - Tasks returned: ' + allTasks.size());
+            // DEBUG: Log first few task names and their Project__c to verify filtering
+            if (!allTasks.isEmpty()) {
+                for (Integer i = 0; i < Math.min(5, allTasks.size()); i++) {
+                    System.debug('getGroupedTasksWithSubtasksByProject - Task ' + i + ': ' + allTasks[i].Name + ' (Project: ' + allTasks[i].Project__c + ')');
+                }
+            }
         } catch (Exception e) {
             System.debug('Error querying Project_Task__c by project: ' + e.getMessage());
             System.debug('Stack trace: ' + e.getStackTraceString());
