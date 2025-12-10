@@ -1,0 +1,169 @@
+<template>
+    <lightning-card title="Task Detail" class="medium-card">
+        <template if:true={taskId}>
+            <template if:true={hasData}>
+                <div class="page">
+                    <!-- Header Section -->
+                    <div class="header">
+                        <div class="title-block">
+                            <p class="eyebrow">Project Task</p>
+                            <h2 class="task-name">{displayName}</h2>
+                            <template if:true={task.Project__c}>
+                                <p class="meta">
+                                    Project: 
+                                    <a href="javascript:void(0);" onclick={handleProjectClick} class="project-link">
+                                        {displayProject}
+                                    </a>
+                                </p>
+                            </template>
+                        </div>
+                        <div class="badges">
+                            <span class={statusBadgeClass} style={statusBadgeStyle}>{displayStatus}</span>
+                            <span class={priorityBadgeClass}>{displayPriority}</span>
+                        </div>
+                    </div>
+
+                    <!-- Highlights Section -->
+                    <div class="highlights">
+                        <template if:true={task.Start_Date__c}>
+                            <div class="highlight-item">
+                                <span class="label">Start Date</span>
+                                <span class="value">{displayStartDate}</span>
+                            </div>
+                        </template>
+                        <template if:true={task.Due_Date__c}>
+                            <div class="highlight-item">
+                                <span class="label">Due Date</span>
+                                <span class="value">{displayDueDate}</span>
+                            </div>
+                        </template>
+                        <template if:true={task.Progress_Percentage__c}>
+                            <div class="highlight-item">
+                                <span class="label">Progress</span>
+                                <span class="value">{displayProgress}</span>
+                            </div>
+                        </template>
+                        <template if:true={isOverdue}>
+                            <div class="highlight-item overdue">
+                                <span class="label">Status</span>
+                                <span class="value">Overdue</span>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Task Information Section -->
+                    <div class="section">
+                        <h3 class="section-title">Task Information</h3>
+                        <div class="section-content two-column">
+                            <div class="column">
+                                <div class="detail-item">
+                                    <span class="label">Name</span>
+                                    <span class="detail-value">{displayName}</span>
+                                </div>
+                                <template if:true={task.Description__c}>
+                                    <div class="detail-item">
+                                        <span class="label">Description</span>
+                                        <div class="detail-value description">{displayDescription}</div>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="column">
+                                <div class="detail-item">
+                                    <span class="label">Status</span>
+                                    <span class="detail-value">
+                                        <span class={statusBadgeClass} style={statusBadgeStyle}>{displayStatus}</span>
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Priority</span>
+                                    <span class="detail-value">
+                                        <span class={priorityBadgeClass}>{displayPriority}</span>
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Account</span>
+                                    <span class="detail-value">{displayAccount}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Details Section -->
+                    <div class="section">
+                        <h3 class="section-title">User Details</h3>
+                        <div class="section-content">
+                            <div class="detail-item">
+                                <span class="label">Project Manager</span>
+                                <span class="detail-value">{displayProjectManager}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Developer</span>
+                                <span class="detail-value">{displayDeveloper}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Client User</span>
+                                <span class="detail-value">{displayClientUser}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Time Tracking Section -->
+                    <div class="section">
+                        <h3 class="section-title">Time Tracking</h3>
+                        <div class="section-content two-column">
+                            <div class="column">
+                                <div class="detail-item">
+                                    <span class="label">Estimated Hours</span>
+                                    <span class="detail-value">{displayEstimatedHours}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Actual Hours</span>
+                                    <span class="detail-value">{displayActualHours}</span>
+                                </div>
+                            </div>
+                            <template if:true={task.Total_Estimated_Hours__c}>
+                                <div class="column">
+                                    <div class="detail-item">
+                                        <span class="label">Total Estimated Hours</span>
+                                        <span class="detail-value">{displayTotalEstimatedHours}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Total Actual Hours</span>
+                                        <span class="detail-value">{displayTotalActualHours}</span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Dependencies Section -->
+                    <template if:true={hasParentTask}>
+                        <div class="section">
+                            <h3 class="section-title">Dependencies</h3>
+                            <div class="section-content">
+                                <div class="detail-item">
+                                    <span class="label">Parent Task</span>
+                                    <span class="detail-value">{displayParentTask}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <template if:true={error}>
+                <p class="error">{error}</p>
+            </template>
+
+            <template if:true={isLoading}>
+                <div class="center">
+                    <lightning-spinner alternative-text="Loading task" variant="brand" size="medium"></lightning-spinner>
+                </div>
+            </template>
+        </template>
+
+        <template if:false={taskId}>
+            <p class="muted">No task id provided in URL.</p>
+        </template>
+    </lightning-card>
+</template>
