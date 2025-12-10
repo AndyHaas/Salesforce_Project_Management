@@ -803,8 +803,12 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         
         // Use portal navigation if in portal mode
         if (this.isPortalMode) {
+            // Portal URL format: /project-task/:recordId
             const taskUrl = `/project-task/${taskId}`;
             const targetUrl = ensureSitePath(taskUrl, { currentPathname: window.location.pathname });
+            
+            console.log('Navigating to task:', { taskId, taskUrl, targetUrl, currentPathname: window.location.pathname });
+            
             this[NavigationMixin.Navigate]({
                 type: 'standard__webPage',
                 attributes: {
