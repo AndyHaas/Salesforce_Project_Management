@@ -860,6 +860,14 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this.showCompletedTasks ? 'utility:hide' : 'utility:success';
     }
     
+    get hasCompletedTasks() {
+        // Check if there are any completed tasks in the status groups
+        if (!this.statusGroups || this.statusGroups.length === 0) {
+            return false;
+        }
+        return this.statusGroups.some(group => group.status === 'Completed');
+    }
+    
     get removedToggleLabel() {
         return this.showRemovedTasks ? 'Hide Removed' : 'Show Removed';
     }
@@ -872,6 +880,14 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     
     get removedToggleIcon() {
         return this.showRemovedTasks ? 'utility:hide' : 'utility:delete';
+    }
+    
+    get hasRemovedTasks() {
+        // Check if there are any removed tasks in the status groups
+        if (!this.statusGroups || this.statusGroups.length === 0) {
+            return false;
+        }
+        return this.statusGroups.some(group => group.status === 'Removed');
     }
     
     get expandCollapseAllLabel() {

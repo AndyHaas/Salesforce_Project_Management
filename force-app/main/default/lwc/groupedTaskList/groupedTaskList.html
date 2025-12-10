@@ -81,16 +81,20 @@
                                     icon-name={meModeButtonIcon}>
                                 </lightning-menu-item>
                             </template>
-                            <lightning-menu-item 
-                                label={completedToggleLabel}
-                                value="showCompleted"
-                                icon-name={completedToggleIcon}>
-                            </lightning-menu-item>
-                            <lightning-menu-item 
-                                label={removedToggleLabel}
-                                value="showRemoved"
-                                icon-name={removedToggleIcon}>
-                            </lightning-menu-item>
+                            <template if:true={hasCompletedTasks}>
+                                <lightning-menu-item 
+                                    label={completedToggleLabel}
+                                    value="showCompleted"
+                                    icon-name={completedToggleIcon}>
+                                </lightning-menu-item>
+                            </template>
+                            <template if:true={hasRemovedTasks}>
+                                <lightning-menu-item 
+                                    label={removedToggleLabel}
+                                    value="showRemoved"
+                                    icon-name={removedToggleIcon}>
+                                </lightning-menu-item>
+                            </template>
                             <lightning-menu-item 
                                 label={expandCollapseAllLabel}
                                 value="expandCollapseAll"
