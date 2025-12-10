@@ -99,13 +99,31 @@
 
 .highlights-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     margin-bottom: 1.5rem;
     padding: 1rem;
     background: #fafbfc;
     border: 1px solid #e5e5e5;
     border-radius: 6px;
+}
+
+@media (max-width: 1200px) {
+    .highlights-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .highlights-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .highlights-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .highlight-item.review-status {
