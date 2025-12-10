@@ -1,6 +1,5 @@
 import { api, LightningElement, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
-import { getObjectInfo } from 'lightning/uiObjectInfoApi';
 import getRecords from '@salesforce/apex/PortalRecordListController.getRecords';
 
 const DEBUG = true;
@@ -12,8 +11,6 @@ export default class PortalRecordList extends LightningElement {
     recordListData;
     error;
     columns = [];
-    objectInfo;
-    hasObjectAccess = false;
     accessDenied = false;
     pageSize = 10;
     pageNumber = 1;
@@ -198,13 +195,7 @@ export default class PortalRecordList extends LightningElement {
         if (!this.objectApiName || !this.filterName) {
             return false;
         }
-        
-        // If objectInfo has loaded and shows no access, deny
-        if (this.objectInfo && this.objectInfo.permissions && !this.hasObjectAccess) {
-            return false;
-        }
-        
-        // Otherwise, allow (objectInfo might still be loading, Salesforce API will enforce permissions)
+
         return true;
     }
 
@@ -225,10 +216,7 @@ export default class PortalRecordList extends LightningElement {
                     return;
                 }
                 
-                // Only include fields that the user has access to (if objectInfo is loaded)
-                if (!this.objectInfo || this.isFieldAccessible(fieldApiName)) {
-                    filteredRecord[fieldApiName] = record[fieldApiName];
-                }
+                filteredRecord[fieldApiName] = record[fieldApiName];
             });
             
             return filteredRecord;
@@ -245,52 +233,19 @@ export default class PortalRecordList extends LightningElement {
         return this.error.message || 'Unable to load data';
     }
 
-    @wire(getObjectInfo, { objectApiName: '$objectApiName' })
-    wiredObjectInfo({ error, data }) {
-        if (data) {
-            this.objectInfo = data;
-            // Check object-level read permission
-            this.hasObjectAccess = data.permissions?.readable === true;
-            if (!this.hasObjectAccess) {
-                this.accessDenied = true;
-                this.error = { message: 'Access denied' };
-            }
-            this.logDebug('Object info loaded', {
-                objectApiName: this.objectApiName,
-                hasObjectAccess: this.hasObjectAccess
-            });
-        } else if (error) {
-            // Don't expose detailed error messages
-            this.accessDenied = true;
-            this.error = { message: 'Access denied' };
-            this.logDebug('Error loading object info', {
-                objectApiName: this.objectApiName,
-                rawError: error
-            });
-        }
-    }
-
     get cardTitle() {
         // Don't expose object information if access is denied
         if (this.accessDenied) {
             return 'Access Denied';
         }
 
-        // Use object label from objectInfo if available
-        if (this.objectInfo?.label && this.hasObjectAccess) {
-            return this.objectInfo.label;
-        }
-
         // Try object label from record list data if available
-        if (this.recordListData?.objectApiName && this.hasObjectAccess) {
-            // Use objectInfo label if available
-            if (this.objectInfo?.label) {
-                return this.objectInfo.label;
-            }
+        if (this.recordListData?.objectLabel) {
+            return this.recordListData.objectLabel;
         }
 
-        // Fallback: convert API name to readable format (only if we have access)
-        if (this.objectApiName && this.hasObjectAccess) {
+        // Fallback: convert API name to readable format
+        if (this.objectApiName) {
             // Remove __c suffix, replace underscores with spaces, and capitalize
             let title = this.objectApiName
                 .replace(/__c$/, '')
@@ -334,21 +289,6 @@ export default class PortalRecordList extends LightningElement {
         // Allow alphanumeric, underscores, hyphens, and spaces
         // Max length check for safety
         return /^[a-zA-Z0-9_\-\s]+$/.test(filterName) && filterName.length <= 100;
-    }
-
-    /**
-     * @description Check if a field is accessible to the current user
-     * @param {string} fieldApiName - Field API name to check
-     * @returns {boolean} True if field is accessible
-     */
-    isFieldAccessible(fieldApiName) {
-        if (!fieldApiName || !this.objectInfo?.fields) {
-            return false;
-        }
-        
-        const field = this.objectInfo.fields[fieldApiName];
-        // Field must exist and be accessible
-        return field?.accessible === true;
     }
 
     /**

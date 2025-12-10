@@ -37,16 +37,24 @@ public without sharing class PortalRecordListController {
         result.pageNumber = pageNumber != null ? pageNumber : 1;
         
         try {
+            // Get object describe for label and field metadata
+            Schema.SObjectType objType = Schema.getGlobalDescribe().get(objectApiName);
+            if (objType == null) {
+                throw new AuraHandledException('Object not found: ' + objectApiName);
+            }
+            Schema.DescribeSObjectResult objDescribe = objType.getDescribe();
+            result.objectLabel = objDescribe.getLabel();
+
             // Get WHERE clause components
             WhereClauseResult whereResult = getWhereClause(objectApiName, filterName);
-            
+
             // Get columns from list view metadata or use defaults
             List<String> fieldList = getFieldList(objectApiName, filterName);
-            
+
             // Build SOQL query with bind variables
             QueryResult queryResult = buildSoqlQuery(objectApiName, fieldList, whereResult, result.pageSize, result.pageNumber);
-            
-            // Execute query with bind variables
+
+            // Execute query with bind variables (USER_MODE enforces FLS/sharing for caller)
             List<SObject> records = Database.queryWithBinds(queryResult.soql, queryResult.bindMap, AccessLevel.USER_MODE);
             result.records = records;
             
@@ -56,7 +64,7 @@ public without sharing class PortalRecordListController {
             result.totalPages = (Integer)Math.ceil((Double)result.totalRecords / result.pageSize);
             
             // Build column metadata
-            result.columns = buildColumnMetadata(objectApiName, fieldList);
+            result.columns = buildColumnMetadata(fieldList, objDescribe);
             
         } catch (Exception e) {
             System.debug('Error in getRecords: ' + e.getMessage());
@@ -214,16 +222,8 @@ public without sharing class PortalRecordListController {
     /**
      * @description Build column metadata from field list
      */
-    private static List<ColumnMetadata> buildColumnMetadata(String objectApiName, List<String> fieldList) {
+    private static List<ColumnMetadata> buildColumnMetadata(List<String> fieldList, Schema.DescribeSObjectResult objDescribe) {
         List<ColumnMetadata> columns = new List<ColumnMetadata>();
-        
-        // Get object metadata
-        Schema.SObjectType objType = Schema.getGlobalDescribe().get(objectApiName);
-        if (objType == null) {
-            return columns;
-        }
-        
-        Schema.DescribeSObjectResult objDescribe = objType.getDescribe();
         Map<String, Schema.SObjectField> fieldMap = objDescribe.fields.getMap();
         
         for (String fieldApiName : fieldList) {
@@ -291,6 +291,7 @@ public without sharing class PortalRecordListController {
      */
     public class RecordListResult {
         @AuraEnabled public String objectApiName;
+        @AuraEnabled public String objectLabel;
         @AuraEnabled public String filterName;
         @AuraEnabled public List<SObject> records;
         @AuraEnabled public List<ColumnMetadata> columns;
