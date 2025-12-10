@@ -903,7 +903,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get expandCollapseAllLabel() {
-        return this.areAllStatusesCollapsed ? 'Expand All' : 'Collapse All';
+        return this.areAllStatusesCollapsed ? 'Expand All Statuses' : 'Collapse All Statuses';
     }
     
     get expandCollapseAllTitle() {
