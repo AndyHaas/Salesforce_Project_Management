@@ -515,10 +515,45 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         const { error, data } = result;
         this.isLoading = !data && !error;
         if (data) {
-            this.statusGroups = Array.isArray(data.statusGroups) ? data.statusGroups : [];
-            this.summaryFieldDefinitions = Array.isArray(data.summaryFieldDefinitions) ? data.summaryFieldDefinitions : [];
-            this.filteredStatusGroups = this.filterStatusGroups(this.statusGroups);
-            this.error = undefined;
+            try {
+                const statusGroupsData = Array.isArray(data.statusGroups) ? data.statusGroups : [];
+                this.summaryFieldDefinitions = Array.isArray(data.summaryFieldDefinitions) ? data.summaryFieldDefinitions : [];
+                this.updateSummaryFieldDefinitionMap();
+                this.updateSummaryFieldHeaderClasses();
+                
+                // Add status header style to each status group and icon info to each task
+                this.statusGroups = statusGroupsData.map(statusGroup => {
+                    // Calculate total estimated hours for this status group
+                    let totalEstimatedHours = 0;
+                    const tasks = (statusGroup.tasks || []).map(task => {
+                        if (task.estimatedHours != null) {
+                            totalEstimatedHours += task.estimatedHours;
+                        }
+                        return this.decorateTaskForDisplay(task);
+                    });
+                    
+                    return {
+                        ...statusGroup,
+                        tasks: tasks,
+                        totalEstimatedHours: totalEstimatedHours,
+                        badgeColor: this.getStatusBadgeColor(statusGroup.status),
+                        badgeVariant: this.getStatusBadgeVariant(statusGroup.status),
+                        textColor: this.getContrastTextColor(this.getStatusBadgeColor(statusGroup.status))
+                    };
+                });
+                
+                this.refreshFilteredStatusGroups();
+                this.error = undefined;
+                this.isLoading = false;
+            } catch (e) {
+                console.error('Error processing grouped tasks by project response:', e);
+                this.error = e;
+                this.statusGroups = [];
+                this.filteredStatusGroups = [];
+                this.summaryFieldDefinitions = [];
+                this.updateSummaryFieldDefinitionMap();
+                this.isLoading = false;
+            }
         } else if (error) {
             // eslint-disable-next-line no-console
             console.error('Error loading grouped tasks by project:', error);
