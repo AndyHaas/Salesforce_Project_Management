@@ -361,44 +361,44 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             const badge = this.template.querySelector('lightning-badge');
             const badgeWidth = badge && badge.offsetParent !== null ? (badge.offsetWidth || 0) + 16 : 0; // 16px for margin
             
-            // Account for primary actions group (Refresh + New Task) - these stay visible
-            const primaryActionsGroup = buttonGroupWrapper.querySelector('.primary-actions-group');
-            let primaryActionsGroupWidth = 0;
-            if (primaryActionsGroup && primaryActionsGroup.offsetParent !== null) {
-                primaryActionsGroupWidth = primaryActionsGroup.getBoundingClientRect().width || primaryActionsGroup.offsetWidth || 0;
-                primaryActionsGroupWidth += 8; // 8px for margin
-            } else {
-                // Estimate if not rendered yet
-                primaryActionsGroupWidth = 48; // Refresh button icon ~32px + margin
-                if (!this.isPortalMode) {
-                    primaryActionsGroupWidth += 120; // New Task button ~120px
-                }
-                primaryActionsGroupWidth += 8; // margin
+            // Find the single button group
+            const buttonGroup = buttonGroupWrapper.querySelector('lightning-button-group');
+            if (!buttonGroup) {
+                return; // Can't find button group, keep current mode
             }
             
-            // Calculate available width for the secondary actions button group
-            const availableWidth = containerWidth - badgeWidth - primaryActionsGroupWidth - 32; // 32px for padding/margins
+            // Account for Refresh and New Task buttons (always visible)
+            let alwaysVisibleWidth = 0;
+            const refreshButton = buttonGroup.querySelector('lightning-button-icon[icon-name="utility:refresh"]');
+            if (refreshButton && refreshButton.offsetParent !== null) {
+                alwaysVisibleWidth += refreshButton.getBoundingClientRect().width || refreshButton.offsetWidth || 0;
+            } else {
+                alwaysVisibleWidth += 32; // Estimate: ~32px for icon button
+            }
             
-            // Find the secondary actions button group (the one with action buttons)
-            const secondaryActionsGroup = buttonGroupWrapper.querySelector('.secondary-actions-group');
-            let mainButtonGroup = secondaryActionsGroup;
+            if (!this.isPortalMode) {
+                const newTaskButton = buttonGroup.querySelector('lightning-button[label="New Task"]');
+                if (newTaskButton && newTaskButton.offsetParent !== null) {
+                    alwaysVisibleWidth += newTaskButton.getBoundingClientRect().width || newTaskButton.offsetWidth || 0;
+                } else {
+                    alwaysVisibleWidth += 120; // Estimate: ~120px for New Task button
+                }
+            }
             
+            // Calculate available width for secondary action buttons (the ones that go into menu)
+            const availableWidth = containerWidth - badgeWidth - alwaysVisibleWidth - 32; // 32px for padding/margins
+            
+            // Calculate required width for secondary action buttons
             let requiredWidth = 0;
             
-            if (mainButtonGroup && mainButtonGroup.offsetParent !== null) {
-                // Measure actual rendered width
-                requiredWidth = mainButtonGroup.getBoundingClientRect().width || mainButtonGroup.offsetWidth || 0;
-            } else {
-                // Estimate based on number of buttons (if not rendered yet)
-                // Count buttons that would be shown in full mode
-                let buttonCount = 0;
-                if (this.showMyTasksButton) buttonCount++;
-                buttonCount += 2; // Completed, Removed
-                buttonCount += 2; // Expand All Statuses, Expand All Subtasks
-                
-                // Estimate: ~120px per button + 8px spacing between buttons
-                requiredWidth = (buttonCount * 120) + ((buttonCount - 1) * 8);
-            }
+            // Count buttons that would be shown in full mode (secondary actions only)
+            let buttonCount = 0;
+            if (this.showMyTasksButton) buttonCount++;
+            buttonCount += 2; // Completed, Removed
+            buttonCount += 2; // Expand All Statuses, Expand All Subtasks
+            
+            // Estimate: ~120px per button + 8px spacing between buttons
+            requiredWidth = (buttonCount * 120) + ((buttonCount - 1) * 8);
             
             // Use compact mode if required width exceeds available width
             // Add a small buffer (20px) to prevent tight fits

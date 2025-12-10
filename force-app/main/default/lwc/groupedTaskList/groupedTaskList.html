@@ -43,7 +43,7 @@
                     </lightning-badge>
                 </template>
                 <div class="button-group-wrapper">
-                    <lightning-button-group class="slds-m-right_small primary-actions-group">
+                    <lightning-button-group class="slds-m-right_small">
                         <lightning-button-icon
                             icon-name="utility:refresh"
                             variant="border-filled"
@@ -60,8 +60,6 @@
                                 title="Create a new Project Task">
                             </lightning-button>
                         </template>
-                    </lightning-button-group>
-                    <lightning-button-group class="secondary-actions-group">
                         <template if:false={useCompactMode}>
                             <template if:true={showMyTasksButton}>
                                 <lightning-button
