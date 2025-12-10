@@ -13,7 +13,7 @@
                     <template if:true={isBoolean}>
                         <lightning-input
                             type="checkbox"
-                            label={fieldLabel}
+                            label={computedLabel}
                             checked={inputValue}
                             onchange={handleValueChange}
                             class="slds-m-bottom_medium">
@@ -21,7 +21,7 @@
                     </template>
                     <template if:true={isPicklist}>
                         <lightning-combobox
-                            label={fieldLabel}
+                            label={computedLabel}
                             value={currentValue}
                             options={comboboxOptions}
                             onchange={handleComboboxChange}
@@ -32,7 +32,7 @@
                         <template if:false={isPicklist}>
                             <lightning-input
                                 type={inputType}
-                                label={fieldLabel}
+                                label={computedLabel}
                                 value={inputValue}
                                 onchange={handleValueChange}
                                 class="slds-m-bottom_medium">

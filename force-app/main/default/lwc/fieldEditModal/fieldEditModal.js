@@ -32,6 +32,10 @@ export default class FieldEditModal extends LightningElement {
         this.currentValue = fieldValue || '';
         this._isOpen = true;
     }
+
+    get computedLabel() {
+        return this.fieldLabel || 'Field';
+    }
     
     /**
      * @description Close the modal
