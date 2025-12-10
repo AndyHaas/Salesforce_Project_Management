@@ -27,6 +27,14 @@
 .side-panel :deep(lightning-card:last-child) {
     margin-bottom: 0;
 }
+
+.side-panel > * {
+    margin-bottom: 1rem;
+}
+
+.side-panel > *:last-child {
+    margin-bottom: 0;
+}
 }
 
 .main-content {
