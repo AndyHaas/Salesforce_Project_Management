@@ -1,6 +1,7 @@
 import { api, wire, LightningElement } from 'lwc';
 import { CurrentPageReference, NavigationMixin } from 'lightning/navigation';
 import getRecords from '@salesforce/apex/PortalRecordListController.getRecords';
+import { formatDate, formatDateTime, formatTime, formatPhone, formatPercent, formatCurrency, formatNumber, formatBoolean, stripHtml, formatFieldValue } from 'c/portalCommon';
 
 const DEBUG = true;
 
@@ -282,57 +283,17 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
 
                 // Format based on field type
                 if (displayValue !== undefined && displayValue !== null && displayValue !== '') {
-                    if (col.type === 'date') {
-                        displayValue = this.formatDate(displayValue);
-                    } else if (col.type === 'datetime') {
-                        displayValue = this.formatDateTime(displayValue);
-                    } else if (col.type === 'time') {
-                        displayValue = this.formatTime(displayValue);
-                    } else if (col.type === 'percent') {
-                        // Salesforce stores percent values as 50 for 50%, just add % symbol
-                        const percentValue = parseFloat(displayValue);
-                        if (!isNaN(percentValue)) {
-                            displayValue = `${percentValue.toFixed(2)}%`;
-                        }
-                    } else if (col.type === 'currency') {
-                        const currencyValue = parseFloat(displayValue);
-                        if (!isNaN(currencyValue)) {
-                            displayValue = new Intl.NumberFormat('en-US', {
-                                style: 'currency',
-                                currency: 'USD',
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            }).format(currencyValue);
-                        }
-                    } else if (col.type === 'number') {
-                        const numValue = parseFloat(displayValue);
-                        if (!isNaN(numValue)) {
-                            // Format with appropriate decimal places
-                            displayValue = numValue % 1 === 0 
-                                ? numValue.toString() 
-                                : numValue.toFixed(2);
-                        }
-                    } else if (col.type === 'boolean') {
-                        displayValue = displayValue === true || displayValue === 'true' ? 'Yes' : 'No';
-                    } else if (col.type === 'email') {
+                    if (col.type === 'email') {
                         // Keep email as-is but mark as link
                         isLink = true;
                         linkUrl = `mailto:${displayValue}`;
-                    } else if (col.type === 'phone') {
-                        displayValue = this.formatPhone(displayValue);
                     } else if (col.type === 'url') {
                         // Keep URL as-is but mark as link
                         isLink = true;
                         linkUrl = displayValue.startsWith('http') ? displayValue : `https://${displayValue}`;
-                    } else if (col.type === 'richtext') {
-                        // Strip HTML tags for display in table
-                        displayValue = this.stripHtml(displayValue);
-                    } else if (col.type === 'textarea') {
-                        // Truncate long text areas
-                        const maxLength = 100;
-                        if (typeof displayValue === 'string' && displayValue.length > maxLength) {
-                            displayValue = displayValue.substring(0, maxLength) + '...';
-                        }
+                    } else {
+                        // Use common formatting function
+                        displayValue = formatFieldValue(displayValue, col.type, { textareaMaxLength: 100 });
                     }
                 }
 
@@ -399,79 +360,6 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
         window.location.assign(targetPath);
     }
 
-    formatDate(value) {
-        if (!value) {
-            return '';
-        }
-        const date = new Date(value);
-        if (isNaN(date.getTime())) {
-            return value;
-        }
-        const pad = (n) => String(n).padStart(2, '0');
-        const yyyy = date.getFullYear();
-        const mm = pad(date.getMonth() + 1);
-        const dd = pad(date.getDate());
-        return `${yyyy}-${mm}-${dd}`;
-    }
-
-    formatDateTime(value) {
-        if (!value) {
-            return '';
-        }
-        const date = new Date(value);
-        if (isNaN(date.getTime())) {
-            return value;
-        }
-        const pad = (n) => String(n).padStart(2, '0');
-        const yyyy = date.getFullYear();
-        const mm = pad(date.getMonth() + 1);
-        const dd = pad(date.getDate());
-        const hh = pad(date.getHours());
-        const min = pad(date.getMinutes());
-        return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-    }
-
-    formatTime(value) {
-        if (!value) {
-            return '';
-        }
-        // Salesforce Time is typically in milliseconds since midnight
-        if (typeof value === 'number') {
-            const hours = Math.floor(value / (1000 * 60 * 60));
-            const minutes = Math.floor((value % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((value % (1000 * 60)) / 1000);
-            const pad = (n) => String(n).padStart(2, '0');
-            return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-        }
-        return String(value);
-    }
-
-    formatPhone(value) {
-        if (!value) {
-            return '';
-        }
-        // Remove all non-digit characters
-        const digits = String(value).replace(/\D/g, '');
-        if (digits.length === 10) {
-            // Format as (XXX) XXX-XXXX
-            return `(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6)}`;
-        } else if (digits.length === 11 && digits.startsWith('1')) {
-            // Format as +1 (XXX) XXX-XXXX
-            return `+1 (${digits.substring(1, 4)}) ${digits.substring(4, 7)}-${digits.substring(7)}`;
-        }
-        // Return original if doesn't match standard formats
-        return String(value);
-    }
-
-    stripHtml(html) {
-        if (!html || typeof html !== 'string') {
-            return html;
-        }
-        // Remove HTML tags and decode HTML entities
-        const tmp = document.createElement('DIV');
-        tmp.innerHTML = html;
-        return tmp.textContent || tmp.innerText || '';
-    }
 
     /**
      * @description Validate object API name is safe (prevents injection)

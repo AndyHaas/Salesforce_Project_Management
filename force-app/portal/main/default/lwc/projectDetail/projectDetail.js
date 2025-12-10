@@ -1,6 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import getProjectDetail from '@salesforce/apex/PortalProjectController.getProjectDetail';
+import { formatDate, formatBoolean } from 'c/portalCommon';
 
 export default class ProjectDetail extends LightningElement {
     @track projectId;
@@ -64,15 +65,15 @@ export default class ProjectDetail extends LightningElement {
     }
 
     get displayCreatedDate() {
-        return this.formatDate(this.project?.createdDate);
+        return formatDate(this.project?.createdDate, '—');
     }
 
     get displayStartDate() {
-        return this.formatDate(this.project?.startDate);
+        return formatDate(this.project?.startDate, '—');
     }
 
     get displayEndDate() {
-        return this.formatDate(this.project?.endDate);
+        return formatDate(this.project?.endDate, '—');
     }
 
     get displayBurnRate() {
@@ -89,27 +90,7 @@ export default class ProjectDetail extends LightningElement {
     }
 
     get displayInvoiced() {
-        const invoiced = this.project?.invoiced;
-        if (invoiced === undefined || invoiced === null) {
-            return '—';
-        }
-        // Format boolean as Yes/No
-        return invoiced === true || invoiced === 'true' ? 'Yes' : 'No';
-    }
-
-    formatDate(value) {
-        if (!value) {
-            return '—';
-        }
-        try {
-            const d = new Date(value);
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        } catch (e) {
-            return value;
-        }
+        return formatBoolean(this.project?.invoiced, '—');
     }
 
     formatError(err) {
