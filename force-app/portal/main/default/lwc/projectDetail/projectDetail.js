@@ -112,7 +112,8 @@ export default class ProjectDetail extends LightningElement {
         if (isNaN(percentValue)) {
             return '—';
         }
-        return `${(percentValue * 100).toFixed(2)}%`;
+        // Salesforce stores percent values as 50 for 50%, just add % symbol
+        return `${percentValue.toFixed(2)}%`;
     }
 
     formatDate(value) {

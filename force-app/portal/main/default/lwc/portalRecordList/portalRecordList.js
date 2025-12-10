@@ -289,10 +289,10 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
                     } else if (col.type === 'time') {
                         displayValue = this.formatTime(displayValue);
                     } else if (col.type === 'percent') {
-                        // Salesforce stores as decimal 0-1, display as percentage
+                        // Salesforce stores percent values as 50 for 50%, just add % symbol
                         const percentValue = parseFloat(displayValue);
                         if (!isNaN(percentValue)) {
-                            displayValue = `${(percentValue * 100).toFixed(2)}%`;
+                            displayValue = `${percentValue.toFixed(2)}%`;
                         }
                     } else if (col.type === 'currency') {
                         const currencyValue = parseFloat(displayValue);
