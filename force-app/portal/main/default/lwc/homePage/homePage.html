@@ -1,0 +1,184 @@
+<template>
+    <lightning-card title="Welcome" icon-name="utility:home" class="home-page-card">
+        <div class="slds-p-around_medium">
+            <!-- Welcome Section -->
+            <div class="welcome-section slds-m-bottom_large">
+                <h1 class="welcome-title">
+                    Welcome<template if:true={userFirstName}> {userFirstName}</template>!
+                </h1>
+                <p class="welcome-subtitle">Manage your projects and tasks from here.</p>
+            </div>
+
+            <!-- Notification Badge for Tasks Needing Review -->
+            <template if:true={hasTasksNeedingReview}>
+                <div class="slds-m-bottom_large">
+                    <lightning-card title="Review Required" icon-name="utility:notification">
+                        <div class="slds-p-around_medium">
+                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                <div>
+                                    <p class="slds-text-heading_small">
+                                        You have <strong>{tasksNeedingReviewCount}</strong> task(s) ready for your review.
+                                    </p>
+                                </div>
+                                <div>
+                                    <lightning-button 
+                                        label="View Tasks" 
+                                        variant="brand"
+                                        icon-name="utility:preview"
+                                        onclick={handleViewReviewTasks}>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </div>
+                    </lightning-card>
+                </div>
+            </template>
+
+            <!-- Active Projects Section -->
+            <div class="slds-m-bottom_large">
+                <lightning-card title="Active Projects" icon-name="utility:projects">
+                    <template if:true={isLoading}>
+                        <div class="slds-p-around_medium">
+                            <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                        </div>
+                    </template>
+                    <template if:false={isLoading}>
+                        <template if:true={hasActiveProjects}>
+                            <div class="slds-table_container">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                                    <thead>
+                                        <tr class="slds-line-height_reset">
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Name">Name</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Status">Status</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Hours">Hours</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={activeProjects} for:item="project">
+                                            <tr key={project.Id} data-id={project.Id}>
+                                                <td>
+                                                    <div class="slds-truncate" title={project.Name}>
+                                                        <a href="#" onclick={handleProjectClick} data-id={project.Id}>
+                                                            {project.Name}
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title={project.Status__c}>
+                                                        {project.Status__c}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title={project.Total_Time__c}>
+                                                        {project.Total_Time__c}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </template>
+                        <template if:false={hasActiveProjects}>
+                            <div class="slds-p-around_medium">
+                                <p class="slds-text-align_center">No active projects found.</p>
+                            </div>
+                        </template>
+                    </template>
+                </lightning-card>
+            </div>
+
+            <!-- Open Tasks Section -->
+            <div class="slds-m-bottom_large">
+                <lightning-card title="Open Tasks" icon-name="utility:task">
+                    <template if:true={isLoading}>
+                        <div class="slds-p-around_medium">
+                            <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                        </div>
+                    </template>
+                    <template if:false={isLoading}>
+                        <template if:true={hasOpenTasks}>
+                            <div class="slds-table_container">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                                    <thead>
+                                        <tr class="slds-line-height_reset">
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Name">Name</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Status">Status</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Hours">Hours</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={openTasks} for:item="task">
+                                            <tr key={task.Id} data-id={task.Id}>
+                                                <td>
+                                                    <div class="slds-truncate" title={task.Name}>
+                                                        <a href="#" onclick={handleTaskClick} data-id={task.Id}>
+                                                            {task.Name}
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title={task.Status__c}>
+                                                        {task.Status__c}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title={task.Total_Actual_Hours__c}>
+                                                        {task.Total_Actual_Hours__c}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </template>
+                        <template if:false={hasOpenTasks}>
+                            <div class="slds-p-around_medium">
+                                <p class="slds-text-align_center">No open tasks found.</p>
+                            </div>
+                        </template>
+                    </template>
+                </lightning-card>
+            </div>
+
+            <!-- Coming Soon Cards Section -->
+            <div class="slds-grid slds-gutters slds-m-top_large">
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-card title="Billing & Invoices" icon-name="utility:money">
+                        <div class="slds-p-around_medium">
+                            <p class="slds-text-align_center slds-text-color_weak">Coming Soon</p>
+                        </div>
+                    </lightning-card>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-card title="Account Management" icon-name="utility:account">
+                        <div class="slds-p-around_medium">
+                            <p class="slds-text-align_center slds-text-color_weak">Coming Soon</p>
+                        </div>
+                    </lightning-card>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-card title="Contact Management" icon-name="utility:contact">
+                        <div class="slds-p-around_medium">
+                            <p class="slds-text-align_center slds-text-color_weak">Coming Soon</p>
+                        </div>
+                    </lightning-card>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+</template>
+

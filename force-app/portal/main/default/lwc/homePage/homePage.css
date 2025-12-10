@@ -1,0 +1,39 @@
+.home-page-card {
+    min-height: 100vh;
+}
+
+.welcome-section {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.welcome-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--lwc-colorTextDefault, #080707);
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    font-size: 1.125rem;
+    color: var(--lwc-colorTextWeak, #706e6b);
+}
+
+.slds-table_container {
+    margin: 1rem 0;
+}
+
+.slds-table th {
+    background-color: var(--lwc-colorBackground, #f3f2f2);
+    font-weight: 600;
+}
+
+.slds-table td a {
+    color: var(--lwc-colorTextLink, #0176d3);
+    text-decoration: none;
+}
+
+.slds-table td a:hover {
+    text-decoration: underline;
+}
+
