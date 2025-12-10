@@ -27,10 +27,7 @@ export const NAV_LINKS = [
 ];
 
 export const RESOURCE_LINKS = [
-    { label: 'FAQ & Help', href: '/faq' },
-    { label: 'Portal Guide', href: '/help' },
-    { label: 'Privacy Policy', href: '/policies' },
-    { label: 'Terms of Use', href: '/terms' }
+    { label: 'FAQ & Policies', href: 'https://milestoneconsulting.tech/faq' }
 ];
 
 export const DEFAULT_GREETING = 'Welcome';
