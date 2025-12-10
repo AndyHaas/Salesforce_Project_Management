@@ -68,6 +68,67 @@ public without sharing class PortalTaskController {
     }
     
     /**
+     * @description Link uploaded files to a task
+     * @param taskId The Project Task ID
+     * @param contentVersionIds List of ContentVersion IDs to link
+     * @return Boolean indicating success
+     */
+    @AuraEnabled
+    public static Boolean linkFilesToTask(String taskId, List<String> contentVersionIds) {
+        if (String.isBlank(taskId) || contentVersionIds == null || contentVersionIds.isEmpty()) {
+            return false;
+        }
+        
+        // Get ContentDocument IDs from ContentVersion IDs
+        List<ContentVersion> contentVersions = [
+            SELECT ContentDocumentId
+            FROM ContentVersion
+            WHERE Id IN :contentVersionIds
+        ];
+        
+        if (contentVersions.isEmpty()) {
+            return false;
+        }
+        
+        Set<Id> contentDocumentIds = new Set<Id>();
+        for (ContentVersion cv : contentVersions) {
+            contentDocumentIds.add(cv.ContentDocumentId);
+        }
+        
+        // Check if links already exist
+        List<ContentDocumentLink> existingLinks = [
+            SELECT ContentDocumentId
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId = :taskId
+            AND ContentDocumentId IN :contentDocumentIds
+        ];
+        
+        Set<Id> existingContentDocumentIds = new Set<Id>();
+        for (ContentDocumentLink link : existingLinks) {
+            existingContentDocumentIds.add(link.ContentDocumentId);
+        }
+        
+        // Create new links for documents that aren't already linked
+        List<ContentDocumentLink> newLinks = new List<ContentDocumentLink>();
+        for (Id docId : contentDocumentIds) {
+            if (!existingContentDocumentIds.contains(docId)) {
+                ContentDocumentLink link = new ContentDocumentLink();
+                link.LinkedEntityId = taskId;
+                link.ContentDocumentId = docId;
+                link.ShareType = 'V'; // Viewer access
+                link.Visibility = 'AllUsers';
+                newLinks.add(link);
+            }
+        }
+        
+        if (!newLinks.isEmpty()) {
+            insert newLinks;
+        }
+        
+        return true;
+    }
+    
+    /**
      * @description Get files linked to a task
      * @param taskId The Project Task ID
      * @return List of FileInfo with file details

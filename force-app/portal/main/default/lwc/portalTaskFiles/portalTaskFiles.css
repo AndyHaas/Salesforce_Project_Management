@@ -1,23 +1,14 @@
-.files-card {
+.file-upload-container {
     margin-bottom: 1rem;
-}
-
-.files-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.75rem;
-    font-weight: 600;
-}
-
-.files-count {
-    color: #706e6b;
-    font-weight: normal;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .files-list {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    margin-top: 1rem;
 }
 
 .file-item {

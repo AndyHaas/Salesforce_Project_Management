@@ -1,15 +1,22 @@
 import { LightningElement, api, wire } from 'lwc';
+import { refreshApex } from '@salesforce/apex';
 import getTaskFiles from '@salesforce/apex/PortalTaskController.getTaskFiles';
+import linkFilesToTask from '@salesforce/apex/PortalTaskController.linkFilesToTask';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class PortalTaskFiles extends LightningElement {
     @api recordId;
     
     _files = [];
     _filesError = null;
+    _wiredTaskFilesResult;
     
     // Wire service to get files for the task
     @wire(getTaskFiles, { taskId: '$recordId' })
-    wiredTaskFiles({ error, data }) {
+    wiredTaskFiles(result) {
+        this._wiredTaskFilesResult = result;
+        const { error, data } = result;
+        
         if (data) {
             this._files = data || [];
             this._filesError = null;
@@ -17,6 +24,45 @@ export default class PortalTaskFiles extends LightningElement {
             console.error('Error loading task files:', error);
             this._files = [];
             this._filesError = error;
+        }
+    }
+    
+    /**
+     * @description Handle file upload finished
+     */
+    async handleUploadFinished(event) {
+        const uploadedFiles = event.detail.files;
+        
+        if (uploadedFiles && uploadedFiles.length > 0) {
+            const contentVersionIds = uploadedFiles.map(file => file.contentVersionId);
+            
+            try {
+                await linkFilesToTask({ 
+                    taskId: this.recordId, 
+                    contentVersionIds: contentVersionIds 
+                });
+                
+                // Refresh the file list
+                await refreshApex(this._wiredTaskFilesResult);
+                
+                // Show success toast
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: `${uploadedFiles.length} file(s) uploaded successfully`,
+                        variant: 'success'
+                    })
+                );
+            } catch (error) {
+                console.error('Error linking files to task:', error);
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: 'Failed to link files to task: ' + (error.body?.message || error.message),
+                        variant: 'error'
+                    })
+                );
+            }
         }
     }
     
@@ -42,6 +88,13 @@ export default class PortalTaskFiles extends LightningElement {
     
     get filesCount() {
         return this._files ? this._files.length : 0;
+    }
+    
+    /**
+     * @description Accepted file formats for upload
+     */
+    get acceptedFormats() {
+        return '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png,.gif,.zip,.rar';
     }
     
     /**
