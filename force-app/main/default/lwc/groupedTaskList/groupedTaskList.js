@@ -32,11 +32,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @api projectId; // Optional project filter
     @api showAccountFilter; // Show/hide the account filter dropdown
     @api useCurrentUserAccount = false; // When true, default to current user's account if none supplied (for portal use)
+    @api context = 'portal'; // Context: 'portal' or 'salesforce' - determines navigation and account filter behavior
     
     @wire(MessageContext)
     messageContext;
     
-    isExperienceSite = false; // Detect Experience Cloud context to adjust defaults
+    isExperienceSite = false; // Detect Experience Cloud context to adjust defaults (fallback if context not set)
     statusGroups = [];
     filteredStatusGroups = []; // Filtered tasks based on "Me" mode and other toggles
     isLoading = true; // Show spinner while fetching tasks
@@ -149,12 +150,20 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
 
     get isPortalMode() {
+        // Use context property if set, otherwise fall back to auto-detection
+        if (this.context === 'salesforce') {
+            return false;
+        }
+        if (this.context === 'portal') {
+            return true;
+        }
+        // Fallback to auto-detection if context not explicitly set
         return this.isExperienceSite === true;
     }
     
     get shouldShowAccountFilter() {
-        // Hide on Experience Cloud by default, and on Account record pages
-        if (this.isExperienceSite) {
+        // Show account filter in Salesforce context, hide in portal
+        if (this.isPortalMode) {
             return false;
         }
         const showFilter = this.showAccountFilter !== false;
