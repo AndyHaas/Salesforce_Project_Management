@@ -65,35 +65,35 @@ public without sharing class PortalProjectController {
         // Aggregate task metrics scoped to this project (and account as an extra guard)
         TaskMetrics metrics = new TaskMetrics();
 
-        // Get all tasks to count properly (including null statuses)
-        List<Project_Task__c> allTasks = [
-            SELECT Id, Status__c
+        // Group by status with count - null values are grouped together in SOQL
+        List<AggregateResult> statusAgg = [
+            SELECT Status__c status, COUNT(Id) cnt
             FROM Project_Task__c
             WHERE Project__c = :projectId
             AND Account__c = :project.Account__c
+            GROUP BY Status__c
         ];
 
-        // Count tasks by status manually to handle null values properly
         Map<String, Integer> statusCounts = new Map<String, Integer>();
         Integer completedCount = 0;
         
-        for (Project_Task__c task : allTasks) {
-            String status = task.Status__c != null ? task.Status__c : 'Backlog';
-            Integer count = statusCounts.containsKey(status) ? statusCounts.get(status) : 0;
-            statusCounts.put(status, count + 1);
+        for (AggregateResult ar : statusAgg) {
+            String status = (String) ar.get('status');
+            Integer cnt = (Integer) ar.get('cnt');
+            
+            // Handle null status as 'Backlog' for display
+            String displayStatus = status != null ? status : 'Backlog';
+            statusCounts.put(displayStatus, cnt);
+            
+            StatusCount sc = new StatusCount();
+            sc.status = displayStatus;
+            sc.count = cnt;
+            metrics.statusCounts.add(sc);
             
             // Count completed tasks (case-insensitive check)
             if (status != null && status.equalsIgnoreCase('Completed')) {
-                completedCount++;
+                completedCount = cnt;
             }
-        }
-
-        // Build status counts list for response
-        for (String status : statusCounts.keySet()) {
-            StatusCount sc = new StatusCount();
-            sc.status = status;
-            sc.count = statusCounts.get(status);
-            metrics.statusCounts.add(sc);
         }
 
         // Get totals with aggregation
