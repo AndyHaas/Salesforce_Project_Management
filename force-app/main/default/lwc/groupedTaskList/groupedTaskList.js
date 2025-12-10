@@ -865,7 +865,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (!this.statusGroups || this.statusGroups.length === 0) {
             return false;
         }
-        return this.statusGroups.some(group => group.status === 'Completed');
+        return this.statusGroups.some(group => {
+            const status = (group.status || '').trim();
+            return status === 'Completed';
+        });
     }
     
     get removedToggleLabel() {
@@ -887,7 +890,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (!this.statusGroups || this.statusGroups.length === 0) {
             return false;
         }
-        return this.statusGroups.some(group => group.status === 'Removed');
+        return this.statusGroups.some(group => {
+            const status = (group.status || '').trim();
+            return status === 'Removed';
+        });
     }
     
     get expandCollapseAllLabel() {
@@ -1069,13 +1075,21 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         let groups = [...this.statusGroups];
         
         // Always respect the showCompletedTasks toggle, regardless of "My Tasks" mode
+        // Use trim() to handle any whitespace issues and ensure exact match
         if (!this.showCompletedTasks) {
-            groups = groups.filter(group => group.status !== 'Completed');
+            groups = groups.filter(group => {
+                const status = (group.status || '').trim();
+                return status !== 'Completed';
+            });
         }
         
         // Always respect the showRemovedTasks toggle, regardless of "My Tasks" mode
+        // Use trim() to handle any whitespace issues and ensure exact match
         if (!this.showRemovedTasks) {
-            groups = groups.filter(group => group.status !== 'Removed');
+            groups = groups.filter(group => {
+                const status = (group.status || '').trim();
+                return status !== 'Removed';
+            });
         }
         
         // Apply Contact filter if selected (works additively with Account filter)
