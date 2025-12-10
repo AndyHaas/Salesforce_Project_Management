@@ -1,39 +1,43 @@
 <template>
     <template if:true={recordId}>
-        <!-- File Upload -->
-        <div class="file-upload-container">
-            <lightning-file-upload
-                label="Upload Files"
-                name="fileUpload"
-                accept={acceptedFormats}
-                record-id={recordId}
-                onuploadfinished={handleUploadFinished}
-                multiple>
-            </lightning-file-upload>
-        </div>
-        
-        <!-- Files List -->
-        <template if:true={hasFiles}>
-            <div class="files-list">
-                <template for:each={files} for:item="file">
-                    <div key={file.id} class="file-item">
-                        <lightning-icon icon-name="utility:file" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                        <a href={file.downloadUrl} target="_blank" rel="noopener noreferrer" class="file-link">
-                            {file.title}
-                        </a>
-                        <span class="file-meta">
-                            ({file.formattedSize} • {file.formattedDate})
-                        </span>
+        <lightning-card title="Files" class="files-card">
+            <div class="slds-card__body slds-card__body_inner">
+                <!-- File Upload -->
+                <div class="file-upload-container">
+                    <lightning-file-upload
+                        label="Upload Files"
+                        name="fileUpload"
+                        accept={acceptedFormats}
+                        record-id={recordId}
+                        onuploadfinished={handleUploadFinished}
+                        multiple>
+                    </lightning-file-upload>
+                </div>
+                
+                <!-- Files List -->
+                <template if:true={hasFiles}>
+                    <div class="files-list">
+                        <template for:each={files} for:item="file">
+                            <div key={file.id} class="file-item">
+                                <lightning-icon icon-name="utility:file" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                <a href={file.downloadUrl} target="_blank" rel="noopener noreferrer" class="file-link">
+                                    {file.title}
+                                </a>
+                                <span class="file-meta">
+                                    ({file.formattedSize} • {file.formattedDate})
+                                </span>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+                
+                <template if:false={hasFiles}>
+                    <div class="slds-text-align_center slds-p-around_medium">
+                        <lightning-icon icon-name="utility:info" size="small" class="slds-m-bottom_x-small"></lightning-icon>
+                        <p class="slds-text-body_small slds-text-color_weak">No files attached</p>
                     </div>
                 </template>
             </div>
-        </template>
-        
-        <template if:false={hasFiles}>
-            <div class="slds-text-align_center slds-p-around_medium">
-                <lightning-icon icon-name="utility:info" size="small" class="slds-m-bottom_x-small"></lightning-icon>
-                <p class="slds-text-body_small slds-text-color_weak">No files attached</p>
-            </div>
-        </template>
+        </lightning-card>
     </template>
 </template>

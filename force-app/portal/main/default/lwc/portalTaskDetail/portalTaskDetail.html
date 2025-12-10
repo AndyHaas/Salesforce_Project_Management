@@ -145,31 +145,17 @@
                     </div>
 
                     <!-- Dependencies Section -->
-                    <div class="section">
-                        <h3 class="section-title">Dependencies</h3>
-                        <div class="section-content">
-                            <template if:true={hasParentTask}>
+                    <template if:true={hasParentTask}>
+                        <div class="section">
+                            <h3 class="section-title">Dependencies</h3>
+                            <div class="section-content">
                                 <div class="detail-item">
                                     <span class="label">Parent Task</span>
                                     <span class="detail-value">{displayParentTask}</span>
                                 </div>
-                            </template>
-                            <template if:false={hasParentTask}>
-                                <div class="detail-item">
-                                    <span class="label">Parent Task</span>
-                                    <span class="detail-value">—</span>
-                                </div>
-                            </template>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Files Section -->
-                    <div class="section">
-                        <h3 class="section-title">Files</h3>
-                        <div class="section-content">
-                            <c-portal-task-files record-id={taskId}></c-portal-task-files>
-                        </div>
-                    </div>
+                    </template>
 
                     <!-- Parent Task Details Section (conditional) -->
                     <template if:true={hasParentTask}>
@@ -248,6 +234,7 @@
         <template if:true={taskId}>
             <div class="side-panel">
                 <c-task-context-panel record-id={taskId} show-link-task-button="false" is-portal-mode="true"></c-task-context-panel>
+                <c-portal-task-files record-id={taskId}></c-portal-task-files>
             </div>
         </template>
     </div>
