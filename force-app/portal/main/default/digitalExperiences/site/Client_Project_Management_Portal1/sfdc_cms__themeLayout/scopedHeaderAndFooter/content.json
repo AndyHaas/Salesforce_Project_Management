@@ -206,7 +206,7 @@
           "children" : [ {
             "children" : [ {
               "attributes" : {
-                "versionLabel" : "Portal v0.1.33"
+                "versionLabel" : "Portal v0.1.194"
               },
               "componentName" : "c__portalFooter",
               "definition" : "c:portalFooter",

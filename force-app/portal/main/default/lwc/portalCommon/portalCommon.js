@@ -2,10 +2,11 @@
  * Shared portal utilities and constants for header, footer, and content.
  */
 
+// Keep patch in sync with commit count (bump each commit).
 export const API_VERSION = {
     major: 0,
     minor: 1,
-    patch: 33
+    patch: 194
 };
 
 export const BRAND_INFO = {

@@ -9,7 +9,7 @@
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
             <property name="versionLabel" type="String" label="Version label"
-                default="Portal v0.1.33" />
+                default="Portal v0.1.194" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
