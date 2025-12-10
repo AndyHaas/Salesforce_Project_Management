@@ -25,8 +25,18 @@
                         </div>
                     </div>
 
-                    <!-- Highlights Section -->
-                    <div class="highlights">
+                    <!-- Highlights Section (matching flexipage header) -->
+                    <div class="highlights-grid">
+                        <div class="highlight-item">
+                            <span class="label">At Risk Due to Dependencies</span>
+                            <span class="value">{displayAtRisk}</span>
+                        </div>
+                        <template if:true={task.Progress_Percentage__c}>
+                            <div class="highlight-item">
+                                <span class="label">Progress Percentage</span>
+                                <span class="value">{displayProgress}</span>
+                            </div>
+                        </template>
                         <template if:true={task.Start_Date__c}>
                             <div class="highlight-item">
                                 <span class="label">Start Date</span>
@@ -39,16 +49,28 @@
                                 <span class="value">{displayDueDate}</span>
                             </div>
                         </template>
-                        <template if:true={task.Progress_Percentage__c}>
-                            <div class="highlight-item">
-                                <span class="label">Progress</span>
-                                <span class="value">{displayProgress}</span>
-                            </div>
-                        </template>
                         <template if:true={isOverdue}>
                             <div class="highlight-item overdue">
-                                <span class="label">Status</span>
-                                <span class="value">Overdue</span>
+                                <span class="label">Is Overdue</span>
+                                <span class="value">Yes</span>
+                            </div>
+                        </template>
+                        <div class="highlight-item">
+                            <span class="label">Status</span>
+                            <span class="value">
+                                <span class={statusBadgeClass} style={statusBadgeStyle}>{displayStatus}</span>
+                            </span>
+                        </div>
+                        <div class="highlight-item">
+                            <span class="label">Priority</span>
+                            <span class="value">
+                                <span class={priorityBadgeClass}>{displayPriority}</span>
+                            </span>
+                        </div>
+                        <template if:true={task.Review_Status_Icons__c}>
+                            <div class="highlight-item review-status">
+                                <span class="label">Review Status Icons</span>
+                                <div class="value review-status-content">{displayReviewStatusIcons}</div>
                             </div>
                         </template>
                     </div>
@@ -147,6 +169,60 @@
                                     <span class="label">Parent Task</span>
                                     <span class="detail-value">{displayParentTask}</span>
                                 </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Parent Task Details Section (conditional) -->
+                    <template if:true={hasParentTask}>
+                        <div class="section">
+                            <h3 class="section-title">Parent Task Details</h3>
+                            <div class="section-content two-column">
+                                <div class="column">
+                                    <div class="detail-item">
+                                        <span class="label">Status</span>
+                                        <span class="detail-value">{displayParentTaskStatus}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Priority</span>
+                                        <span class="detail-value">{displayParentTaskPriority}</span>
+                                    </div>
+                                </div>
+                                <template if:true={task.Parent_Task__r.Description__c}>
+                                    <div class="column">
+                                        <div class="detail-item">
+                                            <span class="label">Description</span>
+                                            <div class="detail-value description">{displayParentTaskDescription}</div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Release Notes Section (conditional) -->
+                    <template if:true={hasReleaseNotes}>
+                        <div class="section">
+                            <h3 class="section-title">Release Notes</h3>
+                            <div class="section-content two-column">
+                                <div class="column">
+                                    <div class="detail-item">
+                                        <span class="label">Release Tag</span>
+                                        <span class="detail-value">{displayReleaseTag}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Release Version</span>
+                                        <span class="detail-value">{displayReleaseVersion}</span>
+                                    </div>
+                                </div>
+                                <template if:true={task.Release_Notes__r.Release_Notes_Text__c}>
+                                    <div class="column">
+                                        <div class="detail-item">
+                                            <span class="label">Release Notes Text</span>
+                                            <div class="detail-value description">{displayReleaseNotesText}</div>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                     </template>

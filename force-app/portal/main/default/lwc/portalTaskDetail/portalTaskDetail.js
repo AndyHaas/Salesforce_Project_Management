@@ -3,7 +3,7 @@ import { CurrentPageReference } from 'lightning/navigation';
 import { NavigationMixin } from 'lightning/navigation';
 import getTaskDetail from '@salesforce/apex/PortalTaskController.getTaskDetail';
 import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
-import { formatDate, formatNumber, formatPercent } from 'c/portalCommon';
+import { formatDate, formatNumber, formatPercent, formatBoolean } from 'c/portalCommon';
 
 export default class PortalTaskDetail extends NavigationMixin(LightningElement) {
     @track taskId;
@@ -140,6 +140,42 @@ export default class PortalTaskDetail extends NavigationMixin(LightningElement) 
 
     get isOverdue() {
         return this.task?.Is_Overdue__c === true;
+    }
+
+    get displayAtRisk() {
+        return formatBoolean(this.task?.At_Risk_Due_to_Dependencies__c, '—');
+    }
+
+    get displayReviewStatusIcons() {
+        return this.task?.Review_Status_Icons__c || '—';
+    }
+
+    get hasReleaseNotes() {
+        return !!this.task?.Release_Notes__c;
+    }
+
+    get displayReleaseTag() {
+        return this.task?.Release_Notes__r?.Release_Tag__r?.Name || '—';
+    }
+
+    get displayReleaseVersion() {
+        return this.task?.Release_Notes__r?.Release_Version__r?.Name || '—';
+    }
+
+    get displayReleaseNotesText() {
+        return this.task?.Release_Notes__r?.Release_Notes_Text__c || '—';
+    }
+
+    get displayParentTaskStatus() {
+        return this.task?.Parent_Task__r?.Status__c || '—';
+    }
+
+    get displayParentTaskPriority() {
+        return this.task?.Parent_Task__r?.Priority__c || '—';
+    }
+
+    get displayParentTaskDescription() {
+        return this.task?.Parent_Task__r?.Description__c || '—';
     }
 
     get statusBadgeClass() {

@@ -35,15 +35,19 @@ public without sharing class PortalTaskController {
             SELECT 
                 Id, Name, Description__c, Status__c, Priority__c,
                 Start_Date__c, Due_Date__c, Is_Overdue__c,
+                At_Risk_Due_to_Dependencies__c, Progress_Percentage__c,
+                Review_Status_Icons__c,
                 Estimated_Hours__c, Actual_Hours__c,
                 Total_Estimated_Hours__c, Total_Actual_Hours__c,
-                Progress_Percentage__c,
                 Project__c, Project__r.Name, Project__r.Id,
                 Account__c, Account__r.Name,
                 Project_Manager__c, Project_Manager__r.Name,
                 Developer__c, Developer__r.Name,
                 Client_User__c, Client_User__r.Name,
                 Parent_Task__c, Parent_Task__r.Name, Parent_Task__r.Id,
+                Parent_Task__r.Status__c, Parent_Task__r.Priority__c, Parent_Task__r.Description__c,
+                Release_Notes__c, Release_Notes__r.Release_Tag__r.Name,
+                Release_Notes__r.Release_Version__r.Name, Release_Notes__r.Release_Notes_Text__c,
                 CreatedDate
             FROM Project_Task__c
             WHERE Id = :taskId

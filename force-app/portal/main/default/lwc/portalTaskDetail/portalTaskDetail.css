@@ -97,15 +97,19 @@
     flex-wrap: wrap;
 }
 
-.highlights {
-    display: flex;
-    gap: 1.5rem;
+.highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
     margin-bottom: 1.5rem;
     padding: 1rem;
     background: #fafbfc;
     border: 1px solid #e5e5e5;
     border-radius: 6px;
-    flex-wrap: wrap;
+}
+
+.highlight-item.review-status {
+    grid-column: 1 / -1;
 }
 
 .highlight-item {
@@ -128,6 +132,11 @@
     font-size: 0.875rem;
     font-weight: 600;
     color: #222;
+}
+
+.highlight-item .review-status-content {
+    white-space: pre-line;
+    line-height: 1.5;
 }
 
 .section {
