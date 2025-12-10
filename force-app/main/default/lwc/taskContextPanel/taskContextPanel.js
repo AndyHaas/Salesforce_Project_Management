@@ -47,10 +47,24 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
     
     /**
      * @description Getter for showLinkTaskButton that defaults to true if not set
+     * Hide in portal mode - portal users should not be able to link tasks
      * @returns {boolean}
      */
     get shouldShowLinkTaskButton() {
+        // Hide in portal mode
+        if (this.isPortalMode) {
+            return false;
+        }
         return this.showLinkTaskButton !== false;
+    }
+    
+    /**
+     * @description Getter to check if relationship actions (edit/delete) should be shown
+     * Hide in portal mode - portal users should not be able to edit or delete relationships
+     * @returns {boolean}
+     */
+    get shouldShowRelationshipActions() {
+        return !this.isPortalMode;
     }
     
     /**

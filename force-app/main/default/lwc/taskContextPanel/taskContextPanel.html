@@ -118,12 +118,14 @@
                                                         <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
                                                     </div>
                                                     <template if:true={depTask.relationshipId}>
-                                                        <div data-relationship-id={depTask.relationshipId} class="context-menu-container">
-                                                            <lightning-button-menu alternative-text="Relationship actions" onselect={handleMenuSelect}>
-                                                                <lightning-menu-item value="edit" label="Edit"></lightning-menu-item>
-                                                                <lightning-menu-item value="delete" label="Delete"></lightning-menu-item>
-                                                            </lightning-button-menu>
-                                                        </div>
+                                                        <template if:true={shouldShowRelationshipActions}>
+                                                            <div data-relationship-id={depTask.relationshipId} class="context-menu-container">
+                                                                <lightning-button-menu alternative-text="Relationship actions" onselect={handleMenuSelect}>
+                                                                    <lightning-menu-item value="edit" label="Edit"></lightning-menu-item>
+                                                                    <lightning-menu-item value="delete" label="Delete"></lightning-menu-item>
+                                                                </lightning-button-menu>
+                                                            </div>
+                                                        </template>
                                                     </template>
                                                 </div>
                                             </div>
@@ -182,12 +184,14 @@
                                                         <lightning-icon icon-name="utility:chevronright" size="x-small" class="context-link-icon"></lightning-icon>
                                                     </div>
                                                     <template if:true={depTask.relationshipId}>
-                                                        <div data-relationship-id={depTask.relationshipId} class="context-menu-container">
-                                                            <lightning-button-menu alternative-text="Relationship actions" onselect={handleMenuSelect}>
-                                                                <lightning-menu-item value="edit" label="Edit"></lightning-menu-item>
-                                                                <lightning-menu-item value="delete" label="Delete"></lightning-menu-item>
-                                                            </lightning-button-menu>
-                                                        </div>
+                                                        <template if:true={shouldShowRelationshipActions}>
+                                                            <div data-relationship-id={depTask.relationshipId} class="context-menu-container">
+                                                                <lightning-button-menu alternative-text="Relationship actions" onselect={handleMenuSelect}>
+                                                                    <lightning-menu-item value="edit" label="Edit"></lightning-menu-item>
+                                                                    <lightning-menu-item value="delete" label="Delete"></lightning-menu-item>
+                                                                </lightning-button-menu>
+                                                            </div>
+                                                        </template>
                                                     </template>
                                                 </div>
                                             </div>
