@@ -1,4 +1,4 @@
-import { api, wire } from 'lwc';
+import { api, wire, LightningElement } from 'lwc';
 import { CurrentPageReference, NavigationMixin } from 'lightning/navigation';
 import getRecords from '@salesforce/apex/PortalRecordListController.getRecords';
 
