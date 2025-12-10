@@ -75,11 +75,11 @@ public without sharing class PortalProjectController {
         ];
 
         Map<String, Integer> statusCounts = new Map<String, Integer>();
-        Integer completedCount = 0;
         
         for (AggregateResult ar : statusAgg) {
             String status = (String) ar.get('status');
-            Integer cnt = (Integer) ar.get('cnt');
+            Long cntLong = (Long) ar.get('cnt');
+            Integer cnt = cntLong != null ? cntLong.intValue() : 0;
             
             // Handle null status as 'Backlog' for display
             String displayStatus = status != null ? status.trim() : 'Backlog';
@@ -89,11 +89,6 @@ public without sharing class PortalProjectController {
             sc.status = displayStatus;
             sc.count = cnt;
             metrics.statusCounts.add(sc);
-            
-            // Count completed tasks (case-insensitive check with trim)
-            if (status != null && status.trim().equalsIgnoreCase('Completed')) {
-                completedCount = cnt;
-            }
         }
 
         // Get totals with aggregation
@@ -115,9 +110,13 @@ public without sharing class PortalProjectController {
         metrics.totalEstimatedHours = totalEstimatedObj != null ? (Decimal) totalEstimatedObj : 0;
         metrics.totalActualHours = totalActualObj != null ? (Decimal) totalActualObj : 0;
 
-        // If we didn't find completed in the loop, check the statusCounts map as fallback
-        if (completedCount == 0 && statusCounts.containsKey('Completed')) {
-            completedCount = statusCounts.get('Completed');
+        // Find completed count by checking all status keys case-insensitively
+        Integer completedCount = 0;
+        for (String statusKey : statusCounts.keySet()) {
+            if (statusKey != null && statusKey.equalsIgnoreCase('Completed')) {
+                completedCount = statusCounts.get(statusKey);
+                break;
+            }
         }
         
         metrics.completedTasks = completedCount;
