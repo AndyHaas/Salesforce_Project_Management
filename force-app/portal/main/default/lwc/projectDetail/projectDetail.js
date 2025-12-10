@@ -1,18 +1,14 @@
 import { LightningElement, wire, track } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import getProjectDetail from '@salesforce/apex/PortalProjectController.getProjectDetail';
-import getProjectTasks from '@salesforce/apex/PortalProjectController.getProjectTasks';
 
 export default class ProjectDetail extends LightningElement {
     @track projectId;
     @track project;
     @track taskMetrics;
-    @track statusGroups = [];
 
     isLoading = true;
-    tasksLoading = true;
     error;
-    tasksError;
 
     @wire(CurrentPageReference)
     resolvePageReference(pageRef) {
@@ -55,32 +51,8 @@ export default class ProjectDetail extends LightningElement {
         }
     }
 
-    @wire(getProjectTasks, { projectId: '$projectId' })
-    wiredProjectTasks({ data, error }) {
-        if (!this.projectId) {
-            return;
-        }
-        this.tasksLoading = false;
-        if (data) {
-            this.statusGroups = (data.statusGroups || []).map(group => ({
-                ...group,
-                key: group.status || 'Backlog',
-                taskLabel:
-                    group.tasks && group.tasks.length === 1 ? 'task' : 'tasks'
-            }));
-            this.tasksError = undefined;
-        } else if (error) {
-            this.tasksError = this.formatError(error);
-            this.statusGroups = [];
-        }
-    }
-
     get hasData() {
         return !!this.project && !this.error;
-    }
-
-    get hasTasks() {
-        return this.statusGroups && this.statusGroups.length > 0;
     }
 
     get displayStatus() {

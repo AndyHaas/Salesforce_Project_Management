@@ -57,51 +57,6 @@
                             <span class="detail-value">{displayEndDate}</span>
                         </div>
                     </div>
-
-                    <div class="tasks">
-                        <div class="tasks-header">
-                            <h3>Project Tasks</h3>
-                            <template if:true={tasksLoading}>
-                                <lightning-spinner size="small"></lightning-spinner>
-                            </template>
-                        </div>
-
-                        <template if:true={tasksError}>
-                            <p class="error">{tasksError}</p>
-                        </template>
-
-                        <template if:true={hasTasks}>
-                            <template for:each={statusGroups} for:item="group">
-                                <section key={group.key} class="status-group">
-                                    <div class="status-header">
-                                        <h4>{group.status}</h4>
-                                        <span class="count">{group.tasks.length} {group.taskLabel}</span>
-                                    </div>
-                                    <ul>
-                                        <template for:each={group.tasks} for:item="task">
-                                            <li key={task.id} class="task-row">
-                                                <div>
-                                                    <p class="task-name">{task.name}</p>
-                                                    <p class="task-meta">
-                                                        <span>{task.priority}</span>
-                                                        <span if:true={task.dueDate}> • Due {task.dueDate}</span>
-                                                    </p>
-                                                </div>
-                                                <div class="task-hours">
-                                                    <span title="Estimated Hours">{task.estimatedHours}</span>
-                                                    <span title="Actual Hours">{task.actualHours}</span>
-                                                </div>
-                                            </li>
-                                        </template>
-                                    </ul>
-                                </section>
-                            </template>
-                        </template>
-
-                        <template if:false={hasTasks}>
-                            <p class="muted">No tasks found for this project.</p>
-                        </template>
-                    </div>
                 </div>
             </template>
 
