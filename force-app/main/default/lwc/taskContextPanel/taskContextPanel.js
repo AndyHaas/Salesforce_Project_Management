@@ -830,7 +830,21 @@ export default class TaskContextPanel extends NavigationMixin(LightningElement) 
         const modal = this.template.querySelector('c-link-task-modal');
         if (modal) {
             modal.open();
+        } else {
+            console.error('Link Task Modal not found. Component may not be loaded.');
+            this.showToast('Error', 'Unable to open Link Task modal. Please refresh the page.', 'error');
         }
+    }
+    
+    /**
+     * @description Show toast notification
+     */
+    showToast(title, message, variant) {
+        this.dispatchEvent(new ShowToastEvent({
+            title: title,
+            message: message,
+            variant: variant || 'info'
+        }));
     }
     
     /**

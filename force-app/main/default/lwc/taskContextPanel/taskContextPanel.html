@@ -24,11 +24,13 @@
         </lightning-button-group>
         
         <!-- Link Task Modal -->
-        <c-link-task-modal 
-            record-id={recordId}
-            onrelationshipcreated={handleRelationshipCreated}
-            onrelationshipupdated={handleRelationshipUpdated}>
-        </c-link-task-modal>
+        <template if:true={recordId}>
+            <c-link-task-modal 
+                record-id={recordId}
+                onrelationshipcreated={handleRelationshipCreated}
+                onrelationshipupdated={handleRelationshipUpdated}>
+            </c-link-task-modal>
+        </template>
 
         <template if:true={isLoading}>
             <div class="slds-card__body slds-card__body_inner">
