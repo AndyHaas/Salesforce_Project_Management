@@ -1,8 +1,3 @@
-.brand-card {
-    --slds-c-card-heading-color: var(--slds-c-button-brand-color-background, #0176d3);
-    --slds-c-card-heading-font-weight: 600;
-}
-
 .medium-card {
     max-width: 800px;
     margin: 0 auto;
