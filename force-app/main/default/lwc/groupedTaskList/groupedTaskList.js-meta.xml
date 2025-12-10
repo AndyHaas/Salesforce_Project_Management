@@ -32,9 +32,12 @@
             <property name="useCurrentUserAccount" type="Boolean" label="Use Current User Account"
                 default="false"
                 description="When true, defaults to the logged-in user's Account if no record/account is provided (useful for Experience Cloud)" />
-            <property name="context" type="String" label="Context"
+            <property name="context" type="String" label="Context (Deprecated)"
                 default="portal"
-                description="Set to 'portal' for Experience Cloud/Community pages or 'salesforce' for standard Salesforce pages. Controls navigation and account filter visibility. Valid values: 'portal' or 'salesforce'." />
+                description="DEPRECATED: Use 'Is Salesforce Context' property instead. Set to 'portal' for Experience Cloud/Community pages or 'salesforce' for standard Salesforce pages." />
+            <property name="isSalesforceContext" type="Boolean" label="Is Salesforce Context"
+                default="false"
+                description="When checked (true), uses Salesforce navigation and shows account filter. When unchecked (false), uses portal navigation and hides account filter. Default is false (portal mode). This property takes precedence over the deprecated 'Context' property." />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

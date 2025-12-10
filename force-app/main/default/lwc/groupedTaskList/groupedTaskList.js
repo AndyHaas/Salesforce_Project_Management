@@ -32,7 +32,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @api projectId; // Optional project filter
     @api showAccountFilter; // Show/hide the account filter dropdown
     @api useCurrentUserAccount = false; // When true, default to current user's account if none supplied (for portal use)
-    @api context = 'portal'; // Context: 'portal' or 'salesforce' - determines navigation and account filter behavior
+    @api context = 'portal'; // DEPRECATED: Use isSalesforceContext instead. Kept for backward compatibility.
+    @api isSalesforceContext = false; // When true, uses Salesforce navigation and shows account filter; when false (default), uses portal navigation
     
     @wire(MessageContext)
     messageContext;
@@ -48,6 +49,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     refreshInterval = null; // Interval ID for periodic refresh
     showMyTasksOnly = false; // "Me" mode toggle
     showCompletedTasks = false; // Toggle Completed status visibility (default hidden)
+    showRemovedTasks = false; // Toggle Removed status visibility (default hidden)
     currentUserId = USER_ID; // Current user ID
     error;
     summaryFieldDefinitions = [];
@@ -150,24 +152,33 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
 
     get isPortalMode() {
-        // Use context property if set, otherwise fall back to auto-detection
+        // If on a record page (Account record page), always use Salesforce navigation
+        if (this.recordId) {
+            return false;
+        }
+        // Use isSalesforceContext property if explicitly set (preferred)
+        if (this.isSalesforceContext === true) {
+            return false;
+        }
+        // Fallback to deprecated context property for backward compatibility
         if (this.context === 'salesforce') {
             return false;
         }
-        if (this.context === 'portal') {
-            return true;
-        }
-        // Fallback to auto-detection if context not explicitly set
+        // Fallback to auto-detection if not explicitly set
         return this.isExperienceSite === true;
     }
     
     get shouldShowAccountFilter() {
-        // Show account filter in Salesforce context, hide in portal
+        // Hide account filter in portal mode or when on a record page
         if (this.isPortalMode) {
             return false;
         }
+        // Hide on Account record pages (recordId is set)
+        if (this.recordId) {
+            return false;
+        }
         const showFilter = this.showAccountFilter !== false;
-        return showFilter && !this.recordId;
+        return showFilter;
     }
     
     connectedCallback() {
@@ -284,6 +295,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                 break;
             case 'showCompleted':
                 this.handleCompletedToggle();
+                break;
+            case 'showRemoved':
+                this.handleRemovedToggle();
                 break;
             case 'expandCollapseAll':
                 this.handleExpandCollapseAll();
@@ -675,8 +689,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             'In Review': 'slds-badge slds-badge_inverse',
             'Blocked': 'slds-badge slds-badge_error',
             'Completed': 'slds-badge slds-badge_success',
-            'Removed': 'slds-badge slds-badge_offline',
-            'Closed': 'slds-badge slds-badge_success'
+            'Removed': 'slds-badge slds-badge_offline'
         };
         return statusClasses[status] || 'slds-badge';
     }
@@ -791,6 +804,20 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this.showCompletedTasks ? 'utility:hide' : 'utility:success';
     }
     
+    get removedToggleLabel() {
+        return this.showRemovedTasks ? 'Hide Removed' : 'Show Removed';
+    }
+    
+    get removedToggleTitle() {
+        return this.showRemovedTasks
+            ? 'Hide tasks that are currently in the Removed status'
+            : 'Show tasks that are currently in the Removed status';
+    }
+    
+    get removedToggleIcon() {
+        return this.showRemovedTasks ? 'utility:hide' : 'utility:delete';
+    }
+    
     get expandCollapseAllLabel() {
         return this.areAllStatusesCollapsed ? 'Expand All' : 'Collapse All';
     }
@@ -823,6 +850,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     
     handleCompletedToggle() {
         this.showCompletedTasks = !this.showCompletedTasks;
+        this.refreshFilteredStatusGroups();
+    }
+    
+    handleRemovedToggle() {
+        this.showRemovedTasks = !this.showRemovedTasks;
         this.refreshFilteredStatusGroups();
     }
     
@@ -872,6 +904,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         // Always respect the showCompletedTasks toggle, regardless of "My Tasks" mode
         if (!this.showCompletedTasks) {
             groups = groups.filter(group => group.status !== 'Completed');
+        }
+        
+        // Always respect the showRemovedTasks toggle, regardless of "My Tasks" mode
+        if (!this.showRemovedTasks) {
+            groups = groups.filter(group => group.status !== 'Removed');
         }
         
         if (this.showMyTasksOnly) {
@@ -1137,8 +1174,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             'In Review': '#5B21B6',
             'Blocked': '#C23934',
             'Completed': '#2E844A',
-            'Removed': '#706E6B',
-            'Closed': '#2E844A'
+            'Removed': '#706E6B'
         };
     }
     

@@ -55,12 +55,6 @@
                 <default>false</default>
                 <label>Removed</label>
             </value>
-            <value>
-                <fullName>Closed</fullName>
-                <color>#2E844A</color>
-                <default>false</default>
-                <label>Closed</label>
-            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
