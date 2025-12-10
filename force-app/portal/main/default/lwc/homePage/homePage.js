@@ -9,6 +9,34 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     @api tasksNeedingReviewCount = 0;
     isLoading = true;
     error;
+    
+    // Data table columns for Projects
+    projectsColumns = [
+        { 
+            label: 'Name', 
+            fieldName: 'Name', 
+            type: 'text',
+            cellAttributes: { 
+                class: 'slds-text-link' 
+            }
+        },
+        { label: 'Status', fieldName: 'Status__c', type: 'text' },
+        { label: 'Hours', fieldName: 'Total_Time__c', type: 'number', typeAttributes: { minimumFractionDigits: 2 } }
+    ];
+    
+    // Data table columns for Tasks
+    tasksColumns = [
+        { 
+            label: 'Name', 
+            fieldName: 'Name', 
+            type: 'text',
+            cellAttributes: { 
+                class: 'slds-text-link' 
+            }
+        },
+        { label: 'Status', fieldName: 'Status__c', type: 'text' },
+        { label: 'Hours', fieldName: 'Total_Actual_Hours__c', type: 'number', typeAttributes: { minimumFractionDigits: 2 } }
+    ];
 
     @wire(getHomePageData)
     wiredHomePageData({ error, data }) {
@@ -49,20 +77,52 @@ export default class HomePage extends NavigationMixin(LightningElement) {
     get hasTasksNeedingReview() {
         return this.tasksNeedingReviewCount > 0;
     }
+    
+    get projectsTableData() {
+        return this.activeProjects.map(project => ({
+            ...project,
+            Name: project.Name,
+            Status__c: project.Status__c || '',
+            Total_Time__c: project.Total_Time__c || 0
+        }));
+    }
+    
+    get tasksTableData() {
+        return this.openTasks.map(task => ({
+            ...task,
+            Name: task.Name,
+            Status__c: task.Status__c || '',
+            Total_Actual_Hours__c: task.Total_Actual_Hours__c || 0
+        }));
+    }
 
-    handleProjectClick(event) {
-        event.preventDefault();
-        const projectId = event.currentTarget.dataset.id;
-        if (projectId) {
-            this.navigateToRecord(projectId, 'Project__c');
+    handleProjectRowClick(event) {
+        const row = event.detail.row;
+        if (row && row.Id) {
+            this.navigateToRecord(row.Id, 'Project__c');
         }
     }
 
-    handleTaskClick(event) {
-        event.preventDefault();
-        const taskId = event.currentTarget.dataset.id;
-        if (taskId) {
-            this.navigateToRecord(taskId, 'Project_Task__c');
+    handleTaskRowClick(event) {
+        const row = event.detail.row;
+        if (row && row.Id) {
+            this.navigateToRecord(row.Id, 'Project_Task__c');
+        }
+    }
+
+    handleProjectRowAction(event) {
+        const action = event.detail.action;
+        const row = event.detail.row;
+        if (action.name === 'view' || action.name === 'navigate') {
+            this.navigateToRecord(row.Id, 'Project__c');
+        }
+    }
+
+    handleTaskRowAction(event) {
+        const action = event.detail.action;
+        const row = event.detail.row;
+        if (action.name === 'view' || action.name === 'navigate') {
+            this.navigateToRecord(row.Id, 'Project_Task__c');
         }
     }
 
