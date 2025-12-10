@@ -321,6 +321,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @wire(getGroupedTasksWithSubtasks, { accountIds: '$effectiveAccountIds' })
     wiredGroupedTasks(result) {
         if (this.projectId) {
+            // Clear statusGroups to prevent mixing project and account data
+            this.statusGroups = [];
+            this.filteredStatusGroups = [];
             return;
         }
         this.wiredGroupedTasksResult = result;
@@ -513,6 +516,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @wire(getGroupedTasksWithSubtasksByProject, { projectId: '$projectId' })
     wiredGroupedTasksByProject(result) {
         if (!this.projectId) {
+            // Clear statusGroups when projectId is removed
+            this.statusGroups = [];
+            this.filteredStatusGroups = [];
+            // Reset toggle states when switching away from project view
+            this.showCompletedTasks = false;
+            this.showRemovedTasks = false;
             return;
         }
         this.wiredGroupedTasksResult = result;
@@ -520,6 +529,13 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         this.isLoading = !data && !error;
         if (data) {
             try {
+                // Clear any existing statusGroups first to prevent data mixing
+                // This ensures we only use project-specific data
+                this.statusGroups = [];
+                this.filteredStatusGroups = [];
+                // Reset toggle states to default when loading new project data
+                this.showCompletedTasks = false;
+                this.showRemovedTasks = false;
                 const statusGroupsData = Array.isArray(data.statusGroups) ? data.statusGroups : [];
                 this.summaryFieldDefinitions = Array.isArray(data.summaryFieldDefinitions) ? data.summaryFieldDefinitions : [];
                 this.updateSummaryFieldDefinitionMap();
