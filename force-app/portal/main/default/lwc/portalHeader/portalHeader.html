@@ -18,38 +18,47 @@
             <!-- Navigation Section (shown when authenticated) -->
             <template if:true={isAuthenticated}>
                 <nav class="header-nav" role="navigation">
-                    <lightning-button-group>
-                        <lightning-button 
-                            variant="base"
-                            class="nav-link"
-                            class:active={isHomeActive}
-                            data-route="home"
-                            onclick={handleNavClick}
-                            icon-name="utility:home"
-                            icon-size="x-small"
-                            label="Home">
-                        </lightning-button>
-                        <lightning-button 
-                            variant="base"
-                            class="nav-link"
-                            class:active={isProjectsActive}
-                            data-route="projects"
-                            onclick={handleNavClick}
-                            icon-name="utility:projects"
-                            icon-size="x-small"
-                            label="Projects">
-                        </lightning-button>
-                        <lightning-button 
-                            variant="base"
-                            class="nav-link"
-                            class:active={isProjectTasksActive}
-                            data-route="project-tasks"
-                            onclick={handleNavClick}
-                            icon-name="utility:task"
-                            icon-size="x-small"
-                            label="Project Tasks">
-                        </lightning-button>
-                    </lightning-button-group>
+                    <lightning-layout class="nav-layout" horizontal-align="center" vertical-align="center">
+                        <lightning-layout-item class="nav-item-wrapper" flexibility="auto">
+                            <lightning-button 
+                                variant="base"
+                                class="nav-link"
+                                class:active={isHomeActive}
+                                data-route="home"
+                                onclick={handleNavClick}
+                                icon-name="utility:home"
+                                icon-size="small"
+                                label="Home"
+                                title="Navigate to Home">
+                            </lightning-button>
+                        </lightning-layout-item>
+                        <lightning-layout-item class="nav-item-wrapper" flexibility="auto">
+                            <lightning-button 
+                                variant="base"
+                                class="nav-link"
+                                class:active={isProjectsActive}
+                                data-route="projects"
+                                onclick={handleNavClick}
+                                icon-name="utility:projects"
+                                icon-size="small"
+                                label="Projects"
+                                title="Navigate to Projects">
+                            </lightning-button>
+                        </lightning-layout-item>
+                        <lightning-layout-item class="nav-item-wrapper" flexibility="auto">
+                            <lightning-button 
+                                variant="base"
+                                class="nav-link"
+                                class:active={isProjectTasksActive}
+                                data-route="project-tasks"
+                                onclick={handleNavClick}
+                                icon-name="utility:task"
+                                icon-size="small"
+                                label="Project Tasks"
+                                title="Navigate to Project Tasks">
+                            </lightning-button>
+                        </lightning-layout-item>
+                    </lightning-layout>
                 </nav>
             </template>
 

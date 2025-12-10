@@ -319,11 +319,10 @@ select:focus {
    Header Styles - Matching milestoneconsulting.tech
    ============================================ */
 
-/* Header Container */
-[data-region-name="header"],
-[data-region-name="headerSection"],
-.community_builder\:customizableHeader,
-[class*="header"] {
+/* Header Container - Only target Experience Cloud header regions, exclude portal-header */
+[data-region-name="header"]:not(.portal-header):not([class*="portal-header"]),
+[data-region-name="headerSection"]:not(.portal-header):not([class*="portal-header"]),
+.community_builder\:customizableHeader:not(.portal-header):not([class*="portal-header"]) {
     background: linear-gradient(135deg, #355d7c 0%, #4d86b2 100%) !important;
     box-shadow: var(--mc-shadow-sm) !important;
     border-bottom: none !important;
@@ -331,6 +330,16 @@ select:focus {
     position: relative;
     z-index: 1000;
 }
+
+/* Explicitly exclude portal-header component and its children from header styles */
+.portal-header,
+[class*="portal-header"],
+c-portal-header,
+c-portal-header * {
+    background: none !important;
+    background-color: transparent !important;
+}
+
 
 /* Header Section Container */
 [data-region-name="headerSection"] > *,
@@ -341,10 +350,10 @@ select:focus {
     background: linear-gradient(135deg, #355d7c 0%, #4d86b2 100%) !important;
 }
 
-/* Logo Styling */
+/* Logo Styling - Exclude portal-header logo */
 [data-region-name="siteLogo"],
 .dxp_content_layout\:siteLogo,
-[class*="siteLogo"] {
+[class*="siteLogo"]:not(.portal-header [class*="siteLogo"]):not(.brand-logo) {
     display: flex;
     align-items: center;
     background: transparent !important;
@@ -364,6 +373,17 @@ select:focus {
     padding: 0 !important;
     filter: brightness(0) invert(1) !important; /* Make logo white */
     mix-blend-mode: screen;
+}
+
+/* Portal header logo should NOT have the white filter */
+.portal-header .brand-logo,
+.portal-header img.brand-logo,
+c-portal-header .brand-logo,
+c-portal-header img.brand-logo {
+    filter: none !important;
+    mix-blend-mode: normal !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* Navigation Menu Container */

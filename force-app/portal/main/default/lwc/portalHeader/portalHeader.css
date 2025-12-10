@@ -1,20 +1,14 @@
 /* Milestone Consulting Color Palette */
 :host {
-    --milestone-blue: #1E3A5F;
-    --milestone-blue-dark: #152A47;
-    --milestone-blue-light: #2A4A6F;
     --milestone-orange: #FF6B35;
     --milestone-orange-dark: #E55A2B;
-    --milestone-orange-light: #FF8C5A;
     --milestone-white: #FFFFFF;
     --milestone-gray-light: #F5F5F5;
     --milestone-gray: #E0E0E0;
     --milestone-text-dark: #1E3A5F;
-    --milestone-text-light: #6B7A8F;
 }
 
 .portal-header {
-    background-color: var(--milestone-white);
     border-bottom: 2px solid var(--milestone-orange);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     position: sticky;
@@ -64,7 +58,7 @@
 .brand-text {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--milestone-text-dark);
+    color: var(--milestone-white);
     white-space: nowrap;
     letter-spacing: 0.5px;
 }
@@ -74,24 +68,36 @@
     flex: 1;
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
-.header-nav lightning-button-group {
+.nav-layout {
+    width: 100%;
+    max-width: 600px;
+    justify-content: space-evenly;
+}
+
+.nav-item-wrapper {
+    flex: 1;
     display: flex;
-    gap: 0.25rem;
+    justify-content: center;
+    min-width: 0;
 }
 
 .nav-link {
     --slds-c-button-neutral-color-background: transparent;
-    --slds-c-button-neutral-color-background-hover: var(--milestone-gray-light);
+    --slds-c-button-neutral-color-background-hover: rgba(255, 255, 255, 0.1);
     --slds-c-button-neutral-color-border: transparent;
     --slds-c-button-neutral-color-border-hover: transparent;
-    --slds-c-button-text-color: var(--milestone-text-dark);
-    --slds-c-button-text-color-hover: var(--milestone-orange);
-    --slds-c-button-icon-color-foreground-default: var(--milestone-text-dark);
-    --slds-c-button-icon-color-foreground-default-hover: var(--milestone-orange);
+    --slds-c-button-text-color: var(--milestone-white);
+    --slds-c-button-text-color-hover: var(--milestone-white);
+    --slds-c-button-icon-color-foreground-default: var(--milestone-white);
+    --slds-c-button-icon-color-foreground-default-hover: var(--milestone-white);
     position: relative;
     transition: all 0.3s ease;
+    width: 100%;
+    min-width: 120px;
+    font-weight: 500;
 }
 
 .nav-link::after {
@@ -112,9 +118,9 @@
 }
 
 .nav-link.active {
-    --slds-c-button-neutral-color-background: rgba(255, 107, 53, 0.1);
-    --slds-c-button-text-color: var(--milestone-orange);
-    --slds-c-button-icon-color-foreground-default: var(--milestone-orange);
+    --slds-c-button-neutral-color-background: rgba(255, 107, 53, 0.2);
+    --slds-c-button-text-color: var(--milestone-white);
+    --slds-c-button-icon-color-foreground-default: var(--milestone-white);
     font-weight: 600;
 }
 
@@ -129,22 +135,22 @@
     align-items: center;
     gap: 0.625rem;
     padding: 0.5rem 1rem;
-    background-color: var(--milestone-gray-light);
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    color: var(--milestone-text-dark);
+    color: var(--milestone-white);
     font-size: 0.875rem;
     flex-shrink: 0;
-    border: 1px solid var(--milestone-gray);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
 }
 
 .header-user:hover {
-    background-color: var(--milestone-gray);
+    background-color: rgba(255, 255, 255, 0.2);
     border-color: var(--milestone-orange);
 }
 
 .user-icon {
-    --slds-c-icon-color-foreground-default: var(--milestone-text-dark);
+    --slds-c-icon-color-foreground-default: var(--milestone-white);
 }
 
 .user-text {
@@ -208,8 +214,14 @@
         display: none;
     }
 
-    .header-nav lightning-button-group {
-        gap: 0.125rem;
+    .nav-layout {
+        max-width: 100%;
+        gap: 0.5rem;
+    }
+    
+    .nav-link {
+        min-width: 100px;
+        font-size: 0.875rem;
     }
 
     .header-user {
