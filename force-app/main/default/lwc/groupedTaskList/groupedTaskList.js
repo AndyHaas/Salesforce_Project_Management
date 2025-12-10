@@ -128,10 +128,43 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                 { label: 'All Contacts', value: '' },
                 ...data
             ];
+            // Calculate and set dynamic width after rendering
+            this.updateContactFilterWidth();
         } else if (error) {
             console.warn('Error loading assigned contacts:', error);
             this.assignedContacts = [{ label: 'All Contacts', value: '' }];
         }
+    }
+    
+    updateContactFilterWidth() {
+        // Use setTimeout to ensure DOM is updated
+        setTimeout(() => {
+            const combobox = this.template.querySelector('.contact-filter-combobox');
+            if (combobox && this.assignedContacts && this.assignedContacts.length > 0) {
+                // Find the longest label
+                const longestLabel = this.assignedContacts.reduce((longest, option) => {
+                    return option.label && option.label.length > longest.length ? option.label : longest;
+                }, '');
+                
+                // Create a temporary element to measure text width
+                const tempElement = document.createElement('span');
+                tempElement.style.visibility = 'hidden';
+                tempElement.style.position = 'absolute';
+                tempElement.style.whiteSpace = 'nowrap';
+                tempElement.style.fontSize = window.getComputedStyle(combobox).fontSize;
+                tempElement.style.fontFamily = window.getComputedStyle(combobox).fontFamily;
+                tempElement.textContent = longestLabel || 'Filter by Contact';
+                document.body.appendChild(tempElement);
+                
+                const textWidth = tempElement.offsetWidth;
+                document.body.removeChild(tempElement);
+                
+                // Set width with some padding (add ~60px for dropdown arrow and padding)
+                const minWidth = Math.max(200, textWidth + 60);
+                combobox.style.minWidth = minWidth + 'px';
+                combobox.style.width = 'auto';
+            }
+        }, 0);
     }
     
     @wire(getDisplayDensity)
@@ -1906,6 +1939,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                 // Also refresh the assigned contacts list
                 if (this.wiredAssignedContactsResult) {
                     await refreshApex(this.wiredAssignedContactsResult);
+                    // Recalculate width after refresh
+                    this.updateContactFilterWidth();
                 }
                 this.showToast('Success', 'Task list refreshed', 'success');
             } catch (error) {

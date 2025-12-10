@@ -230,6 +230,15 @@
     display: none !important;
 }
 
+.contact-filter-combobox {
+    min-width: 200px;
+    width: auto;
+}
+
+.contact-filter-combobox span:first-child {
+    display: none !important;
+}
+
 .actions-container {
     flex-shrink: 1;
     flex-grow: 0;
