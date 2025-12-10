@@ -990,12 +990,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         const contactId = event.detail.value;
         if (contactId && contactId.trim() !== '') {
             this.selectedContactId = contactId;
-            this.showMyTasksOnly = true;
+            // Don't set showMyTasksOnly - Contact filter works independently and additively with Account filter
             this.refreshFilteredStatusGroups();
         } else {
             // Clear filter if "All Contacts" selected
             this.selectedContactId = null;
-            this.showMyTasksOnly = false;
             this.refreshFilteredStatusGroups();
         }
     }
@@ -1089,7 +1088,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             groups = groups.filter(group => group.status !== 'Removed');
         }
         
-        if (this.showMyTasksOnly) {
+        // Apply Contact filter if selected (works additively with Account filter)
+        // This applies to both Portal (currentUserContactId) and Salesforce (selectedContactId)
+        if (this.showMyTasksOnly || this.selectedContactId) {
             groups = this.filterGroupsForCurrentUser(groups);
         }
         
