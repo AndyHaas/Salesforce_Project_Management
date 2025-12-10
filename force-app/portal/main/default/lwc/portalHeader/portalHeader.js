@@ -1,5 +1,6 @@
 import { LightningElement, api, wire } from 'lwc';
 import USER_ID from '@salesforce/user/Id';
+import { ensureSitePath } from 'c/portalCommon';
 
 export default class PortalHeader extends LightningElement {
     /**
@@ -182,17 +183,8 @@ export default class PortalHeader extends LightningElement {
      * @param {string} url - URL to navigate to
      */
     navigateToUrl(url) {
-        // In Experience Cloud, URLs typically need /s/ prefix
-        // Check if we're in Experience Cloud context
-        const isExperienceCloud = window.location.pathname.startsWith('/s/');
-        
-        if (isExperienceCloud && !url.startsWith('/s/')) {
-            // Add /s/ prefix for Experience Cloud
-            url = '/s' + (url.startsWith('/') ? url : '/' + url);
-        }
-        
-        // Use window.location for navigation in Experience Cloud
-        window.location.href = url;
+        const targetUrl = ensureSitePath(url, { currentPathname: window.location.pathname });
+        window.location.href = targetUrl;
     }
 }
 
