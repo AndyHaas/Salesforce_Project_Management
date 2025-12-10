@@ -12,7 +12,7 @@ export const BRAND_INFO = {
     name: 'Milestone Consulting',
     tagline:
         'Your secure portal for managing projects, tracking tasks, and staying connected with your Milestone Consulting team.',
-    logoResource: '/sfsites/c/resource/MilestoneLogo_White'
+    logoResource: 'https://milestoneconsulting.tech/assets/images/logos/MC_WHITE_UPDATED.png'
 };
 
 export const CONTACT_INFO = {
