@@ -212,6 +212,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     get isFilteredByAccount() {
         return this.effectiveAccountIds.length > 0;
     }
+    
+    get isFilteredByProject() {
+        return !!this.projectId;
+    }
 
     get isPortalMode() {
         // If on a record page (Account record page), always use Salesforce navigation

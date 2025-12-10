@@ -35,12 +35,21 @@
                 </div>
             </div>
             <div class="slds-col actions-container slds-grid slds-grid_vertical-align-center">
-                <template if:true={isFilteredByAccount}>
+                <template if:true={isFilteredByProject}>
                     <lightning-badge 
-                        label="Filtered by Account" 
+                        label="Filter by Project" 
                         class="slds-m-right_small"
-                        title="Tasks are filtered to show only those associated with the selected account(s)">
+                        title="Tasks are filtered to show only those associated with the selected project">
                     </lightning-badge>
+                </template>
+                <template if:true={isFilteredByAccount}>
+                    <template if:false={isFilteredByProject}>
+                        <lightning-badge 
+                            label="Filtered by Account" 
+                            class="slds-m-right_small"
+                            title="Tasks are filtered to show only those associated with the selected account(s)">
+                        </lightning-badge>
+                    </template>
                 </template>
                 <div class="button-group-wrapper">
                     <lightning-button-group class="slds-m-right_small">
@@ -165,9 +174,11 @@
                                         </template>
                                         <template if:false={hasSummaryFields}>
                                             <template if:false={isFilteredByAccount}>
-                                                <th class="summary-header">
-                                                    <strong>Account</strong>
-                                                </th>
+                                                <template if:false={isFilteredByProject}>
+                                                    <th class="summary-header">
+                                                        <strong>Account</strong>
+                                                    </th>
+                                                </template>
                                             </template>
                                             <th class="summary-header">
                                                 <strong>Owner</strong>
@@ -309,14 +320,16 @@
                                             </template>
                                             <template if:false={hasSummaryFields}>
                                                 <template if:false={isFilteredByAccount}>
-                                                    <td class="summary-cell">
-                                                        <template if:true={task.accountName}>
-                                                            <div class="slds-text-body_small">{task.accountName}</div>
-                                                        </template>
-                                                        <template if:false={task.accountName}>
-                                                            <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                        </template>
-                                                    </td>
+                                                    <template if:false={isFilteredByProject}>
+                                                        <td class="summary-cell">
+                                                            <template if:true={task.accountName}>
+                                                                <div class="slds-text-body_small">{task.accountName}</div>
+                                                            </template>
+                                                            <template if:false={task.accountName}>
+                                                                <div class="slds-text-body_small slds-text-color_weak">—</div>
+                                                            </template>
+                                                        </td>
+                                                    </template>
                                                 </template>
                                                 
                                                 <td class="summary-cell">
@@ -485,14 +498,16 @@
                                                         </template>
                                                         <template if:false={hasSummaryFields}>
                                                             <template if:false={isFilteredByAccount}>
-                                                                <td class="summary-cell">
-                                                                    <template if:true={subtask.accountName}>
-                                                                        <div class="slds-text-body_small">{subtask.accountName}</div>
-                                                                    </template>
-                                                                    <template if:false={subtask.accountName}>
-                                                                        <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                                    </template>
-                                                                </td>
+                                                                <template if:false={isFilteredByProject}>
+                                                                    <td class="summary-cell">
+                                                                        <template if:true={subtask.accountName}>
+                                                                            <div class="slds-text-body_small">{subtask.accountName}</div>
+                                                                        </template>
+                                                                        <template if:false={subtask.accountName}>
+                                                                            <div class="slds-text-body_small slds-text-color_weak">—</div>
+                                                                        </template>
+                                                                    </td>
+                                                                </template>
                                                             </template>
                                                             
                                                             <td class="summary-cell">
