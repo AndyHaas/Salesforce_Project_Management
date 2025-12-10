@@ -832,6 +832,62 @@ public without sharing class ProjectTaskDashboardController {
         return currentUser.ContactId;
     }
     
+    @AuraEnabled(cacheable=true)
+    public static List<ContactOption> getAssignedContacts() {
+        // Get unique list of Contacts assigned to tasks as Project Manager, Developer, or Client User
+        Set<Id> contactIds = new Set<Id>();
+        
+        // Query tasks and collect Contact IDs from all three fields
+        List<Project_Task__c> tasks = [
+            SELECT Project_Manager__c, Developer__c, Client_User__c
+            FROM Project_Task__c
+            WHERE (Project_Manager__c != null 
+                   OR Developer__c != null 
+                   OR Client_User__c != null)
+            LIMIT 10000
+        ];
+        
+        for (Project_Task__c task : tasks) {
+            if (task.Project_Manager__c != null) {
+                contactIds.add(task.Project_Manager__c);
+            }
+            if (task.Developer__c != null) {
+                contactIds.add(task.Developer__c);
+            }
+            if (task.Client_User__c != null) {
+                contactIds.add(task.Client_User__c);
+            }
+        }
+        
+        if (contactIds.isEmpty()) {
+            return new List<ContactOption>();
+        }
+        
+        // Query Contact records
+        List<Contact> contacts = [
+            SELECT Id, Name, Email
+            FROM Contact
+            WHERE Id IN :contactIds
+            ORDER BY Name
+            LIMIT 1000
+        ];
+        
+        List<ContactOption> options = new List<ContactOption>();
+        for (Contact c : contacts) {
+            ContactOption option = new ContactOption();
+            option.label = c.Name + (c.Email != null ? ' (' + c.Email + ')' : '');
+            option.value = c.Id;
+            options.add(option);
+        }
+        
+        return options;
+    }
+    
+    public class ContactOption {
+        @AuraEnabled public String label;
+        @AuraEnabled public String value;
+    }
+    
     // Wrapper classes
     public class StatusBreakdownResult {
         @AuraEnabled public Map<String, Integer> statusCounts;

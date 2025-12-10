@@ -22,6 +22,7 @@ import getAccounts from '@salesforce/apex/ProjectTaskDashboardController.getAcco
 import getStatusColors from '@salesforce/apex/ProjectTaskDashboardController.getStatusColors';
 import getCurrentUserAccountId from '@salesforce/apex/ProjectTaskDashboardController.getCurrentUserAccountId';
 import getCurrentUserContactId from '@salesforce/apex/ProjectTaskDashboardController.getCurrentUserContactId';
+import getAssignedContacts from '@salesforce/apex/ProjectTaskDashboardController.getAssignedContacts';
 import getDisplayDensity from '@salesforce/apex/DisplayDensityController.getDisplayDensity';
 import { refreshApex } from '@salesforce/apex';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
@@ -54,7 +55,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     currentUserId = USER_ID; // Current user ID
     currentUserContactId = null; // Current user's Contact ID (for portal)
     selectedContactId = null; // Selected Contact ID for filtering (for Salesforce)
-    showContactSelector = false; // Show Contact selector modal
+    assignedContacts = []; // List of Contacts assigned to tasks (for Salesforce dropdown)
     error;
     summaryFieldDefinitions = [];
     summaryFieldDefinitionMap = {};
@@ -112,6 +113,24 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             this.currentUserContactId = data;
         } else if (error) {
             console.warn('Error loading user contact:', error);
+        }
+    }
+    
+    wiredAssignedContactsResult;
+    
+    @wire(getAssignedContacts)
+    wiredAssignedContacts(result) {
+        this.wiredAssignedContactsResult = result;
+        const { error, data } = result;
+        if (data) {
+            // Add "All Contacts" option at the beginning
+            this.assignedContacts = [
+                { label: 'All Contacts', value: '' },
+                ...data
+            ];
+        } else if (error) {
+            console.warn('Error loading assigned contacts:', error);
+            this.assignedContacts = [{ label: 'All Contacts', value: '' }];
         }
     }
     
@@ -691,7 +710,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         
         // Determine which Contact ID to use for comparison
         // Portal: use currentUserContactId; Salesforce: use selectedContactId
-        const contactIdToMatch = this.isPortalMode() 
+        const contactIdToMatch = this.isPortalMode 
             ? this.currentUserContactId 
             : this.selectedContactId;
         
@@ -796,17 +815,16 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get meModeButtonLabel() {
-        if (this.showMyTasksOnly && !this.isPortalMode() && this.selectedContactId) {
-            return 'Show All';
+        // In Salesforce, don't show this button (use dropdown instead)
+        if (!this.isPortalMode) {
+            return null;
         }
         return this.showMyTasksOnly ? 'Show All' : 'My Tasks';
     }
     
-    get contactDisplayInfo() {
-        return [
-            { apiName: 'Name', label: 'Name' },
-            { apiName: 'Email', label: 'Email' }
-        ];
+    get showMyTasksButton() {
+        // Only show button in Portal mode
+        return this.isPortalMode;
     }
     
     get meModeButtonTitle() {
@@ -877,34 +895,27 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     handleMeModeToggle() {
-        // In Salesforce context, show Contact selector if not already filtering
-        if (!this.isPortalMode() && !this.showMyTasksOnly && !this.selectedContactId) {
-            this.showContactSelector = true;
-            return;
+        // Portal: toggle filter using current user's Contact ID
+        if (this.isPortalMode) {
+            this.showMyTasksOnly = !this.showMyTasksOnly;
+            this.refreshFilteredStatusGroups();
         }
-        
-        // If already filtering and toggling off, clear the filter
-        if (this.showMyTasksOnly && !this.isPortalMode()) {
-            this.selectedContactId = null;
-        }
-        
-        this.showMyTasksOnly = !this.showMyTasksOnly;
-        this.refreshFilteredStatusGroups();
+        // Salesforce: handled by Contact dropdown change event
     }
     
     handleContactSelected(event) {
-        // lightning-record-picker provides recordId in event.detail.recordId
-        const contactId = event.detail.recordId;
-        if (contactId) {
+        // lightning-combobox provides value in event.detail.value
+        const contactId = event.detail.value;
+        if (contactId && contactId.trim() !== '') {
             this.selectedContactId = contactId;
             this.showMyTasksOnly = true;
-            this.showContactSelector = false;
+            this.refreshFilteredStatusGroups();
+        } else {
+            // Clear filter if "All Contacts" selected
+            this.selectedContactId = null;
+            this.showMyTasksOnly = false;
             this.refreshFilteredStatusGroups();
         }
-    }
-    
-    handleContactSelectorCancel() {
-        this.showContactSelector = false;
     }
     
     handleCompletedToggle() {
@@ -1892,6 +1903,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (this.wiredGroupedTasksResult) {
             try {
                 await refreshApex(this.wiredGroupedTasksResult);
+                // Also refresh the assigned contacts list
+                if (this.wiredAssignedContactsResult) {
+                    await refreshApex(this.wiredAssignedContactsResult);
+                }
                 this.showToast('Success', 'Task list refreshed', 'success');
             } catch (error) {
                 console.error('Error refreshing task list:', error);
