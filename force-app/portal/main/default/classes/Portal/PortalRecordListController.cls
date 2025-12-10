@@ -173,7 +173,26 @@ public without sharing class PortalRecordListController {
      * @description Build SOQL query with bind variables
      */
     private static QueryResult buildSoqlQuery(String objectApiName, List<String> fieldList, WhereClauseResult whereResult, Integer pageSize, Integer pageNumber) {
-        String fields = String.join(fieldList, ', ');
+        // Build select fields and include relationship names for reference fields so we can render the referenced Name
+        List<String> selectFields = new List<String>();
+        Map<String, Schema.SObjectField> fieldMap = Schema.getGlobalDescribe().get(objectApiName).getDescribe().fields.getMap();
+
+        for (String fieldApiName : fieldList) {
+            selectFields.add(fieldApiName);
+
+            Schema.SObjectField field = fieldMap.get(fieldApiName);
+            if (field != null) {
+                Schema.DescribeFieldResult fieldDescribe = field.getDescribe();
+                if (fieldDescribe.getType() == Schema.DisplayType.Reference) {
+                    String relationshipName = fieldDescribe.getRelationshipName();
+                    if (!String.isBlank(relationshipName)) {
+                        selectFields.add(relationshipName + '.Name');
+                    }
+                }
+            }
+        }
+
+        String fields = String.join(selectFields, ', ');
         Integer offset = (pageNumber - 1) * pageSize;
         
         String soql = 'SELECT ' + fields + 
@@ -227,6 +246,10 @@ public without sharing class PortalRecordListController {
         Map<String, Schema.SObjectField> fieldMap = objDescribe.fields.getMap();
         
         for (String fieldApiName : fieldList) {
+            // Do not render Id column
+            if (fieldApiName == 'Id') {
+                continue;
+            }
             Schema.SObjectField field = fieldMap.get(fieldApiName);
             if (field != null) {
                 Schema.DescribeFieldResult fieldDescribe = field.getDescribe();
@@ -234,6 +257,7 @@ public without sharing class PortalRecordListController {
                 // Build column metadata (bypassing FLS check since queries run in SYSTEM_MODE)
                 ColumnMetadata col = new ColumnMetadata();
                 col.fieldApiName = fieldApiName;
+                col.relationshipName = fieldDescribe.getRelationshipName();
                 col.label = fieldDescribe.getLabel();
                 col.type = getFieldType(fieldDescribe.getType());
                 col.sortable = true;
@@ -304,6 +328,7 @@ public without sharing class PortalRecordListController {
      */
     public class ColumnMetadata {
         @AuraEnabled public String fieldApiName;
+        @AuraEnabled public String relationshipName;
         @AuraEnabled public String label;
         @AuraEnabled public String type;
         @AuraEnabled public Boolean sortable;

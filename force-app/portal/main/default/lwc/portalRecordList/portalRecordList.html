@@ -24,7 +24,14 @@
                                     <tr key={row.key}>
                                         <template for:each={row.cells} for:item="cell">
                                             <td key={cell.key}>
-                                                <div class="slds-truncate" title={cell.value}>{cell.value}</div>
+                                                <div class="slds-truncate" title={cell.value}>
+                                                    <template if:true={cell.isLink}>
+                                                        <a href="javascript:void(0);" data-record-id={cell.recordId} onclick={handleNavigateToRecord}>{cell.value}</a>
+                                                    </template>
+                                                    <template if:false={cell.isLink}>
+                                                        {cell.value}
+                                                    </template>
+                                                </div>
                                             </td>
                                         </template>
                                     </tr>

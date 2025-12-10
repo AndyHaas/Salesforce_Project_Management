@@ -1,10 +1,10 @@
-import { api, LightningElement, wire } from 'lwc';
-import { CurrentPageReference } from 'lightning/navigation';
+import { api, wire } from 'lwc';
+import { CurrentPageReference, NavigationMixin } from 'lightning/navigation';
 import getRecords from '@salesforce/apex/PortalRecordListController.getRecords';
 
 const DEBUG = true;
 
-export default class PortalRecordList extends LightningElement {
+export default class PortalRecordList extends NavigationMixin(LightningElement) {
     @api objectApiName;
     @api filterName;
 
@@ -157,6 +157,7 @@ export default class PortalRecordList extends LightningElement {
                 this.columns = data.columns.map(col => ({
                     label: col.label,
                     fieldName: col.fieldApiName,
+                    relationshipName: col.relationshipName,
                     type: col.type || 'text',
                     sortable: col.sortable !== false
                 }));
@@ -243,20 +244,37 @@ export default class PortalRecordList extends LightningElement {
     /**
      * Rows prepared for HTML table rendering.
      * Each row has a key and cells array aligning with columns.
+     * - Reference fields render the related record Name (if present)
+     * - Name column is clickable to the record detail
      */
     get tableRows() {
         if (!this.records || !this.tableColumns.length) {
             return [];
         }
         return this.records.map((record, rowIndex) => {
+            const rowKey = record.Id || rowIndex;
+
             const cells = this.tableColumns.map((col, colIndex) => {
-                const value = record[col.fieldName];
+                let displayValue = record[col.fieldName];
+
+                // If this is a reference, prefer the related Name
+                if (col.relationshipName && record[col.relationshipName]) {
+                    const related = record[col.relationshipName];
+                    if (related && related.Name) {
+                        displayValue = related.Name;
+                    }
+                }
+
+                const isNameColumn = col.fieldName === 'Name';
+
                 return {
                     key: `${rowIndex}-${colIndex}`,
-                    value: value !== undefined && value !== null ? value : ''
+                    value: displayValue !== undefined && displayValue !== null ? displayValue : '',
+                    isLink: isNameColumn && !!record.Id,
+                    recordId: isNameColumn ? record.Id : null
                 };
             });
-            const rowKey = record.Id || rowIndex;
+
             return { key: rowKey, cells };
         });
     }
@@ -289,6 +307,20 @@ export default class PortalRecordList extends LightningElement {
         }
 
         return 'Records';
+    }
+
+    handleNavigateToRecord(event) {
+        const recordId = event.currentTarget?.dataset?.recordId;
+        if (!recordId) {
+            return;
+        }
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId,
+                actionName: 'view'
+            }
+        });
     }
 
     /**
