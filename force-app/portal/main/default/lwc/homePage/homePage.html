@@ -1,15 +1,14 @@
 <template>
-    <lightning-card title="Project Management Portal" icon-name="utility:home" class="home-page-card">
-        <div class="slds-p-around_medium">
-            <!-- Welcome Section -->
-            <div class="welcome-section slds-m-bottom_large">
-                <h1 class="welcome-title">
-                    Welcome<template if:true={userFirstName}> {userFirstName}</template>!
-                </h1>
-                <p class="welcome-subtitle">
-                    <lightning-formatted-text value="Manage your projects and tasks from here."></lightning-formatted-text>
-                </p>
-            </div>
+    <div class="home-page-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section slds-m-bottom_large">
+            <h1 class="welcome-title">
+                Welcome<template if:true={userFirstName}> {userFirstName}</template>!
+            </h1>
+            <p class="welcome-subtitle">
+                <lightning-formatted-text value="Manage your projects and tasks from here."></lightning-formatted-text>
+            </p>
+        </div>
 
             <!-- Notification Badge for Tasks Needing Review -->
             <template if:true={hasTasksNeedingReview}>
@@ -134,7 +133,6 @@
                     </lightning-card>
                 </lightning-layout-item>
             </lightning-layout>
-        </div>
-    </lightning-card>
+    </div>
 </template>
 
