@@ -5,7 +5,7 @@ import getTaskDetail from '@salesforce/apex/PortalTaskController.getTaskDetail';
 import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
 import { formatDate, formatNumber, formatPercent } from 'c/portalCommon';
 
-export default class TaskDetail extends NavigationMixin(LightningElement) {
+export default class PortalTaskDetail extends NavigationMixin(LightningElement) {
     @track taskId;
     @track task;
     
