@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!-- Apex Classes -->
     <types>
+        <members>PortalLoginController</members>
+        <members>PortalAutoLoginRest</members>
+        <members>PortalAutoLoginController</members>
+        <members>PortalLoginTestController</members>
+        <name>ApexClass</name>
+    </types>
+    
+    <!-- Lightning Web Components -->
+    <types>
+        <members>portalLogin</members>
         <members>portalAutoLogin</members>
         <name>LightningComponentBundle</name>
     </types>
+    
+    <!-- Visualforce Pages -->
     <types>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/portalAutoLogin</members>
-        <name>DigitalExperience</name>
+        <members>PortalAutoLogin</members>
+        <members>PortalLoginTest</members>
+        <name>ApexPage</name>
     </types>
+    
+    <!-- Note: Digital Experience views/routes cannot be deleted via destructive changes -->
+    <!-- They must be removed manually in Experience Cloud Builder -->
+    
     <version>65.0</version>
 </Package>
-
