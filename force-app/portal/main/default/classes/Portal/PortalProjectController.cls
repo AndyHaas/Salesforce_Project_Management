@@ -98,12 +98,8 @@ public without sharing class PortalProjectController {
         metrics.totalActualHours = totals.get('totalActual') == null ? 0 : (Decimal) totals.get('totalActual');
 
         Integer completed = statusCounts.get('Completed');
-        Integer closed = statusCounts.get('Closed');
-        Integer removed = statusCounts.get('Removed');
 
-        metrics.completedTasks = (completed != null ? completed : 0) +
-            (closed != null ? closed : 0) +
-            (removed != null ? removed : 0);
+        metrics.completedTasks = completed != null ? completed : 0;
 
         metrics.openTasks = metrics.totalTasks - metrics.completedTasks;
         result.taskMetrics = metrics;
