@@ -55,18 +55,6 @@
                                 <span class="value">Yes</span>
                             </div>
                         </template>
-                        <div class="highlight-item">
-                            <span class="label">Status</span>
-                            <span class="value">
-                                <span class={statusBadgeClass} style={statusBadgeStyle}>{displayStatus}</span>
-                            </span>
-                        </div>
-                        <div class="highlight-item">
-                            <span class="label">Priority</span>
-                            <span class="value">
-                                <span class={priorityBadgeClass}>{displayPriority}</span>
-                            </span>
-                        </div>
                         <template if:true={task.Review_Status_Icons__c}>
                             <div class="highlight-item review-status">
                                 <span class="label">Review Status Icons</span>
@@ -92,18 +80,6 @@
                                 </template>
                             </div>
                             <div class="column">
-                                <div class="detail-item">
-                                    <span class="label">Status</span>
-                                    <span class="detail-value">
-                                        <span class={statusBadgeClass} style={statusBadgeStyle}>{displayStatus}</span>
-                                    </span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="label">Priority</span>
-                                    <span class="detail-value">
-                                        <span class={priorityBadgeClass}>{displayPriority}</span>
-                                    </span>
-                                </div>
                                 <div class="detail-item">
                                     <span class="label">Account</span>
                                     <span class="detail-value">{displayAccount}</span>
