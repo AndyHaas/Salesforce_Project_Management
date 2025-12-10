@@ -317,11 +317,26 @@ export default class PortalTaskFiles extends LightningElement {
         const fileId = event.currentTarget.dataset.fileId;
         const file = this.files.find(f => f.id === fileId);
         
-        if (file && file.canPreview) {
-            // Open preview for previewable files
-            await this.handlePreviewFile(event);
-        } else if (file) {
-            // Download non-previewable files
+        if (!file) {
+            return;
+        }
+        
+        // Check if file is previewable using isPreviewable method
+        const isPreviewable = this.isPreviewable(file.extension);
+        
+        // Only open preview if file is previewable
+        if (isPreviewable && file.canPreview) {
+            // Create a synthetic event for handlePreviewFile
+            const syntheticEvent = {
+                currentTarget: {
+                    dataset: {
+                        fileId: fileId
+                    }
+                }
+            };
+            await this.handlePreviewFile(syntheticEvent);
+        } else {
+            // Download non-previewable files directly
             window.open(file.downloadUrl, '_blank');
         }
     }
