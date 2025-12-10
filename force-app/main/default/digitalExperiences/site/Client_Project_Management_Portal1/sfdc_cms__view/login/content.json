@@ -22,10 +22,17 @@
           "children" : [ {
             "children" : [ {
               "attributes" : {
-                "dxpStyle" : { }
+                "dxpStyle" : {
+                  "margin" : {
+                    "bottom" : "5rem",
+                    "left" : "20rem",
+                    "right" : "20rem",
+                    "top" : "5rem"
+                  }
+                }
               },
-              "definition" : "c:portalLogin",
-              "id" : "25d4de2b-752c-4d80-af80-f5d0dd0e938d",
+              "definition" : "c:passwordlessLogin",
+              "id" : "d854dfcd-3046-4b5d-bad7-d8d74d32ea3a",
               "type" : "component"
             } ],
             "id" : "06b77cad-ae14-4afc-86b5-6a06827d2b71",
