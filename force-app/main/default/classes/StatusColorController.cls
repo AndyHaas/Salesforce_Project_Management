@@ -30,8 +30,7 @@ public without sharing class StatusColorController {
             'In Review' => '#5B21B6',
             'Blocked' => '#C23934',
             'Completed' => '#2E844A',
-            'Removed' => '#706E6B',
-            'Closed' => '#2E844A'
+            'Removed' => '#706E6B'
         };
         
         // TODO: Enhance this method to use Metadata API or Tooling API
