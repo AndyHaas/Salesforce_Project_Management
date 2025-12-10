@@ -7,19 +7,12 @@
     font-weight: 600;
 }
 
-/* Ensure status header text stays readable on portal theme overrides */
-.status-header,
-.status-header .status-header-content,
+/* Status header text color is dynamically set via inline style based on background color */
+/* Light backgrounds will have black text, dark backgrounds will have white text */
+/* Ensure text elements inherit the dynamically calculated color */
 .status-header h3,
 .status-header span {
-    color: #ffffff !important;
-}
-
-.status-header h3 {
-    border: 1px solid #000000;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    display: inline-block;
+    color: inherit;
 }
 
 .status-header-content {
