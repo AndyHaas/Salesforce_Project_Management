@@ -5,6 +5,7 @@ import linkFilesToTask from '@salesforce/apex/PortalTaskController.linkFilesToTa
 import linkRecentFilesToTask from '@salesforce/apex/PortalTaskController.linkRecentFilesToTask';
 import deleteFile from '@salesforce/apex/PortalTaskController.deleteFile';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { ensureSitePath } from 'c/portalCommon';
 
 export default class PortalTaskFiles extends LightningElement {
     @api recordId;
@@ -180,12 +181,21 @@ export default class PortalTaskFiles extends LightningElement {
             return [];
         }
         
-        return this._files.map(file => ({
-            ...file,
-            downloadUrl: `/sfc/servlet.shepherd/document/download/${file.versionId}`,
-            formattedSize: this.formatFileSize(file.size),
-            formattedDate: this.formatFileDate(file.createdDate)
-        }));
+        return this._files.map(file => {
+            // Use the correct download URL format for Experience Cloud
+            // The URL should use version/download endpoint with ContentVersion ID
+            const baseUrl = `/sfc/servlet.shepherd/version/download/${file.versionId}`;
+            const downloadUrl = ensureSitePath(baseUrl, { 
+                currentPathname: window.location.pathname 
+            });
+            
+            return {
+                ...file,
+                downloadUrl: downloadUrl,
+                formattedSize: this.formatFileSize(file.size),
+                formattedDate: this.formatFileDate(file.createdDate)
+            };
+        });
     }
     
     get hasFiles() {

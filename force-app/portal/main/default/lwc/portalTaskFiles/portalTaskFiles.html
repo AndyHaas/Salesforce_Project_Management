@@ -20,7 +20,7 @@
                         <template for:each={files} for:item="file">
                             <div key={file.id} class="file-item">
                                 <lightning-icon icon-name="utility:file" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                                <a href={file.downloadUrl} target="_blank" rel="noopener noreferrer" class="file-link">
+                                <a href={file.downloadUrl} download={file.title} target="_blank" rel="noopener noreferrer" class="file-link">
                                     {file.title}
                                 </a>
                                 <span class="file-meta">
