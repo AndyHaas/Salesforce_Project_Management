@@ -26,9 +26,9 @@ export default class PortalTaskDetail extends NavigationMixin(LightningElement) 
             let pathname = window.location.pathname || '';
             pathname = pathname.replace(/^\/s/, '');
             const parts = pathname.split('/').filter(Boolean);
-            const taskIdx = parts.indexOf('task');
-            if (taskIdx !== -1 && taskIdx + 1 < parts.length) {
-                taskId = decodeURIComponent(parts[taskIdx + 1]);
+            const projectTaskIdx = parts.indexOf('project-task');
+            if (projectTaskIdx !== -1 && projectTaskIdx + 1 < parts.length) {
+                taskId = decodeURIComponent(parts[projectTaskIdx + 1]);
             }
         }
 
