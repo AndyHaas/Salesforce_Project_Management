@@ -1,6 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import getProjectDetail from '@salesforce/apex/PortalProjectController.getProjectDetail';
+import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
 import { formatDate, formatBoolean } from 'c/portalCommon';
 
 export default class ProjectDetail extends LightningElement {
@@ -10,6 +11,7 @@ export default class ProjectDetail extends LightningElement {
 
     isLoading = true;
     error;
+    statusColors = {};
 
     @wire(CurrentPageReference)
     resolvePageReference(pageRef) {
@@ -32,6 +34,17 @@ export default class ProjectDetail extends LightningElement {
 
         if (projectId && projectId !== this.projectId) {
             this.projectId = projectId;
+        }
+    }
+
+    @wire(getStatusColors)
+    wiredStatusColors({ error, data }) {
+        if (data) {
+            this.statusColors = data || {};
+        } else if (error) {
+            console.error('Error loading status colors:', error);
+            // Fall back to default colors
+            this.statusColors = this.getDefaultStatusColors();
         }
     }
 
@@ -58,6 +71,54 @@ export default class ProjectDetail extends LightningElement {
 
     get displayStatus() {
         return this.project?.status || '—';
+    }
+
+    get statusBadgeStyle() {
+        const status = this.project?.status;
+        if (!status) {
+            return '';
+        }
+        
+        // Use colors from Apex (which reads from field metadata)
+        // If not loaded yet, use default colors
+        const backgroundColor = this.statusColors[status] || this.getDefaultStatusColors()[status] || '#F3F3F3';
+        
+        // Determine text color based on background brightness
+        const textColor = this.getContrastTextColor(backgroundColor);
+        
+        return `background-color: ${backgroundColor}; color: ${textColor};`;
+    }
+
+    getDefaultStatusColors() {
+        return {
+            'Backlog': '#E5E5E5',
+            'Pending': '#FFB75D',
+            'In Progress': '#0176D3',
+            'In Review': '#5B21B6',
+            'Blocked': '#C23934',
+            'Completed': '#2E844A',
+            'Removed': '#706E6B',
+            'Closed': '#2E844A'
+        };
+    }
+
+    getContrastTextColor(hexColor) {
+        if (!hexColor) return '#080707';
+        
+        // Remove # if present
+        const hex = hexColor.replace('#', '');
+        
+        // Convert to RGB
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        
+        // Calculate brightness using relative luminance formula
+        // https://www.w3.org/WAI/GL/wiki/Relative_luminance
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        
+        // Return black for light backgrounds, white for dark backgrounds
+        return brightness > 128 ? '#080707' : '#FFFFFF';
     }
 
     get displayAccount() {

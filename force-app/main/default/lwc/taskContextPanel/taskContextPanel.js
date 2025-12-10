@@ -20,7 +20,7 @@ import { refreshApex } from '@salesforce/apex';
 import { getRecord, getRecordNotifyChange, NotifyChangeRecordIds, RecordChange } from 'lightning/uiRecordApi';
 import getDependencyData from '@salesforce/apex/TaskContextController.getDependencyData';
 import deleteTaskRelationship from '@salesforce/apex/TaskContextController.deleteTaskRelationship';
-import getStatusColors from '@salesforce/apex/ProjectTaskDashboardController.getStatusColors';
+import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import DASHBOARD_REFRESH_MESSAGE_CHANNEL from '@salesforce/messageChannel/DashboardRefresh__c';
 import PROGRESS_PERCENTAGE_FIELD from '@salesforce/schema/Project_Task__c.Progress_Percentage__c';

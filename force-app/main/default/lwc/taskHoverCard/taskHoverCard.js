@@ -10,7 +10,7 @@
  * - Accepts raw hoverFields from Apex and taskStatus for badge class computation
  */
 import { LightningElement, api, wire } from 'lwc';
-import getStatusColors from '@salesforce/apex/ProjectTaskDashboardController.getStatusColors';
+import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
 
 export default class TaskHoverCard extends LightningElement {
     _isVisible = false;

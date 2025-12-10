@@ -19,7 +19,7 @@ import PROJECT_TASK_OBJECT from '@salesforce/schema/Project_Task__c';
 import getGroupedTasksWithSubtasks from '@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasks';
 import getGroupedTasksWithSubtasksByProject from '@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasksByProject';
 import getAccounts from '@salesforce/apex/ProjectTaskDashboardController.getAccounts';
-import getStatusColors from '@salesforce/apex/ProjectTaskDashboardController.getStatusColors';
+import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
 import getCurrentUserAccountId from '@salesforce/apex/ProjectTaskDashboardController.getCurrentUserAccountId';
 import getCurrentUserContactId from '@salesforce/apex/ProjectTaskDashboardController.getCurrentUserContactId';
 import getAssignedContacts from '@salesforce/apex/ProjectTaskDashboardController.getAssignedContacts';
