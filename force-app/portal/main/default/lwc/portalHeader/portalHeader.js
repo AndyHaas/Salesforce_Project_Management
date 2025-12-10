@@ -1,6 +1,8 @@
 import { LightningElement, api, wire } from 'lwc';
 import USER_ID from '@salesforce/user/Id';
-import { ensureSitePath } from 'c/portalCommon';
+import { getRecord } from 'lightning/uiRecordApi';
+import FIRST_NAME_FIELD from '@salesforce/schema/User.FirstName';
+import { ensureSitePath, getWelcomeLabel } from 'c/portalCommon';
 
 export default class PortalHeader extends LightningElement {
     /**
@@ -8,6 +10,11 @@ export default class PortalHeader extends LightningElement {
      * @type {string|null}
      */
     userId = USER_ID;
+    /**
+     * @description Cached user first name for greeting
+     * @type {string}
+     */
+    userFirstName;
 
     /**
      * @description Current route path
@@ -45,6 +52,24 @@ export default class PortalHeader extends LightningElement {
      */
     get isAuthenticated() {
         return !!this.userId;
+    }
+
+    /**
+     * @description Greeting label for authenticated user
+     * @returns {string}
+     */
+    get welcomeLabel() {
+        return getWelcomeLabel(this.userFirstName);
+    }
+
+    @wire(getRecord, { recordId: USER_ID, fields: [FIRST_NAME_FIELD] })
+    wiredUser({ data, error }) {
+        if (data) {
+            this.userFirstName = data.fields?.FirstName?.value || '';
+        } else if (error) {
+            // keep silent fallback to default welcome
+            console.warn('Unable to load user first name', error);
+        }
     }
 
     /**

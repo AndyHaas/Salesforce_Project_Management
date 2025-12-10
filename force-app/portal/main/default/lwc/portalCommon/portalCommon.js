@@ -34,8 +34,23 @@ export const RESOURCE_LINKS = [
     { label: 'Terms of Use', href: '/terms' }
 ];
 
+export const DEFAULT_GREETING = 'Welcome';
+
 export function getVersionLabel(prefix = 'Portal v') {
     return `${prefix}${API_VERSION.major}.${API_VERSION.minor}.${API_VERSION.patch}`;
+}
+
+/**
+ * Build a welcome label using the user's first name when available.
+ * @param {string} firstName user first name
+ * @param {string} fallback fallback label when first name missing
+ * @returns {string}
+ */
+export function getWelcomeLabel(firstName, fallback = DEFAULT_GREETING) {
+    if (!firstName || !firstName.trim()) {
+        return fallback;
+    }
+    return `${DEFAULT_GREETING} ${firstName.trim()}`;
 }
 
 /**
