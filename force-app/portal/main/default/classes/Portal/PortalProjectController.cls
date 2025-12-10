@@ -65,25 +65,38 @@ public without sharing class PortalProjectController {
         // Aggregate task metrics scoped to this project (and account as an extra guard)
         TaskMetrics metrics = new TaskMetrics();
 
-        List<AggregateResult> statusAgg = [
-            SELECT Status__c status, COUNT(Id) cnt
+        // Get all tasks to count properly (including null statuses)
+        List<Project_Task__c> allTasks = [
+            SELECT Id, Status__c
             FROM Project_Task__c
             WHERE Project__c = :projectId
             AND Account__c = :project.Account__c
-            GROUP BY Status__c
         ];
 
+        // Count tasks by status manually to handle null values properly
         Map<String, Integer> statusCounts = new Map<String, Integer>();
-        for (AggregateResult ar : statusAgg) {
-            String status = (String) ar.get('status');
-            Integer cnt = (Integer) ar.get('cnt');
-            statusCounts.put(status, cnt);
+        Integer completedCount = 0;
+        
+        for (Project_Task__c task : allTasks) {
+            String status = task.Status__c != null ? task.Status__c : 'Backlog';
+            Integer count = statusCounts.containsKey(status) ? statusCounts.get(status) : 0;
+            statusCounts.put(status, count + 1);
+            
+            // Count completed tasks (case-insensitive check)
+            if (status != null && status.equalsIgnoreCase('Completed')) {
+                completedCount++;
+            }
+        }
+
+        // Build status counts list for response
+        for (String status : statusCounts.keySet()) {
             StatusCount sc = new StatusCount();
             sc.status = status;
-            sc.count = cnt;
+            sc.count = statusCounts.get(status);
             metrics.statusCounts.add(sc);
         }
 
+        // Get totals with aggregation
         AggregateResult totals = [
             SELECT COUNT(Id) totalTasks,
                 SUM(Estimated_Hours__c) totalEstimated,
@@ -97,10 +110,7 @@ public without sharing class PortalProjectController {
         metrics.totalEstimatedHours = totals.get('totalEstimated') == null ? 0 : (Decimal) totals.get('totalEstimated');
         metrics.totalActualHours = totals.get('totalActual') == null ? 0 : (Decimal) totals.get('totalActual');
 
-        Integer completed = statusCounts.get('Completed');
-
-        metrics.completedTasks = completed != null ? completed : 0;
-
+        metrics.completedTasks = completedCount;
         metrics.openTasks = metrics.totalTasks - metrics.completedTasks;
         result.taskMetrics = metrics;
 
