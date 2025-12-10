@@ -213,6 +213,56 @@ public without sharing class TaskContextController {
             throw new AuraHandledException('A task cannot be related to itself');
         }
         
+        // Fetch both tasks to validate account access
+        // Check both Account__c and Project__r.Account__c for access control
+        List<Project_Task__c> tasks = [
+            SELECT Id, Account__c, Project__r.Account__c
+            FROM Project_Task__c
+            WHERE Id IN (:taskAId, :taskBId)
+        ];
+        
+        if (tasks.size() != 2) {
+            throw new AuraHandledException('One or both tasks not found');
+        }
+        
+        Project_Task__c taskA = null;
+        Project_Task__c taskB = null;
+        
+        for (Project_Task__c task : tasks) {
+            if (task.Id == taskAId) {
+                taskA = task;
+            } else if (task.Id == taskBId) {
+                taskB = task;
+            }
+        }
+        
+        if (taskA == null || taskB == null) {
+            throw new AuraHandledException('Could not find both tasks');
+        }
+        
+        // Get account IDs for both tasks (check both Account__c and Project__r.Account__c)
+        Set<Id> taskAAccountIds = new Set<Id>();
+        if (taskA.Account__c != null) {
+            taskAAccountIds.add(taskA.Account__c);
+        }
+        if (taskA.Project__r != null && taskA.Project__r.Account__c != null) {
+            taskAAccountIds.add(taskA.Project__r.Account__c);
+        }
+        
+        Set<Id> taskBAccountIds = new Set<Id>();
+        if (taskB.Account__c != null) {
+            taskBAccountIds.add(taskB.Account__c);
+        }
+        if (taskB.Project__r != null && taskB.Project__r.Account__c != null) {
+            taskBAccountIds.add(taskB.Project__r.Account__c);
+        }
+        
+        // Check if tasks share at least one account
+        taskAAccountIds.retainAll(taskBAccountIds);
+        if (taskAAccountIds.isEmpty()) {
+            throw new AuraHandledException('Tasks must belong to the same account to be linked');
+        }
+        
         // Check if relationship already exists in either direction
         // Check Task -> Related Task (or reverse)
         List<Project_Task_Relationship__c> existingRelationships = [

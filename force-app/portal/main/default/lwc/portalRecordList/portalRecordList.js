@@ -312,7 +312,11 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
                 };
             });
 
-            return { key: rowKey, cells };
+            return { 
+                key: rowKey, 
+                recordId: record.Id,
+                cells 
+            };
         });
     }
 
@@ -347,15 +351,63 @@ export default class PortalRecordList extends NavigationMixin(LightningElement) 
     }
 
     handleNavigateToRecord(event) {
+        // Prevent default link behavior if clicking on a link
+        if (event.target.tagName === 'A') {
+            event.preventDefault();
+        }
+        
         const recordId = event.currentTarget?.dataset?.recordId;
         if (!recordId || typeof window === 'undefined') {
             return;
         }
 
-        // Experience Cloud path may be prefixed with /s; keep it if present
-        const hasSitePrefix = window.location.pathname.startsWith('/s/');
-        const sitePrefix = hasSitePrefix ? '/s' : '';
-        const targetPath = `${sitePrefix}/project/${recordId}`;
+        event.stopPropagation();
+        this.navigateToRecord(recordId);
+    }
+    
+    handleRowClick(event) {
+        // Prevent default link behavior if clicking on a link
+        if (event.target.tagName === 'A') {
+            event.preventDefault();
+        }
+        
+        // Get record ID from the row or the clicked element
+        const recordId = event.currentTarget?.dataset?.recordId || 
+                        event.target?.closest('[data-record-id]')?.dataset?.recordId;
+        
+        if (recordId) {
+            event.stopPropagation();
+            this.navigateToRecord(recordId);
+        }
+    }
+    
+    navigateToRecord(recordId) {
+        if (!recordId || typeof window === 'undefined') {
+            return;
+        }
+
+        // Determine navigation path based on object type
+        let targetPath;
+        if (this.objectApiName === 'Project__c') {
+            // Experience Cloud path may be prefixed with /s; keep it if present
+            const hasSitePrefix = window.location.pathname.startsWith('/s/');
+            const sitePrefix = hasSitePrefix ? '/s' : '';
+            targetPath = `${sitePrefix}/project/${recordId}`;
+        } else if (this.objectApiName === 'Project_Task__c') {
+            const hasSitePrefix = window.location.pathname.startsWith('/s/');
+            const sitePrefix = hasSitePrefix ? '/s' : '';
+            targetPath = `${sitePrefix}/project-task/${recordId}`;
+        } else {
+            // Fallback to standard navigation
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordPage',
+                attributes: {
+                    recordId: recordId,
+                    actionName: 'view'
+                }
+            });
+            return;
+        }
 
         window.location.assign(targetPath);
     }

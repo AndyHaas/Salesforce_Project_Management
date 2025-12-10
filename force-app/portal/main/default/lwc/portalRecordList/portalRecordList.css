@@ -1,0 +1,51 @@
+:host {
+    --bg-light: #f8fafc;
+    --text-dark: #1e293b;
+    --border-color: #e2e8f0;
+}
+
+/* Custom Table Styling */
+.table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--text-dark) !important;
+}
+
+.table-container thead th {
+    background: var(--bg-light) !important;
+    color: var(--text-dark) !important;
+    font-weight: 600;
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.table-container tbody td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-dark) !important;
+}
+
+.table-container tbody tr.record-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.table-container tbody tr.record-row:hover {
+    background-color: var(--bg-light) !important;
+}
+
+.table-container .record-link {
+    color: #0176d3;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.table-container .record-link:hover {
+    text-decoration: underline;
+}

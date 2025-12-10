@@ -27,16 +27,16 @@
                             </thead>
                             <tbody>
                                 <template for:each={tableRows} for:item="row">
-                                    <tr key={row.key}>
+                                    <tr key={row.key} class="record-row" data-record-id={row.recordId} onclick={handleRowClick}>
                                         <template for:each={row.cells} for:item="cell">
                                             <td key={cell.key}>
                                                 <div class="slds-truncate" title={cell.value}>
                                                     <template if:true={cell.isLink}>
                                                         <template if:true={cell.linkUrl}>
-                                                            <a href={cell.linkUrl} target="_blank" rel="noopener noreferrer">{cell.value}</a>
+                                                            <a href={cell.linkUrl} target="_blank" rel="noopener noreferrer" class="record-link">{cell.value}</a>
                                                         </template>
                                                         <template if:false={cell.linkUrl}>
-                                                            <a href="javascript:void(0);" data-record-id={cell.recordId} onclick={handleNavigateToRecord}>{cell.value}</a>
+                                                            <a href="javascript:void(0);" data-record-id={cell.recordId} onclick={handleNavigateToRecord} class="record-link">{cell.value}</a>
                                                         </template>
                                                     </template>
                                                     <template if:false={cell.isLink}>
