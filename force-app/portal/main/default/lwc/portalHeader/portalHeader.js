@@ -168,6 +168,16 @@ export default class PortalHeader extends LightningElement {
     }
 
     /**
+     * @description Handle login button click
+     * @param {Event} event - Click event
+     */
+    handleLoginClick(event) {
+        event.preventDefault();
+        const loginUrl = '/s/login';
+        this.navigateToUrl(loginUrl);
+    }
+
+    /**
      * @description Navigate to a URL (handles Experience Cloud path prefix)
      * @param {string} url - URL to navigate to
      */

@@ -14,9 +14,9 @@
 }
 
 .portal-header {
-    background: linear-gradient(135deg, var(--milestone-blue) 0%, var(--milestone-blue-dark) 100%);
+    background-color: var(--milestone-white);
     border-bottom: 2px solid var(--milestone-orange);
-    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -46,29 +46,27 @@
     align-items: center;
     gap: 1rem;
     text-decoration: none;
+    cursor: pointer;
     transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .brand-link:hover {
     transform: translateY(-1px);
     opacity: 0.9;
-    text-decoration: none;
 }
 
 .brand-logo {
     height: 45px;
     width: auto;
     object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .brand-text {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--milestone-white);
+    color: var(--milestone-text-dark);
     white-space: nowrap;
     letter-spacing: 0.5px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Navigation Section */
@@ -78,35 +76,25 @@
     justify-content: center;
 }
 
-.nav-list {
+.header-nav lightning-button-group {
     display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
     gap: 0.25rem;
-    align-items: center;
-}
-
-.nav-item {
-    margin: 0;
 }
 
 .nav-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    text-decoration: none;
-    color: rgba(255, 255, 255, 0.9);
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    white-space: nowrap;
+    --slds-c-button-neutral-color-background: transparent;
+    --slds-c-button-neutral-color-background-hover: var(--milestone-gray-light);
+    --slds-c-button-neutral-color-border: transparent;
+    --slds-c-button-neutral-color-border-hover: transparent;
+    --slds-c-button-text-color: var(--milestone-text-dark);
+    --slds-c-button-text-color-hover: var(--milestone-orange);
+    --slds-c-button-icon-color-foreground-default: var(--milestone-text-dark);
+    --slds-c-button-icon-color-foreground-default-hover: var(--milestone-orange);
     position: relative;
+    transition: all 0.3s ease;
 }
 
-.nav-link::before {
+.nav-link::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -119,34 +107,20 @@
     border-radius: 2px 2px 0 0;
 }
 
-.nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: var(--milestone-white);
-    text-decoration: none;
-    transform: translateY(-1px);
-}
-
-.nav-link:hover::before {
+.nav-link:hover::after {
     width: 80%;
 }
 
 .nav-link.active {
-    background-color: rgba(255, 107, 53, 0.15);
-    color: var(--milestone-white);
+    --slds-c-button-neutral-color-background: rgba(255, 107, 53, 0.1);
+    --slds-c-button-text-color: var(--milestone-orange);
+    --slds-c-button-icon-color-foreground-default: var(--milestone-orange);
     font-weight: 600;
 }
 
-.nav-link.active::before {
+.nav-link.active::after {
     width: 100%;
     background-color: var(--milestone-orange);
-}
-
-.nav-icon {
-    --slds-c-icon-color-foreground-default: currentColor;
-}
-
-.nav-text {
-    display: inline-block;
 }
 
 /* User Section */
@@ -155,22 +129,22 @@
     align-items: center;
     gap: 0.625rem;
     padding: 0.5rem 1rem;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--milestone-gray-light);
     border-radius: 8px;
-    color: var(--milestone-white);
+    color: var(--milestone-text-dark);
     font-size: 0.875rem;
     flex-shrink: 0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--milestone-gray);
     transition: all 0.3s ease;
 }
 
 .header-user:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+    background-color: var(--milestone-gray);
+    border-color: var(--milestone-orange);
 }
 
 .user-icon {
-    --slds-c-icon-color-foreground-default: var(--milestone-white);
+    --slds-c-icon-color-foreground-default: var(--milestone-text-dark);
 }
 
 .user-text {
@@ -186,42 +160,12 @@
 }
 
 .login-link {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    padding: 0.75rem 1.5rem;
-    text-decoration: none;
-    color: var(--milestone-white);
-    background: linear-gradient(135deg, var(--milestone-orange) 0%, var(--milestone-orange-dark) 100%);
-    border: 2px solid var(--milestone-orange);
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    white-space: nowrap;
-    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-}
-
-.login-link:hover {
-    background: linear-gradient(135deg, var(--milestone-orange-light) 0%, var(--milestone-orange) 100%);
-    border-color: var(--milestone-orange-light);
-    color: var(--milestone-white);
-    text-decoration: none;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
-}
-
-.login-link:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
-}
-
-.login-icon {
-    --slds-c-icon-color-foreground-default: currentColor;
-}
-
-.login-text {
-    display: inline-block;
+    --slds-c-button-brand-color-background: var(--milestone-orange);
+    --slds-c-button-brand-color-background-hover: var(--milestone-orange-dark);
+    --slds-c-button-brand-color-border: var(--milestone-orange);
+    --slds-c-button-brand-color-border-hover: var(--milestone-orange-dark);
+    --slds-c-button-text-color: var(--milestone-white);
+    --slds-c-button-icon-color-foreground-default: var(--milestone-white);
 }
 
 /* Responsive Design */
@@ -240,21 +184,8 @@
         font-size: 1rem;
     }
 
-    .nav-text,
     .user-text {
         display: none;
-    }
-
-    .nav-link {
-        padding: 0.5rem 0.75rem;
-    }
-
-    .login-text {
-        display: none;
-    }
-
-    .login-link {
-        padding: 0.625rem 1rem;
     }
 
     .header-user {
@@ -277,16 +208,8 @@
         display: none;
     }
 
-    .nav-list {
+    .header-nav lightning-button-group {
         gap: 0.125rem;
-    }
-
-    .nav-link {
-        padding: 0.5rem;
-    }
-
-    .login-link {
-        padding: 0.5rem 0.75rem;
     }
 
     .header-user {

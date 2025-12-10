@@ -3,65 +3,53 @@
         <div class="header-container">
             <!-- Logo/Brand Section -->
             <div class="header-brand">
-                <a href="/" class="brand-link" onclick={handleHomeClick}>
+                <div class="brand-link" onclick={handleHomeClick}>
                     <img 
                         src="https://milestoneconsulting.tech/assets/images/logos/MC_WHITE_UPDATED.png" 
                         alt="Milestone Consulting Logo" 
                         class="brand-logo">
-                    <span class="brand-text">Project Management Portal</span>
-                </a>
+                    <lightning-formatted-text 
+                        value="Project Management Portal" 
+                        class="brand-text">
+                    </lightning-formatted-text>
+                </div>
             </div>
 
             <!-- Navigation Section (shown when authenticated) -->
             <template if:true={isAuthenticated}>
                 <nav class="header-nav" role="navigation">
-                    <ul class="nav-list">
-                        <li class="nav-item">
-                            <a 
-                                href="/" 
-                                class="nav-link"
-                                class:active={isHomeActive}
-                                data-route="home"
-                                onclick={handleNavClick}>
-                                <lightning-icon 
-                                    icon-name="utility:home" 
-                                    size="x-small" 
-                                    class="nav-icon">
-                                </lightning-icon>
-                                <span class="nav-text">Home</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a 
-                                href="#" 
-                                class="nav-link"
-                                class:active={isProjectsActive}
-                                data-route="projects"
-                                onclick={handleNavClick}>
-                                <lightning-icon 
-                                    icon-name="utility:projects" 
-                                    size="x-small" 
-                                    class="nav-icon">
-                                </lightning-icon>
-                                <span class="nav-text">Projects</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a 
-                                href="#" 
-                                class="nav-link"
-                                class:active={isProjectTasksActive}
-                                data-route="project-tasks"
-                                onclick={handleNavClick}>
-                                <lightning-icon 
-                                    icon-name="utility:task" 
-                                    size="x-small" 
-                                    class="nav-icon">
-                                </lightning-icon>
-                                <span class="nav-text">Project Tasks</span>
-                            </a>
-                        </li>
-                    </ul>
+                    <lightning-button-group>
+                        <lightning-button 
+                            variant="base"
+                            class="nav-link"
+                            class:active={isHomeActive}
+                            data-route="home"
+                            onclick={handleNavClick}
+                            icon-name="utility:home"
+                            icon-size="x-small"
+                            label="Home">
+                        </lightning-button>
+                        <lightning-button 
+                            variant="base"
+                            class="nav-link"
+                            class:active={isProjectsActive}
+                            data-route="projects"
+                            onclick={handleNavClick}
+                            icon-name="utility:projects"
+                            icon-size="x-small"
+                            label="Projects">
+                        </lightning-button>
+                        <lightning-button 
+                            variant="base"
+                            class="nav-link"
+                            class:active={isProjectTasksActive}
+                            data-route="project-tasks"
+                            onclick={handleNavClick}
+                            icon-name="utility:task"
+                            icon-size="x-small"
+                            label="Project Tasks">
+                        </lightning-button>
+                    </lightning-button-group>
                 </nav>
             </template>
 
@@ -73,21 +61,24 @@
                         size="small" 
                         class="user-icon">
                     </lightning-icon>
-                    <span class="user-text">Welcome</span>
+                    <lightning-formatted-text 
+                        value="Welcome" 
+                        class="user-text">
+                    </lightning-formatted-text>
                 </div>
             </template>
 
-            <!-- Login Link (shown when not authenticated) -->
+            <!-- Login Button (shown when not authenticated) -->
             <template if:false={isAuthenticated}>
                 <div class="header-login">
-                    <a href="/s/login" class="login-link">
-                        <lightning-icon 
-                            icon-name="utility:login" 
-                            size="small" 
-                            class="login-icon">
-                        </lightning-icon>
-                        <span class="login-text">Log In</span>
-                    </a>
+                    <lightning-button 
+                        variant="brand"
+                        class="login-link"
+                        onclick={handleLoginClick}
+                        icon-name="utility:login"
+                        icon-size="small"
+                        label="Log In">
+                    </lightning-button>
                 </div>
             </template>
         </div>
