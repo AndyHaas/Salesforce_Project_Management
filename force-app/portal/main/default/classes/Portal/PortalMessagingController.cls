@@ -4,6 +4,18 @@
  * Uses without sharing to allow portal users to create message records
  */
 public without sharing class PortalMessagingController {
+    // SOQL field constants to avoid typos and keep query readable
+    private static final String FIELD_ID = 'Id';
+    private static final String FIELD_ACCOUNT = 'Account__c';
+    private static final String FIELD_PROJECT = 'Related_Project__c';
+    private static final String FIELD_TASK = 'Related_Task__c';
+    private static final String FIELD_RECIPIENT_TYPE = 'Recipient_Type__c';
+    private static final String FIELD_VISIBLE_TO_CLIENT = 'Visible_To_Client__c';
+    private static final String FIELD_DELETED = 'Deleted__c';
+    private static final String FIELD_SENDER = 'Sender__c';
+    private static final String RECIPIENT_CLIENT = 'Client';
+    private static final String RECIPIENT_TEAM = 'Milestone Team';
+
     // Lightweight CRUD helpers to satisfy security rules and fail fast for portal users
     private static void assertReadable(Schema.SObjectType typeToken) {
         if (!typeToken.getDescribe().isAccessible()) {
@@ -267,7 +279,7 @@ public without sharing class PortalMessagingController {
         String orderDirection
     ) {
         try {
-            // Normalize incoming params to avoid malformed SOQL from undefined/blank strings
+            // Normalize incoming params up front
             recipientType = normalizeOptional(recipientType);
             relatedAccountId = normalizeOptional(relatedAccountId);
             relatedProjectId = normalizeOptional(relatedProjectId);
@@ -291,73 +303,60 @@ public without sharing class PortalMessagingController {
             Id currentUserContactId = currentUser.ContactId;
             Id currentUserAccountId = currentUser.AccountId;
             
-            // Build base visibility conditions: messages sent by user or ones they can receive
-            List<String> accessConditions = new List<String>();
-            accessConditions.add('Sender__c = :currentUserContactId');
+            // --- Build filters deterministically and safely ---
+            // Access filter: sender is current user OR allowed recipient bucket
+            List<String> accessFilters = new List<String>();
+            accessFilters.add(FIELD_SENDER + ' = :currentUserContactId');
             
-            if (String.isNotBlank(recipientType)) {
-                if (recipientType == 'Client') {
-                    String clientCondition = 'Recipient_Type__c = \'Client\'';
-                    if (currentUserAccountId != null) {
-                        clientCondition += ' AND Account__c = :currentUserAccountId';
-                    }
-                    accessConditions.add(clientCondition);
-                } else if (recipientType == 'Milestone Team') {
-                    accessConditions.add('Recipient_Type__c = \'Milestone Team\'');
-                }
-            } else {
-                // Default: include both client and milestone team visibility
-                String clientCondition = 'Recipient_Type__c = \'Client\'';
+            if (recipientType == RECIPIENT_CLIENT) {
+                // Explicitly client-only
                 if (currentUserAccountId != null) {
-                    clientCondition += ' AND Account__c = :currentUserAccountId';
+                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\' AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId');
+                } else {
+                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\'');
                 }
-                accessConditions.add(clientCondition);
-                accessConditions.add('Recipient_Type__c = \'Milestone Team\'');
+            } else if (recipientType == RECIPIENT_TEAM) {
+                accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_TEAM + '\'');
+            } else {
+                // Default: both buckets
+                if (currentUserAccountId != null) {
+                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\' AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId');
+                } else {
+                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\'');
+                }
+                accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_TEAM + '\'');
             }
             
-            // Add filters for related account/project/task with rollup logic
-            // Priority: Task > Project > Account (no rollups; match only the provided context)
-            List<String> contextFilters = new List<String>();
+            // Context filter: strict priority Task > Project > Account
+            String contextFilter = null;
             if (String.isNotBlank(relatedTaskId)) {
-                contextFilters.add('Related_Task__c = :relatedTaskId');
+                contextFilter = FIELD_TASK + ' = :relatedTaskId';
             } else if (String.isNotBlank(relatedProjectId)) {
-                contextFilters.add('Related_Project__c = :relatedProjectId');
+                contextFilter = FIELD_PROJECT + ' = :relatedProjectId';
             } else if (String.isNotBlank(relatedAccountId)) {
-                contextFilters.add('Account__c = :relatedAccountId');
+                contextFilter = FIELD_ACCOUNT + ' = :relatedAccountId';
             }
             
-            // Assemble final WHERE clause with clear grouping to avoid malformed SQL
-            List<String> whereParts = new List<String>();
-            
-            // Only include non-empty access conditions
-            List<String> nonEmptyAccessConditions = new List<String>();
-            for (String condition : accessConditions) {
-                if (String.isNotBlank(condition)) {
-                    nonEmptyAccessConditions.add(condition);
-                }
-            }
-            if (!nonEmptyAccessConditions.isEmpty()) {
-                whereParts.add('(' + String.join(nonEmptyAccessConditions, ' OR ') + ')');
-            }
-            
-            // Only add non-empty context filters to avoid double ANDs (malformed SOQL)
-            List<String> nonEmptyContextFilters = new List<String>();
-            for (String filter : contextFilters) {
-                if (String.isNotBlank(filter)) {
-                    nonEmptyContextFilters.add(filter);
-                }
-            }
-            if (!nonEmptyContextFilters.isEmpty()) {
-                whereParts.add(String.join(nonEmptyContextFilters, ' AND '));
-            }
-            whereParts.add('Deleted__c = false');
+            // Base filters always applied
+            List<String> baseFilters = new List<String>{
+                FIELD_DELETED + ' = false'
+            };
             if (currentUserAccountId != null) {
-                whereParts.add('Visible_To_Client__c = true');
+                baseFilters.add(FIELD_VISIBLE_TO_CLIENT + ' = true');
             }
             
-            // Bail out early if we somehow have no WHERE parts (defensive)
+            // Assemble WHERE
+            List<String> whereParts = new List<String>();
+            if (!accessFilters.isEmpty()) {
+                whereParts.add('(' + String.join(accessFilters, ' OR ') + ')');
+            }
+            if (String.isNotBlank(contextFilter)) {
+                whereParts.add(contextFilter);
+            }
+            whereParts.addAll(baseFilters);
+            
             if (whereParts.isEmpty()) {
-                return new List<MessageInfo>();
+                return new List<MessageInfo>(); // Nothing to query
             }
             
             String whereClause = 'WHERE ' + String.join(whereParts, ' AND ');
