@@ -16,28 +16,6 @@ public without sharing class PortalMessagingController {
     private static final String RECIPIENT_CLIENT = 'Client';
     private static final String RECIPIENT_TEAM = 'Milestone Team';
 
-    // Lightweight CRUD helpers to satisfy security rules and fail fast for portal users
-    private static void assertReadable(Schema.SObjectType typeToken) {
-        if (!typeToken.getDescribe().isAccessible()) {
-            throw new AuraHandledException('Insufficient access to read ' + typeToken.getDescribe().getName());
-        }
-    }
-    private static void assertCreateable(Schema.SObjectType typeToken) {
-        if (!typeToken.getDescribe().isCreateable()) {
-            throw new AuraHandledException('Insufficient access to create ' + typeToken.getDescribe().getName());
-        }
-    }
-    private static void assertUpdateable(Schema.SObjectType typeToken) {
-        if (!typeToken.getDescribe().isUpdateable()) {
-            throw new AuraHandledException('Insufficient access to update ' + typeToken.getDescribe().getName());
-        }
-    }
-    private static void assertDeletable(Schema.SObjectType typeToken) {
-        if (!typeToken.getDescribe().isDeletable()) {
-            throw new AuraHandledException('Insufficient access to delete ' + typeToken.getDescribe().getName());
-        }
-    }
-
     // Normalize potentially undefined/blank strings coming from JS
     private static String normalizeOptional(String value) {
         if (value == null) {
@@ -103,7 +81,6 @@ public without sharing class PortalMessagingController {
             // Priority: Task > Project > Account
             if (String.isNotBlank(relatedTaskId)) {
                 message.Related_Task__c = relatedTaskId;
-                assertReadable(Project_Task__c.SObjectType);
                 // Get project and account from task
                 Project_Task__c task = [
                     SELECT Project__c, Project__r.Account__c
@@ -119,7 +96,6 @@ public without sharing class PortalMessagingController {
                 }
             } else if (String.isNotBlank(relatedProjectId)) {
                 message.Related_Project__c = relatedProjectId;
-                assertReadable(Project__c.SObjectType);
                 // Get account from project
                 Project__c project = [
                     SELECT Account__c
@@ -159,7 +135,6 @@ public without sharing class PortalMessagingController {
             // Set reply relationship if replying to a message
             if (String.isNotBlank(replyToMessageId)) {
                 // Verify the reply-to message exists and get its context
-                assertReadable(Message__c.SObjectType);
                 List<Message__c> replyToMessages = [
                     SELECT Id, Related_Task__c, Related_Project__c, Account__c, Recipient_Type__c
                     FROM Message__c
@@ -199,6 +174,7 @@ public without sharing class PortalMessagingController {
             
             return message.Id;
         } catch (Exception e) {
+            System.debug(LoggingLevel.ERROR, 'Error sending message: ' + e.getMessage() + ' Stack: ' + e.getStackTraceString());
             throw new AuraHandledException('Error sending message: ' + e.getMessage());
         }
     }
@@ -465,7 +441,6 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            assertReadable(User.SObjectType);
             // Get current user's contact and account
             User currentUser = [
                 SELECT Id, ContactId, AccountId
@@ -580,8 +555,6 @@ public without sharing class PortalMessagingController {
     @AuraEnabled(cacheable=true)
     public static List<ContactInfo> getMentionableContacts(String searchTerm) {
         try {
-            assertReadable(User.SObjectType);
-            assertReadable(Contact.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
@@ -850,8 +823,6 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            assertReadable(Contact.SObjectType);
-            assertReadable(Message__c.SObjectType);
             // Get mentioned contacts
             List<Contact> mentionedContacts = [
                 SELECT Id, Name, Email
@@ -929,7 +900,6 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            assertReadable(ContentVersion.SObjectType);
             // Get ContentDocument IDs from ContentVersion IDs
             List<ContentVersion> contentVersions = [
                 SELECT ContentDocumentId
@@ -954,7 +924,6 @@ public without sharing class PortalMessagingController {
             }
             
             // Check if links already exist
-            assertReadable(ContentDocumentLink.SObjectType);
             List<ContentDocumentLink> existingLinks = [
                 SELECT ContentDocumentId
                 FROM ContentDocumentLink
@@ -982,12 +951,12 @@ public without sharing class PortalMessagingController {
             }
             
             if (!newLinks.isEmpty()) {
-                assertCreateable(ContentDocumentLink.SObjectType);
                 insert newLinks;
             }
             
             return true;
         } catch (Exception e) {
+            System.debug(LoggingLevel.ERROR, 'Error linking files to message: ' + e.getMessage() + ' Stack: ' + e.getStackTraceString());
             throw new AuraHandledException('Error linking files to message: ' + e.getMessage());
         }
     }
@@ -1051,7 +1020,6 @@ public without sharing class PortalMessagingController {
         try {
             if (String.isNotBlank(relatedTaskId)) {
                 // Task context
-                assertReadable(Project_Task__c.SObjectType);
                 Project_Task__c task = [
                     SELECT Id, Name, Project__c, Project__r.Name, Project__r.Account__c, Project__r.Account__r.Name
                     FROM Project_Task__c
@@ -1069,7 +1037,6 @@ public without sharing class PortalMessagingController {
                 context.accountName = task.Project__r?.Account__r?.Name;
             } else if (String.isNotBlank(relatedProjectId)) {
                 // Project context
-                assertReadable(Project__c.SObjectType);
                 Project__c project = [
                     SELECT Id, Name, Account__c, Account__r.Name
                     FROM Project__c
@@ -1085,7 +1052,6 @@ public without sharing class PortalMessagingController {
                 context.accountName = project.Account__r?.Name;
             } else if (String.isNotBlank(relatedAccountId)) {
                 // Account context
-                assertReadable(Account.SObjectType);
                 Account account = [
                     SELECT Id, Name
                     FROM Account
