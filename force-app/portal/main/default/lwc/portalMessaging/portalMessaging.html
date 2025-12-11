@@ -293,9 +293,16 @@
                                             <div class="message-related">
                                                 <lightning-icon icon-name="utility:record" size="xx-small">
                                                 </lightning-icon>
-                                                <span class="slds-text-body_small">
-                                                    Project: {message.relatedProjectName}
-                                                </span>
+                                                <template if:true={message.projectLink}>
+                                                    <a href={message.projectLink.href} class="slds-text-link">
+                                                        Project: {message.relatedProjectName}
+                                                    </a>
+                                                </template>
+                                                <template if:false={message.projectLink}>
+                                                    <span class="slds-text-body_small">
+                                                        Project: {message.relatedProjectName}
+                                                    </span>
+                                                </template>
                                             </div>
                                         </template>
                                     </template>
@@ -305,21 +312,18 @@
                                             <div class="message-related">
                                                 <lightning-icon icon-name="utility:task" size="xx-small">
                                                 </lightning-icon>
-                                                <span class="slds-text-body_small">
-                                                    Task: {message.relatedTaskName}
-                                                </span>
+                                                <template if:true={message.taskLink}>
+                                                    <a href={message.taskLink.href} class="slds-text-link">
+                                                        Task: {message.relatedTaskName}
+                                                    </a>
+                                                </template>
+                                                <template if:false={message.taskLink}>
+                                                    <span class="slds-text-body_small">
+                                                        Task: {message.relatedTaskName}
+                                                    </span>
+                                                </template>
                                             </div>
                                         </template>
-                                    </template>
-
-                                    <template if:true={message.contextLink}>
-                                        <div class="message-related">
-                                            <lightning-icon icon-name="utility:link" size="xx-small">
-                                            </lightning-icon>
-                                            <a href={message.contextLink.href} class="slds-text-link">
-                                                {message.contextLink.label}
-                                            </a>
-                                        </div>
                                     </template>
                                 </div>
                             </template>

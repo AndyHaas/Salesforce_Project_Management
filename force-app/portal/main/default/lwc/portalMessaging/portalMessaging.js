@@ -445,7 +445,8 @@ export default class PortalMessaging extends LightningElement {
             isReplying: this._replyingToMessageId === msg.id,
             replyToFormattedDate: msg.replyToCreatedDate ? this.formatMessageDate(msg.replyToCreatedDate) : '',
             replyToPreview: this.stripHtmlPreview(msg.replyToMessageBody || ''),
-            contextLink: this.buildContextLink(msg)
+            taskLink: this.buildLink(msg.relatedTaskId, msg.relatedTaskName, '/project-task'),
+            projectLink: this.buildLink(msg.relatedProjectId, msg.relatedProjectName, '/project')
         }));
     }
     
@@ -477,28 +478,20 @@ export default class PortalMessaging extends LightningElement {
     }
 
     /**
-     * @description Build context link for project/task navigation (skip account-only)
+     * @description Build link object for project/task navigation
      */
-    buildContextLink(msg) {
-        try {
-            // Prefer task, then project; no link for account-only
-            if (msg.relatedTaskId) {
-                const href = ensureSitePath(`/project-task/${msg.relatedTaskId}`, { currentPathname: window.location.pathname });
-                return {
-                    href,
-                    label: msg.relatedTaskName ? `View Task: ${msg.relatedTaskName}` : 'View Task'
-                };
-            }
-            if (msg.relatedProjectId) {
-                const href = ensureSitePath(`/project/${msg.relatedProjectId}`, { currentPathname: window.location.pathname });
-                return {
-                    href,
-                    label: msg.relatedProjectName ? `View Project: ${msg.relatedProjectName}` : 'View Project'
-                };
-            }
+    buildLink(id, name, basePath) {
+        if (!id || !basePath) {
             return null;
+        }
+        try {
+            const href = ensureSitePath(`${basePath}/${id}`, { currentPathname: window.location.pathname });
+            return {
+                href,
+                label: name && name.length > 0 ? name : 'View'
+            };
         } catch (e) {
-            console.error('Error building context link', e);
+            console.error('Error building link', e);
             return null;
         }
     }
