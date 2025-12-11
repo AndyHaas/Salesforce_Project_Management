@@ -45,6 +45,10 @@
     --slds-c-button-neutral-color-border: #c9c9c9;
 }
 
+.no-header .slds-card__header {
+    display: none;
+}
+
 .messages-list {
     display: flex;
     flex-direction: column;

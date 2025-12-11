@@ -19,6 +19,7 @@ import { ensureSitePath, formatDate } from 'c/portalCommon';
 import MESSAGE_UPDATE_CHANNEL from '@salesforce/messageChannel/MessageUpdate__c';
 
 export default class PortalMessaging extends LightningElement {
+    @api showHeader;
     @api recordId; // Automatically populated when on a Lightning Record Page
     @api relatedAccountId;
     @api relatedProjectId;
@@ -49,6 +50,14 @@ export default class PortalMessaging extends LightningElement {
     @track messageSearchTerm = '';
     @track showMessageSearch = false;
     _uploadedFileIds = [];
+
+    get showHeaderEnabled() {
+        return this.showHeader === false ? false : true;
+    }
+
+    get cardClass() {
+        return this.showHeaderEnabled ? 'messaging-card' : 'messaging-card no-header';
+    }
     
     // Wire service for Lightning Message Service context
     @wire(MessageContext)

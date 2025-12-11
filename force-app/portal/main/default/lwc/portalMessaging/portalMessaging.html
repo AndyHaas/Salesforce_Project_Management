@@ -1,38 +1,40 @@
 <template>
-    <lightning-card title="Messages" class="messaging-card">
-        <div slot="actions" class="slds-grid slds-grid_vertical-align-center">
-            <template if:true={showMessageSearch}>
-                <div class="slds-form-element slds-m-right_small">
-                    <div class="slds-form-element__control">
-                        <lightning-input
-                            type="text"
-                            value={messageSearchTerm}
-                            onchange={handleMessageSearchChange}
-                            placeholder="Search messages..."
-                            class="message-search-input">
-                        </lightning-input>
+    <lightning-card title="Messages" class={cardClass}>
+        <template if:true={showHeaderEnabled}>
+            <div slot="actions" class="slds-grid slds-grid_vertical-align-center">
+                <template if:true={showMessageSearch}>
+                    <div class="slds-form-element slds-m-right_small">
+                        <div class="slds-form-element__control">
+                            <lightning-input
+                                type="text"
+                                value={messageSearchTerm}
+                                onchange={handleMessageSearchChange}
+                                placeholder="Search messages..."
+                                class="message-search-input">
+                            </lightning-input>
+                        </div>
                     </div>
-                </div>
-                <lightning-button-icon
-                    icon-name="utility:close"
-                    variant="border-filled"
-                    alternative-text="Close search"
-                    title="Close search"
-                    onclick={handleClearSearch}
-                    class="slds-m-right_x-small">
-                </lightning-button-icon>
-            </template>
-            <template if:false={showMessageSearch}>
-                <lightning-button-icon
-                    icon-name="utility:search"
-                    variant="border-filled"
-                    alternative-text="Search messages"
-                    title="Search messages"
-                    onclick={handleToggleSearch}
-                    class="search-toggle-button">
-                </lightning-button-icon>
-            </template>
-        </div>
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        variant="border-filled"
+                        alternative-text="Close search"
+                        title="Close search"
+                        onclick={handleClearSearch}
+                        class="slds-m-right_x-small">
+                    </lightning-button-icon>
+                </template>
+                <template if:false={showMessageSearch}>
+                    <lightning-button-icon
+                        icon-name="utility:search"
+                        variant="border-filled"
+                        alternative-text="Search messages"
+                        title="Search messages"
+                        onclick={handleToggleSearch}
+                        class="search-toggle-button">
+                    </lightning-button-icon>
+                </template>
+            </div>
+        </template>
         <div class="slds-card__body slds-card__body_inner">
             <!-- Context Display -->
             <template if:true={contextInfo}>
@@ -373,4 +375,3 @@
         </div>
     </lightning-card>
 </template>
-
