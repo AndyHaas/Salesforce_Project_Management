@@ -495,29 +495,28 @@ public without sharing class PortalMessagingController {
             Id currentUserContactId = currentUser.ContactId;
             Id currentUserAccountId = currentUser.AccountId;
             
-            // Build WHERE clause - show messages sent by user OR received by user
-            String whereClause = 'WHERE (Sender__c = :currentUserContactId';
+            // Build WHERE clause using list assembly to avoid malformed SQL
+            List<String> filters = new List<String>();
             
-            // Show all messages: sent by user OR received by user
-            whereClause += ' OR (Recipient_Type__c = \'Client\'';
+            // Sender or recipient buckets
+            List<String> accessFilters = new List<String>();
+            accessFilters.add(FIELD_SENDER + ' = :currentUserContactId');
             if (currentUserAccountId != null) {
-                whereClause += ' AND Account__c = :currentUserAccountId';
+                accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\' AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId');
+            } else {
+                accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\'');
             }
-            whereClause += ') OR Recipient_Type__c = \'Milestone Team\'';
+            accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_TEAM + '\'');
+            filters.add('(' + String.join(accessFilters, ' OR ') + ')');
             
-            whereClause += ')';
-            
-            // Filter out deleted messages
-            whereClause += ' AND Deleted__c = false';
-            
-            // Filter out internal messages (Visible_To_Client__c = false) for portal users
-            // All portal users are clients - they should only see client-visible messages
+            // Base filters
+            filters.add(FIELD_DELETED + ' = false');
             if (currentUserAccountId != null) {
-                whereClause += ' AND Visible_To_Client__c = true';
+                filters.add(FIELD_VISIBLE_TO_CLIENT + ' = true');
             }
+            filters.add(FIELD_TASK + ' != null');
             
-            // Only get messages that are linked to tasks (so we can navigate to them)
-            whereClause += ' AND Related_Task__c != null';
+            String whereClause = 'WHERE ' + String.join(filters, ' AND ');
             
             // Query messages - need to include task information for navigation and Reply_To__c for replies
             String query = 'SELECT Id, Name, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
