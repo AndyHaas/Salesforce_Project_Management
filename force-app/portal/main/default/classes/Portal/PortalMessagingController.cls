@@ -347,13 +347,27 @@ public without sharing class PortalMessagingController {
             
             // Assemble WHERE
             List<String> whereParts = new List<String>();
-            if (!accessFilters.isEmpty()) {
-                whereParts.add('(' + String.join(accessFilters, ' OR ') + ')');
+            
+            // Clean up any blanks defensively
+            List<String> cleanedAccessFilters = new List<String>();
+            for (String f : accessFilters) {
+                if (String.isNotBlank(f)) {
+                    cleanedAccessFilters.add(f);
+                }
             }
+            if (!cleanedAccessFilters.isEmpty()) {
+                whereParts.add('(' + String.join(cleanedAccessFilters, ' OR ') + ')');
+            }
+            
             if (String.isNotBlank(contextFilter)) {
                 whereParts.add(contextFilter);
             }
-            whereParts.addAll(baseFilters);
+            
+            for (String base : baseFilters) {
+                if (String.isNotBlank(base)) {
+                    whereParts.add(base);
+                }
+            }
             
             if (whereParts.isEmpty()) {
                 return new List<MessageInfo>(); // Nothing to query
