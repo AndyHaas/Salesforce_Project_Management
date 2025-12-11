@@ -26,6 +26,15 @@ public without sharing class PortalMessagingController {
         }
     }
 
+    // Normalize potentially undefined/blank strings coming from JS
+    private static String normalizeOptional(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return (trimmed == '' || trimmed.equalsIgnoreCase('undefined') || trimmed.equalsIgnoreCase('null')) ? null : trimmed;
+    }
+
     
     /**
      * @description Send a message
@@ -258,6 +267,12 @@ public without sharing class PortalMessagingController {
         String orderDirection
     ) {
         try {
+            // Normalize incoming params to avoid malformed SOQL from undefined/blank strings
+            recipientType = normalizeOptional(recipientType);
+            relatedAccountId = normalizeOptional(relatedAccountId);
+            relatedProjectId = normalizeOptional(relatedProjectId);
+            relatedTaskId = normalizeOptional(relatedTaskId);
+            
             // Get current user's contact and account
             assertReadable(User.SObjectType);
             User currentUser = [
@@ -313,7 +328,17 @@ public without sharing class PortalMessagingController {
             
             // Assemble final WHERE clause with clear grouping to avoid malformed SQL
             List<String> whereParts = new List<String>();
-            whereParts.add('(' + String.join(accessConditions, ' OR ') + ')');
+            
+            // Only include non-empty access conditions
+            List<String> nonEmptyAccessConditions = new List<String>();
+            for (String condition : accessConditions) {
+                if (String.isNotBlank(condition)) {
+                    nonEmptyAccessConditions.add(condition);
+                }
+            }
+            if (!nonEmptyAccessConditions.isEmpty()) {
+                whereParts.add('(' + String.join(nonEmptyAccessConditions, ' OR ') + ')');
+            }
             
             // Only add non-empty context filters to avoid double ANDs (malformed SOQL)
             List<String> nonEmptyContextFilters = new List<String>();
@@ -328,6 +353,11 @@ public without sharing class PortalMessagingController {
             whereParts.add('Deleted__c = false');
             if (currentUserAccountId != null) {
                 whereParts.add('Visible_To_Client__c = true');
+            }
+            
+            // Bail out early if we somehow have no WHERE parts (defensive)
+            if (whereParts.isEmpty()) {
+                return new List<MessageInfo>();
             }
             
             String whereClause = 'WHERE ' + String.join(whereParts, ' AND ');
