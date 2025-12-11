@@ -25,6 +25,7 @@ public without sharing class PortalMessagingController {
             throw new AuraHandledException('Insufficient access to delete ' + typeToken.getDescribe().getName());
         }
     }
+
     
     /**
      * @description Send a message
@@ -300,95 +301,29 @@ public without sharing class PortalMessagingController {
             }
             
             // Add filters for related account/project/task with rollup logic
-            // Priority: Task > Project > Account
+            // Priority: Task > Project > Account (no rollups; match only the provided context)
             List<String> contextFilters = new List<String>();
-            List<Id> relevantTaskIds = new List<Id>();
-            List<Id> relevantProjectIds = new List<Id>();
-            
             if (String.isNotBlank(relatedTaskId)) {
-                // Get all subtask IDs for this parent task
-                assertReadable(Project_Task__c.SObjectType);
-                List<Project_Task__c> subtasks = [
-                    SELECT Id
-                    FROM Project_Task__c
-                    WHERE Parent_Task__c = :relatedTaskId
-                    WITH SECURITY_ENFORCED
-                ];
-                
-                relevantTaskIds.add(relatedTaskId);
-                for (Project_Task__c subtask : subtasks) {
-                    relevantTaskIds.add(subtask.Id);
-                }
-                
-                contextFilters.add('Related_Task__c IN :relevantTaskIds');
+                contextFilters.add('Related_Task__c = :relatedTaskId');
             } else if (String.isNotBlank(relatedProjectId)) {
-                // Get all task IDs for this project
-                assertReadable(Project_Task__c.SObjectType);
-                List<Project_Task__c> projectTasks = [
-                    SELECT Id
-                    FROM Project_Task__c
-                    WHERE Project__c = :relatedProjectId
-                    WITH SECURITY_ENFORCED
-                ];
-                
-                for (Project_Task__c task : projectTasks) {
-                    relevantTaskIds.add(task.Id);
-                }
-                
-                if (!relevantTaskIds.isEmpty()) {
-                    contextFilters.add('(Related_Project__c = :relatedProjectId OR Related_Task__c IN :relevantTaskIds)');
-                } else {
-                    contextFilters.add('Related_Project__c = :relatedProjectId');
-                }
+                contextFilters.add('Related_Project__c = :relatedProjectId');
             } else if (String.isNotBlank(relatedAccountId)) {
-                // Get all project IDs for this account
-                assertReadable(Project__c.SObjectType);
-                List<Project__c> accountProjects = [
-                    SELECT Id
-                    FROM Project__c
-                    WHERE Account__c = :relatedAccountId
-                    WITH SECURITY_ENFORCED
-                ];
-                
-                for (Project__c project : accountProjects) {
-                    relevantProjectIds.add(project.Id);
-                }
-                
-                // Get all task IDs for all projects in this account
-                if (!relevantProjectIds.isEmpty()) {
-                    List<Project_Task__c> accountTasks = [
-                        SELECT Id
-                        FROM Project_Task__c
-                        WHERE Project__c IN :relevantProjectIds
-                        WITH SECURITY_ENFORCED
-                    ];
-                    
-                    for (Project_Task__c task : accountTasks) {
-                        relevantTaskIds.add(task.Id);
-                    }
-                }
-                
-                String accountFilter = 'Account__c = :relatedAccountId';
-                if (!relevantProjectIds.isEmpty()) {
-                    accountFilter += ' OR Related_Project__c IN :relevantProjectIds';
-                }
-                if (!relevantTaskIds.isEmpty()) {
-                    accountFilter += ' OR Related_Task__c IN :relevantTaskIds';
-                }
-                
-                // Ensure grouping when we added rollup conditions
-                if (accountFilter.contains(' OR ')) {
-                    accountFilter = '(' + accountFilter + ')';
-                }
-                
-                contextFilters.add(accountFilter);
+                contextFilters.add('Account__c = :relatedAccountId');
             }
             
             // Assemble final WHERE clause with clear grouping to avoid malformed SQL
             List<String> whereParts = new List<String>();
             whereParts.add('(' + String.join(accessConditions, ' OR ') + ')');
-            if (!contextFilters.isEmpty()) {
-                whereParts.add(String.join(contextFilters, ' AND '));
+            
+            // Only add non-empty context filters to avoid double ANDs (malformed SOQL)
+            List<String> nonEmptyContextFilters = new List<String>();
+            for (String filter : contextFilters) {
+                if (String.isNotBlank(filter)) {
+                    nonEmptyContextFilters.add(filter);
+                }
+            }
+            if (!nonEmptyContextFilters.isEmpty()) {
+                whereParts.add(String.join(nonEmptyContextFilters, ' AND '));
             }
             whereParts.add('Deleted__c = false');
             if (currentUserAccountId != null) {
@@ -423,8 +358,6 @@ public without sharing class PortalMessagingController {
                          'LIMIT :normalizedLimit';
             
             System.debug('getMessages query: ' + query);
-            System.debug('getMessages relevantTaskIds: ' + relevantTaskIds);
-            System.debug('getMessages relevantProjectIds: ' + relevantProjectIds);
             System.debug('getMessages relatedTaskId: ' + relatedTaskId);
             System.debug('getMessages relatedProjectId: ' + relatedProjectId);
             System.debug('getMessages relatedAccountId: ' + relatedAccountId);
