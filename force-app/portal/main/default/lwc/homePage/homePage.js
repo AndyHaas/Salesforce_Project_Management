@@ -1,14 +1,17 @@
-import { LightningElement, wire, api } from 'lwc';
+import { LightningElement, wire, api, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
-import { ensureSitePath, formatPercent, formatFieldValue } from 'c/portalCommon';
+import { ensureSitePath, formatPercent, formatFieldValue, formatDate } from 'c/portalCommon';
 import getHomePageData from '@salesforce/apex/HomePageController.getHomePageData';
+import getLatestMessages from '@salesforce/apex/PortalMessagingController.getLatestMessages';
 
 export default class HomePage extends NavigationMixin(LightningElement) {
     @api userFirstName;
     @api activeProjects = [];
     @api tasksNeedingReviewCount = 0;
+    @track latestMessages = [];
     isLoading = true;
     error;
+    _latestMessagesError = null;
     
     // Data table columns for Projects
     projectsColumns = [
@@ -52,6 +55,82 @@ export default class HomePage extends NavigationMixin(LightningElement) {
 
     get hasTasksNeedingReview() {
         return this.tasksNeedingReviewCount > 0;
+    }
+    
+    // Wire service to get latest messages
+    @wire(getLatestMessages, { limitCount: 5 })
+    wiredLatestMessages({ error, data }) {
+        if (data) {
+            this.latestMessages = data || [];
+            this._latestMessagesError = null;
+        } else if (error) {
+            console.error('Error loading latest messages:', error);
+            this.latestMessages = [];
+            this._latestMessagesError = error;
+        }
+    }
+    
+    get hasLatestMessages() {
+        return this.latestMessages && this.latestMessages.length > 0;
+    }
+    
+    get formattedLatestMessages() {
+        if (!this.latestMessages || this.latestMessages.length === 0) {
+            return [];
+        }
+        
+        return this.latestMessages.map(msg => ({
+            ...msg,
+            formattedDate: this.formatMessageDate(msg.createdDate),
+            formattedBody: this.stripHtml(msg.body || '')
+        }));
+    }
+    
+    formatMessageDate(dateValue) {
+        if (!dateValue) {
+            return '';
+        }
+        const date = new Date(dateValue);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) {
+            return 'Just now';
+        } else if (diffMins < 60) {
+            return `${diffMins}m ago`;
+        } else if (diffHours < 24) {
+            return `${diffHours}h ago`;
+        } else if (diffDays < 7) {
+            return `${diffDays}d ago`;
+        } else {
+            return formatDate(dateValue, '—');
+        }
+    }
+    
+    stripHtml(html) {
+        if (!html) {
+            return '';
+        }
+        // Remove HTML tags and decode entities
+        const tmp = document.createElement('DIV');
+        tmp.innerHTML = html;
+        let text = tmp.textContent || tmp.innerText || '';
+        // Limit to 100 characters
+        if (text.length > 100) {
+            text = text.substring(0, 100) + '...';
+        }
+        return text;
+    }
+    
+    handleMessageClick(event) {
+        const taskId = event.currentTarget.dataset.taskId;
+        if (taskId) {
+            const taskUrl = `/project-task/${taskId}`;
+            this.navigateToUrl(taskUrl);
+        }
     }
     
     get projectsTableRows() {

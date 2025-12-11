@@ -10,7 +10,7 @@
             </p>
         </div>
 
-        <!-- Active Projects and Review Required Section -->
+        <!-- Active Projects, Review Required, and Latest Messages Section -->
         <div class="two-column-layout">
             <!-- Active Projects Card -->
             <div class="custom-card">
@@ -98,6 +98,54 @@
                         <template if:false={hasTasksNeedingReview}>
                             <div class="empty-state">
                                 <p>No tasks require review at this time.</p>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+            </div>
+            
+            <!-- Latest Messages Card -->
+            <div class="custom-card">
+                <div class="card-header messages-header">
+                    <lightning-icon icon-name="utility:message" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Latest Comments</h2>
+                </div>
+                <div class="card-body">
+                    <template if:true={isLoading}>
+                        <div class="loading-container">
+                            <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                        </div>
+                    </template>
+                    <template if:false={isLoading}>
+                        <template if:true={hasLatestMessages}>
+                            <div class="messages-list">
+                                <template for:each={formattedLatestMessages} for:item="message">
+                                    <div key={message.id} class="message-item" data-task-id={message.relatedTaskId} onclick={handleMessageClick}>
+                                        <div class="message-header-row">
+                                            <div class="message-sender-info">
+                                                <strong class="message-sender">{message.senderName}</strong>
+                                                <template if:true={message.isMentioned}>
+                                                    <lightning-badge label="Mentioned" variant="warning" class="slds-m-left_x-small message-badge"></lightning-badge>
+                                                </template>
+                                            </div>
+                                            <span class="message-date">{message.formattedDate}</span>
+                                        </div>
+                                        <div class="message-preview">
+                                            {message.formattedBody}
+                                        </div>
+                                        <template if:true={message.relatedTaskName}>
+                                            <div class="message-task-info">
+                                                <lightning-icon icon-name="utility:task" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
+                                                <span class="task-name-link">{message.relatedTaskName}</span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        <template if:false={hasLatestMessages}>
+                            <div class="empty-state">
+                                <p>No recent comments found.</p>
                             </div>
                         </template>
                     </template>

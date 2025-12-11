@@ -262,3 +262,24 @@
     justify-content: center;
     padding: 1rem 0;
 }
+
+.section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+.section-title {
+    margin: 0 0 1rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #222;
+}
+
+.section-content {
+    color: #444;
+}
+
+.messages-section {
+    margin-top: 2rem;
+}

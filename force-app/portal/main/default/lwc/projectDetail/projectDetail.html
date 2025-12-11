@@ -79,6 +79,15 @@
                             </div>
                         </div>
                     </template>
+                    
+                    <!-- Messages Section -->
+                    <template if:true={projectId}>
+                        <div class="section messages-section">
+                            <c-portal-messaging 
+                                related-project-id={projectId}>
+                            </c-portal-messaging>
+                        </div>
+                    </template>
                 </div>
             </template>
 

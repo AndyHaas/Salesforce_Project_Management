@@ -232,21 +232,31 @@
         
         <!-- Side Panel with Task Context -->
         <template if:true={taskId}>
-            <div class="side-panel">
-                <template if:true={taskContextHasContent}>
+            <template if:true={hasData}>
+                <div class="side-panel">
+                    <template if:true={taskContextHasContent}>
+                        <div class="side-panel-item">
+                            <c-task-context-panel 
+                                record-id={taskId} 
+                                show-link-task-button="false" 
+                                is-portal-mode="true"
+                                oncontentchange={handleTaskContextContentChange}>
+                            </c-task-context-panel>
+                        </div>
+                    </template>
                     <div class="side-panel-item">
-                        <c-task-context-panel 
-                            record-id={taskId} 
-                            show-link-task-button="false" 
-                            is-portal-mode="true"
-                            oncontentchange={handleTaskContextContentChange}>
-                        </c-task-context-panel>
+                        <c-portal-task-files record-id={taskId}></c-portal-task-files>
                     </div>
-                </template>
-                <div class="side-panel-item">
-                    <c-portal-task-files record-id={taskId}></c-portal-task-files>
+                    <template if:true={task.Project__c}>
+                        <div class="side-panel-item">
+                            <c-portal-messaging 
+                                related-project-id={task.Project__c}
+                                related-task-id={taskId}>
+                            </c-portal-messaging>
+                        </div>
+                    </template>
                 </div>
-            </div>
+            </template>
         </template>
     </div>
 </template>
