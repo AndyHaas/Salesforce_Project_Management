@@ -58,7 +58,7 @@
                         </div>
                     </div>
                     
-                    <div class="section two-col-sections">
+                    <div class={sectionLayoutClass}>
                         <!-- Project Task Files Section -->
                         <template if:true={hasFiles}>
                             <div class="section-card">
@@ -96,6 +96,16 @@
                                     <c-portal-messaging 
                                         related-project-id={projectId}>
                                     </c-portal-messaging>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Invoices Section (placeholder) -->
+                        <template if:true={hasInvoices}>
+                            <div class="section-card invoices-section">
+                                <h3 class="section-title">Invoices</h3>
+                                <div class="section-content">
+                                    <p class="muted">Coming soon: view and download invoices for this project, see payment status, and access links to pay online.</p>
                                 </div>
                             </div>
                         </template>

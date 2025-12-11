@@ -282,6 +282,16 @@
     }
 }
 
+.two-col-sections.three-col {
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .two-col-sections.three-col {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 .section-card {
     background: #fff;
     border: 1px solid #e5e5e5;

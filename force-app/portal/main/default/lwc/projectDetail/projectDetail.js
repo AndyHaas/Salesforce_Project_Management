@@ -223,6 +223,14 @@ export default class ProjectDetail extends LightningElement {
     get filesCount() {
         return this._files ? this._files.length : 0;
     }
+
+    get hasInvoices() {
+        return !!this.project?.invoiced;
+    }
+
+    get sectionLayoutClass() {
+        return this.hasInvoices ? 'section two-col-sections three-col' : 'section two-col-sections';
+    }
     
     /**
      * @description Format file size for display
