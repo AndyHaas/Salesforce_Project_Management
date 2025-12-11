@@ -179,7 +179,7 @@
                                     </div>
                                 </div>
                             </template>
-                            
+                            <hr class="message-separator">
                             <template if:false={message.isEditing}>
                                 <div class="message-body">
                                     <lightning-formatted-rich-text value={message.body}></lightning-formatted-rich-text>
@@ -208,6 +208,7 @@
                                     </div>
                                 </div>
                             </template>
+                            <hr class="message-separator">
                             <!-- Show context hierarchy if viewing at a higher level -->
                             <template if:true={message.accountName}>
                                 <template if:true={showAccountContext}>

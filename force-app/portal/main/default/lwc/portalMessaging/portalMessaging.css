@@ -212,6 +212,12 @@
     border-left: 3px solid #706e6b;
 }
 
+.message-separator {
+    border: 0;
+    border-top: 1px solid #e5e5e5;
+    margin: 0.75rem 0;
+}
+
 .message-highlight {
     animation: highlightMessage 2s ease-in-out;
 }
