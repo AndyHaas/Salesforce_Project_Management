@@ -214,12 +214,10 @@ public without sharing class PortalMessagingController {
     @AuraEnabled(cacheable=true)
     public static String getCurrentUserContactId() {
         try {
-            assertReadable(User.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
-                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -282,12 +280,10 @@ public without sharing class PortalMessagingController {
             relatedTaskId = normalizeOptional(relatedTaskId);
             
             // Get current user's contact and account
-            assertReadable(User.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
-                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -666,12 +662,10 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            assertReadable(Message__c.SObjectType);
             Message__c message = [
                 SELECT Id, Is_Read__c
                 FROM Message__c
                 WHERE Id = :messageId
-                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -777,12 +771,10 @@ public without sharing class PortalMessagingController {
             }
             
             // Get message
-            assertReadable(Message__c.SObjectType);
             Message__c message = [
                 SELECT Id, Is_Pinned__c, Deleted__c
                 FROM Message__c
                 WHERE Id = :messageId
-                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -831,12 +823,10 @@ public without sharing class PortalMessagingController {
             }
             
             // Get message and verify sender
-            assertReadable(Message__c.SObjectType);
             Message__c message = [
                 SELECT Id, Sender__c, Deleted__c
                 FROM Message__c
                 WHERE Id = :messageId
-                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
