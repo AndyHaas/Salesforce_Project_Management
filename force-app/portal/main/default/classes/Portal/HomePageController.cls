@@ -25,6 +25,7 @@ public without sharing class HomePageController {
             LIMIT 1
         ];
         data.userFirstName = currentUser.FirstName;
+        data.accountId = currentUser.AccountId;
         
         // Get user's account ID
         Set<Id> accountIds = new Set<Id>();
@@ -86,6 +87,7 @@ public without sharing class HomePageController {
      */
     public class HomePageData {
         @AuraEnabled public String userFirstName;
+        @AuraEnabled public Id accountId;
         @AuraEnabled public List<Project__c> activeProjects;
         @AuraEnabled public List<Project_Task__c> openTasks;
         @AuraEnabled public Integer tasksNeedingReviewCount;

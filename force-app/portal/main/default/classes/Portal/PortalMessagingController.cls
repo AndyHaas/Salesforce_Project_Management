@@ -4,6 +4,27 @@
  * Uses without sharing to allow portal users to create message records
  */
 public without sharing class PortalMessagingController {
+    // Lightweight CRUD helpers to satisfy security rules and fail fast for portal users
+    private static void assertReadable(Schema.SObjectType typeToken) {
+        if (!typeToken.getDescribe().isAccessible()) {
+            throw new AuraHandledException('Insufficient access to read ' + typeToken.getDescribe().getName());
+        }
+    }
+    private static void assertCreateable(Schema.SObjectType typeToken) {
+        if (!typeToken.getDescribe().isCreateable()) {
+            throw new AuraHandledException('Insufficient access to create ' + typeToken.getDescribe().getName());
+        }
+    }
+    private static void assertUpdateable(Schema.SObjectType typeToken) {
+        if (!typeToken.getDescribe().isUpdateable()) {
+            throw new AuraHandledException('Insufficient access to update ' + typeToken.getDescribe().getName());
+        }
+    }
+    private static void assertDeletable(Schema.SObjectType typeToken) {
+        if (!typeToken.getDescribe().isDeletable()) {
+            throw new AuraHandledException('Insufficient access to delete ' + typeToken.getDescribe().getName());
+        }
+    }
     
     /**
      * @description Send a message
@@ -37,11 +58,13 @@ public without sharing class PortalMessagingController {
         }
         
         try {
+            assertReadable(User.SObjectType);
             // Get current user's contact
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -60,11 +83,13 @@ public without sharing class PortalMessagingController {
             // Priority: Task > Project > Account
             if (String.isNotBlank(relatedTaskId)) {
                 message.Related_Task__c = relatedTaskId;
+                assertReadable(Project_Task__c.SObjectType);
                 // Get project and account from task
                 Project_Task__c task = [
                     SELECT Project__c, Project__r.Account__c
                     FROM Project_Task__c
                     WHERE Id = :relatedTaskId
+                    WITH SECURITY_ENFORCED
                     LIMIT 1
                 ];
                 if (task.Project__c != null) {
@@ -75,11 +100,13 @@ public without sharing class PortalMessagingController {
                 }
             } else if (String.isNotBlank(relatedProjectId)) {
                 message.Related_Project__c = relatedProjectId;
+                assertReadable(Project__c.SObjectType);
                 // Get account from project
                 Project__c project = [
                     SELECT Account__c
                     FROM Project__c
                     WHERE Id = :relatedProjectId
+                    WITH SECURITY_ENFORCED
                     LIMIT 1
                 ];
                 if (project.Account__c != null) {
@@ -114,11 +141,13 @@ public without sharing class PortalMessagingController {
             // Set reply relationship if replying to a message
             if (String.isNotBlank(replyToMessageId)) {
                 // Verify the reply-to message exists and get its context
+                assertReadable(Message__c.SObjectType);
                 List<Message__c> replyToMessages = [
                     SELECT Id, Related_Task__c, Related_Project__c, Account__c, Recipient_Type__c
                     FROM Message__c
                     WHERE Id = :replyToMessageId
                     AND Deleted__c = false
+                    WITH SECURITY_ENFORCED
                     LIMIT 1
                 ];
                 
@@ -144,6 +173,9 @@ public without sharing class PortalMessagingController {
                 }
             }
             
+            assertCreateable(Message__c.SObjectType);
+            // Strip inaccessible fields before DML to honor FLS
+            message = (Message__c)Security.stripInaccessible(AccessType.CREATABLE, new List<Message__c>{ message }).getRecords()[0];
             insert message;
             
             // Send notifications to mentioned contacts
@@ -164,10 +196,12 @@ public without sharing class PortalMessagingController {
     @AuraEnabled(cacheable=true)
     public static String getCurrentUserContactId() {
         try {
+            assertReadable(User.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -217,14 +251,19 @@ public without sharing class PortalMessagingController {
         String recipientType,
         String relatedAccountId,
         String relatedProjectId,
-        String relatedTaskId
+        String relatedTaskId,
+        Integer limitCount,
+        String orderByField,
+        String orderDirection
     ) {
         try {
             // Get current user's contact and account
+            assertReadable(User.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -236,46 +275,44 @@ public without sharing class PortalMessagingController {
             Id currentUserContactId = currentUser.ContactId;
             Id currentUserAccountId = currentUser.AccountId;
             
-            // Build WHERE clause - show messages sent by user OR received by user
-            String whereClause = 'WHERE (Sender__c = :currentUserContactId';
+            // Build base visibility conditions: messages sent by user or ones they can receive
+            List<String> accessConditions = new List<String>();
+            accessConditions.add('Sender__c = :currentUserContactId');
             
-            // Add recipient type filter
             if (String.isNotBlank(recipientType)) {
                 if (recipientType == 'Client') {
-                    // Show messages sent to clients (same account)
-                    whereClause += ' OR (Recipient_Type__c = \'Client\'';
+                    String clientCondition = 'Recipient_Type__c = \'Client\'';
                     if (currentUserAccountId != null) {
-                        whereClause += ' AND Account__c = :currentUserAccountId';
+                        clientCondition += ' AND Account__c = :currentUserAccountId';
                     }
-                    whereClause += ')';
+                    accessConditions.add(clientCondition);
                 } else if (recipientType == 'Milestone Team') {
-                    // Show messages sent to Milestone Team
-                    whereClause += ' OR Recipient_Type__c = \'Milestone Team\'';
+                    accessConditions.add('Recipient_Type__c = \'Milestone Team\'');
                 }
             } else {
-                // Show all messages: sent by user OR received by user
-                whereClause += ' OR (Recipient_Type__c = \'Client\'';
+                // Default: include both client and milestone team visibility
+                String clientCondition = 'Recipient_Type__c = \'Client\'';
                 if (currentUserAccountId != null) {
-                    whereClause += ' AND Account__c = :currentUserAccountId';
+                    clientCondition += ' AND Account__c = :currentUserAccountId';
                 }
-                whereClause += ') OR Recipient_Type__c = \'Milestone Team\'';
+                accessConditions.add(clientCondition);
+                accessConditions.add('Recipient_Type__c = \'Milestone Team\'');
             }
             
             // Add filters for related account/project/task with rollup logic
             // Priority: Task > Project > Account
-            // If relatedTaskId is provided, include messages for that task AND all its subtasks
-            // If relatedProjectId is provided, include messages for that project AND all tasks in that project
-            // If relatedAccountId is provided, include messages for that account AND all projects and tasks in that account
+            List<String> contextFilters = new List<String>();
             List<Id> relevantTaskIds = new List<Id>();
             List<Id> relevantProjectIds = new List<Id>();
-            Boolean hasContextFilter = false;
             
             if (String.isNotBlank(relatedTaskId)) {
                 // Get all subtask IDs for this parent task
+                assertReadable(Project_Task__c.SObjectType);
                 List<Project_Task__c> subtasks = [
                     SELECT Id
                     FROM Project_Task__c
                     WHERE Parent_Task__c = :relatedTaskId
+                    WITH SECURITY_ENFORCED
                 ];
                 
                 relevantTaskIds.add(relatedTaskId);
@@ -283,34 +320,34 @@ public without sharing class PortalMessagingController {
                     relevantTaskIds.add(subtask.Id);
                 }
                 
-                // Always add the filter since we have at least the relatedTaskId
-                whereClause += ' AND Related_Task__c IN :relevantTaskIds';
-                hasContextFilter = true;
+                contextFilters.add('Related_Task__c IN :relevantTaskIds');
             } else if (String.isNotBlank(relatedProjectId)) {
                 // Get all task IDs for this project
+                assertReadable(Project_Task__c.SObjectType);
                 List<Project_Task__c> projectTasks = [
                     SELECT Id
                     FROM Project_Task__c
                     WHERE Project__c = :relatedProjectId
+                    WITH SECURITY_ENFORCED
                 ];
                 
                 for (Project_Task__c task : projectTasks) {
                     relevantTaskIds.add(task.Id);
                 }
                 
-                // Include messages directly linked to project OR linked to any task in the project
                 if (!relevantTaskIds.isEmpty()) {
-                    whereClause += ' AND (Related_Project__c = :relatedProjectId OR Related_Task__c IN :relevantTaskIds)';
+                    contextFilters.add('(Related_Project__c = :relatedProjectId OR Related_Task__c IN :relevantTaskIds)');
                 } else {
-                    whereClause += ' AND Related_Project__c = :relatedProjectId';
+                    contextFilters.add('Related_Project__c = :relatedProjectId');
                 }
-                hasContextFilter = true;
             } else if (String.isNotBlank(relatedAccountId)) {
                 // Get all project IDs for this account
+                assertReadable(Project__c.SObjectType);
                 List<Project__c> accountProjects = [
                     SELECT Id
                     FROM Project__c
                     WHERE Account__c = :relatedAccountId
+                    WITH SECURITY_ENFORCED
                 ];
                 
                 for (Project__c project : accountProjects) {
@@ -323,6 +360,7 @@ public without sharing class PortalMessagingController {
                         SELECT Id
                         FROM Project_Task__c
                         WHERE Project__c IN :relevantProjectIds
+                        WITH SECURITY_ENFORCED
                     ];
                     
                     for (Project_Task__c task : accountTasks) {
@@ -330,36 +368,48 @@ public without sharing class PortalMessagingController {
                     }
                 }
                 
-                // Include messages directly linked to account OR linked to any project or task in the account
-                if (!relevantProjectIds.isEmpty() || !relevantTaskIds.isEmpty()) {
-                    whereClause += ' AND (Account__c = :relatedAccountId';
-                    if (!relevantProjectIds.isEmpty()) {
-                        whereClause += ' OR Related_Project__c IN :relevantProjectIds';
-                    }
-                    if (!relevantTaskIds.isEmpty()) {
-                        whereClause += ' OR Related_Task__c IN :relevantTaskIds';
-                    }
-                    whereClause += ')';
-                } else {
-                    whereClause += ' AND Account__c = :relatedAccountId';
+                String accountFilter = 'Account__c = :relatedAccountId';
+                if (!relevantProjectIds.isEmpty()) {
+                    accountFilter += ' OR Related_Project__c IN :relevantProjectIds';
                 }
-                hasContextFilter = true;
+                if (!relevantTaskIds.isEmpty()) {
+                    accountFilter += ' OR Related_Task__c IN :relevantTaskIds';
+                }
+                
+                // Ensure grouping when we added rollup conditions
+                if (accountFilter.contains(' OR ')) {
+                    accountFilter = '(' + accountFilter + ')';
+                }
+                
+                contextFilters.add(accountFilter);
             }
             
-            // Close the main WHERE clause parenthesis
-            whereClause += ')';
-            
-            // Filter out deleted messages
-            whereClause += ' AND Deleted__c = false';
-            
-            // Filter out internal messages (Visible_To_Client__c = false) for portal users
-            // All portal users are clients - they should only see client-visible messages
-            // Milestone Consulting team members don't use the portal, so they won't access this method
+            // Assemble final WHERE clause with clear grouping to avoid malformed SQL
+            List<String> whereParts = new List<String>();
+            whereParts.add('(' + String.join(accessConditions, ' OR ') + ')');
+            if (!contextFilters.isEmpty()) {
+                whereParts.add(String.join(contextFilters, ' AND '));
+            }
+            whereParts.add('Deleted__c = false');
             if (currentUserAccountId != null) {
-                whereClause += ' AND Visible_To_Client__c = true';
+                whereParts.add('Visible_To_Client__c = true');
             }
+            
+            String whereClause = 'WHERE ' + String.join(whereParts, ' AND ');
             
             // Query messages - need to include Related_Task__r.Project__c for project rollup and Reply_To__c for replies
+            // Normalize limit and ordering inputs
+            Integer normalizedLimit = (limitCount != null && limitCount > 0 && limitCount <= 200) ? limitCount : 100;
+            String normalizedOrderDirection = (orderDirection != null && orderDirection.toUpperCase() == 'ASC') ? 'ASC' : 'DESC';
+            
+            // Only allow a small, known-safe set of fields for ordering to avoid injection
+            Map<String, String> allowedOrderFields = new Map<String, String>{
+                'CreatedDate' => 'CreatedDate',
+                'LastEditedDate' => 'Last_Edited_Date__c',
+                'IsPinned' => 'Is_Pinned__c'
+            };
+            String normalizedOrderField = allowedOrderFields.containsKey(orderByField) ? allowedOrderFields.get(orderByField) : 'CreatedDate';
+            
             String query = 'SELECT Id, Name, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
                          'Recipient_Type__c, Related_Project__c, Related_Project__r.Name, ' +
                          'Related_Task__c, Related_Task__r.Name, Related_Task__r.Project__c, ' +
@@ -368,9 +418,9 @@ public without sharing class PortalMessagingController {
                          'Account__c, Account__r.Name, Reply_To__c, Reply_To__r.Id, Reply_To__r.Body__c, ' +
                          'Reply_To__r.Sender__r.Name, Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, ' +
                          'Is_Pinned__c ' +
-                         'FROM Message__c ' + whereClause + ' ' +
-                         'ORDER BY Is_Pinned__c DESC, CreatedDate DESC ' +
-                         'LIMIT 100';
+                         'FROM Message__c WITH SECURITY_ENFORCED ' + whereClause + ' ' +
+                         'ORDER BY Is_Pinned__c DESC, ' + normalizedOrderField + ' ' + normalizedOrderDirection + ' ' +
+                         'LIMIT :normalizedLimit';
             
             System.debug('getMessages query: ' + query);
             System.debug('getMessages relevantTaskIds: ' + relevantTaskIds);
@@ -451,11 +501,13 @@ public without sharing class PortalMessagingController {
         }
         
         try {
+            assertReadable(User.SObjectType);
             // Get current user's contact and account
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -500,7 +552,7 @@ public without sharing class PortalMessagingController {
                          'Account__c, Account__r.Name, Reply_To__c, Reply_To__r.Id, Reply_To__r.Body__c, ' +
                          'Reply_To__r.Sender__r.Name, Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, ' +
                          'Is_Pinned__c ' +
-                         'FROM Message__c ' + whereClause + ' ' +
+                         'FROM Message__c WITH SECURITY_ENFORCED ' + whereClause + ' ' +
                          'ORDER BY Is_Pinned__c DESC, CreatedDate DESC ' +
                          'LIMIT :limitCount';
             
@@ -565,15 +617,24 @@ public without sharing class PortalMessagingController {
     @AuraEnabled(cacheable=true)
     public static List<ContactInfo> getMentionableContacts(String searchTerm) {
         try {
+            assertReadable(User.SObjectType);
+            assertReadable(Contact.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
             // Build query with proper bind variables
             List<Contact> contacts;
+            String searchLike = null;
+            if (String.isNotBlank(searchTerm)) {
+                // Escape LIKE wildcards to avoid injection via pattern characters
+                String escaped = searchTerm.replaceAll('([%_\\\\])', '\\\\$1');
+                searchLike = '%' + escaped + '%';
+            }
             
             if (currentUser.AccountId != null) {
                 // If user has an account, prioritize contacts from same account
@@ -583,12 +644,11 @@ public without sharing class PortalMessagingController {
                               'WHERE Portal_Access_Enabled__c = true ' +
                               'AND (AccountId = :currentUserAccountId OR AccountId = null)';
                 
-                if (String.isNotBlank(searchTerm)) {
-                    query += ' AND (Name LIKE \'%' + String.escapeSingleQuotes(searchTerm) + '%\' ' +
-                            'OR Email LIKE \'%' + String.escapeSingleQuotes(searchTerm) + '%\')';
+                if (searchLike != null) {
+                    query += ' AND (Name LIKE :searchLike ESCAPE \'\\\\\' OR Email LIKE :searchLike ESCAPE \'\\\\\')';
                 }
                 
-                query += ' ORDER BY Name LIMIT 20';
+                query += ' WITH SECURITY_ENFORCED ORDER BY Name LIMIT 20';
                 
                 Id currentUserAccountId = currentUser.AccountId;
                 contacts = Database.query(query);
@@ -598,12 +658,11 @@ public without sharing class PortalMessagingController {
                               'FROM Contact ' +
                               'WHERE Portal_Access_Enabled__c = true';
                 
-                if (String.isNotBlank(searchTerm)) {
-                    query += ' AND (Name LIKE \'%' + String.escapeSingleQuotes(searchTerm) + '%\' ' +
-                            'OR Email LIKE \'%' + String.escapeSingleQuotes(searchTerm) + '%\')';
+                if (searchLike != null) {
+                    query += ' AND (Name LIKE :searchLike ESCAPE \'\\\\\' OR Email LIKE :searchLike ESCAPE \'\\\\\')';
                 }
                 
-                query += ' ORDER BY Name LIMIT 20';
+                query += ' WITH SECURITY_ENFORCED ORDER BY Name LIMIT 20';
                 
                 contacts = Database.query(query);
             }
@@ -636,14 +695,18 @@ public without sharing class PortalMessagingController {
         }
         
         try {
+            assertReadable(Message__c.SObjectType);
             Message__c message = [
                 SELECT Id, Is_Read__c
                 FROM Message__c
                 WHERE Id = :messageId
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
+            assertUpdateable(Message__c.SObjectType);
             message.Is_Read__c = true;
+            message = (Message__c)Security.stripInaccessible(AccessType.UPDATABLE, new List<Message__c>{ message }).getRecords()[0];
             update message;
         } catch (Exception e) {
             throw new AuraHandledException('Error marking message as read: ' + e.getMessage());
@@ -668,10 +731,12 @@ public without sharing class PortalMessagingController {
         
         try {
             // Get current user's contact
+            assertReadable(User.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -680,10 +745,12 @@ public without sharing class PortalMessagingController {
             }
             
             // Get message and verify sender
+            assertReadable(Message__c.SObjectType);
             Message__c message = [
                 SELECT Id, Sender__c, Body__c, Is_Edited__c, Deleted__c
                 FROM Message__c
                 WHERE Id = :messageId
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -698,10 +765,12 @@ public without sharing class PortalMessagingController {
             }
             
             // Update message
+            assertUpdateable(Message__c.SObjectType);
             message.Body__c = messageBody;
             message.Is_Edited__c = true;
             message.Last_Edited_Date__c = Datetime.now();
             
+            message = (Message__c)Security.stripInaccessible(AccessType.UPDATABLE, new List<Message__c>{ message }).getRecords()[0];
             update message;
         } catch (AuraHandledException e) {
             throw e;
@@ -724,10 +793,12 @@ public without sharing class PortalMessagingController {
         
         try {
             // Get current user
+            assertReadable(User.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -737,10 +808,12 @@ public without sharing class PortalMessagingController {
             }
             
             // Get message
+            assertReadable(Message__c.SObjectType);
             Message__c message = [
                 SELECT Id, Is_Pinned__c, Deleted__c
                 FROM Message__c
                 WHERE Id = :messageId
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -750,8 +823,10 @@ public without sharing class PortalMessagingController {
             }
             
             // Update pin status
+            assertUpdateable(Message__c.SObjectType);
             message.Is_Pinned__c = isPinned != null ? isPinned : false;
             
+            message = (Message__c)Security.stripInaccessible(AccessType.UPDATABLE, new List<Message__c>{ message }).getRecords()[0];
             update message;
         } catch (AuraHandledException e) {
             throw e;
@@ -773,10 +848,12 @@ public without sharing class PortalMessagingController {
         
         try {
             // Get current user's contact
+            assertReadable(User.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -785,10 +862,12 @@ public without sharing class PortalMessagingController {
             }
             
             // Get message and verify sender
+            assertReadable(Message__c.SObjectType);
             Message__c message = [
                 SELECT Id, Sender__c, Deleted__c
                 FROM Message__c
                 WHERE Id = :messageId
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -803,7 +882,9 @@ public without sharing class PortalMessagingController {
             }
             
             // Soft delete - set Deleted__c flag to true
+            assertUpdateable(Message__c.SObjectType);
             message.Deleted__c = true;
+            message = (Message__c)Security.stripInaccessible(AccessType.UPDATABLE, new List<Message__c>{ message }).getRecords()[0];
             update message;
         } catch (AuraHandledException e) {
             throw e;
@@ -828,12 +909,15 @@ public without sharing class PortalMessagingController {
         }
         
         try {
+            assertReadable(Contact.SObjectType);
+            assertReadable(Message__c.SObjectType);
             // Get mentioned contacts
             List<Contact> mentionedContacts = [
                 SELECT Id, Name, Email
                 FROM Contact
                 WHERE Id IN :mentionedContactIds
                 AND Email != null
+                WITH SECURITY_ENFORCED
             ];
             
             if (mentionedContacts.isEmpty()) {
@@ -845,6 +929,7 @@ public without sharing class PortalMessagingController {
                 SELECT Id, Name, Sender__r.Name, Related_Project__r.Name, Related_Task__r.Name
                 FROM Message__c
                 WHERE Id = :messageId
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -903,11 +988,13 @@ public without sharing class PortalMessagingController {
         }
         
         try {
+            assertReadable(ContentVersion.SObjectType);
             // Get ContentDocument IDs from ContentVersion IDs
             List<ContentVersion> contentVersions = [
                 SELECT ContentDocumentId
                 FROM ContentVersion
                 WHERE Id IN :contentVersionIds
+                WITH SECURITY_ENFORCED
             ];
             
             if (contentVersions.isEmpty()) {
@@ -926,11 +1013,13 @@ public without sharing class PortalMessagingController {
             }
             
             // Check if links already exist
+            assertReadable(ContentDocumentLink.SObjectType);
             List<ContentDocumentLink> existingLinks = [
                 SELECT ContentDocumentId
                 FROM ContentDocumentLink
                 WHERE LinkedEntityId = :messageId
                 AND ContentDocumentId IN :contentDocumentIds
+                WITH SECURITY_ENFORCED
             ];
             
             Set<Id> existingContentDocumentIds = new Set<Id>();
@@ -952,6 +1041,7 @@ public without sharing class PortalMessagingController {
             }
             
             if (!newLinks.isEmpty()) {
+                assertCreateable(ContentDocumentLink.SObjectType);
                 insert newLinks;
             }
             
