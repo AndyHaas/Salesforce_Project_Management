@@ -80,7 +80,6 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            assertReadable(User.SObjectType);
             // Get current user's contact
             User currentUser = [
                 SELECT Id, ContactId, AccountId
@@ -191,9 +190,6 @@ public without sharing class PortalMessagingController {
                 }
             }
             
-            assertCreateable(Message__c.SObjectType);
-            // Strip inaccessible fields before DML to honor FLS
-            message = (Message__c)Security.stripInaccessible(AccessType.CREATABLE, new List<Message__c>{ message }).getRecords()[0];
             insert message;
             
             // Send notifications to mentioned contacts
@@ -669,9 +665,7 @@ public without sharing class PortalMessagingController {
                 LIMIT 1
             ];
             
-            assertUpdateable(Message__c.SObjectType);
             message.Is_Read__c = true;
-            message = (Message__c)Security.stripInaccessible(AccessType.UPDATABLE, new List<Message__c>{ message }).getRecords()[0];
             update message;
         } catch (Exception e) {
             throw new AuraHandledException('Error marking message as read: ' + e.getMessage());
@@ -696,12 +690,10 @@ public without sharing class PortalMessagingController {
         
         try {
             // Get current user's contact
-            assertReadable(User.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
-                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -728,12 +720,10 @@ public without sharing class PortalMessagingController {
             }
             
             // Update message
-            assertUpdateable(Message__c.SObjectType);
             message.Body__c = messageBody;
             message.Is_Edited__c = true;
             message.Last_Edited_Date__c = Datetime.now();
             
-            message = (Message__c)Security.stripInaccessible(AccessType.UPDATABLE, new List<Message__c>{ message }).getRecords()[0];
             update message;
         } catch (AuraHandledException e) {
             throw e;
@@ -756,12 +746,10 @@ public without sharing class PortalMessagingController {
         
         try {
             // Get current user
-            assertReadable(User.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
-                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -784,10 +772,8 @@ public without sharing class PortalMessagingController {
             }
             
             // Update pin status
-            assertUpdateable(Message__c.SObjectType);
             message.Is_Pinned__c = isPinned != null ? isPinned : false;
             
-            message = (Message__c)Security.stripInaccessible(AccessType.UPDATABLE, new List<Message__c>{ message }).getRecords()[0];
             update message;
         } catch (AuraHandledException e) {
             throw e;
@@ -809,12 +795,10 @@ public without sharing class PortalMessagingController {
         
         try {
             // Get current user's contact
-            assertReadable(User.SObjectType);
             User currentUser = [
                 SELECT Id, ContactId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
-                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -841,9 +825,7 @@ public without sharing class PortalMessagingController {
             }
             
             // Soft delete - set Deleted__c flag to true
-            assertUpdateable(Message__c.SObjectType);
             message.Deleted__c = true;
-            message = (Message__c)Security.stripInaccessible(AccessType.UPDATABLE, new List<Message__c>{ message }).getRecords()[0];
             update message;
         } catch (AuraHandledException e) {
             throw e;
