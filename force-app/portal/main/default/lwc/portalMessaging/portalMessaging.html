@@ -294,9 +294,11 @@
                                                 <lightning-icon icon-name="utility:record" size="xx-small">
                                                 </lightning-icon>
                                                 <template if:true={message.projectLink}>
-                                                    <a href={message.projectLink.href} class="slds-text-link">
-                                                        Project: {message.relatedProjectName}
-                                                    </a>
+                                                    <span class="slds-text-body_small">
+                                                        <a href={message.projectLink.href} class="slds-text-link">
+                                                            Project: {message.relatedProjectName}
+                                                        </a>
+                                                    </span>
                                                 </template>
                                                 <template if:false={message.projectLink}>
                                                     <span class="slds-text-body_small">
@@ -313,9 +315,11 @@
                                                 <lightning-icon icon-name="utility:task" size="xx-small">
                                                 </lightning-icon>
                                                 <template if:true={message.taskLink}>
-                                                    <a href={message.taskLink.href} class="slds-text-link">
-                                                        Task: {message.relatedTaskName}
-                                                    </a>
+                                                    <span class="slds-text-body_small">
+                                                        <a href={message.taskLink.href} class="slds-text-link">
+                                                            Task: {message.relatedTaskName}
+                                                        </a>
+                                                    </span>
                                                 </template>
                                                 <template if:false={message.taskLink}>
                                                     <span class="slds-text-body_small">
