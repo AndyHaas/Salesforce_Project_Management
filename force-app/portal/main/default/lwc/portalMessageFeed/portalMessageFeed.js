@@ -10,7 +10,7 @@ export default class PortalMessageFeed extends NavigationMixin(LightningElement)
     @api limitCount = 5;
     @api orderByField = 'CreatedDate';
     @api orderDirection = 'DESC';
-    @api showContext = true;
+    @api showContext = false;
     @api showHeader = false;
 
     _relatedAccountId;
