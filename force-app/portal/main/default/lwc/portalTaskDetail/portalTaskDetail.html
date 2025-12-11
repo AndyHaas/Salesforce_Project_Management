@@ -74,17 +74,13 @@
                     <!-- Task Information Section -->
                     <div class="section">
                         <h3 class="section-title">Task Information</h3>
-                        <div class="section-content two-column">
-                            <div class="column">
-                                <template if:true={task.Description__c}>
-                                    <div class="detail-item">
-                                        <span class="label">Description</span>
-                                        <div class="detail-value description">{displayDescription}</div>
-                                    </div>
-                                </template>
-                            </div>
-                            <div class="column">
-                            </div>
+                        <div class="section-content">
+                            <template if:true={task.Description__c}>
+                                <div class="detail-item">
+                                    <span class="label">Description</span>
+                                    <div class="detail-value description">{displayDescription}</div>
+                                </div>
+                            </template>
                         </div>
                     </div>
 
