@@ -1,6 +1,7 @@
 <template>
     <template if:true={showHeaderEnabled}>
         <lightning-card class="messaging-card">
+            <!-- Header Actions (Search) -->
             <div slot="actions" class="slds-grid slds-grid_vertical-align-center">
                 <template if:true={showMessageSearch}>
                     <div class="slds-form-element slds-m-right_small">
@@ -23,6 +24,7 @@
                         class="slds-m-right_x-small">
                     </lightning-button-icon>
                 </template>
+
                 <template if:false={showMessageSearch}>
                     <lightning-button-icon
                         icon-name="utility:search"
@@ -34,7 +36,9 @@
                     </lightning-button-icon>
                 </template>
             </div>
+
             <div class="slds-card__body slds-card__body_inner">
+                <!-- Context Display -->
                 <template if:true={contextInfo}>
                     <div class="context-display slds-m-bottom_medium">
                         <lightning-icon 
@@ -57,550 +61,448 @@
                 <div class="messages-list">
                     <template if:true={hasMessages}>
                         <template if:true={hasFilteredMessages}>
-                        <template for:each={messages} for:item="message">
-                            <div key={message.id} class="message-item" class:message-unread={message.isUnread} class:message-mentioned={message.isMentioned} class:message-pinned={message.isPinned} data-message-id={message.id}>
-                                <div class="message-header">
-                                    <div class="message-sender">
-                                        <template if:true={message.isPinned}>
-                                            <lightning-icon icon-name="utility:pin" size="xx-small" class="slds-m-right_xx-small pinned-icon" title="Pinned"></lightning-icon>
-                                        </template>
-                                        <strong>{message.senderName}</strong>
-                                        <template if:true={message.isPinned}>
-                                            <lightning-badge label="Pinned" variant="success" class="slds-m-left_x-small"></lightning-badge>
-                                        </template>
-                                        <template if:true={message.isMentioned}>
-                                            <lightning-badge label="Mentioned" variant="warning" class="slds-m-left_x-small"></lightning-badge>
-                                        </template>
-                                        <template if:true={isMilestoneTeamMember}>
-                                            <template if:false={message.visibleToClient}>
-                                                <lightning-badge label="Internal" variant="warning" class="slds-m-left_x-small"></lightning-badge>
+                            <template for:each={messages} for:item="message">
+                                <div 
+                                    key={message.id}
+                                    class="message-item"
+                                    class:message-unread={message.isUnread}
+                                    class:message-mentioned={message.isMentioned}
+                                    class:message-pinned={message.isPinned}
+                                    data-message-id={message.id}
+                                >
+                                    <div class="message-header">
+                                        <div class="message-sender">
+                                            <template if:true={message.isPinned}>
+                                                <lightning-icon 
+                                                    icon-name="utility:pin" 
+                                                    size="xx-small" 
+                                                    class="slds-m-right_xx-small pinned-icon" 
+                                                    title="Pinned">
+                                                </lightning-icon>
                                             </template>
-                                        </template>
-                                    </div>
-                                    <div class="message-meta">
-                                        <div class="message-meta__time">
-                                            <span class="slds-text-body_small">{message.formattedDate}</span>
-                                            <template if:false={message.isRead}>
-                                                <lightning-badge label="New" variant="inverse" class="slds-m-left_x-small badge-new"></lightning-badge>
+
+                                            <strong>{message.senderName}</strong>
+
+                                            <template if:true={message.isPinned}>
+                                                <lightning-badge 
+                                                    label="Pinned" 
+                                                    variant="success" 
+                                                    class="slds-m-left_x-small">
+                                                </lightning-badge>
+                                            </template>
+
+                                            <template if:true={message.isMentioned}>
+                                                <lightning-badge 
+                                                    label="Mentioned" 
+                                                    variant="warning" 
+                                                    class="slds-m-left_x-small">
+                                                </lightning-badge>
+                                            </template>
+
+                                            <template if:true={isMilestoneTeamMember}>
+                                                <template if:false={message.visibleToClient}>
+                                                    <lightning-badge 
+                                                        label="Internal" 
+                                                        variant="warning" 
+                                                        class="slds-m-left_x-small">
+                                                    </lightning-badge>
+                                                </template>
                                             </template>
                                         </div>
-                                        <template if:true={message.isEdited}>
-                                            <div class="message-meta__edited">
-                                                <lightning-badge label="Edited" variant="warning" class="slds-m-left_x-small"></lightning-badge>
-                                                <span class="slds-text-body_small slds-text-color_weak slds-m-left_x-small" title={message.formattedEditedDate}>
-                                                    (edited {message.formattedEditedDate})
+
+                                        <div class="message-meta">
+                                            <div class="message-meta__time">
+                                                <span class="slds-text-body_small">
+                                                    {message.formattedDate}
                                                 </span>
-                                            </div>
-                                        </template>
-                                        <template if:false={message.isEditing}>
-                                            <div class="message-actions">
-                                                <lightning-button-group>
-                                                    <lightning-button-icon
-                                                        icon-name="utility:reply"
-                                                        variant="border-filled"
-                                                        alternative-text="Reply to message"
-                                                        title="Reply to message"
-                                                        data-message-id={message.id}
-                                                        onclick={handleReplyToMessage}
-                                                        class="reply-button">
-                                                    </lightning-button-icon>
-                                                    <template if:true={message.isFromCurrentUser}>
-                                                        <lightning-button-icon
-                                                            icon-name="utility:edit"
-                                                            variant="border-filled"
-                                                            alternative-text="Edit message"
-                                                            title="Edit message"
-                                                            data-message-id={message.id}
-                                                            onclick={handleEditMessage}
-                                                            class="edit-button">
-                                                        </lightning-button-icon>
-                                                        <lightning-button-icon
-                                                            icon-name="utility:delete"
-                                                            variant="border-filled"
-                                                            alternative-text="Delete message"
-                                                            title="Delete message"
-                                                            data-message-id={message.id}
-                                                            onclick={handleDeleteMessage}
-                                                            class="delete-button">
-                                                        </lightning-button-icon>
-                                                    </template>
-                                                </lightning-button-group>
-                                                <template if:true={isMilestoneTeamMember}>
-                                                    <template if:true={message.isPinned}>
-                                                        <lightning-button-icon
-                                                            icon-name="utility:unpin"
-                                                            variant="border-filled"
-                                                            alternative-text="Unpin message"
-                                                            title="Unpin message"
-                                                            data-message-id={message.id}
-                                                            onclick={handlePinMessage}
-                                                            class="slds-m-left_x-small pin-button">
-                                                        </lightning-button-icon>
-                                                    </template>
-                                                    <template if:false={message.isPinned}>
-                                                        <lightning-button-icon
-                                                            icon-name="utility:pin"
-                                                            variant="border-filled"
-                                                            alternative-text="Pin message"
-                                                            title="Pin message"
-                                                            data-message-id={message.id}
-                                                            onclick={handlePinMessage}
-                                                            class="slds-m-left_x-small pin-button">
-                                                        </lightning-button-icon>
-                                                    </template>
+                                                <template if:false={message.isRead}>
+                                                    <lightning-badge 
+                                                        label="New" 
+                                                        variant="inverse" 
+                                                        class="slds-m-left_x-small badge-new">
+                                                    </lightning-badge>
                                                 </template>
                                             </div>
-                                        </template>
-                                    </div>
-                                </div>
-                                <!-- Reply To Indicator -->
-                                <template if:true={message.replyToMessageId}>
-                                    <div class="reply-to-indicator slds-m-bottom_x-small">
-                                        <div class="slds-box slds-box_x-small slds-theme_shade">
-                                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                                                <div class="slds-col">
-                                                    <lightning-icon icon-name="utility:reply" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
-                                                    <span class="slds-text-body_small">
-                                                        In reply to <strong>{message.replyToSenderName}</strong>
-                                                        <template if:true={message.replyToPreview}>
-                                                            <span class="slds-text-color_weak">: {message.replyToPreview}</span>
-                                                        </template>
-                                                        <span class="slds-text-color_weak slds-m-left_xx-small">({message.replyToFormattedDate})</span>
+
+                                            <template if:true={message.isEdited}>
+                                                <div class="message-meta__edited">
+                                                    <lightning-badge 
+                                                        label="Edited" 
+                                                        variant="warning" 
+                                                        class="slds-m-left_x-small">
+                                                    </lightning-badge>
+                                                    <span 
+                                                        class="slds-text-body_small slds-text-color_weak slds-m-left_x-small" 
+                                                        title={message.formattedEditedDate}>
+                                                        (edited {message.formattedEditedDate})
                                                     </span>
                                                 </div>
-                                                <a href="javascript:void(0);" 
-                                                   class="slds-text-link" 
-                                                   data-message-id={message.replyToMessageId}
-                                                   onclick={handleNavigateToOriginalMessage}
-                                                   title="Go to original message">
-                                                    View original
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </template>
-                                <hr class="message-separator">
-                                <template if:false={message.isEditing}>
-                                    <div class="message-body">
-                                        <lightning-formatted-rich-text value={message.body}></lightning-formatted-rich-text>
-                                    </div>
-                                </template>
-                                <template if:true={message.isEditing}>
-                                    <div class="message-edit">
-                                        <lightning-input-rich-text
-                                            value={_editingMessageBody}
-                                            onchange={handleEditBodyChange}
-                                            placeholder="Edit your message...">
-                                        </lightning-input-rich-text>
-                                        <div class="slds-m-top_small">
-                                            <lightning-button-group>
-                                                <lightning-button
-                                                    variant="brand"
-                                                    label="Save"
-                                                    onclick={handleSaveEdit}>
-                                                </lightning-button>
-                                                <lightning-button
-                                                    variant="neutral"
-                                                    label="Cancel"
-                                                    onclick={handleCancelEdit}>
-                                                </lightning-button>
-                                            </lightning-button-group>
-                                        </div>
-                                    </div>
-                                </template>
-                                <hr class="message-separator">
-                                <!-- Show context hierarchy if viewing at a higher level -->
-                                <template if:true={message.accountName}>
-                                    <template if:true={showAccountContext}>
-                                        <div class="message-related">
-                                            <lightning-icon icon-name="utility:account" size="xx-small"></lightning-icon>
-                                            <span class="slds-text-body_small">Account: {message.accountName}</span>
-                                        </div>
-                                    </template>
-                                </template>
-                                <template if:true={message.relatedProjectName}>
-                                    <template if:true={showProjectContext}>
-                                        <div class="message-related">
-                                            <lightning-icon icon-name="utility:record" size="xx-small"></lightning-icon>
-                                            <span class="slds-text-body_small">Project: {message.relatedProjectName}</span>
-                                        </div>
-                                    </template>
-                                </template>
-                                <template if:true={message.relatedTaskName}>
-                                    <template if:true={showTaskContext}>
-                                        <div class="message-related">
-                                            <lightning-icon icon-name="utility:task" size="xx-small"></lightning-icon>
-                                            <span class="slds-text-body_small">Task: {message.relatedTaskName}</span>
-                                        </div>
-                                    </template>
-                                </template>
-                            </div>
-                        </template>
-                        </template>
-                        <template if:false={hasFilteredMessages}>
-                            <div class="slds-text-align_center slds-p-around_medium">
-                                <lightning-icon icon-name="utility:search" size="small" class="slds-m-bottom_x-small"></lightning-icon>
-                                <p class="slds-text-body_small slds-text-color_weak">No messages found matching "{messageSearchTerm}"</p>
-                            </div>
-                        </template>
-                    </template>
-                    
-                    <template if:false={hasMessages}>
-                        <div class="slds-text-align_center slds-p-around_medium">
-                            <lightning-icon icon-name="utility:message" size="small" class="slds-m-bottom_x-small"></lightning-icon>
-                            <p class="slds-text-body_small slds-text-color_weak">No messages yet</p>
-                        </div>
-                    </template>
-                </div>
-                
-            </div>
-        </div>
-    </lightning-card>
-</template>
-            <!-- Context Display -->
-            <template if:true={contextInfo}>
-                <div class="context-display slds-m-bottom_medium">
-                    <lightning-icon 
-                        icon-name={contextIcon} 
-                        size="small" 
-                        class="slds-m-right_x-small">
-                    </lightning-icon>
-                    <div class="context-text">
-                        <div class="slds-text-heading_small slds-text-color_weak">
-                            Viewing: <strong>{contextType} Messages</strong>
-                        </div>
-                        <div class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
-                            {contextDisplayText}
-                        </div>
-                    </div>
-                </div>
-            </template>
-            
-            <!-- Messages List -->
-            <div class="messages-list">
-                <template if:true={hasMessages}>
-                    <template if:true={hasFilteredMessages}>
-                    <template for:each={messages} for:item="message">
-                        <div key={message.id} class="message-item" class:message-unread={message.isUnread} class:message-mentioned={message.isMentioned} class:message-pinned={message.isPinned} data-message-id={message.id}>
-                            <div class="message-header">
-                                <div class="message-sender">
-                                    <template if:true={message.isPinned}>
-                                        <lightning-icon icon-name="utility:pin" size="xx-small" class="slds-m-right_xx-small pinned-icon" title="Pinned"></lightning-icon>
-                                    </template>
-                                    <strong>{message.senderName}</strong>
-                                    <template if:true={message.isPinned}>
-                                        <lightning-badge label="Pinned" variant="success" class="slds-m-left_x-small"></lightning-badge>
-                                    </template>
-                                    <template if:true={message.isMentioned}>
-                                        <lightning-badge label="Mentioned" variant="warning" class="slds-m-left_x-small"></lightning-badge>
-                                    </template>
-                                    <template if:true={isMilestoneTeamMember}>
-                                        <template if:false={message.visibleToClient}>
-                                            <lightning-badge label="Internal" variant="warning" class="slds-m-left_x-small"></lightning-badge>
-                                        </template>
-                                    </template>
-                                </div>
-                                <div class="message-meta">
-                                    <div class="message-meta__time">
-                                        <span class="slds-text-body_small">{message.formattedDate}</span>
-                                        <template if:false={message.isRead}>
-                                            <lightning-badge label="New" variant="inverse" class="slds-m-left_x-small badge-new"></lightning-badge>
-                                        </template>
-                                    </div>
-                                    <template if:true={message.isEdited}>
-                                        <div class="message-meta__edited">
-                                            <lightning-badge label="Edited" variant="warning" class="slds-m-left_x-small"></lightning-badge>
-                                            <span class="slds-text-body_small slds-text-color_weak slds-m-left_x-small" title={message.formattedEditedDate}>
-                                                (edited {message.formattedEditedDate})
-                                            </span>
-                                        </div>
-                                    </template>
-                                    <template if:false={message.isEditing}>
-                                        <div class="message-actions">
-                                            <lightning-button-group>
-                                                <lightning-button-icon
-                                                    icon-name="utility:reply"
-                                                    variant="border-filled"
-                                                    alternative-text="Reply to message"
-                                                    title="Reply to message"
-                                                    data-message-id={message.id}
-                                                    onclick={handleReplyToMessage}
-                                                    class="reply-button">
-                                                </lightning-button-icon>
-                                                <template if:true={message.isFromCurrentUser}>
-                                                    <lightning-button-icon
-                                                        icon-name="utility:edit"
-                                                        variant="border-filled"
-                                                        alternative-text="Edit message"
-                                                        title="Edit message"
-                                                        data-message-id={message.id}
-                                                        onclick={handleEditMessage}
-                                                        class="edit-button">
-                                                    </lightning-button-icon>
-                                                    <lightning-button-icon
-                                                        icon-name="utility:delete"
-                                                        variant="border-filled"
-                                                        alternative-text="Delete message"
-                                                        title="Delete message"
-                                                        data-message-id={message.id}
-                                                        onclick={handleDeleteMessage}
-                                                        class="delete-button">
-                                                    </lightning-button-icon>
-                                                </template>
-                                            </lightning-button-group>
-                                            <template if:true={isMilestoneTeamMember}>
-                                                <template if:true={message.isPinned}>
-                                                    <lightning-button-icon
-                                                        icon-name="utility:unpin"
-                                                        variant="border-filled"
-                                                        alternative-text="Unpin message"
-                                                        title="Unpin message"
-                                                        data-message-id={message.id}
-                                                        onclick={handlePinMessage}
-                                                        class="slds-m-left_x-small pin-button">
-                                                    </lightning-button-icon>
-                                                </template>
-                                                <template if:false={message.isPinned}>
-                                                    <lightning-button-icon
-                                                        icon-name="utility:pin"
-                                                        variant="border-filled"
-                                                        alternative-text="Pin message"
-                                                        title="Pin message"
-                                                        data-message-id={message.id}
-                                                        onclick={handlePinMessage}
-                                                        class="slds-m-left_x-small pin-button">
-                                                    </lightning-button-icon>
-                                                </template>
+                                            </template>
+
+                                            <template if:false={message.isEditing}>
+                                                <div class="message-actions">
+                                                    <lightning-button-group>
+                                                        <lightning-button-icon
+                                                            icon-name="utility:reply"
+                                                            variant="border-filled"
+                                                            alternative-text="Reply to message"
+                                                            title="Reply to message"
+                                                            data-message-id={message.id}
+                                                            onclick={handleReplyToMessage}
+                                                            class="reply-button">
+                                                        </lightning-button-icon>
+
+                                                        <template if:true={message.isFromCurrentUser}>
+                                                            <lightning-button-icon
+                                                                icon-name="utility:edit"
+                                                                variant="border-filled"
+                                                                alternative-text="Edit message"
+                                                                title="Edit message"
+                                                                data-message-id={message.id}
+                                                                onclick={handleEditMessage}
+                                                                class="edit-button">
+                                                            </lightning-button-icon>
+
+                                                            <lightning-button-icon
+                                                                icon-name="utility:delete"
+                                                                variant="border-filled"
+                                                                alternative-text="Delete message"
+                                                                title="Delete message"
+                                                                data-message-id={message.id}
+                                                                onclick={handleDeleteMessage}
+                                                                class="delete-button">
+                                                            </lightning-button-icon>
+                                                        </template>
+                                                    </lightning-button-group>
+
+                                                    <template if:true={isMilestoneTeamMember}>
+                                                        <template if:true={message.isPinned}>
+                                                            <lightning-button-icon
+                                                                icon-name="utility:unpin"
+                                                                variant="border-filled"
+                                                                alternative-text="Unpin message"
+                                                                title="Unpin message"
+                                                                data-message-id={message.id}
+                                                                onclick={handlePinMessage}
+                                                                class="slds-m-left_x-small pin-button">
+                                                            </lightning-button-icon>
+                                                        </template>
+                                                        <template if:false={message.isPinned}>
+                                                            <lightning-button-icon
+                                                                icon-name="utility:pin"
+                                                                variant="border-filled"
+                                                                alternative-text="Pin message"
+                                                                title="Pin message"
+                                                                data-message-id={message.id}
+                                                                onclick={handlePinMessage}
+                                                                class="slds-m-left_x-small pin-button">
+                                                            </lightning-button-icon>
+                                                        </template>
+                                                    </template>
+                                                </div>
                                             </template>
                                         </div>
+                                    </div>
+
+                                    <!-- Reply To Indicator -->
+                                    <template if:true={message.replyToMessageId}>
+                                        <div class="reply-to-indicator slds-m-bottom_x-small">
+                                            <div class="slds-box slds-box_x-small slds-theme_shade">
+                                                <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                                    <div class="slds-col">
+                                                        <lightning-icon 
+                                                            icon-name="utility:reply" 
+                                                            size="xx-small" 
+                                                            class="slds-m-right_xx-small">
+                                                        </lightning-icon>
+                                                        <span class="slds-text-body_small">
+                                                            In reply to <strong>{message.replyToSenderName}</strong>
+                                                            <template if:true={message.replyToPreview}>
+                                                                <span class="slds-text-color_weak">
+                                                                    : {message.replyToPreview}
+                                                                </span>
+                                                            </template>
+                                                            <span class="slds-text-color_weak slds-m-left_xx-small">
+                                                                ({message.replyToFormattedDate})
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                    <a href="javascript:void(0);" 
+                                                       class="slds-text-link" 
+                                                       data-message-id={message.replyToMessageId}
+                                                       onclick={handleNavigateToOriginalMessage}
+                                                       title="Go to original message">
+                                                        View original
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </template>
-                                </div>
-                            </div>
-                            <!-- Reply To Indicator -->
-                            <template if:true={message.replyToMessageId}>
-                                <div class="reply-to-indicator slds-m-bottom_x-small">
-                                    <div class="slds-box slds-box_x-small slds-theme_shade">
-                                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                                            <div class="slds-col">
-                                                <lightning-icon icon-name="utility:reply" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
+
+                                    <hr class="message-separator">
+
+                                    <!-- Message Body / Edit Mode -->
+                                    <template if:false={message.isEditing}>
+                                        <div class="message-body">
+                                            <lightning-formatted-rich-text value={message.body}>
+                                            </lightning-formatted-rich-text>
+                                        </div>
+                                    </template>
+
+                                    <template if:true={message.isEditing}>
+                                        <div class="message-edit">
+                                            <lightning-input-rich-text
+                                                value={_editingMessageBody}
+                                                onchange={handleEditBodyChange}
+                                                placeholder="Edit your message...">
+                                            </lightning-input-rich-text>
+                                            <div class="slds-m-top_small">
+                                                <lightning-button-group>
+                                                    <lightning-button
+                                                        variant="brand"
+                                                        label="Save"
+                                                        onclick={handleSaveEdit}>
+                                                    </lightning-button>
+                                                    <lightning-button
+                                                        variant="neutral"
+                                                        label="Cancel"
+                                                        onclick={handleCancelEdit}>
+                                                    </lightning-button>
+                                                </lightning-button-group>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <hr class="message-separator">
+
+                                    <!-- Context hierarchy -->
+                                    <template if:true={message.accountName}>
+                                        <template if:true={showAccountContext}>
+                                            <div class="message-related">
+                                                <lightning-icon icon-name="utility:account" size="xx-small">
+                                                </lightning-icon>
                                                 <span class="slds-text-body_small">
-                                                    In reply to <strong>{message.replyToSenderName}</strong>
-                                                    <template if:true={message.replyToPreview}>
-                                                        <span class="slds-text-color_weak">: {message.replyToPreview}</span>
-                                                    </template>
-                                                    <span class="slds-text-color_weak slds-m-left_xx-small">({message.replyToFormattedDate})</span>
+                                                    Account: {message.accountName}
                                                 </span>
                                             </div>
-                                            <a href="javascript:void(0);" 
-                                               class="slds-text-link" 
-                                               data-message-id={message.replyToMessageId}
-                                               onclick={handleNavigateToOriginalMessage}
-                                               title="Go to original message">
-                                                View original
+                                        </template>
+                                    </template>
+
+                                    <template if:true={message.relatedProjectName}>
+                                        <template if:true={showProjectContext}>
+                                            <div class="message-related">
+                                                <lightning-icon icon-name="utility:record" size="xx-small">
+                                                </lightning-icon>
+                                                <span class="slds-text-body_small">
+                                                    Project: {message.relatedProjectName}
+                                                </span>
+                                            </div>
+                                        </template>
+                                    </template>
+
+                                    <template if:true={message.relatedTaskName}>
+                                        <template if:true={showTaskContext}>
+                                            <div class="message-related">
+                                                <lightning-icon icon-name="utility:task" size="xx-small">
+                                                </lightning-icon>
+                                                <span class="slds-text-body_small">
+                                                    Task: {message.relatedTaskName}
+                                                </span>
+                                            </div>
+                                        </template>
+                                    </template>
+
+                                    <template if:true={message.contextLink}>
+                                        <div class="message-related">
+                                            <lightning-icon icon-name="utility:link" size="xx-small">
+                                            </lightning-icon>
+                                            <a href={message.contextLink.href} class="slds-text-link">
+                                                {message.contextLink.label}
                                             </a>
                                         </div>
-                                    </div>
+                                    </template>
                                 </div>
                             </template>
-                            <hr class="message-separator">
-                            <template if:false={message.isEditing}>
-                                <div class="message-body">
-                                    <lightning-formatted-rich-text value={message.body}></lightning-formatted-rich-text>
-                                </div>
-                            </template>
-                            <template if:true={message.isEditing}>
-                                <div class="message-edit">
-                                    <lightning-input-rich-text
-                                        value={_editingMessageBody}
-                                        onchange={handleEditBodyChange}
-                                        placeholder="Edit your message...">
-                                    </lightning-input-rich-text>
-                                    <div class="slds-m-top_small">
-                                        <lightning-button-group>
-                                            <lightning-button
-                                                variant="brand"
-                                                label="Save"
-                                                onclick={handleSaveEdit}>
-                                            </lightning-button>
-                                            <lightning-button
-                                                variant="neutral"
-                                                label="Cancel"
-                                                onclick={handleCancelEdit}>
-                                            </lightning-button>
-                                        </lightning-button-group>
-                                    </div>
-                                </div>
-                            </template>
-                            <hr class="message-separator">
-                            <!-- Show context hierarchy if viewing at a higher level -->
-                            <template if:true={message.accountName}>
-                                <template if:true={showAccountContext}>
-                                    <div class="message-related">
-                                        <lightning-icon icon-name="utility:account" size="xx-small"></lightning-icon>
-                                        <span class="slds-text-body_small">Account: {message.accountName}</span>
-                                    </div>
-                                </template>
-                            </template>
-                            <template if:true={message.relatedProjectName}>
-                                <template if:true={showProjectContext}>
-                                    <div class="message-related">
-                                        <lightning-icon icon-name="utility:record" size="xx-small"></lightning-icon>
-                                        <span class="slds-text-body_small">Project: {message.relatedProjectName}</span>
-                                    </div>
-                                </template>
-                            </template>
-                            <template if:true={message.relatedTaskName}>
-                                <template if:true={showTaskContext}>
-                                    <div class="message-related">
-                                        <lightning-icon icon-name="utility:task" size="xx-small"></lightning-icon>
-                                        <span class="slds-text-body_small">Task: {message.relatedTaskName}</span>
-                                    </div>
-                                </template>
-                            </template>
-                            <template if:true={message.contextLink}>
-                                <div class="message-related">
-                                    <lightning-icon icon-name="utility:link" size="xx-small"></lightning-icon>
-                                    <a href={message.contextLink.href} class="slds-text-link">
-                                        {message.contextLink.label}
-                                    </a>
-                                </div>
-                            </template>
-                        </div>
+                        </template>
+
+                        <template if:false={hasFilteredMessages}>
+                            <div class="slds-text-align_center slds-p-around_medium">
+                                <lightning-icon 
+                                    icon-name="utility:search" 
+                                    size="small" 
+                                    class="slds-m-bottom_x-small">
+                                </lightning-icon>
+                                <p class="slds-text-body_small slds-text-color_weak">
+                                    No messages found matching "{messageSearchTerm}"
+                                </p>
+                            </div>
+                        </template>
                     </template>
-                    </template>
-                    <template if:false={hasFilteredMessages}>
+
+                    <template if:false={hasMessages}>
                         <div class="slds-text-align_center slds-p-around_medium">
-                            <lightning-icon icon-name="utility:search" size="small" class="slds-m-bottom_x-small"></lightning-icon>
-                            <p class="slds-text-body_small slds-text-color_weak">No messages found matching "{messageSearchTerm}"</p>
+                            <lightning-icon 
+                                icon-name="utility:message" 
+                                size="small" 
+                                class="slds-m-bottom_x-small">
+                            </lightning-icon>
+                            <p class="slds-text-body_small slds-text-color_weak">
+                                No messages yet
+                            </p>
                         </div>
                     </template>
-                </template>
-                
-                <template if:false={hasMessages}>
-                    <div class="slds-text-align_center slds-p-around_medium">
-                        <lightning-icon icon-name="utility:message" size="small" class="slds-m-bottom_x-small"></lightning-icon>
-                        <p class="slds-text-body_small slds-text-color_weak">No messages yet</p>
-                    </div>
-                </template>
-            </div>
-            
-            <!-- Message Composition Button -->
-            <div class="message-compose-button">
-                <lightning-button
-                    variant="brand"
-                    label="New Message"
-                    icon-name="utility:add"
-                    onclick={handleOpenModal}
-                    class="slds-m-top_small">
-                </lightning-button>
-            </div>
-            
-            <!-- Message Composition Modal -->
-            <template if:true={isModalOpen}>
-                <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large" aria-labelledby="message-modal-heading" aria-modal="true" onclick={handleBackdropClick}>
-                    <div class="slds-modal__container message-modal-container">
-                        <header class="slds-modal__header">
-                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
-                                <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
-                                <span class="slds-assistive-text">Close</span>
-                            </button>
-                            <h2 id="message-modal-heading" class="slds-modal__title slds-hyphenate">
-                                <template if:true={isReplying}>
-                                    Reply to Message
-                                </template>
-                                <template if:false={isReplying}>
-                                    New Message
-                                </template>
-                            </h2>
-                        </header>
-                        <div class="slds-modal__content slds-p-around_medium" id="message-modal-content">
-                            <!-- Reply Indicator -->
-                            <template if:true={isReplying}>
-                                <div class="reply-indicator slds-m-bottom_medium">
-                                    <div class="slds-box slds-box_x-small slds-theme_info">
-                                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                                            <div class="slds-col">
-                                                <lightning-icon icon-name="utility:reply" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                                                <span class="slds-text-body_small">
-                                                    Replying to <strong>{replyingToMessage.senderName}</strong>
-                                                    <template if:true={replyingToMessage.replyToPreview}>
-                                                        <span class="slds-text-color_weak">: {replyingToMessage.replyToPreview}</span>
-                                                    </template>
-                                                </span>
-                                            </div>
-                                            <lightning-button-icon
-                                                icon-name="utility:close"
-                                                variant="border-filled"
-                                                alternative-text="Cancel reply"
-                                                title="Cancel reply"
-                                                onclick={handleCancelReply}
-                                                class="slds-m-left_small">
-                                            </lightning-button-icon>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                            
-                            <div class="slds-form-element slds-m-bottom_medium">
-                                <label class="slds-form-element__label" for="message-body-modal">
-                                    <abbr class="slds-required" title="required">*</abbr> Message
-                                </label>
-                                <div class="slds-form-element__control">
-                                    <lightning-input-rich-text
-                                        value={messageBody}
-                                        onchange={handleMessageBodyChange}
-                                        placeholder="Type your message here..."
-                                        class="message-rich-text-large">
-                                    </lightning-input-rich-text>
-                                </div>
-                            </div>
-                            
-                            <!-- Internal Message Checkbox (Milestone Team Only) -->
-                            <template if:true={isMilestoneTeamMember}>
-                                <div class="slds-form-element slds-m-bottom_medium">
-                                    <div class="slds-form-element__control">
-                                        <lightning-input
-                                            type="checkbox"
-                                            label="Internal (Milestone Only - Not Visible to Clients)"
-                                            checked={isInternalMessage}
-                                            onchange={handleVisibilityChange}>
-                                        </lightning-input>
-                                        <div class="slds-form-element__help slds-text-body_small slds-text-color_weak">
-                                            When checked, this message will only be visible to Milestone Consulting team members, not to clients.
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                            
-                            <!-- File Upload -->
-                            <div class="slds-form-element slds-m-bottom_medium">
-                                <lightning-file-upload
-                                    label="Attach Files"
-                                    name="fileUpload"
-                                    accept={acceptedFormats}
-                                    onuploadfinished={handleUploadFinished}
-                                    multiple>
-                                </lightning-file-upload>
-                            </div>
-                        </div>
-                        <footer class="slds-modal__footer">
-                            <lightning-button-group>
-                                <lightning-button
-                                    variant="neutral"
-                                    label="Cancel"
+                </div>
+
+                <!-- Message Composition Button -->
+                <div class="message-compose-button">
+                    <lightning-button
+                        variant="brand"
+                        label="New Message"
+                        icon-name="utility:add"
+                        onclick={handleOpenModal}
+                        class="slds-m-top_small">
+                    </lightning-button>
+                </div>
+
+                <!-- Message Composition Modal -->
+                <template if:true={isModalOpen}>
+                    <section 
+                        role="dialog" 
+                        tabindex="-1" 
+                        class="slds-modal slds-fade-in-open slds-modal_large" 
+                        aria-labelledby="message-modal-heading" 
+                        aria-modal="true" 
+                        onclick={handleBackdropClick}>
+                        <div class="slds-modal__container message-modal-container">
+                            <header class="slds-modal__header">
+                                <button 
+                                    class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" 
+                                    title="Close" 
                                     onclick={handleCloseModal}>
-                                </lightning-button>
-                                <lightning-button
-                                    variant="brand"
-                                    label="Send Message"
-                                    onclick={handleSendMessage}>
-                                </lightning-button>
-                            </lightning-button-group>
-                        </footer>
-                    </div>
-                </section>
-                <div class="slds-backdrop slds-backdrop_open"></div>
-            </template>
-        </div>
-    </lightning-card>
+                                    <lightning-icon 
+                                        icon-name="utility:close" 
+                                        alternative-text="close" 
+                                        size="small">
+                                    </lightning-icon>
+                                    <span class="slds-assistive-text">Close</span>
+                                </button>
+                                <h2 
+                                    id="message-modal-heading" 
+                                    class="slds-modal__title slds-hyphenate">
+                                    <template if:true={isReplying}>
+                                        Reply to Message
+                                    </template>
+                                    <template if:false={isReplying}>
+                                        New Message
+                                    </template>
+                                </h2>
+                            </header>
+
+                            <div 
+                                class="slds-modal__content slds-p-around_medium" 
+                                id="message-modal-content">
+
+                                <!-- Reply Indicator -->
+                                <template if:true={isReplying}>
+                                    <div class="reply-indicator slds-m-bottom_medium">
+                                        <div class="slds-box slds-box_x-small slds-theme_info">
+                                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                                <div class="slds-col">
+                                                    <lightning-icon 
+                                                        icon-name="utility:reply" 
+                                                        size="x-small" 
+                                                        class="slds-m-right_x-small">
+                                                    </lightning-icon>
+                                                    <span class="slds-text-body_small">
+                                                        Replying to 
+                                                        <strong>{replyingToMessage.senderName}</strong>
+                                                        <template if:true={replyingToMessage.replyToPreview}>
+                                                            <span class="slds-text-color_weak">
+                                                                : {replyingToMessage.replyToPreview}
+                                                            </span>
+                                                        </template>
+                                                    </span>
+                                                </div>
+                                                <lightning-button-icon
+                                                    icon-name="utility:close"
+                                                    variant="border-filled"
+                                                    alternative-text="Cancel reply"
+                                                    title="Cancel reply"
+                                                    onclick={handleCancelReply}
+                                                    class="slds-m-left_small">
+                                                </lightning-button-icon>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- Message Body -->
+                                <div class="slds-form-element slds-m-bottom_medium">
+                                    <label 
+                                        class="slds-form-element__label" 
+                                        for="message-body-modal">
+                                        <abbr class="slds-required" title="required">*</abbr> 
+                                        Message
+                                    </label>
+                                    <div class="slds-form-element__control">
+                                        <lightning-input-rich-text
+                                            value={messageBody}
+                                            onchange={handleMessageBodyChange}
+                                            placeholder="Type your message here..."
+                                            class="message-rich-text-large">
+                                        </lightning-input-rich-text>
+                                    </div>
+                                </div>
+
+                                <!-- Internal Message Checkbox (Milestone Team Only) -->
+                                <template if:true={isMilestoneTeamMember}>
+                                    <div class="slds-form-element slds-m-bottom_medium">
+                                        <div class="slds-form-element__control">
+                                            <lightning-input
+                                                type="checkbox"
+                                                label="Internal (Milestone Only - Not Visible to Clients)"
+                                                checked={isInternalMessage}
+                                                onchange={handleVisibilityChange}>
+                                            </lightning-input>
+                                            <div class="slds-form-element__help slds-text-body_small slds-text-color_weak">
+                                                When checked, this message will only be visible to 
+                                                Milestone Consulting team members, not to clients.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- File Upload -->
+                                <div class="slds-form-element slds-m-bottom_medium">
+                                    <lightning-file-upload
+                                        label="Attach Files"
+                                        name="fileUpload"
+                                        accept={acceptedFormats}
+                                        onuploadfinished={handleUploadFinished}
+                                        multiple>
+                                    </lightning-file-upload>
+                                </div>
+                            </div>
+
+                            <footer class="slds-modal__footer">
+                                <lightning-button-group>
+                                    <lightning-button
+                                        variant="neutral"
+                                        label="Cancel"
+                                        onclick={handleCloseModal}>
+                                    </lightning-button>
+                                    <lightning-button
+                                        variant="brand"
+                                        label="Send Message"
+                                        onclick={handleSendMessage}>
+                                    </lightning-button>
+                                </lightning-button-group>
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open"></div>
+                </template>
+            </div>
+        </lightning-card>
+    </template>
 </template>
