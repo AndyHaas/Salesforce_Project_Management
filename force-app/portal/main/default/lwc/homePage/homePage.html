@@ -143,6 +143,22 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Latest Messages Card -->
+            <div class="custom-card">
+                <div class="card-header messages-header">
+                    <lightning-icon icon-name="utility:message" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Latest Comments</h2>
+                </div>
+                <div class="card-body">
+                    <c-portal-message-feed
+                        related-account-id={userAccountId}
+                        limit-count="5"
+                        order-by-field="CreatedDate"
+                        order-direction="DESC">
+                    </c-portal-message-feed>
+                </div>
+            </div>
         </div>
     </div>
 </template>
