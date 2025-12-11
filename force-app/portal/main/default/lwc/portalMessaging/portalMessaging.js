@@ -486,6 +486,8 @@ export default class PortalMessaging extends LightningElement {
         // Clear search when hiding
         if (!this.showMessageSearch) {
             this.messageSearchTerm = '';
+        } else {
+            this.focusMessageSearch();
         }
     }
     
@@ -502,6 +504,19 @@ export default class PortalMessaging extends LightningElement {
     handleClearSearch() {
         this.messageSearchTerm = '';
         this.showMessageSearch = false;
+    }
+
+    /**
+     * @description Focus the message search input after it renders
+     */
+    focusMessageSearch() {
+        // Defer to next tick so the input is in the DOM
+        window.requestAnimationFrame(() => {
+            const searchInput = this.template.querySelector('.message-search-input input');
+            if (searchInput) {
+                searchInput.focus();
+            }
+        });
     }
     
     /**

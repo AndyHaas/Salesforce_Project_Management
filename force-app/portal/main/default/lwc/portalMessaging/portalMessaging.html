@@ -71,9 +71,6 @@
                                     <template if:true={message.isMentioned}>
                                         <lightning-badge label="Mentioned" variant="warning" class="slds-m-left_x-small"></lightning-badge>
                                     </template>
-                                    <template if:true={message.isFromCurrentUser}>
-                                        <lightning-badge label="You" variant="info" class="slds-m-left_x-small"></lightning-badge>
-                                    </template>
                                     <template if:true={isMilestoneTeamMember}>
                                         <template if:false={message.visibleToClient}>
                                             <lightning-badge label="Internal" variant="warning" class="slds-m-left_x-small"></lightning-badge>
@@ -81,72 +78,78 @@
                                     </template>
                                 </div>
                                 <div class="message-meta">
-                                    <span class="slds-text-body_small">{message.formattedDate}</span>
+                                    <div class="message-meta__time">
+                                        <span class="slds-text-body_small">{message.formattedDate}</span>
+                                        <template if:false={message.isRead}>
+                                            <lightning-badge label="New" variant="inverse" class="slds-m-left_x-small badge-new"></lightning-badge>
+                                        </template>
+                                    </div>
                                     <template if:true={message.isEdited}>
-                                        <lightning-badge label="Edited" variant="warning" class="slds-m-left_x-small"></lightning-badge>
-                                        <span class="slds-text-body_small slds-text-color_weak slds-m-left_x-small" title={message.formattedEditedDate}>
-                                            (edited {message.formattedEditedDate})
-                                        </span>
-                                    </template>
-                                    <template if:false={message.isRead}>
-                                        <lightning-badge label="New" variant="success" class="slds-m-left_x-small"></lightning-badge>
+                                        <div class="message-meta__edited">
+                                            <lightning-badge label="Edited" variant="warning" class="slds-m-left_x-small"></lightning-badge>
+                                            <span class="slds-text-body_small slds-text-color_weak slds-m-left_x-small" title={message.formattedEditedDate}>
+                                                (edited {message.formattedEditedDate})
+                                            </span>
+                                        </div>
                                     </template>
                                     <template if:false={message.isEditing}>
-                                        <lightning-button-icon
-                                            icon-name="utility:reply"
-                                            variant="border-filled"
-                                            alternative-text="Reply to message"
-                                            title="Reply to message"
-                                            data-message-id={message.id}
-                                            onclick={handleReplyToMessage}
-                                            class="slds-m-left_x-small reply-button">
-                                        </lightning-button-icon>
-                                        <template if:true={isMilestoneTeamMember}>
-                                            <template if:true={message.isPinned}>
+                                        <div class="message-actions">
+                                            <lightning-button-group>
                                                 <lightning-button-icon
-                                                    icon-name="utility:unpin"
+                                                    icon-name="utility:reply"
                                                     variant="border-filled"
-                                                    alternative-text="Unpin message"
-                                                    title="Unpin message"
+                                                    alternative-text="Reply to message"
+                                                    title="Reply to message"
                                                     data-message-id={message.id}
-                                                    onclick={handlePinMessage}
-                                                    class="slds-m-left_x-small pin-button">
+                                                    onclick={handleReplyToMessage}
+                                                    class="reply-button">
                                                 </lightning-button-icon>
+                                                <template if:true={message.isFromCurrentUser}>
+                                                    <lightning-button-icon
+                                                        icon-name="utility:edit"
+                                                        variant="border-filled"
+                                                        alternative-text="Edit message"
+                                                        title="Edit message"
+                                                        data-message-id={message.id}
+                                                        onclick={handleEditMessage}
+                                                        class="edit-button">
+                                                    </lightning-button-icon>
+                                                    <lightning-button-icon
+                                                        icon-name="utility:delete"
+                                                        variant="border-filled"
+                                                        alternative-text="Delete message"
+                                                        title="Delete message"
+                                                        data-message-id={message.id}
+                                                        onclick={handleDeleteMessage}
+                                                        class="delete-button">
+                                                    </lightning-button-icon>
+                                                </template>
+                                            </lightning-button-group>
+                                            <template if:true={isMilestoneTeamMember}>
+                                                <template if:true={message.isPinned}>
+                                                    <lightning-button-icon
+                                                        icon-name="utility:unpin"
+                                                        variant="border-filled"
+                                                        alternative-text="Unpin message"
+                                                        title="Unpin message"
+                                                        data-message-id={message.id}
+                                                        onclick={handlePinMessage}
+                                                        class="slds-m-left_x-small pin-button">
+                                                    </lightning-button-icon>
+                                                </template>
+                                                <template if:false={message.isPinned}>
+                                                    <lightning-button-icon
+                                                        icon-name="utility:pin"
+                                                        variant="border-filled"
+                                                        alternative-text="Pin message"
+                                                        title="Pin message"
+                                                        data-message-id={message.id}
+                                                        onclick={handlePinMessage}
+                                                        class="slds-m-left_x-small pin-button">
+                                                    </lightning-button-icon>
+                                                </template>
                                             </template>
-                                            <template if:false={message.isPinned}>
-                                                <lightning-button-icon
-                                                    icon-name="utility:pin"
-                                                    variant="border-filled"
-                                                    alternative-text="Pin message"
-                                                    title="Pin message"
-                                                    data-message-id={message.id}
-                                                    onclick={handlePinMessage}
-                                                    class="slds-m-left_x-small pin-button">
-                                                </lightning-button-icon>
-                                            </template>
-                                        </template>
-                                    </template>
-                                    <template if:true={message.isFromCurrentUser}>
-                                        <template if:false={message.isEditing}>
-                                            <lightning-button-icon
-                                                icon-name="utility:edit"
-                                                variant="border-filled"
-                                                alternative-text="Edit message"
-                                                title="Edit message"
-                                                data-message-id={message.id}
-                                                onclick={handleEditMessage}
-                                                class="slds-m-left_x-small edit-button">
-                                            </lightning-button-icon>
-                                            <lightning-button-icon
-                                                icon-name="utility:delete"
-                                                variant="border-filled"
-                                                alternative-text="Delete message"
-                                                title="Delete message"
-                                                data-message-id={message.id}
-                                                onclick={handleDeleteMessage}
-                                                class="slds-m-left_x-small delete-button">
-                                            </lightning-button-icon>
-                                        </template>
+                                        </div>
                                     </template>
                                 </div>
                             </div>

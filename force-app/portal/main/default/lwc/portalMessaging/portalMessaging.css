@@ -103,7 +103,7 @@
 .message-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 0.5rem;
 }
 
@@ -114,8 +114,27 @@
 
 .message-meta {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-end;
     color: #706e6b;
+    gap: 0.25rem;
+}
+
+.message-meta__time {
+    display: flex;
+    align-items: center;
+}
+
+.message-meta__edited {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.message-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .message-body {
@@ -169,6 +188,12 @@
 .reply-button:hover {
     --slds-c-button-neutral-color-background: #fafbfc;
     --slds-c-button-neutral-color-border: #c9c9c9;
+}
+
+.badge-new {
+    background-color: #ba0517;
+    color: #ffffff;
+    font-weight: 700;
 }
 
 .reply-indicator {
