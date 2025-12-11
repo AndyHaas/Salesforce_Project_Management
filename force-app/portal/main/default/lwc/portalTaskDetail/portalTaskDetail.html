@@ -245,6 +245,16 @@
                         </div>
                     </template>
                     <div class="side-panel-item">
+                        <c-portal-message-feed
+                            show-header="true"
+                            related-project-id={task.Project__c}
+                            related-task-id={taskId}
+                            limit-count="10"
+                            order-by-field="CreatedDate"
+                            order-direction="DESC">
+                        </c-portal-message-feed>
+                    </div>
+                    <div class="side-panel-item">
                         <c-portal-task-files record-id={taskId}></c-portal-task-files>
                     </div>
                     <template if:true={task.Project__c}>

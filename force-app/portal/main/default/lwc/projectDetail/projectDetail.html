@@ -83,6 +83,13 @@
                     <!-- Messages Section -->
                     <template if:true={projectId}>
                         <div class="section messages-section">
+                            <c-portal-message-feed
+                                show-header="true"
+                                related-project-id={projectId}
+                                limit-count="10"
+                                order-by-field="CreatedDate"
+                                order-direction="DESC">
+                            </c-portal-message-feed>
                             <c-portal-messaging 
                                 related-project-id={projectId}>
                             </c-portal-messaging>

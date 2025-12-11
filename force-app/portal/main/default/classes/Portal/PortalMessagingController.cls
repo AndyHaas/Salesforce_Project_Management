@@ -1110,10 +1110,12 @@ public without sharing class PortalMessagingController {
         try {
             if (String.isNotBlank(relatedTaskId)) {
                 // Task context
+                assertReadable(Project_Task__c.SObjectType);
                 Project_Task__c task = [
                     SELECT Id, Name, Project__c, Project__r.Name, Project__r.Account__c, Project__r.Account__r.Name
                     FROM Project_Task__c
                     WHERE Id = :relatedTaskId
+                    WITH SECURITY_ENFORCED
                     LIMIT 1
                 ];
                 
@@ -1126,10 +1128,12 @@ public without sharing class PortalMessagingController {
                 context.accountName = task.Project__r?.Account__r?.Name;
             } else if (String.isNotBlank(relatedProjectId)) {
                 // Project context
+                assertReadable(Project__c.SObjectType);
                 Project__c project = [
                     SELECT Id, Name, Account__c, Account__r.Name
                     FROM Project__c
                     WHERE Id = :relatedProjectId
+                    WITH SECURITY_ENFORCED
                     LIMIT 1
                 ];
                 
@@ -1140,10 +1144,12 @@ public without sharing class PortalMessagingController {
                 context.accountName = project.Account__r?.Name;
             } else if (String.isNotBlank(relatedAccountId)) {
                 // Account context
+                assertReadable(Account.SObjectType);
                 Account account = [
                     SELECT Id, Name
                     FROM Account
                     WHERE Id = :relatedAccountId
+                    WITH SECURITY_ENFORCED
                     LIMIT 1
                 ];
                 
@@ -1152,7 +1158,8 @@ public without sharing class PortalMessagingController {
                 context.accountName = account.Name;
             }
         } catch (Exception e) {
-            // Return empty context on error
+            // Return empty context on error but log for traceability
+            System.debug('Context resolution failed: ' + e.getMessage());
         }
         
         return context;
