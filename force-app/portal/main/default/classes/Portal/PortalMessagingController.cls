@@ -719,13 +719,11 @@ public without sharing class PortalMessagingController {
                 throw new AuraHandledException('Current user must be associated with a Contact');
             }
             
-            // Get message and verify sender
-            assertReadable(Message__c.SObjectType);
+            // Get message and verify sender (no WITH SECURITY_ENFORCED to allow portal edits)
             Message__c message = [
                 SELECT Id, Sender__c, Body__c, Is_Edited__c, Deleted__c
                 FROM Message__c
                 WHERE Id = :messageId
-                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
