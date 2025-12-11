@@ -201,3 +201,4 @@ export default class PortalMessageFeed extends NavigationMixin(LightningElement)
         });
     }
 }
+

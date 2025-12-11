@@ -1027,3 +1027,4 @@ export default class PortalMessaging extends LightningElement {
         }
     }
 }
+
