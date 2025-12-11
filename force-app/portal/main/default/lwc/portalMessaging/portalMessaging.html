@@ -76,32 +76,6 @@
                                             <lightning-badge label="Internal" variant="warning" class="slds-m-left_x-small"></lightning-badge>
                                         </template>
                                     </template>
-                                    <template if:true={message.isFromCurrentUser}>
-                                        <template if:false={message.isEditing}>
-                                            <div class="message-actions-left slds-m-left_small">
-                                                <lightning-button-group>
-                                                    <lightning-button-icon
-                                                        icon-name="utility:edit"
-                                                        variant="border-filled"
-                                                        alternative-text="Edit message"
-                                                        title="Edit message"
-                                                        data-message-id={message.id}
-                                                        onclick={handleEditMessage}
-                                                        class="edit-button">
-                                                    </lightning-button-icon>
-                                                    <lightning-button-icon
-                                                        icon-name="utility:delete"
-                                                        variant="border-filled"
-                                                        alternative-text="Delete message"
-                                                        title="Delete message"
-                                                        data-message-id={message.id}
-                                                        onclick={handleDeleteMessage}
-                                                        class="delete-button">
-                                                    </lightning-button-icon>
-                                                </lightning-button-group>
-                                            </div>
-                                        </template>
-                                    </template>
                                 </div>
                                 <div class="message-meta">
                                     <div class="message-meta__time">
@@ -130,6 +104,26 @@
                                                     onclick={handleReplyToMessage}
                                                     class="reply-button">
                                                 </lightning-button-icon>
+                                                <template if:true={message.isFromCurrentUser}>
+                                                    <lightning-button-icon
+                                                        icon-name="utility:edit"
+                                                        variant="border-filled"
+                                                        alternative-text="Edit message"
+                                                        title="Edit message"
+                                                        data-message-id={message.id}
+                                                        onclick={handleEditMessage}
+                                                        class="edit-button">
+                                                    </lightning-button-icon>
+                                                    <lightning-button-icon
+                                                        icon-name="utility:delete"
+                                                        variant="border-filled"
+                                                        alternative-text="Delete message"
+                                                        title="Delete message"
+                                                        data-message-id={message.id}
+                                                        onclick={handleDeleteMessage}
+                                                        class="delete-button">
+                                                    </lightning-button-icon>
+                                                </template>
                                             </lightning-button-group>
                                             <template if:true={isMilestoneTeamMember}>
                                                 <template if:true={message.isPinned}>
@@ -199,17 +193,18 @@
                                         placeholder="Edit your message...">
                                     </lightning-input-rich-text>
                                     <div class="slds-m-top_small">
-                                        <lightning-button
-                                            variant="brand"
-                                            label="Save"
-                                            onclick={handleSaveEdit}
-                                            class="slds-m-right_x-small">
-                                        </lightning-button>
-                                        <lightning-button
-                                            variant="neutral"
-                                            label="Cancel"
-                                            onclick={handleCancelEdit}>
-                                        </lightning-button>
+                                        <lightning-button-group>
+                                            <lightning-button
+                                                variant="brand"
+                                                label="Save"
+                                                onclick={handleSaveEdit}>
+                                            </lightning-button>
+                                            <lightning-button
+                                                variant="neutral"
+                                                label="Cancel"
+                                                onclick={handleCancelEdit}>
+                                            </lightning-button>
+                                        </lightning-button-group>
                                     </div>
                                 </div>
                             </template>
