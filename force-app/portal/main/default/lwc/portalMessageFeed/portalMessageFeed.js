@@ -2,7 +2,7 @@ import { LightningElement, api, track, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { MessageContext, subscribe, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
 import { ensureSitePath } from 'c/portalCommon';
-import getMessages from '@salesforce/apex/PortalMessagingController.getMessages';
+import getLatestMessages from '@salesforce/apex/PortalMessagingController.getLatestMessages';
 import MESSAGE_UPDATE_CHANNEL from '@salesforce/messageChannel/MessageUpdate__c';
 
 export default class PortalMessageFeed extends NavigationMixin(LightningElement) {
@@ -108,14 +108,8 @@ export default class PortalMessageFeed extends NavigationMixin(LightningElement)
     async loadMessages() {
         this.isLoading = true;
         try {
-            const data = await getMessages({
-                recipientType: this.recipientType,
-                relatedAccountId: this._relatedAccountId,
-                relatedProjectId: this._relatedProjectId,
-                relatedTaskId: this._relatedTaskId,
-                limitCount: this.limitCount,
-                orderByField: this.orderByField,
-                orderDirection: this.orderDirection
+            const data = await getLatestMessages({
+                limitCount: this.limitCount
             });
 
             this.messages = data || [];
