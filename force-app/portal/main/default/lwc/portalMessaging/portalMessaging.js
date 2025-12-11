@@ -54,10 +54,6 @@ export default class PortalMessaging extends LightningElement {
     get showHeaderEnabled() {
         return this.showHeader === false ? false : true;
     }
-
-    get cardClass() {
-        return this.showHeaderEnabled ? 'messaging-card' : 'messaging-card no-header';
-    }
     
     // Wire service for Lightning Message Service context
     @wire(MessageContext)
