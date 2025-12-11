@@ -740,7 +740,8 @@ export default class PortalMessaging extends LightningElement {
      * @description Mark unread messages as read
      */
     async markUnreadMessagesAsRead() {
-        const unreadMessages = this._messages.filter(msg => !msg.isRead && msg.isMentioned);
+        // Mark all unread messages as read on load
+        const unreadMessages = this._messages.filter(msg => !msg.isRead);
         
         for (const msg of unreadMessages) {
             try {
