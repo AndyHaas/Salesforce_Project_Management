@@ -137,6 +137,11 @@
     gap: 0.5rem;
 }
 
+.message-actions-left {
+    display: flex;
+    align-items: center;
+}
+
 .message-body {
     margin: 0.75rem 0;
     color: #222;
