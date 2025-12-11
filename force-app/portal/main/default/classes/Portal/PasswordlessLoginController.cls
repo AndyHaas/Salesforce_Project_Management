@@ -299,6 +299,11 @@ public without sharing class PasswordlessLoginController {
             return DEFAULT_START_URL;
         }
         
+        // If Site.login() already returned a fully-qualified URL, use it as-is.
+        if (redirectUrl.startsWith('http://') || redirectUrl.startsWith('https://')) {
+            return redirectUrl;
+        }
+        
         // Remove /s/ prefix if present
         if (redirectUrl.startsWith('/s/')) {
             redirectUrl = redirectUrl.substring(3); // Remove '/s/'
