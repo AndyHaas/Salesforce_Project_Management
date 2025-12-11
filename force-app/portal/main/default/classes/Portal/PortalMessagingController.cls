@@ -396,7 +396,7 @@ public without sharing class PortalMessagingController {
                          'Account__c, Account__r.Name, Reply_To__c, Reply_To__r.Id, Reply_To__r.Body__c, ' +
                          'Reply_To__r.Sender__r.Name, Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, ' +
                          'Is_Pinned__c ' +
-                         'FROM Message__c WITH SECURITY_ENFORCED ' + whereClause + ' ' +
+                         'FROM Message__c ' + whereClause + ' ' +
                          'ORDER BY Is_Pinned__c DESC, ' + normalizedOrderField + ' ' + normalizedOrderDirection + ' ' +
                          'LIMIT :normalizedLimit';
             
@@ -527,7 +527,7 @@ public without sharing class PortalMessagingController {
                          'Account__c, Account__r.Name, Reply_To__c, Reply_To__r.Id, Reply_To__r.Body__c, ' +
                          'Reply_To__r.Sender__r.Name, Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, ' +
                          'Is_Pinned__c ' +
-                         'FROM Message__c WITH SECURITY_ENFORCED ' + whereClause + ' ' +
+                         'FROM Message__c ' + whereClause + ' ' +
                          'ORDER BY Is_Pinned__c DESC, CreatedDate DESC ' +
                          'LIMIT :limitCount';
             
