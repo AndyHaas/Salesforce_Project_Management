@@ -457,6 +457,14 @@
                                     </div>
                                 </template>
                             </template>
+                            <template if:true={message.contextLink}>
+                                <div class="message-related">
+                                    <lightning-icon icon-name="utility:link" size="xx-small"></lightning-icon>
+                                    <a href={message.contextLink.href} class="slds-text-link">
+                                        {message.contextLink.label}
+                                    </a>
+                                </div>
+                            </template>
                         </div>
                     </template>
                     </template>

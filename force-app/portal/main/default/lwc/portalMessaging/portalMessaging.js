@@ -444,7 +444,8 @@ export default class PortalMessaging extends LightningElement {
             isEditing: this._editingMessageId === msg.id,
             isReplying: this._replyingToMessageId === msg.id,
             replyToFormattedDate: msg.replyToCreatedDate ? this.formatMessageDate(msg.replyToCreatedDate) : '',
-            replyToPreview: this.stripHtmlPreview(msg.replyToMessageBody || '')
+            replyToPreview: this.stripHtmlPreview(msg.replyToMessageBody || ''),
+            contextLink: this.buildContextLink(msg)
         }));
     }
     
@@ -473,6 +474,33 @@ export default class PortalMessaging extends LightningElement {
      */
     get hasMessages() {
         return this._messages && this._messages.length > 0;
+    }
+
+    /**
+     * @description Build context link for project/task navigation (skip account-only)
+     */
+    buildContextLink(msg) {
+        try {
+            // Prefer task, then project; no link for account-only
+            if (msg.relatedTaskId) {
+                const href = ensureSitePath(`/project-task/${msg.relatedTaskId}`, { currentPathname: window.location.pathname });
+                return {
+                    href,
+                    label: msg.relatedTaskName ? `View Task: ${msg.relatedTaskName}` : 'View Task'
+                };
+            }
+            if (msg.relatedProjectId) {
+                const href = ensureSitePath(`/project/${msg.relatedProjectId}`, { currentPathname: window.location.pathname });
+                return {
+                    href,
+                    label: msg.relatedProjectName ? `View Project: ${msg.relatedProjectName}` : 'View Project'
+                };
+            }
+            return null;
+        } catch (e) {
+            console.error('Error building context link', e);
+            return null;
+        }
     }
     
     /**
