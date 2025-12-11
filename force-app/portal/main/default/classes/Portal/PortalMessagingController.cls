@@ -86,7 +86,6 @@ public without sharing class PortalMessagingController {
                 SELECT Id, ContactId, AccountId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
-                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -111,7 +110,6 @@ public without sharing class PortalMessagingController {
                     SELECT Project__c, Project__r.Account__c
                     FROM Project_Task__c
                     WHERE Id = :relatedTaskId
-                    WITH SECURITY_ENFORCED
                     LIMIT 1
                 ];
                 if (task.Project__c != null) {
@@ -128,7 +126,6 @@ public without sharing class PortalMessagingController {
                     SELECT Account__c
                     FROM Project__c
                     WHERE Id = :relatedProjectId
-                    WITH SECURITY_ENFORCED
                     LIMIT 1
                 ];
                 if (project.Account__c != null) {
@@ -169,7 +166,6 @@ public without sharing class PortalMessagingController {
                     FROM Message__c
                     WHERE Id = :replyToMessageId
                     AND Deleted__c = false
-                    WITH SECURITY_ENFORCED
                     LIMIT 1
                 ];
                 
