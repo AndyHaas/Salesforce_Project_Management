@@ -58,22 +58,21 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            // Get current user's contact
+            // Get current user
             User currentUser = [
-                SELECT Id, ContactId, AccountId
+                SELECT Id, ContactId, AccountId, Name, Email
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
                 LIMIT 1
             ];
             
-            if (currentUser.ContactId == null) {
-                throw new AuraHandledException('Current user must be associated with a Contact');
-            }
+            // Get or create Contact for the user (Milestone team members won't have ContactId)
+            Id senderContactId = getOrCreateContactForUser(currentUser);
             
             // Create message record
             Message__c message = new Message__c();
             message.Body__c = messageBody;
-            message.Sender__c = currentUser.ContactId;
+            message.Sender__c = senderContactId;
             message.Recipient_Type__c = recipientType;
             message.Is_Read__c = false;
             
@@ -82,17 +81,20 @@ public without sharing class PortalMessagingController {
             if (String.isNotBlank(relatedTaskId)) {
                 message.Related_Task__c = relatedTaskId;
                 // Get project and account from task
-                Project_Task__c task = [
+                List<Project_Task__c> tasks = [
                     SELECT Project__c, Project__r.Account__c
                     FROM Project_Task__c
                     WHERE Id = :relatedTaskId
                     LIMIT 1
                 ];
-                if (task.Project__c != null) {
-                    message.Related_Project__c = task.Project__c;
-                }
-                if (task.Project__r?.Account__c != null) {
-                    message.Account__c = task.Project__r.Account__c;
+                if (!tasks.isEmpty()) {
+                    Project_Task__c task = tasks[0];
+                    if (task.Project__c != null) {
+                        message.Related_Project__c = task.Project__c;
+                    }
+                    if (task.Project__r?.Account__c != null) {
+                        message.Account__c = task.Project__r.Account__c;
+                    }
                 }
             } else if (String.isNotBlank(relatedProjectId)) {
                 message.Related_Project__c = relatedProjectId;
@@ -173,10 +175,64 @@ public without sharing class PortalMessagingController {
             }
             
             return message.Id;
+        } catch (DmlException e) {
+            System.debug(LoggingLevel.ERROR, 'DML Error sending message: ' + e.getMessage() + ' DmlType: ' + e.getDmlType(0) + ' Stack: ' + e.getStackTraceString());
+            String errorMsg = 'Error sending message: ' + e.getMessage();
+            if (e.getNumDml() > 0) {
+                errorMsg += ' (DML Type: ' + e.getDmlType(0) + ')';
+            }
+            throw new AuraHandledException(errorMsg);
         } catch (Exception e) {
-            System.debug(LoggingLevel.ERROR, 'Error sending message: ' + e.getMessage() + ' Stack: ' + e.getStackTraceString());
-            throw new AuraHandledException('Error sending message: ' + e.getMessage());
+            System.debug(LoggingLevel.ERROR, 'Error sending message: ' + e.getMessage() + ' Type: ' + e.getTypeName() + ' Stack: ' + e.getStackTraceString());
+            throw new AuraHandledException('Error sending message: ' + e.getMessage() + ' (Type: ' + e.getTypeName() + ')');
         }
+    }
+    
+    /**
+     * @description Get or create a Contact record for a User
+     * Milestone team members don't have ContactId, so we create/find a Contact for them
+     * @param user The User record
+     * @return Contact ID
+     */
+    private static Id getOrCreateContactForUser(User user) {
+        // If user already has ContactId, use it
+        if (user.ContactId != null) {
+            return user.ContactId;
+        }
+        
+        // For Milestone team members without ContactId, find or create a Contact
+        // Try to find existing Contact by email first
+        if (String.isNotBlank(user.Email)) {
+            List<Contact> existingContacts = [
+                SELECT Id
+                FROM Contact
+                WHERE Email = :user.Email
+                LIMIT 1
+            ];
+            if (!existingContacts.isEmpty()) {
+                return existingContacts[0].Id;
+            }
+        }
+        
+        // Create a new Contact for the Milestone team member
+        Contact newContact = new Contact();
+        
+        // Parse name - LastName is required
+        if (user.Name.contains(' ')) {
+            List<String> nameParts = user.Name.split(' ', 2);
+            newContact.FirstName = nameParts[0];
+            newContact.LastName = nameParts.size() > 1 ? nameParts[1] : nameParts[0];
+        } else {
+            // If no space, use entire name as LastName (required field)
+            newContact.LastName = String.isNotBlank(user.Name) ? user.Name : 'Milestone Team Member';
+        }
+        
+        newContact.Email = user.Email;
+        // Note: AccountId is not required for Contact
+        // For Milestone team members, we'll leave AccountId blank
+        
+        insert newContact;
+        return newContact.Id;
     }
     
     /**
