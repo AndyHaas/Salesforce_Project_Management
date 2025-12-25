@@ -10,9 +10,15 @@ This package directory contains all components related to the Experience Cloud p
 
 ### Apex Classes
 - `PortalLoginController` - Handles email verification and OTP login
+- `PortalMessagingController` - Handles messaging functionality (sending, retrieving, searching messages)
+- `PortalMessagingControllerTest` - Test class for messaging controller (70% coverage)
 
 ### Lightning Web Components
 - `portalLogin` - Custom login component with email and OTP verification
+- `portalMessaging` - Core messaging component for client-team communication
+  - Features: Infinite scrolling, server-side search, file attachments, mentions, replies
+  - Works in both Experience Cloud and Salesforce Lightning contexts
+- `salesforceMessaging` - Wrapper component for Salesforce Lightning Experience
 
 ### Networks (Experience Cloud Sites)
 - `Client - Project Management Portal` - Experience Cloud site configuration
@@ -20,6 +26,15 @@ This package directory contains all components related to the Experience Cloud p
 ### Custom Fields
 - `Contact.Portal_Access_Enabled__c` - Checkbox to enable portal access for contacts
 - `Account.Has_Portal_Access_Enabled_Contact__c` - Checkbox indicating account has enabled contacts
+
+### Custom Objects
+- `Message__c` - Messaging object for client-team communication
+  - Supports context-aware messaging (Task, Project, Account)
+  - Includes features: replies, mentions, file attachments, pinning, search
+  - Auto-creates Contacts for Milestone team members (Users without ContactId)
+
+### Message Channels
+- `MessageUpdate__c` - Lightning Message Service channel for inter-component communication
 
 ## Deployment
 

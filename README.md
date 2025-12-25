@@ -13,12 +13,14 @@ This package provides a complete project and task management solution for Salesf
 - **Dashboard Components**: Lightning Web Components for visualizing task data with field set-driven configuration
 - **Review Workflow**: Built-in review and approval processes
 - **Experience Cloud Portal**: Client portal with custom login and task visibility
+- **Portal Messaging**: Secure messaging system for client-team communication with infinite scrolling, search, and file attachments
 
 ## Package Contents
 
 ### Custom Objects
 - `Project_Task__c`: Main task object with dependencies, progress tracking, and review status
 - `Project_Task_Relationship__c`: Junction object for managing many-to-many task relationships
+- `Message__c`: Messaging object for client-team communication
 - `Release_Notes__c`: Release documentation
 - `Release_Tag__c`: Release tagging
 - `Release_Version__c`: Version management
@@ -37,6 +39,8 @@ This package provides a complete project and task management solution for Salesf
 - `groupedTaskList`: Grouped task listing with expandable subtasks
 - `accountFilter`: Account filtering component
 - `taskListComponent`: Paginated task list component with field set-driven columns
+- `portalMessaging`: Core messaging component for client-team communication
+- `salesforceMessaging`: Wrapper component for Salesforce Lightning Experience messaging
 
 ### Apex Classes
 - `ProjectTaskDashboardController`: Dashboard controller logic for metrics and task lists
@@ -44,6 +48,7 @@ This package provides a complete project and task management solution for Salesf
 - `TaskDependencyHelper`: Dependency risk assessment and blocking status management
 - `TaskProgressCalculator`: Automated progress calculations for parent tasks
 - `TaskSubtaskHelper`: Helper class for subtask management (user population, parent status updates, validation)
+- `PortalMessagingController`: Controller for portal messaging functionality (sending, retrieving, searching messages)
 
 ### Triggers
 - `ProjectTaskTrigger`: Comprehensive trigger handling all automated business logic for Project Tasks including:
@@ -60,6 +65,7 @@ This package provides a complete project and task management solution for Salesf
 - `Project_Management_Admin`: Full administrative access
 - `Project_Management_Manager`: Manager-level access
 - `Project_Management_User`: Standard user access
+- `Portal_Messaging`: Permission set for portal messaging functionality
 
 ## Installation
 

@@ -391,3 +391,215 @@ Significant UI/UX updates have been made to the Experience Cloud portal:
 
 See `force-app/portal/README.md` for detailed portal setup instructions.
 
+## Portal Messaging System
+
+### Overview
+
+The Portal Messaging system enables secure communication between clients and the Milestone Consulting team within the Experience Cloud portal and Salesforce Lightning Experience. The system supports bidirectional messaging, file attachments, mentions, replies, and context-aware message threading.
+
+### Key Features
+
+1. **Dual Context Support**: Works seamlessly in both Experience Cloud (Portal) and Salesforce Lightning Experience
+2. **Recipient Type Management**: 
+   - Portal users (clients) can send messages to "Milestone Team"
+   - Milestone team members can send to "Client" or "Milestone Team"
+   - Internal team messages can be hidden from clients
+3. **Infinite Scrolling**: Messages load with pagination, newest messages at bottom, scroll up to load older messages
+4. **Server-Side Search**: Full-text search across all messages with wildcard support (`*`, `%`, literal `_`)
+5. **Message Management**: Edit, delete, pin, and mark messages as read
+6. **File Attachments**: Link files to messages via ContentVersion
+7. **Mentions**: Mention contacts in messages with autocomplete
+8. **Replies**: Reply to messages with context inheritance
+9. **Context-Aware Navigation**: Links work correctly in both portal and Salesforce contexts
+
+### Components
+
+#### Lightning Web Components
+
+- **`portalMessaging`**: Core messaging component used in both contexts
+  - Location: `force-app/portal/main/default/lwc/portalMessaging/`
+  - Features: Message display, sending, editing, search, infinite scroll
+  - Context detection: Automatically detects Experience Cloud vs. Salesforce context
+  
+- **`salesforceMessaging`**: Wrapper component for Salesforce Lightning Experience
+  - Location: `force-app/main/default/lwc/salesforceMessaging/`
+  - Uses `portalMessaging` internally for consistent functionality
+
+#### Apex Controller
+
+- **`PortalMessagingController`**: Main controller for all messaging operations
+  - Location: `force-app/portal/main/default/classes/Portal/PortalMessagingController.cls`
+  - Methods:
+    - `sendMessage()`: Send new messages with context inheritance
+    - `getMessages()`: Retrieve messages with filtering, pagination, and search
+    - `getLatestMessages()`: Get recent messages for notifications
+    - `updateMessage()`: Edit existing messages (sender only)
+    - `deleteMessage()`: Soft delete messages
+    - `markAsRead()`: Mark messages as read
+    - `pinMessage()`: Pin/unpin messages
+    - `getMentionableContacts()`: Get contacts for mention autocomplete
+    - `linkFilesToMessage()`: Attach files to messages
+    - `getMessageFiles()`: Retrieve files attached to messages
+    - `getContextInfo()`: Get context information for messaging component
+
+### Security & Access Control
+
+#### Sharing Model
+- Class uses `without sharing` to allow portal users to create message records
+- Access control enforced through WHERE clause filters:
+  - Users can see messages they sent
+  - Users can see messages in their recipient bucket (Client or Milestone Team)
+  - Portal users only see messages visible to clients (`Visible_To_Client__c = true`)
+
+#### Field-Level Security
+- `WITH SECURITY_ENFORCED` used in most queries
+- FLS bypass in `updateMessage` is intentional and documented (allows portal users to edit their own messages)
+
+#### SOQL Injection Protection
+- All user inputs use bind variables
+- Search terms properly escaped for LIKE queries
+- Order field validation using allowlist
+- Constants used for field names
+
+### Message Object Structure
+
+The `Message__c` custom object contains:
+- `Body__c`: Rich text message content
+- `Sender__c`: Contact lookup (sender of the message)
+- `Recipient_Type__c`: Picklist ("Client" or "Milestone Team")
+- `Visible_To_Client__c`: Boolean (internal messages can be hidden)
+- `Related_Task__c`: Lookup to Project_Task__c
+- `Related_Project__c`: Lookup to Project__c
+- `Account__c`: Lookup to Account
+- `Mentioned_Contacts__c`: Comma-separated Contact IDs
+- `Reply_To__c`: Lookup to Message__c (for replies)
+- `Is_Read__c`: Boolean
+- `Is_Edited__c`: Boolean
+- `Is_Pinned__c`: Boolean
+- `Deleted__c`: Boolean (soft delete)
+
+### Recent Enhancements
+
+#### Auto-Creation of Contacts for Milestone Team Members
+- Milestone team members (Salesforce Users without ContactId) can send messages
+- System automatically creates/finds Contact records for Users when needed
+- Method: `getOrCreateContactForUser()` handles this transparently
+
+#### Infinite Scrolling & Pagination
+- Messages load in pages of 50 (configurable via `_messagesPerPage`)
+- Reverse chronological order: newest messages at bottom
+- Scroll to top to load older messages
+- Loading indicators show when fetching more messages
+
+#### Server-Side Search
+- Full-text search across `Body__c` and `Sender__r.Name`
+- Wildcard support:
+  - `*` converts to `%` (SQL wildcard)
+  - `%` allowed as explicit wildcard
+  - `_` treated as literal character (escaped)
+- Search is debounced (500ms) to reduce server calls
+- Search resets pagination
+
+#### Context-Aware Navigation
+- Portal context: Uses `ensureSitePath()` for portal URLs
+- Salesforce context: Uses Lightning Navigation Service
+- Links automatically adapt based on runtime context
+
+### Usage
+
+#### In Experience Cloud Portal
+The messaging component is typically placed on:
+- Project Task detail pages
+- Project detail pages
+- Account detail pages
+- Home page
+
+#### In Salesforce Lightning Experience
+The `salesforceMessaging` wrapper component can be placed on:
+- Project Task record pages
+- Project record pages
+- Account record pages
+- App pages
+
+### Configuration
+
+#### Permission Sets
+- `Portal_Messaging`: Permission set for portal users to access messaging functionality
+  - Location: `force-app/main/default/permissionsets/Portal_Messaging.permissionset-meta.xml`
+
+#### Message Channel
+- `MessageUpdate__c`: Lightning Message Service channel for inter-component communication
+  - Location: `force-app/main/default/messageChannels/MessageUpdate.messageChannel-meta.xml`
+  - Used to notify components when messages are created/updated
+
+### Testing
+
+#### Test Coverage
+- **Test Class**: `PortalMessagingControllerTest`
+  - Location: `force-app/portal/main/default/classes/Portal/PortalMessagingControllerTest.cls`
+  - Coverage: 70% (target: 80%)
+  - Tests cover:
+    - Message sending with various contexts
+    - Message retrieval with filtering and search
+    - Contact auto-creation for Milestone team members
+    - Pagination and infinite scrolling
+    - Message editing, deletion, pinning
+    - Error handling and validation
+
+### Code Quality
+
+#### Security
+- ✅ Bind variables for all user inputs
+- ✅ Input validation and normalization
+- ✅ Field-level security enforcement
+- ✅ Access control via WHERE clause filters
+- ✅ Search term escaping for LIKE queries
+
+#### Best Practices
+- Constants for field names and limits
+- Helper methods to reduce code duplication
+- Comprehensive error handling
+- Detailed logging for debugging
+- Proper documentation in code comments
+
+### Related Files
+
+#### Apex Classes
+- `force-app/portal/main/default/classes/Portal/PortalMessagingController.cls`
+- `force-app/portal/main/default/classes/Portal/PortalMessagingControllerTest.cls`
+
+#### Lightning Web Components
+- `force-app/portal/main/default/lwc/portalMessaging/portalMessaging.js`
+- `force-app/portal/main/default/lwc/portalMessaging/portalMessaging.html`
+- `force-app/main/default/lwc/salesforceMessaging/salesforceMessaging.js`
+
+#### Custom Objects
+- `force-app/main/default/objects/Message__c/` - Message object and fields
+
+#### Permission Sets
+- `force-app/main/default/permissionsets/Portal_Messaging.permissionset-meta.xml`
+
+#### Message Channels
+- `force-app/main/default/messageChannels/MessageUpdate.messageChannel-meta.xml`
+
+### Troubleshooting
+
+| Symptom | Likely Cause | Resolution |
+| --- | --- | --- |
+| Messages not loading | User doesn't have ContactId (Milestone team member) | System auto-creates Contact, but verify User has Name and Email |
+| Search not working | Search term contains unescaped special characters | System handles escaping automatically, but verify search pattern |
+| Navigation links broken | Context detection failed | Check pathname and page reference type detection logic |
+| Can't edit message | Not the sender | Only message sender can edit their own messages |
+| Internal messages visible to clients | `Visible_To_Client__c` not set correctly | Verify message was sent with `isVisibleToClient = false` by Milestone team member |
+
+### Future Enhancements
+
+Potential improvements for future releases:
+- Real-time message updates via Platform Events
+- Message threading visualization
+- Advanced search filters (date range, sender, etc.)
+- Message templates
+- Email notifications for mentions
+- Read receipts
+- Message reactions/emojis
+
