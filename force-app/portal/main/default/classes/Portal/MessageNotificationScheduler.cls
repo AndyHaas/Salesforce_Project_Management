@@ -146,8 +146,9 @@ public without sharing class MessageNotificationScheduler implements Schedulable
                 );
                 emails.add(email);
                 
-                // Mark message as notification sent
+                // Mark message as notification sent with timestamp
                 msg.PM_Notification_Sent__c = true;
+                msg.PM_Notification_Sent_Date__c = DateTime.now();
                 messagesToUpdate.add(msg);
             }
             
@@ -244,6 +245,7 @@ public without sharing class MessageNotificationScheduler implements Schedulable
                     System.debug('MessageNotificationScheduler: Message ' + msg.Id + ' has no client user set, skipping');
                     // Mark as sent anyway to avoid checking repeatedly
                     msg.Client_Notification_Sent__c = true;
+                    msg.Client_Notification_Sent_Date__c = DateTime.now();
                     messagesToUpdate.add(msg);
                     continue;
                 }
@@ -253,6 +255,7 @@ public without sharing class MessageNotificationScheduler implements Schedulable
                     System.debug('MessageNotificationScheduler: Message ' + msg.Id + ' client user has no email, skipping');
                     // Mark as sent anyway to avoid checking repeatedly
                     msg.Client_Notification_Sent__c = true;
+                    msg.Client_Notification_Sent_Date__c = DateTime.now();
                     messagesToUpdate.add(msg);
                     continue;
                 }
@@ -300,8 +303,9 @@ public without sharing class MessageNotificationScheduler implements Schedulable
                 );
                 emails.add(email);
                 
-                // Mark message as notification sent
+                // Mark message as notification sent with timestamp
                 msg.Client_Notification_Sent__c = true;
+                msg.Client_Notification_Sent_Date__c = DateTime.now();
                 messagesToUpdate.add(msg);
             }
             

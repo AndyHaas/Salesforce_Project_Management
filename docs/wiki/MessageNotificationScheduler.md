@@ -251,7 +251,9 @@ The scheduler uses the following custom fields on `Message__c`:
 - `Is_Read_By_Milestone_Team__c`: Boolean - Tracks if message read by Milestone team
 - `Is_Read_By_Client__c`: Boolean - Tracks if message read by client
 - `PM_Notification_Sent__c`: Boolean - Tracks if PM notification sent
+- `PM_Notification_Sent_Date__c`: DateTime - Timestamp when PM notification was sent (with field history tracking)
 - `Client_Notification_Sent__c`: Boolean - Tracks if client notification sent
+- `Client_Notification_Sent_Date__c`: DateTime - Timestamp when client notification was sent (with field history tracking)
 
 ## Dependencies
 

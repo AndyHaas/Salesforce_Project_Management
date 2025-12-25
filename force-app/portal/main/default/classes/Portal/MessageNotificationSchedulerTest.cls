@@ -223,13 +223,15 @@ private class MessageNotificationSchedulerTest {
         
         // Verify message was marked as sent (to avoid checking repeatedly) even though no email was sent
         Message__c updatedMessage = [
-            SELECT Id, PM_Notification_Sent__c
+            SELECT Id, PM_Notification_Sent__c, PM_Notification_Sent_Date__c
             FROM Message__c
             WHERE Id = :messageWithoutPM.Id
         ];
         
         System.assertEquals(true, updatedMessage.PM_Notification_Sent__c, 
             'Message without PM should be marked as sent to avoid repeated checks');
+        System.assertNotEquals(null, updatedMessage.PM_Notification_Sent_Date__c, 
+            'PM notification sent date should be set');
     }
     
     @isTest
@@ -273,13 +275,15 @@ private class MessageNotificationSchedulerTest {
         
         // Verify message was marked as notification sent
         Message__c updatedMessage = [
-            SELECT Id, Client_Notification_Sent__c
+            SELECT Id, Client_Notification_Sent__c, Client_Notification_Sent_Date__c
             FROM Message__c
             WHERE Id = :unreadClientMessage.Id
         ];
         
         System.assertEquals(true, updatedMessage.Client_Notification_Sent__c, 
             'Client message should be marked as notification sent');
+        System.assertNotEquals(null, updatedMessage.Client_Notification_Sent_Date__c, 
+            'Client notification sent date should be set');
     }
     
     @isTest
@@ -321,13 +325,15 @@ private class MessageNotificationSchedulerTest {
         
         // Verify message was marked as sent (to avoid checking repeatedly) even though no email was sent
         Message__c updatedMessage = [
-            SELECT Id, Client_Notification_Sent__c
+            SELECT Id, Client_Notification_Sent__c, Client_Notification_Sent_Date__c
             FROM Message__c
             WHERE Id = :messageWithoutClientUser.Id
         ];
         
         System.assertEquals(true, updatedMessage.Client_Notification_Sent__c, 
             'Message without client user should be marked as sent to avoid repeated checks');
+        System.assertNotEquals(null, updatedMessage.Client_Notification_Sent_Date__c, 
+            'Client notification sent date should be set');
     }
     
     @isTest
@@ -378,12 +384,14 @@ private class MessageNotificationSchedulerTest {
         
         // Verify message was marked as sent (to avoid checking repeatedly) even though no email was sent
         Message__c updatedMessage = [
-            SELECT Id, Client_Notification_Sent__c
+            SELECT Id, Client_Notification_Sent__c, Client_Notification_Sent_Date__c
             FROM Message__c
             WHERE Id = :messageWithClientNoEmail.Id
         ];
         
         System.assertEquals(true, updatedMessage.Client_Notification_Sent__c, 
             'Message with client user without email should be marked as sent to avoid repeated checks');
+        System.assertNotEquals(null, updatedMessage.Client_Notification_Sent_Date__c, 
+            'Client notification sent date should be set');
     }
 }

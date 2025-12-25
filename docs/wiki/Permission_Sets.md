@@ -225,9 +225,19 @@ The system uses separate read tracking fields for clients and team members:
   - **Client Users**: Read-only
   - **Team Members**: Can edit (for system updates)
   
+- **`PM_Notification_Sent_Date__c`**: DateTime - Timestamp when PM notification was sent
+  - **Client Users**: Read-only
+  - **Team Members**: Can edit (for system updates)
+  - **Field History Tracking**: Enabled
+  
 - **`Client_Notification_Sent__c`**: Tracks if client notification email was sent
   - **Client Users**: Read-only
   - **Team Members**: Can edit (for system updates)
+  
+- **`Client_Notification_Sent_Date__c`**: DateTime - Timestamp when client notification was sent
+  - **Client Users**: Read-only
+  - **Team Members**: Can edit (for system updates)
+  - **Field History Tracking**: Enabled
 
 ## Security Considerations
 
