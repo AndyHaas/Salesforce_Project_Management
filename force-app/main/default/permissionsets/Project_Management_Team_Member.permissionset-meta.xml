@@ -28,6 +28,10 @@
         <apexClass>PortalMessagingController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>MessageNotificationScheduler</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <description>Permission set for Milestone Consulting team members - includes full access to project management, task management, messaging, and all administrative functions</description>
     <fieldPermissions>
         <editable>true</editable>
@@ -237,6 +241,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Message__c.Visible_To_Client__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Message__c.PM_Notification_Sent__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
