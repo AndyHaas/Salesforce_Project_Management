@@ -259,18 +259,22 @@ public without sharing class PortalMessagingController {
                 LIMIT 1
             ];
             
-            if (currentUser.ContactId == null) {
-                return new List<MessageInfo>();
-            }
-            
             // Extract values for bind variables (can't use dot notation in Database.query)
             Id currentUserContactId = currentUser.ContactId;
             Id currentUserAccountId = currentUser.AccountId;
             
+            // Milestone team members (internal Salesforce users) may not have ContactId
+            // Portal users (clients) always have ContactId
+            Boolean isMilestoneTeamMember = (currentUser.AccountId == null);
+            
             // --- Build filters deterministically and safely ---
             // Access filter: sender is current user OR allowed recipient bucket
             List<String> accessFilters = new List<String>();
-            accessFilters.add(FIELD_SENDER + ' = :currentUserContactId');
+            
+            // Only include sender filter if user has ContactId (portal users)
+            if (currentUserContactId != null) {
+                accessFilters.add(FIELD_SENDER + ' = :currentUserContactId');
+            }
             
             if (recipientType == RECIPIENT_CLIENT) {
                 // Explicitly client-only
@@ -457,29 +461,18 @@ public without sharing class PortalMessagingController {
             // Extract values for bind variables (dot notation is not allowed in Database.query)
             Id currentUserContactId = currentUser.ContactId;
             Id currentUserAccountId = currentUser.AccountId;
+            String recipientClient = RECIPIENT_CLIENT;
+            String recipientTeam = RECIPIENT_TEAM;
             
-            // Build WHERE clause using list assembly to avoid malformed SQL
-            List<String> filters = new List<String>();
-            
-            // Sender or recipient buckets
-            List<String> accessFilters = new List<String>();
-            accessFilters.add(FIELD_SENDER + ' = :currentUserContactId');
-            if (currentUserAccountId != null) {
-                accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\' AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId');
-            } else {
-                accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\'');
-            }
-            accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_TEAM + '\'');
-            filters.add('(' + String.join(accessFilters, ' OR ') + ')');
-            
-            // Base filters
-            filters.add(FIELD_DELETED + ' = false');
-            if (currentUserAccountId != null) {
-                filters.add(FIELD_VISIBLE_TO_CLIENT + ' = true');
-            }
-            filters.add(FIELD_TASK + ' != null');
-            
-            String whereClause = 'WHERE ' + String.join(filters, ' AND ');
+            // Build WHERE clause explicitly to avoid malformed query strings
+            String whereClause = 'WHERE (' +
+                FIELD_SENDER + ' = :currentUserContactId ' +
+                'OR (' + FIELD_RECIPIENT_TYPE + ' = :recipientClient' +
+                    (currentUserAccountId != null ? ' AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId' : '') +
+                ') OR ' + FIELD_RECIPIENT_TYPE + ' = :recipientTeam' +
+            ') AND ' + FIELD_DELETED + ' = false' +
+            (currentUserAccountId != null ? ' AND ' + FIELD_VISIBLE_TO_CLIENT + ' = true' : '') +
+            ' AND ' + FIELD_TASK + ' != null';
             
             // Query messages - need to include task information for navigation and Reply_To__c for replies
             String query = 'SELECT Id, Name, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
