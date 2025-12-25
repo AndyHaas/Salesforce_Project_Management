@@ -10,8 +10,53 @@
 @isTest
 private class PortalMessagingControllerTest {
     
+    /**
+     * @future method to assign permission sets (avoids MIXED_DML_OPERATION)
+     */
+    @future
+    public static void assignPermissionSets(Id userId) {
+        List<PermissionSet> permissionSets = [
+            SELECT Id, Name 
+            FROM PermissionSet 
+            WHERE Name IN ('Client_Project_Management_Portal_User', 'Project_Management_Team_Member')
+            LIMIT 2
+        ];
+        
+        if (!permissionSets.isEmpty()) {
+            List<PermissionSetAssignment> assignments = new List<PermissionSetAssignment>();
+            
+            for (PermissionSet ps : permissionSets) {
+                List<PermissionSetAssignment> existing = [
+                    SELECT Id 
+                    FROM PermissionSetAssignment 
+                    WHERE AssigneeId = :userId 
+                    AND PermissionSetId = :ps.Id 
+                    LIMIT 1
+                ];
+                
+                if (existing.isEmpty()) {
+                    assignments.add(new PermissionSetAssignment(
+                        AssigneeId = userId,
+                        PermissionSetId = ps.Id
+                    ));
+                }
+            }
+            
+            if (!assignments.isEmpty()) {
+                insert assignments;
+            }
+        }
+    }
+    
     @testSetup
     static void setupTestData() {
+        // Assign permission sets to test user to ensure FLS access
+        // Use @future method to avoid MIXED_DML_OPERATION
+        // In test context, @future methods run synchronously, but we use Test.startTest() to ensure completion
+        Test.startTest();
+        assignPermissionSets(UserInfo.getUserId());
+        Test.stopTest();
+        
         // Create test Account
         Account testAccount = new Account(
             Name = 'Test Client Account'
