@@ -6,45 +6,16 @@ private class OTPCleanupSchedulerTest {
     
     @testSetup
     static void setupTestData() {
-        // Create test Account
-        Account testAccount = new Account(
-            Name = 'Test Account'
-        );
-        insert testAccount;
-        
-        // Create test Contact
-        Contact testContact = new Contact(
-            FirstName = 'Test',
-            LastName = 'User',
-            Email = 'test@example.com',
-            AccountId = testAccount.Id,
-            Portal_Access_Enabled__c = true
-        );
-        insert testContact;
-        
-        // Create test User
-        Profile portalProfile = [SELECT Id FROM Profile WHERE Name LIKE '%Portal%' OR Name LIKE '%Customer%' LIMIT 1];
-        User testUser = new User(
-            FirstName = 'Test',
-            LastName = 'User',
-            Email = 'test@example.com',
-            Username = 'testuser' + DateTime.now().getTime() + '@test.com',
-            Alias = 'tuser',
-            ProfileId = portalProfile.Id,
-            ContactId = testContact.Id,
-            TimeZoneSidKey = 'America/New_York',
-            LocaleSidKey = 'en_US',
-            EmailEncodingKey = 'UTF-8',
-            LanguageLocaleKey = 'en_US'
-        );
-        insert testUser;
+        // Use existing user instead of creating a new portal user
+        // This avoids the "only portal users can be associated to a contact" error
+        User testUser = [SELECT Id FROM User WHERE IsActive = true LIMIT 1];
         
         // Create old OTP records (older than 30 days)
         List<Login_OTP__c> oldOTPs = new List<Login_OTP__c>();
         for (Integer i = 0; i < 5; i++) {
             Login_OTP__c oldOTP = new Login_OTP__c(
-                Email__c = 'test@example.com',
-                Code__c = '123456',
+                Email__c = 'test' + i + '@example.com',
+                Code__c = String.valueOf(100000 + i),
                 User__c = testUser.Id,
                 Expires_At__c = DateTime.now().addDays(-35), // 35 days ago
                 Used__c = false
@@ -62,8 +33,8 @@ private class OTPCleanupSchedulerTest {
         List<Login_OTP__c> expiredUsedOTPs = new List<Login_OTP__c>();
         for (Integer i = 0; i < 3; i++) {
             Login_OTP__c expiredOTP = new Login_OTP__c(
-                Email__c = 'test@example.com',
-                Code__c = '654321',
+                Email__c = 'expired' + i + '@example.com',
+                Code__c = String.valueOf(200000 + i),
                 User__c = testUser.Id,
                 Expires_At__c = DateTime.now().addDays(-1), // Expired yesterday
                 Used__c = true // Already used
@@ -76,8 +47,8 @@ private class OTPCleanupSchedulerTest {
         List<Login_OTP__c> recentOTPs = new List<Login_OTP__c>();
         for (Integer i = 0; i < 3; i++) {
             Login_OTP__c recentOTP = new Login_OTP__c(
-                Email__c = 'test@example.com',
-                Code__c = '999999',
+                Email__c = 'recent' + i + '@example.com',
+                Code__c = String.valueOf(300000 + i),
                 User__c = testUser.Id,
                 Expires_At__c = DateTime.now().addDays(1), // Expires tomorrow
                 Used__c = false
@@ -89,30 +60,47 @@ private class OTPCleanupSchedulerTest {
     
     @isTest
     static void testCleanupExpiredOTPs() {
-        // Count records before cleanup
-        Integer oldOTPsBefore = [SELECT COUNT() FROM Login_OTP__c WHERE CreatedDate < :DateTime.now().addDays(-30)];
-        Integer expiredUsedBefore = [SELECT COUNT() FROM Login_OTP__c WHERE Expires_At__c < :DateTime.now() AND Used__c = true];
-        Integer recentBefore = [SELECT COUNT() FROM Login_OTP__c WHERE CreatedDate >= :DateTime.now().addDays(-30)];
+        // Get specific records to track
+        List<Login_OTP__c> allOTPs = [SELECT Id, CreatedDate, Expires_At__c, Used__c FROM Login_OTP__c];
         
-        System.assert(oldOTPsBefore > 0, 'Should have old OTP records');
-        System.assert(expiredUsedBefore > 0, 'Should have expired and used OTP records');
-        System.assert(recentBefore > 0, 'Should have recent OTP records');
+        // Identify old records (created more than 30 days ago)
+        List<Id> oldOTPIds = new List<Id>();
+        List<Id> expiredUsedOTPIds = new List<Id>();
+        List<Id> recentOTPIds = new List<Id>();
+        
+        DateTime cutoffDate = DateTime.now().addDays(-30);
+        
+        for (Login_OTP__c otp : allOTPs) {
+            if (otp.CreatedDate < cutoffDate) {
+                oldOTPIds.add(otp.Id);
+            } else if (otp.Expires_At__c < DateTime.now() && otp.Used__c == true) {
+                expiredUsedOTPIds.add(otp.Id);
+            } else {
+                recentOTPIds.add(otp.Id);
+            }
+        }
+        
+        System.assert(oldOTPIds.size() > 0, 'Should have old OTP records');
+        System.assert(expiredUsedOTPIds.size() > 0, 'Should have expired and used OTP records');
+        System.assert(recentOTPIds.size() > 0, 'Should have recent OTP records');
+        
+        Integer recentBefore = recentOTPIds.size();
         
         Test.startTest();
         OTPCleanupScheduler.cleanupExpiredOTPs();
         Test.stopTest();
         
         // Verify old records were deleted
-        Integer oldOTPsAfter = [SELECT COUNT() FROM Login_OTP__c WHERE CreatedDate < :DateTime.now().addDays(-30)];
-        System.assertEquals(0, oldOTPsAfter, 'Old OTP records should be deleted');
+        List<Login_OTP__c> oldOTPsAfter = [SELECT Id FROM Login_OTP__c WHERE Id IN :oldOTPIds];
+        System.assertEquals(0, oldOTPsAfter.size(), 'Old OTP records should be deleted');
         
         // Verify expired and used records were deleted
-        Integer expiredUsedAfter = [SELECT COUNT() FROM Login_OTP__c WHERE Expires_At__c < :DateTime.now() AND Used__c = true];
-        System.assertEquals(0, expiredUsedAfter, 'Expired and used OTP records should be deleted');
+        List<Login_OTP__c> expiredUsedAfter = [SELECT Id FROM Login_OTP__c WHERE Id IN :expiredUsedOTPIds];
+        System.assertEquals(0, expiredUsedAfter.size(), 'Expired and used OTP records should be deleted');
         
         // Verify recent records were NOT deleted
-        Integer recentAfter = [SELECT COUNT() FROM Login_OTP__c WHERE CreatedDate >= :DateTime.now().addDays(-30)];
-        System.assertEquals(recentBefore, recentAfter, 'Recent OTP records should not be deleted');
+        List<Login_OTP__c> recentAfter = [SELECT Id FROM Login_OTP__c WHERE Id IN :recentOTPIds];
+        System.assertEquals(recentBefore, recentAfter.size(), 'Recent OTP records should not be deleted');
     }
     
     @isTest
