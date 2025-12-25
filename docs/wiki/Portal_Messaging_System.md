@@ -265,6 +265,15 @@ The `salesforceMessaging` wrapper component can be placed on:
 | File attachments not showing | ContentDocumentLink not created | Verify `linkFilesToMessage()` was called successfully. Check ContentVersion IDs are valid. |
 | Component not detecting context | Page reference not available | Ensure component is on a Lightning Record Page or explicitly set `related-task-id`, `related-project-id`, or `related-account-id`. |
 
+## Email Notifications
+
+The system includes automated email notifications for unread messages:
+
+- **Project Manager Notifications**: Sent when client messages remain unread for 5+ minutes
+- **Client User Notifications**: Sent when team messages remain unread for 5+ minutes
+
+See **[MessageNotificationScheduler](MessageNotificationScheduler.md)** for detailed documentation on scheduling and configuration.
+
 ## Future Enhancements
 
 Potential improvements for future releases:

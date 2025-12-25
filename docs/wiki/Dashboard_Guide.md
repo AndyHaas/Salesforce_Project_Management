@@ -393,7 +393,7 @@ See `force-app/portal/README.md` for detailed portal setup instructions.
 
 ## Portal Messaging System
 
-The Portal Messaging system enables secure communication between clients and the Milestone Consulting team within the Experience Cloud portal and Salesforce Lightning Experience. The system supports bidirectional messaging, file attachments, mentions, replies, and context-aware message threading.
+The Portal Messaging system enables secure communication between clients and the Milestone Consulting team within the Experience Cloud portal and Salesforce Lightning Experience. The system supports bidirectional messaging, file attachments, mentions, replies, context-aware message threading, and automated email notifications for unread messages.
 
 ### Key Features
 
