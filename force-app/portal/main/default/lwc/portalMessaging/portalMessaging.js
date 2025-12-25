@@ -263,7 +263,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
                 relatedProjectId: this.relatedProjectId,
                 relatedTaskId: this.relatedTaskId,
                 limitCount: this._messagesPerPage,
-                offset: this._currentOffset
+                offset: this._currentOffset,
+                searchTerm: this.messageSearchTerm || null
             });
             
             const newMessages = data || [];
@@ -675,28 +676,16 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     
     /**
      * @description Get messages for display
+     * Note: Search is now handled server-side, so we just return the messages as-is
      */
     get messages() {
         if (!this._messages || this._messages.length === 0) {
             return [];
         }
         
+        // Search is now handled server-side in Apex
+        // No client-side filtering needed
         let filteredMessages = this._messages;
-        
-        // Apply search filter if search term exists
-        if (this.messageSearchTerm && this.messageSearchTerm.trim().length > 0) {
-            const searchLower = this.messageSearchTerm.toLowerCase().trim();
-            filteredMessages = this._messages.filter(msg => {
-                // Search in message body (strip HTML for search)
-                const bodyText = this.stripHtmlForSearch(msg.body || '');
-                const bodyMatch = bodyText.toLowerCase().includes(searchLower);
-                
-                // Search in sender name
-                const senderMatch = (msg.senderName || '').toLowerCase().includes(searchLower);
-                
-                return bodyMatch || senderMatch;
-            });
-        }
         
         return filteredMessages.map(msg => {
             const taskLink = this.buildLink(msg.relatedTaskId, msg.relatedTaskName, '/project-task');
@@ -900,9 +889,22 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     
     /**
      * @description Handle message search input change
+     * Triggers server-side search with debouncing
      */
     handleMessageSearchChange(event) {
         this.messageSearchTerm = event.target.value;
+        
+        // Debounce search - wait 500ms after user stops typing
+        if (this._searchTimeout) {
+            clearTimeout(this._searchTimeout);
+        }
+        
+        this._searchTimeout = setTimeout(() => {
+            // Reset pagination and reload messages with search
+            this._currentOffset = 0;
+            this._hasMoreMessages = true;
+            this.loadMessages(false);
+        }, 500);
     }
     
     /**
@@ -911,6 +913,17 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     handleClearSearch() {
         this.messageSearchTerm = '';
         this.showMessageSearch = false;
+        
+        // Clear any pending search timeout
+        if (this._searchTimeout) {
+            clearTimeout(this._searchTimeout);
+            this._searchTimeout = null;
+        }
+        
+        // Reload messages without search
+        this._currentOffset = 0;
+        this._hasMoreMessages = true;
+        this.loadMessages(false);
     }
 
     /**

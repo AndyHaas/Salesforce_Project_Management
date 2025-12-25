@@ -301,7 +301,8 @@ public without sharing class PortalMessagingController {
         Integer limitCount,
         Integer offset,
         String orderByField,
-        String orderDirection
+        String orderDirection,
+        String searchTerm
     ) {
         try {
             // Normalize incoming params up front
@@ -370,6 +371,21 @@ public without sharing class PortalMessagingController {
                 baseFilters.add(FIELD_VISIBLE_TO_CLIENT + ' = true');
             }
             
+            // Prepare search pattern for bind variable (if search term provided)
+            // Must be defined before query execution for bind variable to work
+            String searchPattern = null;
+            List<String> searchFilters = new List<String>();
+            if (String.isNotBlank(searchTerm)) {
+                String normalizedSearchTerm = normalizeOptional(searchTerm);
+                if (String.isNotBlank(normalizedSearchTerm)) {
+                    // Escape LIKE wildcards to prevent injection
+                    String escapedSearch = normalizedSearchTerm.replaceAll('([%_\\\\])', '\\\\$1');
+                    searchPattern = '%' + escapedSearch + '%';
+                    // Search in Body__c and Sender__r.Name
+                    searchFilters.add('(Body__c LIKE :searchPattern OR Sender__r.Name LIKE :searchPattern)');
+                }
+            }
+            
             // Assemble WHERE
             List<String> whereParts = new List<String>();
             
@@ -386,6 +402,13 @@ public without sharing class PortalMessagingController {
             
             if (String.isNotBlank(contextFilter)) {
                 whereParts.add(contextFilter);
+            }
+            
+            // Add search filters
+            for (String search : searchFilters) {
+                if (String.isNotBlank(search)) {
+                    whereParts.add(search);
+                }
             }
             
             for (String base : baseFilters) {
@@ -438,7 +461,7 @@ public without sharing class PortalMessagingController {
             System.debug('getMessages currentUserAccountId: ' + currentUserAccountId);
             
             // Use standard Database.query - bind variables work with local variables in scope
-            // The bind variables like :currentUserContactId and :relevantTaskIds will work
+            // The bind variables like :currentUserContactId, :searchPattern, etc. will work
             // as long as the variables are in scope when Database.query is called
             List<Message__c> messages = Database.query(query);
             System.debug('getMessages found ' + messages.size() + ' messages');
