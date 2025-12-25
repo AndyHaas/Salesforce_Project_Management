@@ -933,4 +933,197 @@ private class PortalMessagingControllerTest {
         }
         Test.stopTest();
     }
+    
+    @isTest
+    static void testSendMessage_NoContextWithAccountId() {
+        // Test sendMessage with no context but user has AccountId (covers line 116)
+        User currentUser = [SELECT Id, AccountId FROM User WHERE Id = :UserInfo.getUserId()];
+        
+        // Only test if user has AccountId
+        if (currentUser.AccountId == null) {
+            return; // Skip for Milestone team members
+        }
+        
+        Test.startTest();
+        {
+            String messageId = PortalMessagingController.sendMessage(
+                'Test message with no context',
+                'Client',
+                null, // relatedAccountId
+                null, // relatedProjectId
+                null, // relatedTaskId
+                null,
+                true,
+                null
+            );
+            
+            System.assertNotEquals(null, messageId, 'Message should be created');
+            
+            // Verify message has user's account set as fallback
+            Message__c message = [
+                SELECT Id, Account__c
+                FROM Message__c 
+                WHERE Id = :messageId
+            ];
+            
+            System.assertEquals(currentUser.AccountId, message.Account__c, 'Message should have user account as fallback');
+        }
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void testSendMessage_WithNullVisibleToClient() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        Project_Task__c testTask = [SELECT Id FROM Project_Task__c LIMIT 1];
+        
+        Test.startTest();
+        {
+            // Test sendMessage with isVisibleToClient = null (covers line 129)
+            String messageId = PortalMessagingController.sendMessage(
+                'Test message with null visible',
+                'Client',
+                testAccount.Id,
+                testProject.Id,
+                testTask.Id,
+                null,
+                null, // isVisibleToClient = null (should default to true)
+                null
+            );
+            
+            System.assertNotEquals(null, messageId, 'Message should be created');
+            
+            // Verify message defaults to visible
+            Message__c message = [
+                SELECT Id, Visible_To_Client__c
+                FROM Message__c 
+                WHERE Id = :messageId
+            ];
+            
+            System.assertEquals(true, message.Visible_To_Client__c, 'Message should default to visible');
+        }
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void testSendMessage_ReplyToWithProject() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        
+        // Create a message with project but no task
+        User currentUser = [SELECT Id, ContactId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+        Id currentUserContactId;
+        if (currentUser.ContactId != null) {
+            currentUserContactId = currentUser.ContactId;
+        } else {
+            List<Contact> contacts = [SELECT Id FROM Contact WHERE Email = :currentUser.Email LIMIT 1];
+            if (!contacts.isEmpty()) {
+                currentUserContactId = contacts[0].Id;
+            }
+        }
+        
+        if (currentUserContactId == null) {
+            return; // Can't test without Contact
+        }
+        
+        Message__c originalMessage = new Message__c(
+            Body__c = 'Original message with project',
+            Sender__c = currentUserContactId,
+            Recipient_Type__c = 'Client',
+            Related_Project__c = testProject.Id, // Project but no task
+            Account__c = testAccount.Id,
+            Is_Read__c = false,
+            Visible_To_Client__c = true,
+            Deleted__c = false
+        );
+        insert originalMessage;
+        
+        Test.startTest();
+        {
+            // Test reply inheriting project (covers line 157)
+            String replyMessageId = PortalMessagingController.sendMessage(
+                'Reply message',
+                null, // recipientType - should inherit
+                null, // relatedAccountId - should inherit
+                null, // relatedProjectId - should inherit
+                null, // relatedTaskId - should inherit
+                null,
+                true,
+                originalMessage.Id // replyToMessageId
+            );
+            
+            System.assertNotEquals(null, replyMessageId, 'Reply message should be created');
+            
+            // Verify reply inherits project
+            Message__c replyMessage = [
+                SELECT Id, Related_Project__c, Recipient_Type__c
+                FROM Message__c 
+                WHERE Id = :replyMessageId
+            ];
+            
+            System.assertEquals(testProject.Id, replyMessage.Related_Project__c, 'Reply should inherit project from original');
+            System.assertEquals('Client', replyMessage.Recipient_Type__c, 'Reply should inherit recipient type from original');
+        }
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void testSendMessage_ReplyToWithAccount() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        // Create a message with account but no project/task
+        User currentUser = [SELECT Id, ContactId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+        Id currentUserContactId;
+        if (currentUser.ContactId != null) {
+            currentUserContactId = currentUser.ContactId;
+        } else {
+            List<Contact> contacts = [SELECT Id FROM Contact WHERE Email = :currentUser.Email LIMIT 1];
+            if (!contacts.isEmpty()) {
+                currentUserContactId = contacts[0].Id;
+            }
+        }
+        
+        if (currentUserContactId == null) {
+            return; // Can't test without Contact
+        }
+        
+        Message__c originalMessage = new Message__c(
+            Body__c = 'Original message with account',
+            Sender__c = currentUserContactId,
+            Recipient_Type__c = 'Client',
+            Account__c = testAccount.Id, // Account but no project/task
+            Is_Read__c = false,
+            Visible_To_Client__c = true,
+            Deleted__c = false
+        );
+        insert originalMessage;
+        
+        Test.startTest();
+        {
+            // Test reply inheriting account (covers line 158)
+            String replyMessageId = PortalMessagingController.sendMessage(
+                'Reply message',
+                null, // recipientType - should inherit
+                null, // relatedAccountId - should inherit
+                null, // relatedProjectId - should inherit
+                null, // relatedTaskId - should inherit
+                null,
+                true,
+                originalMessage.Id // replyToMessageId
+            );
+            
+            System.assertNotEquals(null, replyMessageId, 'Reply message should be created');
+            
+            // Verify reply inherits account
+            Message__c replyMessage = [
+                SELECT Id, Account__c, Recipient_Type__c
+                FROM Message__c 
+                WHERE Id = :replyMessageId
+            ];
+            
+            System.assertEquals(testAccount.Id, replyMessage.Account__c, 'Reply should inherit account from original');
+            System.assertEquals('Client', replyMessage.Recipient_Type__c, 'Reply should inherit recipient type from original');
+        }
+        Test.stopTest();
+    }
 }
