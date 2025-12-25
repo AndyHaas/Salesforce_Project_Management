@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <classAccesses>
+        <apexClass>HomePageController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>PasswordlessLoginController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>PortalMessagingController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>Permission set for Portal Messaging component - allows portal users to send, read,
-        edit, and manage messages</description>
+    <classAccesses>
+        <apexClass>PortalProjectController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>PortalRecordListController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>PortalTaskController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Comprehensive permission set for Community Users (Portal Users) - includes all portal functionality: messaging, project management, task management, and login</description>
     <fieldPermissions>
         <editable>true</editable>
         <field>Message__c.Account__c</field>
@@ -72,7 +91,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>Portal Messaging</label>
+    <label>Community User</label>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>
