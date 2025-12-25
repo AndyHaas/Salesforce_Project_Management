@@ -5,6 +5,7 @@
  * - Server-side search with wildcards
  * - Pagination with offset
  * - Message CRUD operations
+ * - Separate read tracking for clients (Is_Read_By_Client__c) and Milestone team (Is_Read_By_Milestone_Team__c)
  */
 @isTest
 private class PortalMessagingControllerTest {
@@ -63,7 +64,8 @@ private class PortalMessagingControllerTest {
             Related_Task__c = testTask.Id,
             Related_Project__c = testProject.Id,
             Account__c = testAccount.Id,
-            Is_Read__c = false,
+            Is_Read_By_Client__c = true, // Sender sees it as read
+            Is_Read_By_Milestone_Team__c = false, // Recipient unread
             Visible_To_Client__c = true,
             Deleted__c = false
         ));
@@ -76,7 +78,8 @@ private class PortalMessagingControllerTest {
             Related_Task__c = testTask.Id,
             Related_Project__c = testProject.Id,
             Account__c = testAccount.Id,
-            Is_Read__c = false,
+            Is_Read_By_Client__c = true, // Sender sees it as read
+            Is_Read_By_Milestone_Team__c = false, // Recipient unread
             Visible_To_Client__c = true,
             Deleted__c = false
         ));
@@ -89,7 +92,8 @@ private class PortalMessagingControllerTest {
             Related_Task__c = testTask.Id,
             Related_Project__c = testProject.Id,
             Account__c = testAccount.Id,
-            Is_Read__c = false,
+            Is_Read_By_Client__c = true, // Sender sees it as read
+            Is_Read_By_Milestone_Team__c = false, // Recipient unread
             Visible_To_Client__c = true,
             Deleted__c = false
         ));
@@ -216,7 +220,8 @@ private class PortalMessagingControllerTest {
             Related_Task__c = testTask.Id,
             Related_Project__c = testProject.Id,
             Account__c = testTask.Account__c != null ? testTask.Account__c : testAccount.Id,
-            Is_Read__c = false,
+            Is_Read_By_Client__c = false,
+            Is_Read_By_Milestone_Team__c = false,
             Visible_To_Client__c = true,
             Deleted__c = false
         );
@@ -293,6 +298,8 @@ private class PortalMessagingControllerTest {
         Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
         Project_Task__c testTask = [SELECT Id, Account__c FROM Project_Task__c LIMIT 1];
         
+        User currentUser = [SELECT Id, AccountId, ContactId, Email FROM User WHERE Id = :UserInfo.getUserId()];
+        
         Test.startTest();
         {
             String messageId = PortalMessagingController.sendMessage(
@@ -309,7 +316,6 @@ private class PortalMessagingControllerTest {
             System.assertNotEquals(null, messageId, 'Message should be created');
             
             // Verify Contact was created for Milestone team member (if user doesn't have ContactId)
-            User currentUser = [SELECT Id, ContactId, Email FROM User WHERE Id = :UserInfo.getUserId()];
             if (currentUser.ContactId == null) {
                 List<Contact> contacts = [SELECT Id FROM Contact WHERE Email = :currentUser.Email];
                 System.assert(!contacts.isEmpty(), 'Contact should be created for Milestone team member');
@@ -317,6 +323,23 @@ private class PortalMessagingControllerTest {
                 // Verify message uses the created Contact
                 Message__c message = [SELECT Id, Sender__c FROM Message__c WHERE Id = :messageId];
                 System.assertEquals(contacts[0].Id, message.Sender__c, 'Message should use created Contact');
+            }
+            
+            // Verify read status is set correctly based on sender type
+            Message__c message = [
+                SELECT Id, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c 
+                FROM Message__c 
+                WHERE Id = :messageId
+            ];
+            
+            if (currentUser.AccountId != null) {
+                // Portal user (client) sending - client read should be true, team read should be false
+                System.assertEquals(true, message.Is_Read_By_Client__c, 'Client sender should mark Is_Read_By_Client__c as true');
+                System.assertEquals(false, message.Is_Read_By_Milestone_Team__c, 'Client sender should mark Is_Read_By_Milestone_Team__c as false');
+            } else {
+                // Milestone team member sending - team read should be true, client read should be false
+                System.assertEquals(true, message.Is_Read_By_Milestone_Team__c, 'Milestone team sender should mark Is_Read_By_Milestone_Team__c as true');
+                System.assertEquals(false, message.Is_Read_By_Client__c, 'Milestone team sender should mark Is_Read_By_Client__c as false');
             }
         }
         Test.stopTest();
@@ -407,7 +430,7 @@ private class PortalMessagingControllerTest {
     @isTest
     static void testMarkAsRead() {
         // Get a message that current user can access
-        User currentUser = [SELECT Id, ContactId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+        User currentUser = [SELECT Id, ContactId, AccountId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
         Id currentUserContactId;
         if (currentUser.ContactId != null) {
             currentUserContactId = currentUser.ContactId;
@@ -422,23 +445,157 @@ private class PortalMessagingControllerTest {
             return; // Can't test without Contact
         }
         
-        List<Message__c> messages = [
-            SELECT Id FROM Message__c 
-            WHERE Sender__c = :currentUserContactId 
-            LIMIT 1
-        ];
+        // Create a message that is unread
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        Project_Task__c testTask = [SELECT Id FROM Project_Task__c LIMIT 1];
         
-        if (messages.isEmpty()) {
-            return; // No messages to test
-        }
+        Message__c testMessage = new Message__c(
+            Body__c = 'Test message for mark as read',
+            Sender__c = currentUserContactId,
+            Recipient_Type__c = 'Client',
+            Related_Task__c = testTask.Id,
+            Related_Project__c = testProject.Id,
+            Account__c = testAccount.Id,
+            Is_Read_By_Client__c = false,
+            Is_Read_By_Milestone_Team__c = false,
+            Visible_To_Client__c = true,
+            Deleted__c = false
+        );
+        insert testMessage;
         
         Test.startTest();
-        PortalMessagingController.markAsRead(messages[0].Id);
+        PortalMessagingController.markAsRead(testMessage.Id);
         Test.stopTest();
         
-        // Verify message is marked as read
-        Message__c updatedMessage = [SELECT Id, Is_Read__c FROM Message__c WHERE Id = :messages[0].Id];
-        System.assertEquals(true, updatedMessage.Is_Read__c, 'Message should be marked as read');
+        // Verify message is marked as read based on user type
+        Message__c updatedMessage = [
+            SELECT Id, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c 
+            FROM Message__c 
+            WHERE Id = :testMessage.Id
+        ];
+        
+        if (currentUser.AccountId != null) {
+            // Portal user (client) - should mark client read
+            System.assertEquals(true, updatedMessage.Is_Read_By_Client__c, 'Client should mark Is_Read_By_Client__c as true');
+            System.assertEquals(false, updatedMessage.Is_Read_By_Milestone_Team__c, 'Client should not change Is_Read_By_Milestone_Team__c');
+        } else {
+            // Milestone team member - should mark team read
+            System.assertEquals(true, updatedMessage.Is_Read_By_Milestone_Team__c, 'Milestone team should mark Is_Read_By_Milestone_Team__c as true');
+            System.assertEquals(false, updatedMessage.Is_Read_By_Client__c, 'Milestone team should not change Is_Read_By_Client__c');
+        }
+    }
+    
+    @isTest
+    static void testMarkAsRead_ClientUser() {
+        // Test that client users mark Is_Read_By_Client__c
+        User currentUser = [SELECT Id, ContactId, AccountId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+        
+        // Skip if user doesn't have AccountId (not a portal user)
+        if (currentUser.AccountId == null) {
+            return;
+        }
+        
+        Id currentUserContactId;
+        if (currentUser.ContactId != null) {
+            currentUserContactId = currentUser.ContactId;
+        } else {
+            List<Contact> contacts = [SELECT Id FROM Contact WHERE Email = :currentUser.Email LIMIT 1];
+            if (!contacts.isEmpty()) {
+                currentUserContactId = contacts[0].Id;
+            }
+        }
+        
+        if (currentUserContactId == null) {
+            return;
+        }
+        
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        Project_Task__c testTask = [SELECT Id FROM Project_Task__c LIMIT 1];
+        
+        Message__c testMessage = new Message__c(
+            Body__c = 'Test message for client read',
+            Sender__c = currentUserContactId,
+            Recipient_Type__c = 'Client',
+            Related_Task__c = testTask.Id,
+            Related_Project__c = testProject.Id,
+            Account__c = testAccount.Id,
+            Is_Read_By_Client__c = false,
+            Is_Read_By_Milestone_Team__c = false,
+            Visible_To_Client__c = true,
+            Deleted__c = false
+        );
+        insert testMessage;
+        
+        Test.startTest();
+        PortalMessagingController.markAsRead(testMessage.Id);
+        Test.stopTest();
+        
+        Message__c updatedMessage = [
+            SELECT Id, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c 
+            FROM Message__c 
+            WHERE Id = :testMessage.Id
+        ];
+        
+        System.assertEquals(true, updatedMessage.Is_Read_By_Client__c, 'Client should mark Is_Read_By_Client__c as true');
+        System.assertEquals(false, updatedMessage.Is_Read_By_Milestone_Team__c, 'Client should not change Is_Read_By_Milestone_Team__c');
+    }
+    
+    @isTest
+    static void testMarkAsRead_MilestoneTeamMember() {
+        // Test that Milestone team members mark Is_Read_By_Milestone_Team__c
+        User currentUser = [SELECT Id, ContactId, AccountId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+        
+        // Skip if user has AccountId (is a portal user)
+        if (currentUser.AccountId != null) {
+            return;
+        }
+        
+        Id currentUserContactId;
+        if (currentUser.ContactId != null) {
+            currentUserContactId = currentUser.ContactId;
+        } else {
+            List<Contact> contacts = [SELECT Id FROM Contact WHERE Email = :currentUser.Email LIMIT 1];
+            if (!contacts.isEmpty()) {
+                currentUserContactId = contacts[0].Id;
+            }
+        }
+        
+        if (currentUserContactId == null) {
+            return;
+        }
+        
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        Project_Task__c testTask = [SELECT Id FROM Project_Task__c LIMIT 1];
+        
+        Message__c testMessage = new Message__c(
+            Body__c = 'Test message for milestone team read',
+            Sender__c = currentUserContactId,
+            Recipient_Type__c = 'Milestone Team',
+            Related_Task__c = testTask.Id,
+            Related_Project__c = testProject.Id,
+            Account__c = testAccount.Id,
+            Is_Read_By_Client__c = false,
+            Is_Read_By_Milestone_Team__c = false,
+            Visible_To_Client__c = true,
+            Deleted__c = false
+        );
+        insert testMessage;
+        
+        Test.startTest();
+        PortalMessagingController.markAsRead(testMessage.Id);
+        Test.stopTest();
+        
+        Message__c updatedMessage = [
+            SELECT Id, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c 
+            FROM Message__c 
+            WHERE Id = :testMessage.Id
+        ];
+        
+        System.assertEquals(true, updatedMessage.Is_Read_By_Milestone_Team__c, 'Milestone team should mark Is_Read_By_Milestone_Team__c as true');
+        System.assertEquals(false, updatedMessage.Is_Read_By_Client__c, 'Milestone team should not change Is_Read_By_Client__c');
     }
     
     @isTest
@@ -581,6 +738,7 @@ private class PortalMessagingControllerTest {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
         Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
         Project_Task__c testTask = [SELECT Id FROM Project_Task__c LIMIT 1];
+        User currentUser = [SELECT Id, AccountId FROM User WHERE Id = :UserInfo.getUserId()];
         
         Test.startTest();
         {
@@ -600,7 +758,8 @@ private class PortalMessagingControllerTest {
             // Verify message was created with all fields
             Message__c message = [
                 SELECT Id, Body__c, Recipient_Type__c, Account__c, 
-                       Related_Project__c, Related_Task__c, Visible_To_Client__c
+                       Related_Project__c, Related_Task__c, Visible_To_Client__c,
+                       Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c
                 FROM Message__c 
                 WHERE Id = :messageId
             ];
@@ -611,6 +770,17 @@ private class PortalMessagingControllerTest {
             System.assertEquals(testProject.Id, message.Related_Project__c);
             System.assertEquals(testTask.Id, message.Related_Task__c);
             System.assertEquals(true, message.Visible_To_Client__c);
+            
+            // Verify read status is initialized correctly
+            if (currentUser.AccountId != null) {
+                // Portal user (client) - client read true, team read false
+                System.assertEquals(true, message.Is_Read_By_Client__c, 'Client sender should mark Is_Read_By_Client__c as true');
+                System.assertEquals(false, message.Is_Read_By_Milestone_Team__c, 'Client sender should mark Is_Read_By_Milestone_Team__c as false');
+            } else {
+                // Milestone team member - team read true, client read false
+                System.assertEquals(true, message.Is_Read_By_Milestone_Team__c, 'Milestone team sender should mark Is_Read_By_Milestone_Team__c as true');
+                System.assertEquals(false, message.Is_Read_By_Client__c, 'Milestone team sender should mark Is_Read_By_Client__c as false');
+            }
         }
         Test.stopTest();
     }
@@ -789,7 +959,8 @@ private class PortalMessagingControllerTest {
             Related_Task__c = testTask.Id,
             Related_Project__c = testProject.Id,
             Account__c = testAccount.Id,
-            Is_Read__c = false,
+            Is_Read_By_Client__c = false,
+            Is_Read_By_Milestone_Team__c = false,
             Visible_To_Client__c = true,
             Deleted__c = false
         );
@@ -1032,7 +1203,8 @@ private class PortalMessagingControllerTest {
             Recipient_Type__c = 'Client',
             Related_Project__c = testProject.Id, // Project but no task
             Account__c = testAccount.Id,
-            Is_Read__c = false,
+            Is_Read_By_Client__c = false,
+            Is_Read_By_Milestone_Team__c = false,
             Visible_To_Client__c = true,
             Deleted__c = false
         );
@@ -1092,7 +1264,8 @@ private class PortalMessagingControllerTest {
             Sender__c = currentUserContactId,
             Recipient_Type__c = 'Client',
             Account__c = testAccount.Id, // Account but no project/task
-            Is_Read__c = false,
+            Is_Read_By_Client__c = false,
+            Is_Read_By_Milestone_Team__c = false,
             Visible_To_Client__c = true,
             Deleted__c = false
         );
