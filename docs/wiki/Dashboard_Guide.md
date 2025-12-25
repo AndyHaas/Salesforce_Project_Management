@@ -416,31 +416,183 @@ The Portal Messaging system enables secure communication between clients and the
 
 #### Lightning Web Components
 
-- **`portalMessaging`**: Core messaging component used in both contexts
-  - Location: `force-app/portal/main/default/lwc/portalMessaging/`
-  - Features: Message display, sending, editing, search, infinite scroll
-  - Context detection: Automatically detects Experience Cloud vs. Salesforce context
-  
-- **`salesforceMessaging`**: Wrapper component for Salesforce Lightning Experience
-  - Location: `force-app/main/default/lwc/salesforceMessaging/`
-  - Uses `portalMessaging` internally for consistent functionality
+##### portalMessaging
+
+**Location**: `force-app/portal/main/default/lwc/portalMessaging/`
+
+**Overview**: Core messaging component that works in both Experience Cloud (Portal) and Salesforce Lightning Experience contexts. Handles all messaging functionality including sending, receiving, searching, editing, and managing messages.
+
+**Features**:
+- Message display with infinite scrolling (newest at bottom)
+- Server-side search with wildcard support
+- Message sending with context inheritance
+- Message editing (sender only)
+- Message deletion (soft delete)
+- Message pinning
+- Mark as read functionality
+- File attachments
+- Contact mentions with autocomplete
+- Reply to messages
+- Context-aware navigation
+
+**Properties**:
+- `@api recordId`: Automatically populated when on a Lightning Record Page
+- `@api relatedAccountId`: Optional account ID for message context
+- `@api relatedProjectId`: Optional project ID for message context
+- `@api relatedTaskId`: Optional task ID for message context
+
+**Context Detection**:
+The component automatically detects its runtime context using multiple methods:
+1. **Pathname check**: Experience Cloud URLs start with `/s/`
+2. **User type**: Milestone team members (no AccountId) are in Salesforce context
+3. **Page reference type**: Experience Cloud pages have `comm__` prefix, Salesforce has `standard__`
+
+**Behavior by Context**:
+
+*Portal (Experience Cloud)*:
+- Users can only send to "Milestone Team"
+- Recipient type selector is hidden
+- Navigation uses `ensureSitePath()` for portal URLs
+- Default `recipientType`: "Milestone Team"
+
+*Salesforce Lightning Experience*:
+- Milestone team members can send to "Client" or "Milestone Team"
+- Recipient type selector is shown
+- Can send internal messages (not visible to clients)
+- Navigation uses Lightning Navigation Service
+- Default `recipientType`: "Client"
+
+**State Management**:
+- `_messages`: Array of loaded messages
+- `_currentOffset`: Current pagination offset
+- `_isLoadingMore`: Loading state for infinite scroll
+- `_hasMoreMessages`: Whether more messages are available
+- `_messagesPerPage`: Messages per page (default: 50)
+- `_searchTimeout`: Debounce timer for search
+
+**Key Methods**:
+- `loadMessages(append)`: Load messages with pagination and search
+- `loadMoreMessages()`: Load next page of messages (infinite scroll)
+- `handleScroll(event)`: Detect scroll position and load more when near top
+- `sendMessage()`: Send a new message
+- `handleMessageSearchChange(event)`: Handle search input with debouncing
+- `handleClearSearch()`: Clear search and reload all messages
+- `markAsRead(messageId)`: Mark message as read
+- `updateMessage(messageId, body)`: Edit message
+- `deleteMessage(messageId)`: Delete message
+- `pinMessage(messageId, isPinned)`: Pin/unpin message
+- `buildLink(recordId, objectType)`: Build navigation link based on context
+- `handleNavigateToRecord(event)`: Handle navigation in Salesforce context
+
+**Message Channel Integration**:
+- Subscribes to `MessageUpdate__c` channel for real-time updates
+- Publishes updates when messages are created/updated/deleted
+
+**Usage Example**:
+```html
+<c-portal-messaging
+    record-id={recordId}
+    related-task-id={taskId}
+    related-project-id={projectId}
+    related-account-id={accountId}>
+</c-portal-messaging>
+```
+
+##### salesforceMessaging
+
+**Location**: `force-app/main/default/lwc/salesforceMessaging/`
+
+**Overview**: Wrapper component for Salesforce Lightning Experience that uses `portalMessaging` internally. Provides a consistent API for Salesforce contexts while delegating functionality to the core component.
+
+**Properties**:
+- Same as `portalMessaging` (passes through to core component)
+
+**Usage**: Place on Salesforce Lightning record pages or app pages. The component automatically uses the core `portalMessaging` component with Salesforce-specific navigation.
 
 #### Apex Controller
 
-- **`PortalMessagingController`**: Main controller for all messaging operations
-  - Location: `force-app/portal/main/default/classes/Portal/PortalMessagingController.cls`
-  - Methods:
-    - `sendMessage()`: Send new messages with context inheritance
-    - `getMessages()`: Retrieve messages with filtering, pagination, and search
-    - `getLatestMessages()`: Get recent messages for notifications
-    - `updateMessage()`: Edit existing messages (sender only)
-    - `deleteMessage()`: Soft delete messages
-    - `markAsRead()`: Mark messages as read
-    - `pinMessage()`: Pin/unpin messages
-    - `getMentionableContacts()`: Get contacts for mention autocomplete
-    - `linkFilesToMessage()`: Attach files to messages
-    - `getMessageFiles()`: Retrieve files attached to messages
-    - `getContextInfo()`: Get context information for messaging component
+##### PortalMessagingController
+
+**Location**: `force-app/portal/main/default/classes/Portal/PortalMessagingController.cls`
+
+**Overview**: Main Apex controller for all messaging operations. Handles data retrieval, message creation, updates, and security enforcement.
+
+**Sharing Model**: `without sharing` - Allows portal users to create message records while maintaining security through WHERE clause filters.
+
+**Key Methods**:
+
+**`sendMessage()`**
+- **Parameters**: `messageBody`, `recipientType`, `relatedAccountId`, `relatedProjectId`, `relatedTaskId`, `mentionedContactIds`, `isVisibleToClient`, `replyToMessageId`
+- **Returns**: Message ID (String)
+- **Features**:
+  - Auto-creates Contact for Milestone team members if needed
+  - Inherits context from task/project/account (priority: Task > Project > Account)
+  - Inherits context from reply-to message if replying
+  - Validates portal users cannot send internal messages
+  - Sends mention notifications
+
+**`getMessages()`**
+- **Parameters**: `recipientType`, `relatedAccountId`, `relatedProjectId`, `relatedTaskId`, `limitCount`, `offset`, `orderByField`, `orderDirection`, `searchTerm`
+- **Returns**: `List<MessageInfo>`
+- **Features**:
+  - Server-side filtering by recipient type and context
+  - Server-side search with wildcard support
+  - Pagination with OFFSET
+  - Access control via WHERE clause filters
+  - Field-level security enforcement (`WITH SECURITY_ENFORCED`)
+  - Reverse chronological order (newest at bottom)
+
+**`getLatestMessages(limitCount)`**
+- **Returns**: `List<MessageInfo>` - Recent messages for notifications
+- **Cacheable**: Yes
+
+**`updateMessage(messageId, messageBody)`**
+- **Security**: Only sender can edit their own messages
+- **Features**: Updates body, sets `Is_Edited__c`, updates `Last_Edited_Date__c`
+
+**`deleteMessage(messageId)`**
+- **Type**: Soft delete (sets `Deleted__c = true`)
+- **Security**: Only sender can delete their own messages
+
+**`markAsRead(messageId)`**
+- Sets `Is_Read__c = true`
+
+**`pinMessage(messageId, isPinned)`**
+- Sets `Is_Pinned__c` flag
+
+**`getMentionableContacts(searchTerm)`**
+- **Returns**: `List<ContactInfo>` - Contacts available for mentions
+- **Filtering**: Based on user's account (portal users) or portal access enabled (team members)
+- **Limit**: 20 contacts
+
+**`linkFilesToMessage(messageId, contentVersionIds)`**
+- Links ContentVersion records to messages via ContentDocumentLink
+
+**`getMessageFiles(messageId)`**
+- **Returns**: `List<FileInfo>` - Files attached to message
+
+**`getContextInfo(relatedAccountId, relatedProjectId, relatedTaskId)`**
+- **Returns**: `ContextInfo` - Context information for messaging component
+- **Cacheable**: Yes
+
+**Helper Methods**:
+
+**`getOrCreateContactForUser(User user)`**
+- **Private method**: Creates/finds Contact for Milestone team members
+- **Logic**:
+  1. Returns `user.ContactId` if available
+  2. Searches for existing Contact by email
+  3. Creates new Contact if not found
+- **Used by**: All methods that need sender ContactId
+
+**`normalizeOptional(String value)`**
+- Normalizes undefined/blank strings from JavaScript
+- Handles `null`, empty strings, `'undefined'`, `'null'` strings
+
+**Constants**:
+- Field name constants: `FIELD_ID`, `FIELD_ACCOUNT`, `FIELD_PROJECT`, `FIELD_TASK`, etc.
+- Recipient type constants: `RECIPIENT_CLIENT`, `RECIPIENT_TEAM`
+- Query limits: `MAX_MESSAGE_LIMIT` (200), `DEFAULT_MESSAGE_LIMIT` (50), `MAX_CONTACT_SEARCH_LIMIT` (20)
 
 ### Security & Access Control
 
@@ -514,6 +666,24 @@ The messaging component is typically placed on:
 - Account detail pages
 - Home page
 
+**Example Placement**:
+```html
+<!-- On Project Task Detail Page -->
+<c-portal-messaging
+    related-task-id={recordId}>
+</c-portal-messaging>
+
+<!-- On Project Detail Page -->
+<c-portal-messaging
+    related-project-id={recordId}>
+</c-portal-messaging>
+
+<!-- On Account Detail Page -->
+<c-portal-messaging
+    related-account-id={recordId}>
+</c-portal-messaging>
+```
+
 #### In Salesforce Lightning Experience
 The `salesforceMessaging` wrapper component can be placed on:
 - Project Task record pages
@@ -521,46 +691,110 @@ The `salesforceMessaging` wrapper component can be placed on:
 - Account record pages
 - App pages
 
+**Example Placement**:
+```html
+<!-- On Project Task Record Page -->
+<c-salesforce-messaging
+    record-id={recordId}>
+</c-salesforce-messaging>
+```
+
+**Note**: The `recordId` is automatically populated when placed on a Lightning Record Page. You can also explicitly set `related-task-id`, `related-project-id`, or `related-account-id` for context.
+
 ### Configuration
 
 #### Permission Sets
-- `Portal_Messaging`: Permission set for portal users to access messaging functionality
+- **`Portal_Messaging`**: Permission set for portal users to access messaging functionality
   - Location: `force-app/main/default/permissionsets/Portal_Messaging.permissionset-meta.xml`
+  - **Field Permissions**:
+    - Read/Write: `Body__c`, `Account__c`, `Related_Project__c`, `Related_Task__c`, `Mentioned_Contacts__c`, `Is_Read__c`, `Deleted__c`
+    - Read-only: `Is_Edited__c`, `Is_Pinned__c`, `Last_Edited_Date__c`
+  - **Class Access**: `PortalMessagingController`
+  - **Object Access**: `Message__c` (Read, Create, Edit, Delete)
 
 #### Message Channel
-- `MessageUpdate__c`: Lightning Message Service channel for inter-component communication
+- **`MessageUpdate__c`**: Lightning Message Service channel for inter-component communication
   - Location: `force-app/main/default/messageChannels/MessageUpdate.messageChannel-meta.xml`
-  - Used to notify components when messages are created/updated
+  - **Usage**: Notifies components when messages are created/updated/deleted
+  - **Message Format**: `{ type: 'created'|'updated'|'deleted', messageId: String, relatedTaskId: String }`
+  - **Subscribers**: Components can subscribe to receive real-time updates
+
+#### Component Configuration
+
+**portalMessaging Component Properties**:
+- All properties are optional and can be set via component attributes
+- Component automatically detects context from `CurrentPageReference` if properties not set
+- Priority for context: `relatedTaskId` > `relatedProjectId` > `relatedAccountId` > user's account
+
+**Recipient Type Behavior**:
+- **Portal Users**: Always send to "Milestone Team", selector hidden
+- **Milestone Team Members**: Can choose "Client" or "Milestone Team", selector visible
+- **Default**: Portal = "Milestone Team", Salesforce = "Client"
 
 ### Testing
 
 #### Test Coverage
 - **Test Class**: `PortalMessagingControllerTest`
   - Location: `force-app/portal/main/default/classes/Portal/PortalMessagingControllerTest.cls`
-  - Coverage: 70% (target: 80%)
-  - Tests cover:
-    - Message sending with various contexts
-    - Message retrieval with filtering and search
-    - Contact auto-creation for Milestone team members
-    - Pagination and infinite scrolling
-    - Message editing, deletion, pinning
-    - Error handling and validation
+  - **Coverage**: 70% (target: 80%)
+  - **Test Methods** (24 total, 18 passing):
+    - `testGetOrCreateContactForUser_MilestoneTeamMember`: Tests Contact auto-creation
+    - `testSendMessage_MilestoneTeamMember`: Tests message sending
+    - `testSendMessage_WithAllFields`: Tests message with all fields populated
+    - `testSendMessage_WithRelatedProject`: Tests project context inheritance
+    - `testSendMessage_WithRelatedAccount`: Tests account context inheritance
+    - `testSendMessage_WithMentionedContacts`: Tests mention functionality
+    - `testSendMessage_WithReplyTo`: Tests reply functionality
+    - `testSendMessage_NoContextWithAccountId`: Tests fallback to user account
+    - `testSendMessage_WithNullVisibleToClient`: Tests default visibility
+    - `testSendMessage_ReplyToWithProject`: Tests reply inheriting project
+    - `testSendMessage_ReplyToWithAccount`: Tests reply inheriting account
+    - `testSendMessage_InternalMessageError`: Tests portal user cannot send internal messages
+    - `testSendMessage_ValidationErrors`: Tests input validation
+    - `testGetMessages_NoSearchTerm`: Tests basic message retrieval
+    - `testGetMessages_EmptySearchTerm`: Tests empty search handling
+    - `testGetMessages_WithPagination`: Tests pagination
+    - `testGetMessages_WithRecipientType`: Tests recipient type filtering
+    - `testGetMessages_WithRelatedTask`: Tests task context filtering
+    - `testGetMessages_WithSearch`: Tests search functionality (failing - needs fix)
+    - `testGetMessages_WithWildcardSearch`: Tests wildcard search (failing - needs fix)
+    - `testGetMessages_WithPercentWildcard`: Tests % wildcard (failing - needs fix)
+    - `testGetMessages_WithUnderscoreLiteral`: Tests _ literal (failing - needs fix)
+    - `testGetCurrentUserContactId`: Tests Contact ID retrieval
+    - `testIsMilestoneTeamMember`: Tests user type detection
+    - `testGetLatestMessages`: Tests latest messages retrieval
+    - `testGetMentionableContacts`: Tests mentionable contacts (failing - needs fix)
+    - `testMarkAsRead`: Tests mark as read
+    - `testUpdateMessage`: Tests message editing
+    - `testPinMessage`: Tests message pinning
+    - `testDeleteMessage`: Tests message deletion
+    - `testGetContextInfo`: Tests context resolution
+
+**Note**: Some search-related tests are failing and need investigation. Core functionality tests are passing.
 
 ### Code Quality
 
 #### Security
-- ✅ Bind variables for all user inputs
-- ✅ Input validation and normalization
-- ✅ Field-level security enforcement
-- ✅ Access control via WHERE clause filters
-- ✅ Search term escaping for LIKE queries
+- ✅ **Bind Variables**: All user inputs use bind variables (`:currentUserContactId`, `:searchPattern`, etc.)
+- ✅ **Input Validation**: Required field validation, limit validation (max 200), offset validation (non-negative)
+- ✅ **Field-Level Security**: `WITH SECURITY_ENFORCED` used in most queries
+- ✅ **Access Control**: WHERE clause filters ensure users only see their own messages or messages in their recipient bucket
+- ✅ **Search Escaping**: Search terms properly escaped for LIKE queries (`_` and `\` escaped, `%` allowed as wildcard)
+- ✅ **Order Field Validation**: Allowlist prevents injection (`CreatedDate`, `LastEditedDate`, `IsPinned`)
 
 #### Best Practices
-- Constants for field names and limits
-- Helper methods to reduce code duplication
-- Comprehensive error handling
-- Detailed logging for debugging
-- Proper documentation in code comments
+- **Constants**: Field names and query limits defined as constants
+- **Helper Methods**: `getCurrentUserWithContactFields()`, `normalizeOptional()` reduce code duplication
+- **Error Handling**: Try-catch blocks in all public methods with meaningful error messages
+- **Logging**: Debug logging with `LoggingLevel.DEBUG` for development
+- **Documentation**: Comprehensive JSDoc comments on all methods
+- **Code Organization**: Logical method grouping and clear variable naming
+
+#### Code Analysis
+- **Manual Review Completed**: See `CODE_ANALYSIS_REPORT.md` for detailed analysis
+- **Security Rating**: A- (excellent use of bind variables, proper validation)
+- **Code Quality**: B+ (well-structured, minor improvements recommended)
+- **Issues Found**: 1 medium (FLS bypass documented), 3 low (all addressed)
 
 ### Related Files
 
@@ -586,11 +820,129 @@ The `salesforceMessaging` wrapper component can be placed on:
 
 | Symptom | Likely Cause | Resolution |
 | --- | --- | --- |
-| Messages not loading | User doesn't have ContactId (Milestone team member) | System auto-creates Contact, but verify User has Name and Email |
-| Search not working | Search term contains unescaped special characters | System handles escaping automatically, but verify search pattern |
-| Navigation links broken | Context detection failed | Check pathname and page reference type detection logic |
-| Can't edit message | Not the sender | Only message sender can edit their own messages |
-| Internal messages visible to clients | `Visible_To_Client__c` not set correctly | Verify message was sent with `isVisibleToClient = false` by Milestone team member |
+| Messages not loading | User doesn't have ContactId (Milestone team member) | System auto-creates Contact, but verify User has Name and Email. Check debug logs for Contact creation errors. |
+| Search not working | Search term contains unescaped special characters | System handles escaping automatically. Verify search pattern is being passed correctly. Check Apex debug logs for query errors. |
+| Navigation links broken | Context detection failed | Check pathname and page reference type detection logic. Verify `CurrentPageReference` is available. |
+| Can't edit message | Not the sender | Only message sender can edit their own messages. Verify `Sender__c` matches current user's ContactId. |
+| Internal messages visible to clients | `Visible_To_Client__c` not set correctly | Verify message was sent with `isVisibleToClient = false` by Milestone team member. Portal users cannot send internal messages. |
+| Recipient type selector not showing | User is portal user | Portal users can only send to "Milestone Team", so selector is hidden. This is expected behavior. |
+| Infinite scroll not loading more | No more messages available | Check `_hasMoreMessages` flag. Verify messages exist beyond current page. Check Apex logs for query results. |
+| Messages in wrong order | Order direction issue | Messages are displayed newest at bottom (reverse chronological). Scroll to bottom to see newest messages. |
+| Contact mentions not working | No mentionable contacts | Verify contacts have `Portal_Access_Enabled__c = true`. For portal users, contacts must be in same account. |
+| File attachments not showing | ContentDocumentLink not created | Verify `linkFilesToMessage()` was called successfully. Check ContentVersion IDs are valid. |
+| Component not detecting context | Page reference not available | Ensure component is on a Lightning Record Page or explicitly set `related-task-id`, `related-project-id`, or `related-account-id`. |
+
+### Component Implementation Details
+
+#### portalMessaging Component Architecture
+
+**Lifecycle Methods**:
+- `connectedCallback()`: Initializes component, detects context, loads initial messages
+- `renderedCallback()`: Handles scroll position after message load
+- `disconnectedCallback()`: Unsubscribes from message channel
+
+**Wire Services**:
+- `@wire(CurrentPageReference)`: Detects page context and extracts record IDs
+- `@wire(MessageContext)`: Sets up Lightning Message Service context
+
+**State Properties**:
+```javascript
+_messages = [];                    // Loaded messages array
+_currentOffset = 0;                // Pagination offset
+_isLoadingMore = false;            // Loading state
+_hasMoreMessages = true;           // More messages available
+_messagesPerPage = 50;            // Page size
+_searchTimeout = null;            // Debounce timer
+messageSearchTerm = '';            // Current search term
+recipientType = null;              // Recipient type (Client/Team)
+```
+
+**Event Handlers**:
+- `handleScroll(event)`: Detects scroll near top, loads more messages
+- `handleMessageSearchChange(event)`: Debounced search input handler
+- `handleSendMessage()`: Sends new message
+- `handleEditMessage(event)`: Opens edit modal
+- `handleDeleteMessage(event)`: Deletes message
+- `handlePinMessage(event)`: Pins/unpins message
+- `handleNavigateToRecord(event)`: Handles navigation in Salesforce context
+
+**Getters**:
+- `messages`: Returns processed messages with task footer visibility logic
+- `isLoadingMore`: Returns loading state
+- `hasMoreMessages`: Returns whether more messages available
+- `messageCount`: Returns message count
+- `messageCountText`: Returns pluralized "message"/"messages"
+- `isExperienceCloud`: Returns true if in Experience Cloud context
+- `isSalesforceContext`: Returns true if in Salesforce context
+
+**Scroll Management**:
+- `scrollToBottom()`: Scrolls to bottom on initial load
+- `maintainScrollPosition()`: Maintains scroll position when loading older messages
+- Scroll detection: Triggers load when within 200px of top
+
+**Search Implementation**:
+- Debounced input (500ms delay)
+- Server-side search via `getMessages()` with `searchTerm` parameter
+- Wildcard support: `*` → `%`, `%` allowed, `_` escaped
+- Search resets pagination (`_currentOffset = 0`)
+
+#### PortalMessagingController Method Details
+
+**`sendMessage()` Implementation**:
+1. Validates required fields (`messageBody`, `recipientType`)
+2. Gets current user with Contact fields
+3. Gets/creates Contact for user (handles Milestone team members)
+4. Creates message record
+5. Sets context (Task > Project > Account priority)
+6. Handles reply-to message context inheritance
+7. Sets mentioned contacts
+8. Validates portal users cannot send internal messages
+9. Inserts message
+10. Sends mention notifications
+11. Returns message ID
+
+**`getMessages()` Implementation**:
+1. Normalizes input parameters
+2. Gets current user and Contact
+3. Builds access filters (sender OR recipient bucket)
+4. Builds context filter (Task > Project > Account)
+5. Builds search filters (if search term provided)
+6. Assembles WHERE clause
+7. Validates and normalizes limit, offset, order field, order direction
+8. Constructs SOQL query with bind variables
+9. Executes query with `WITH SECURITY_ENFORCED`
+10. Converts to `MessageInfo` objects
+11. Returns message list
+
+**Search Pattern Processing**:
+```apex
+// Convert * to %
+String processedSearch = normalizedSearchTerm.replace('*', '%');
+
+// Escape _ and \ (but NOT %)
+String escapedSearch = processedSearch.replaceAll('([_\\\\])', '\\\\$1');
+
+// Wrap with % if not already present
+if (!escapedSearch.startsWith('%')) {
+    escapedSearch = '%' + escapedSearch;
+}
+if (!escapedSearch.endsWith('%')) {
+    escapedSearch = escapedSearch + '%';
+}
+```
+
+**Access Control Logic**:
+```apex
+// User can see messages they sent
+accessFilters.add('Sender__c = :currentUserContactId');
+
+// OR messages in their recipient bucket
+if (recipientType == 'Client') {
+    accessFilters.add('Recipient_Type__c = :recipientClientValue AND Account__c = :currentUserAccountId');
+} else if (recipientType == 'Milestone Team') {
+    accessFilters.add('Recipient_Type__c = :recipientTeamValue');
+}
+```
 
 ### Future Enhancements
 
@@ -602,4 +954,6 @@ Potential improvements for future releases:
 - Email notifications for mentions
 - Read receipts
 - Message reactions/emojis
+- Rich text formatting toolbar
+- Message export functionality
 
