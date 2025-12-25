@@ -331,6 +331,11 @@ public without sharing class PortalMessagingController {
             Id currentUserContactId = getOrCreateContactForUser(currentUser);
             Id currentUserAccountId = currentUser.AccountId;
             
+            // Validate that we have a ContactId - required for query
+            if (currentUserContactId == null) {
+                throw new AuraHandledException('Unable to retrieve or create Contact for current user. Please contact your administrator.');
+            }
+            
             // Milestone team members (internal Salesforce users) don't have AccountId
             // Portal users (clients) always have AccountId
             Boolean isMilestoneTeamMember = (currentUser.AccountId == null);
@@ -344,6 +349,7 @@ public without sharing class PortalMessagingController {
             String recipientClientValue = RECIPIENT_CLIENT;
             String recipientTeamValue = RECIPIENT_TEAM;
             
+            // Always add sender filter (currentUserContactId is guaranteed to be non-null above)
             accessFilters.add(FIELD_SENDER + ' = :currentUserContactId');
             
             if (recipientType == RECIPIENT_CLIENT) {
@@ -416,7 +422,7 @@ public without sharing class PortalMessagingController {
                 }
             }
             
-            // Assemble WHERE
+            // Assemble WHERE clause - ensure we have at least one valid filter
             List<String> whereParts = new List<String>();
             
             // Clean up any blanks defensively
@@ -426,31 +432,39 @@ public without sharing class PortalMessagingController {
                     cleanedAccessFilters.add(f);
                 }
             }
-            if (!cleanedAccessFilters.isEmpty()) {
-                whereParts.add('(' + String.join(cleanedAccessFilters, ' OR ') + ')');
+            
+            // Ensure we have at least one access filter (should always have sender filter)
+            if (cleanedAccessFilters.isEmpty()) {
+                throw new AuraHandledException('Unable to build query filters. Please contact your administrator.');
             }
             
+            whereParts.add('(' + String.join(cleanedAccessFilters, ' OR ') + ')');
+            
+            // Add context filter if present
             if (String.isNotBlank(contextFilter)) {
                 whereParts.add(contextFilter);
             }
             
-            // Add search filters
+            // Add search filters if present
             for (String search : searchFilters) {
                 if (String.isNotBlank(search)) {
                     whereParts.add(search);
                 }
             }
             
+            // Add base filters
             for (String base : baseFilters) {
                 if (String.isNotBlank(base)) {
                     whereParts.add(base);
                 }
             }
             
+            // Final validation - should never be empty at this point, but check anyway
             if (whereParts.isEmpty()) {
-                return new List<MessageInfo>(); // Nothing to query
+                throw new AuraHandledException('Unable to build valid query. Please contact your administrator.');
             }
             
+            // Build WHERE clause - all parts are guaranteed to be non-blank
             String whereClause = 'WHERE ' + String.join(whereParts, ' AND ');
             
             // Query messages - need to include Related_Task__r.Project__c for project rollup and Reply_To__c for replies
@@ -473,6 +487,7 @@ public without sharing class PortalMessagingController {
             
             // Build query with proper security enforcement
             // Note: Using without sharing class, but WITH SECURITY_ENFORCED ensures field-level security
+            // Declare query variable outside try block so it's accessible in catch block
             String query = 'SELECT Id, Name, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
                          'Recipient_Type__c, Related_Project__c, Related_Project__r.Name, ' +
                          'Related_Task__c, Related_Task__r.Name, Related_Task__r.Project__c, ' +
@@ -581,34 +596,6 @@ public without sharing class PortalMessagingController {
             }
             
             return messageInfos;
-        } catch (QueryException e) {
-            // QueryException often indicates FLS issues
-            String errorMsg = e.getMessage();
-            String detailedMsg = 'QueryException: ' + e.getTypeName() + ' - ' + errorMsg;
-            
-            // Always log detailed error information for debugging
-            System.debug(LoggingLevel.ERROR, '=== FLS Error in getMessages ===');
-            System.debug(LoggingLevel.ERROR, 'Error message: ' + errorMsg);
-            System.debug(LoggingLevel.ERROR, 'Query that failed: ' + query);
-            System.debug(LoggingLevel.ERROR, 'User ID: ' + UserInfo.getUserId());
-            System.debug(LoggingLevel.ERROR, 'Profile ID: ' + UserInfo.getProfileId());
-            System.debug(LoggingLevel.ERROR, 'Stack trace: ' + e.getStackTraceString());
-            
-            // Check if it's an FLS error
-            if (errorMsg.contains('inaccessible field') || errorMsg.contains('secure query')) {
-                // Provide detailed FLS error message with all fields that need permission
-                errorMsg = 'Field-level security error: The portal user does not have read access to one or more Message__c fields. ';
-                errorMsg += 'Please check the Portal_Messaging permission set and ensure the following fields have Read access: ';
-                errorMsg += 'Body__c, Sender__c, Sender__r.Name, Sender__r.Email, Recipient_Type__c, ';
-                errorMsg += 'Related_Project__c, Related_Project__r.Name, Related_Task__c, Related_Task__r.Name, ';
-                errorMsg += 'Mentioned_Contacts__c, Is_Read__c, Deleted__c, Visible_To_Client__c, Is_Edited__c, ';
-                errorMsg += 'Last_Edited_Date__c, CreatedDate, CreatedBy.Name, Account__c, Account__r.Name, ';
-                errorMsg += 'Reply_To__c, Reply_To__r.Id, Reply_To__r.Body__c, Reply_To__r.Sender__r.Name, ';
-                errorMsg += 'Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, Is_Pinned__c. ';
-                errorMsg += 'Original error: ' + e.getMessage();
-            }
-            
-            throw new AuraHandledException(errorMsg);
         } catch (Exception e) {
             // Provide more detailed error for debugging
             String errorMsg = e.getMessage();
