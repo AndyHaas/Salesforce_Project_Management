@@ -621,7 +621,9 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
                 projectLinkIsSalesforce: projectLink && projectLink.type === 'standard__recordPage',
                 // JSON strings for navigation data
                 taskNavData: taskNavData,
-                projectNavData: projectNavData
+                projectNavData: projectNavData,
+                // Hide task footer if we're already on that task's page
+                showTaskFooter: !(this.relatedTaskId && msg.relatedTaskId && this.relatedTaskId === msg.relatedTaskId)
             };
         });
     }

@@ -318,7 +318,8 @@
 
                                     <template if:true={message.relatedTaskName}>
                                         <template if:true={showTaskContext}>
-                                            <div class="message-related">
+                                            <template if:true={message.showTaskFooter}>
+                                                <div class="message-related">
                                                 <lightning-icon icon-name="utility:task" size="xx-small">
                                                 </lightning-icon>
                                                 <template if:true={message.taskLink}>
@@ -345,7 +346,8 @@
                                                         Task: {message.relatedTaskName}
                                                     </span>
                                                 </template>
-                                            </div>
+                                                </div>
+                                            </template>
                                         </template>
                                     </template>
                                 </div>
