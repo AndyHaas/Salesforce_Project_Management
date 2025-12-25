@@ -15,6 +15,11 @@ public without sharing class PortalMessagingController {
     private static final String FIELD_SENDER = 'Sender__c';
     private static final String RECIPIENT_CLIENT = 'Client';
     private static final String RECIPIENT_TEAM = 'Milestone Team';
+    
+    // Query limits
+    private static final Integer MAX_MESSAGE_LIMIT = 200;
+    private static final Integer DEFAULT_MESSAGE_LIMIT = 50;
+    private static final Integer MAX_CONTACT_SEARCH_LIMIT = 20;
 
     // Normalize potentially undefined/blank strings coming from JS
     private static String normalizeOptional(String value) {
@@ -23,6 +28,19 @@ public without sharing class PortalMessagingController {
         }
         String trimmed = value.trim();
         return (trimmed == '' || trimmed.equalsIgnoreCase('undefined') || trimmed.equalsIgnoreCase('null')) ? null : trimmed;
+    }
+    
+    /**
+     * @description Get current user with Contact fields needed for messaging
+     * @return User record with Id, ContactId, AccountId, Name, Email
+     */
+    private static User getCurrentUserWithContactFields() {
+        return [
+            SELECT Id, ContactId, AccountId, Name, Email
+            FROM User
+            WHERE Id = :UserInfo.getUserId()
+            LIMIT 1
+        ];
     }
 
     
@@ -59,12 +77,7 @@ public without sharing class PortalMessagingController {
         
         try {
             // Get current user
-            User currentUser = [
-                SELECT Id, ContactId, AccountId, Name, Email
-                FROM User
-                WHERE Id = :UserInfo.getUserId()
-                LIMIT 1
-            ];
+            User currentUser = getCurrentUserWithContactFields();
             
             // Get or create Contact for the user (Sender__c field requires Contact, not User)
             // Milestone team members don't have ContactId, so we create/find one
@@ -312,12 +325,7 @@ public without sharing class PortalMessagingController {
             relatedTaskId = normalizeOptional(relatedTaskId);
             
             // Get current user (need Name and Email for Contact creation if needed)
-            User currentUser = [
-                SELECT Id, ContactId, AccountId, Name, Email
-                FROM User
-                WHERE Id = :UserInfo.getUserId()
-                LIMIT 1
-            ];
+            User currentUser = getCurrentUserWithContactFields();
             
             // Get or create Contact for the user (Sender__c field requires Contact)
             Id currentUserContactId = getOrCreateContactForUser(currentUser);
@@ -387,7 +395,8 @@ public without sharing class PortalMessagingController {
                     
                     // Escape _ and \ (but NOT % - we allow % as wildcard)
                     // _ is treated as literal character
-                    // Use String.escapeSingleQuotes for safety, then escape special LIKE characters
+                    // Note: Bind variables provide SQL injection protection, so escapeSingleQuotes not needed
+                    // We only escape LIKE special characters (_ and \) to treat them as literals
                     String escapedSearch = processedSearch.replaceAll('([_\\\\])', '\\\\$1');
                     
                     // Build search pattern - only wrap with % if not already present at start/end
@@ -449,7 +458,7 @@ public without sharing class PortalMessagingController {
             // For reverse chronological (newest at bottom), we need to:
             // 1. Order by CreatedDate ASC (oldest first) so newest are at the end
             // 2. Use offset from the end (total count - offset - limit)
-            Integer normalizedLimit = (limitCount != null && limitCount > 0 && limitCount <= 200) ? limitCount : 50;
+            Integer normalizedLimit = (limitCount != null && limitCount > 0 && limitCount <= MAX_MESSAGE_LIMIT) ? limitCount : DEFAULT_MESSAGE_LIMIT;
             Integer normalizedOffset = (offset != null && offset >= 0) ? offset : 0;
             // Default to ASC for reverse chronological (newest at bottom)
             String normalizedOrderDirection = (orderDirection != null && orderDirection.toUpperCase() == 'DESC') ? 'DESC' : 'ASC';
@@ -706,7 +715,7 @@ public without sharing class PortalMessagingController {
                     query += ' AND (Name LIKE :searchLike ESCAPE \'\\\\\' OR Email LIKE :searchLike ESCAPE \'\\\\\')';
                 }
                 
-                query += ' WITH SECURITY_ENFORCED ORDER BY Name LIMIT 20';
+                query += ' WITH SECURITY_ENFORCED ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
                 
                 Id currentUserAccountId = currentUser.AccountId;
                 contacts = Database.query(query);
@@ -720,7 +729,7 @@ public without sharing class PortalMessagingController {
                     query += ' AND (Name LIKE :searchLike ESCAPE \'\\\\\' OR Email LIKE :searchLike ESCAPE \'\\\\\')';
                 }
                 
-                query += ' WITH SECURITY_ENFORCED ORDER BY Name LIMIT 20';
+                query += ' WITH SECURITY_ENFORCED ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
                 
                 contacts = Database.query(query);
             }
@@ -795,7 +804,10 @@ public without sharing class PortalMessagingController {
             // Get or create Contact for the user (Sender__c field requires Contact)
             Id currentUserContactId = getOrCreateContactForUser(currentUser);
             
-            // Get message and verify sender (no WITH SECURITY_ENFORCED to allow portal edits)
+            // Get message and verify sender
+            // NOTE: FLS bypassed here to allow portal users to edit their own messages.
+            // Security is enforced via sender verification (line 798) - users can only edit messages they sent.
+            // Field-level security would prevent portal users from updating messages even if they are the sender.
             Message__c message = [
                 SELECT Id, Sender__c, Body__c, Is_Edited__c, Deleted__c
                 FROM Message__c
