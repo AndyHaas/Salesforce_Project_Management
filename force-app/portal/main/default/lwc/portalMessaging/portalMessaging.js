@@ -272,10 +272,13 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             
             if (append) {
                 // Prepend older messages to the beginning (for reverse chronological)
+                // Server returns oldest first (ASC), so prepend to show older messages at top
                 this._messages = [...newMessages, ...this._messages];
             } else {
-                // Replace messages (initial load or refresh) - reverse to show newest at bottom
-                this._messages = newMessages.reverse();
+                // Replace messages (initial load or refresh)
+                // Server returns oldest first (ASC order), so we keep them as-is
+                // Oldest messages at top, newest messages at bottom
+                this._messages = newMessages;
             }
             
             // Check if there are more messages to load
@@ -288,8 +291,13 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             // Mark unread messages as read (only on initial load)
             if (!append) {
                 this.markUnreadMessagesAsRead();
-                // Scroll to bottom after initial load (newest messages)
-                this.scrollToBottom();
+                // Scroll to bottom after initial load (newest messages at bottom)
+                // Use requestAnimationFrame to ensure DOM has updated
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        this.scrollToBottom();
+                    }, 50);
+                });
             } else {
                 // When loading older messages, maintain scroll position
                 this.maintainScrollPosition();
@@ -364,13 +372,22 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
      * @description Scroll to bottom (newest messages)
      */
     scrollToBottom() {
-        // Use setTimeout to ensure DOM is updated
-        setTimeout(() => {
-            const messagesList = this.template.querySelector('.messages-list');
-            if (messagesList) {
-                messagesList.scrollTop = messagesList.scrollHeight;
-            }
-        }, 100);
+        // Use requestAnimationFrame and setTimeout to ensure DOM is fully updated
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                const messagesList = this.template.querySelector('.messages-list');
+                if (messagesList) {
+                    // Scroll to the very bottom to show newest messages
+                    messagesList.scrollTop = messagesList.scrollHeight;
+                    // Double-check after a brief delay to handle any async rendering
+                    setTimeout(() => {
+                        if (messagesList) {
+                            messagesList.scrollTop = messagesList.scrollHeight;
+                        }
+                    }, 50);
+                }
+            }, 50);
+        });
     }
     
     /**
@@ -1184,9 +1201,20 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             // Publish message update first to notify other components
             this.publishMessageUpdate('sent');
             
-            // Reload messages after sending
+            // Reload messages after sending - reset to show newest at bottom
             console.log('Reloading messages after send...');
-            await this.loadMessages();
+            this._currentOffset = 0;
+            this._hasMoreMessages = true;
+            await this.loadMessages(false);
+            
+            // Wait for DOM to update, then scroll to bottom to show the newly sent message
+            // Use requestAnimationFrame to ensure DOM has updated
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    this.scrollToBottom();
+                }, 50);
+            });
+            
             console.log('Messages reloaded');
             
             this.dispatchEvent(
