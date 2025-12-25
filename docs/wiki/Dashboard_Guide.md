@@ -389,7 +389,7 @@ Significant UI/UX updates have been made to the Experience Cloud portal:
 - **Routes**: Configured routes for login, home, account, and project task pages
 - **Static Resources**: `MilestoneTheme.css` for portal styling
 
-See `force-app/portal/README.md` for detailed portal setup instructions.
+See **[Portal Package Info](Portal_Package_Info.md)** for comprehensive package documentation and `force-app/portal/README.md` for quick reference.
 
 ## Portal Messaging System
 
