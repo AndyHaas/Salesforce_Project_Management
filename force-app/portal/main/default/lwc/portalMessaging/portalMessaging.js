@@ -79,6 +79,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     _isLoadingMore = false;
     _hasMoreMessages = true;
     _messagesPerPage = 50;
+    _searchTimeout = null;
     
     get showHeaderEnabled() {
         return true;

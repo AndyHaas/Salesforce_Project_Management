@@ -378,9 +378,22 @@ public without sharing class PortalMessagingController {
             if (String.isNotBlank(searchTerm)) {
                 String normalizedSearchTerm = normalizeOptional(searchTerm);
                 if (String.isNotBlank(normalizedSearchTerm)) {
-                    // Escape LIKE wildcards to prevent injection
-                    String escapedSearch = normalizedSearchTerm.replaceAll('([%_\\\\])', '\\\\$1');
-                    searchPattern = '%' + escapedSearch + '%';
+                    // Convert * to % (wildcard support)
+                    String processedSearch = normalizedSearchTerm.replace('*', '%');
+                    
+                    // Escape _ and \ (but NOT % - we allow % as wildcard)
+                    // _ is treated as literal character
+                    String escapedSearch = processedSearch.replaceAll('([_\\\\])', '\\\\$1');
+                    
+                    // Build search pattern - only wrap with % if not already present at start/end
+                    if (!escapedSearch.startsWith('%')) {
+                        escapedSearch = '%' + escapedSearch;
+                    }
+                    if (!escapedSearch.endsWith('%')) {
+                        escapedSearch = escapedSearch + '%';
+                    }
+                    
+                    searchPattern = escapedSearch;
                     // Search in Body__c and Sender__r.Name
                     searchFilters.add('(Body__c LIKE :searchPattern OR Sender__r.Name LIKE :searchPattern)');
                 }
