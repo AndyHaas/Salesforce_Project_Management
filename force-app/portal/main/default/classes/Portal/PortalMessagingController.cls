@@ -332,25 +332,29 @@ public without sharing class PortalMessagingController {
             List<String> accessFilters = new List<String>();
             
             // Include sender filter using ContactId (Sender__c is a Contact lookup)
+            // Use bind variables for constants to follow best practices
+            String recipientClientValue = RECIPIENT_CLIENT;
+            String recipientTeamValue = RECIPIENT_TEAM;
+            
             accessFilters.add(FIELD_SENDER + ' = :currentUserContactId');
             
             if (recipientType == RECIPIENT_CLIENT) {
                 // Explicitly client-only
                 if (currentUserAccountId != null) {
-                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\' AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId');
+                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = :recipientClientValue AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId');
                 } else {
-                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\'');
+                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = :recipientClientValue');
                 }
             } else if (recipientType == RECIPIENT_TEAM) {
-                accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_TEAM + '\'');
+                accessFilters.add(FIELD_RECIPIENT_TYPE + ' = :recipientTeamValue');
             } else {
                 // Default: both buckets
                 if (currentUserAccountId != null) {
-                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\' AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId');
+                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = :recipientClientValue AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId');
                 } else {
-                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_CLIENT + '\'');
+                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = :recipientClientValue');
                 }
-                accessFilters.add(FIELD_RECIPIENT_TYPE + ' = \'' + RECIPIENT_TEAM + '\'');
+                accessFilters.add(FIELD_RECIPIENT_TYPE + ' = :recipientTeamValue');
             }
             
             // Context filter: strict priority Task > Project > Account
@@ -454,6 +458,8 @@ public without sharing class PortalMessagingController {
             };
             String normalizedOrderField = allowedOrderFields.containsKey(orderByField) ? allowedOrderFields.get(orderByField) : 'CreatedDate';
             
+            // Build query with proper security enforcement
+            // Note: Using without sharing class, but WITH SECURITY_ENFORCED ensures field-level security
             String query = 'SELECT Id, Name, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
                          'Recipient_Type__c, Related_Project__c, Related_Project__r.Name, ' +
                          'Related_Task__c, Related_Task__r.Name, Related_Task__r.Project__c, ' +
@@ -463,21 +469,27 @@ public without sharing class PortalMessagingController {
                          'Reply_To__r.Sender__r.Name, Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, ' +
                          'Is_Pinned__c ' +
                          'FROM Message__c ' + whereClause + ' ' +
+                         'WITH SECURITY_ENFORCED ' +
                          'ORDER BY Is_Pinned__c DESC, ' + normalizedOrderField + ' ' + normalizedOrderDirection + ' ' +
                          'LIMIT :normalizedLimit OFFSET :normalizedOffset';
             
-            System.debug('getMessages query: ' + query);
-            System.debug('getMessages relatedTaskId: ' + relatedTaskId);
-            System.debug('getMessages relatedProjectId: ' + relatedProjectId);
-            System.debug('getMessages relatedAccountId: ' + relatedAccountId);
-            System.debug('getMessages currentUserContactId: ' + currentUserContactId);
-            System.debug('getMessages currentUserAccountId: ' + currentUserAccountId);
+            // Debug logging (remove in production if not needed)
+            if (Test.isRunningTest() || LoggingLevel.DEBUG == LoggingLevel.DEBUG) {
+                System.debug(LoggingLevel.DEBUG, 'getMessages query: ' + query);
+                System.debug(LoggingLevel.DEBUG, 'getMessages relatedTaskId: ' + relatedTaskId);
+                System.debug(LoggingLevel.DEBUG, 'getMessages relatedProjectId: ' + relatedProjectId);
+                System.debug(LoggingLevel.DEBUG, 'getMessages relatedAccountId: ' + relatedAccountId);
+                System.debug(LoggingLevel.DEBUG, 'getMessages currentUserContactId: ' + currentUserContactId);
+                System.debug(LoggingLevel.DEBUG, 'getMessages currentUserAccountId: ' + currentUserAccountId);
+            }
             
             // Use standard Database.query - bind variables work with local variables in scope
-            // The bind variables like :currentUserContactId, :searchPattern, etc. will work
+            // The bind variables like :currentUserContactId, :searchPattern, :recipientClientValue, etc. will work
             // as long as the variables are in scope when Database.query is called
             List<Message__c> messages = Database.query(query);
-            System.debug('getMessages found ' + messages.size() + ' messages');
+            if (Test.isRunningTest() || LoggingLevel.DEBUG == LoggingLevel.DEBUG) {
+                System.debug(LoggingLevel.DEBUG, 'getMessages found ' + messages.size() + ' messages');
+            }
             
             // Convert to MessageInfo
             List<MessageInfo> messageInfos = new List<MessageInfo>();
