@@ -655,4 +655,276 @@ private class PortalMessagingControllerTest {
         }
         Test.stopTest();
     }
+    
+    @isTest
+    static void testSendMessage_WithRelatedProject() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        
+        Test.startTest();
+        {
+            // Test sending message with relatedProjectId (but no relatedTaskId)
+            String messageId = PortalMessagingController.sendMessage(
+                'Test message with project',
+                'Client',
+                null, // relatedAccountId
+                testProject.Id, // relatedProjectId
+                null, // relatedTaskId
+                null,
+                true,
+                null
+            );
+            
+            System.assertNotEquals(null, messageId, 'Message should be created');
+            
+            // Verify message has project and account set
+            Message__c message = [
+                SELECT Id, Related_Project__c, Account__c
+                FROM Message__c 
+                WHERE Id = :messageId
+            ];
+            
+            System.assertEquals(testProject.Id, message.Related_Project__c, 'Message should have project set');
+            System.assertEquals(testAccount.Id, message.Account__c, 'Message should have account from project');
+        }
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void testSendMessage_WithRelatedAccount() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        Test.startTest();
+        {
+            // Test sending message with relatedAccountId only
+            String messageId = PortalMessagingController.sendMessage(
+                'Test message with account',
+                'Client',
+                testAccount.Id, // relatedAccountId
+                null, // relatedProjectId
+                null, // relatedTaskId
+                null,
+                true,
+                null
+            );
+            
+            System.assertNotEquals(null, messageId, 'Message should be created');
+            
+            // Verify message has account set
+            Message__c message = [
+                SELECT Id, Account__c
+                FROM Message__c 
+                WHERE Id = :messageId
+            ];
+            
+            System.assertEquals(testAccount.Id, message.Account__c, 'Message should have account set');
+        }
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void testSendMessage_WithMentionedContacts() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        Project_Task__c testTask = [SELECT Id FROM Project_Task__c LIMIT 1];
+        
+        // Get a contact to mention
+        Contact testContact = [SELECT Id FROM Contact LIMIT 1];
+        
+        Test.startTest();
+        {
+            // Test sending message with mentioned contacts
+            String messageId = PortalMessagingController.sendMessage(
+                'Test message with @mention',
+                'Client',
+                testAccount.Id,
+                testProject.Id,
+                testTask.Id,
+                new List<String>{ testContact.Id }, // mentionedContactIds
+                true,
+                null
+            );
+            
+            System.assertNotEquals(null, messageId, 'Message should be created');
+            
+            // Verify message has mentioned contacts
+            Message__c message = [
+                SELECT Id, Mentioned_Contacts__c
+                FROM Message__c 
+                WHERE Id = :messageId
+            ];
+            
+            System.assert(String.isNotBlank(message.Mentioned_Contacts__c), 'Message should have mentioned contacts');
+            System.assert(message.Mentioned_Contacts__c.contains(testContact.Id), 'Message should contain mentioned contact ID');
+        }
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void testSendMessage_WithReplyTo() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        Project_Task__c testTask = [SELECT Id FROM Project_Task__c LIMIT 1];
+        
+        // Create a message to reply to
+        User currentUser = [SELECT Id, ContactId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+        Id currentUserContactId;
+        if (currentUser.ContactId != null) {
+            currentUserContactId = currentUser.ContactId;
+        } else {
+            List<Contact> contacts = [SELECT Id FROM Contact WHERE Email = :currentUser.Email LIMIT 1];
+            if (!contacts.isEmpty()) {
+                currentUserContactId = contacts[0].Id;
+            }
+        }
+        
+        if (currentUserContactId == null) {
+            return; // Can't test without Contact
+        }
+        
+        Message__c originalMessage = new Message__c(
+            Body__c = 'Original message',
+            Sender__c = currentUserContactId,
+            Recipient_Type__c = 'Client',
+            Related_Task__c = testTask.Id,
+            Related_Project__c = testProject.Id,
+            Account__c = testAccount.Id,
+            Is_Read__c = false,
+            Visible_To_Client__c = true,
+            Deleted__c = false
+        );
+        insert originalMessage;
+        
+        Test.startTest();
+        {
+            // Test sending message as reply
+            String replyMessageId = PortalMessagingController.sendMessage(
+                'Reply message',
+                'Client',
+                null, // relatedAccountId - should inherit from original
+                null, // relatedProjectId - should inherit from original
+                null, // relatedTaskId - should inherit from original
+                null,
+                true,
+                originalMessage.Id // replyToMessageId
+            );
+            
+            System.assertNotEquals(null, replyMessageId, 'Reply message should be created');
+            
+            // Verify reply message has correct relationships
+            Message__c replyMessage = [
+                SELECT Id, Reply_To__c, Related_Task__c, Related_Project__c, Account__c, Recipient_Type__c
+                FROM Message__c 
+                WHERE Id = :replyMessageId
+            ];
+            
+            System.assertEquals(originalMessage.Id, replyMessage.Reply_To__c, 'Reply should reference original message');
+            System.assertEquals(testTask.Id, replyMessage.Related_Task__c, 'Reply should inherit task from original');
+            System.assertEquals(testProject.Id, replyMessage.Related_Project__c, 'Reply should inherit project from original');
+            System.assertEquals(testAccount.Id, replyMessage.Account__c, 'Reply should inherit account from original');
+        }
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void testSendMessage_InternalMessageError() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        User currentUser = [SELECT Id, AccountId FROM User WHERE Id = :UserInfo.getUserId()];
+        
+        // Only test if user has AccountId (portal user)
+        if (currentUser.AccountId == null) {
+            return; // Skip for Milestone team members
+        }
+        
+        Test.startTest();
+        {
+            // Test that portal users cannot send internal messages
+            try {
+                PortalMessagingController.sendMessage(
+                    'Test internal message',
+                    'Milestone Team',
+                    testAccount.Id,
+                    null,
+                    null,
+                    null,
+                    false, // isVisibleToClient = false (internal message)
+                    null
+                );
+                System.assert(false, 'Should have thrown exception for internal message from portal user');
+            } catch (AuraHandledException e) {
+                System.assert(e.getMessage().contains('internal') || e.getMessage().contains('Milestone'), 
+                    'Should return error about internal messages');
+            }
+        }
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void testDeleteMessage() {
+        // Get a message that current user sent
+        User currentUser = [SELECT Id, ContactId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+        Id currentUserContactId;
+        if (currentUser.ContactId != null) {
+            currentUserContactId = currentUser.ContactId;
+        } else {
+            List<Contact> contacts = [SELECT Id FROM Contact WHERE Email = :currentUser.Email LIMIT 1];
+            if (!contacts.isEmpty()) {
+                currentUserContactId = contacts[0].Id;
+            }
+        }
+        
+        if (currentUserContactId == null) {
+            return; // Can't test without Contact
+        }
+        
+        List<Message__c> messages = [
+            SELECT Id FROM Message__c 
+            WHERE Sender__c = :currentUserContactId 
+            LIMIT 1
+        ];
+        
+        if (messages.isEmpty()) {
+            return; // No messages to test
+        }
+        
+        Test.startTest();
+        PortalMessagingController.deleteMessage(messages[0].Id);
+        Test.stopTest();
+        
+        // Verify message is marked as deleted
+        Message__c deletedMessage = [SELECT Id, Deleted__c FROM Message__c WHERE Id = :messages[0].Id];
+        System.assertEquals(true, deletedMessage.Deleted__c, 'Message should be marked as deleted');
+    }
+    
+    @isTest
+    static void testGetContextInfo() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        Project_Task__c testTask = [SELECT Id FROM Project_Task__c LIMIT 1];
+        
+        Test.startTest();
+        {
+            // Test with task ID (recordId only, no recordType parameter)
+            PortalMessagingController.ContextInfo taskContext = PortalMessagingController.getContextInfo(
+                testTask.Id // recordId
+            );
+            
+            System.assert(taskContext != null, 'Should return context info for task');
+            
+            // Test with project ID
+            PortalMessagingController.ContextInfo projectContext = PortalMessagingController.getContextInfo(
+                testProject.Id // recordId
+            );
+            
+            System.assert(projectContext != null, 'Should return context info for project');
+            
+            // Test with account ID
+            PortalMessagingController.ContextInfo accountContext = PortalMessagingController.getContextInfo(
+                testAccount.Id // recordId
+            );
+            
+            System.assert(accountContext != null, 'Should return context info for account');
+        }
+        Test.stopTest();
+    }
 }
