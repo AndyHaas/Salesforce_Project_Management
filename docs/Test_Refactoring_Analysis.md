@@ -28,10 +28,16 @@ TaskSubtaskHelper.populateSubtaskUsers(new List<Project_Task__c>());
 
 ### Why Coverage Is Still Low
 
-1. **Helper methods have complex logic** that requires specific data setups
-2. **Some code paths require specific conditions** that tests aren't creating
+1. **Tests use DML → Trigger → Helper** which requires complex data setups
+2. **Some code paths require specific conditions** that are hard to create through DML
 3. **Error handling paths** may not be tested
 4. **Null/empty checks** may not be fully exercised
+
+**Better Approach**: Test helpers **directly** (unit tests) instead of through DML. This allows:
+- Simpler data setup (only what the helper needs)
+- Easier edge case testing
+- Better code coverage
+- Faster test execution
 
 ## Recommendations
 
