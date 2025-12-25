@@ -75,6 +75,10 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     @track messageSearchTerm = '';
     @track showMessageSearch = false;
     _uploadedFileIds = [];
+    _currentOffset = 0;
+    _isLoadingMore = false;
+    _hasMoreMessages = true;
+    _messagesPerPage = 50;
     
     get showHeaderEnabled() {
         return true;
@@ -215,12 +219,31 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
      * NOTE: For Milestone team members, we pass null for recipientType to see ALL messages
      * (both Client and Milestone Team). The recipientType is only used when SENDING messages
      * to specify who the message is sent TO, not when LOADING messages.
+     * 
+     * @param {Boolean} append - If true, append to existing messages (for infinite scroll). If false, replace.
      */
-    async loadMessages() {
+    async loadMessages(append = false) {
+        if (this._isLoadingMore) {
+            return; // Prevent concurrent loads
+        }
+        
         try {
             // For Milestone team members, pass null to see all messages (both Client and Milestone Team)
             // For portal users, use the recipientType (which is always 'Milestone Team')
             const recipientTypeForQuery = this._isMilestoneTeamMember ? null : this.recipientType;
+            
+            // Reset offset if not appending (initial load or refresh)
+            if (!append) {
+                this._currentOffset = 0;
+                this._hasMoreMessages = true;
+            }
+            
+            // Don't load if we've reached the end
+            if (append && !this._hasMoreMessages) {
+                return;
+            }
+            
+            this._isLoadingMore = true;
             
             console.log('Loading messages with params:', JSON.stringify({
                 recipientType: recipientTypeForQuery,
@@ -228,25 +251,75 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
                 isMilestoneTeamMember: this._isMilestoneTeamMember,
                 relatedAccountId: this.relatedAccountId,
                 relatedProjectId: this.relatedProjectId,
-                relatedTaskId: this.relatedTaskId
+                relatedTaskId: this.relatedTaskId,
+                offset: this._currentOffset,
+                limit: this._messagesPerPage,
+                append: append
             }, null, 2));
             
             const data = await getMessages({
                 recipientType: recipientTypeForQuery,
                 relatedAccountId: this.relatedAccountId,
                 relatedProjectId: this.relatedProjectId,
-                relatedTaskId: this.relatedTaskId
+                relatedTaskId: this.relatedTaskId,
+                limitCount: this._messagesPerPage,
+                offset: this._currentOffset
             });
             
-            this._messages = data || [];
+            const newMessages = data || [];
+            
+            if (append) {
+                // Append new messages to existing ones
+                this._messages = [...this._messages, ...newMessages];
+            } else {
+                // Replace messages (initial load or refresh)
+                this._messages = newMessages;
+            }
+            
+            // Check if there are more messages to load
+            this._hasMoreMessages = newMessages.length === this._messagesPerPage;
+            this._currentOffset += newMessages.length;
+            
             this._messagesError = null;
-            console.log('Messages loaded:', this._messages.length);
-            // Mark unread messages as read
-            this.markUnreadMessagesAsRead();
+            console.log('Messages loaded:', newMessages.length, 'Total:', this._messages.length, 'Has more:', this._hasMoreMessages);
+            
+            // Mark unread messages as read (only on initial load)
+            if (!append) {
+                this.markUnreadMessagesAsRead();
+            }
         } catch (error) {
             console.error('Error loading messages:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
-            this._messages = [];
+            if (!append) {
+                this._messages = [];
+            }
             this._messagesError = error;
+        } finally {
+            this._isLoadingMore = false;
+        }
+    }
+    
+    /**
+     * @description Load more messages (for infinite scroll)
+     */
+    async loadMoreMessages() {
+        await this.loadMessages(true);
+    }
+    
+    /**
+     * @description Handle scroll event to trigger infinite scroll
+     */
+    handleScroll(event) {
+        const container = event.currentTarget;
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const clientHeight = container.clientHeight;
+        
+        // Load more when user scrolls within 200px of bottom
+        const threshold = 200;
+        if (scrollHeight - scrollTop - clientHeight < threshold) {
+            if (this._hasMoreMessages && !this._isLoadingMore) {
+                this.loadMoreMessages();
+            }
         }
     }
     
@@ -541,8 +614,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
              !this.relatedAccountId && !this.relatedProjectId && !this.relatedTaskId);
         
         if (isRelevant) {
-            // Refresh messages
-            await this.loadMessages();
+            // Refresh messages (reset to beginning)
+            await this.loadMessages(false);
         }
     }
     
@@ -750,6 +823,14 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     /**
      * @description Check if has filtered messages (after search)
      */
+    get isLoadingMore() {
+        return this._isLoadingMore;
+    }
+    
+    get hasMoreMessages() {
+        return this._hasMoreMessages;
+    }
+    
     get hasFilteredMessages() {
         const filtered = this.messages;
         return filtered && filtered.length > 0;

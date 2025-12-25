@@ -58,7 +58,7 @@
                 </template>
                 
                 <!-- Messages List -->
-                <div class="messages-list">
+                <div class="messages-list" onscroll={handleScroll}>
                     <template if:true={hasMessages}>
                         <template if:true={hasFilteredMessages}>
                             <template for:each={messages} for:item="message">
@@ -352,8 +352,25 @@
                                     </template>
                                 </div>
                             </template>
+                            
+                            <!-- Loading indicator for infinite scroll -->
+                            <template if:true={isLoadingMore}>
+                                <div class="slds-align_absolute-center slds-p-around_medium">
+                                    <lightning-spinner alternative-text="Loading more messages" size="small"></lightning-spinner>
+                                    <span class="slds-m-left_small slds-text-body_small slds-text-color_weak">Loading more messages...</span>
+                                </div>
+                            </template>
+                            
+                            <!-- End of messages indicator -->
+                            <template if:false={hasMoreMessages}>
+                                <template if:true={hasFilteredMessages}>
+                                    <div class="slds-align_absolute-center slds-p-around_medium">
+                                        <span class="slds-text-body_small slds-text-color_weak">No more messages to load</span>
+                                    </div>
+                                </template>
+                            </template>
                         </template>
-
+                        
                         <template if:false={hasFilteredMessages}>
                             <div class="slds-text-align_center slds-p-around_medium">
                                 <lightning-icon 

@@ -299,6 +299,7 @@ public without sharing class PortalMessagingController {
         String relatedProjectId,
         String relatedTaskId,
         Integer limitCount,
+        Integer offset,
         String orderByField,
         String orderDirection
     ) {
@@ -400,8 +401,9 @@ public without sharing class PortalMessagingController {
             String whereClause = 'WHERE ' + String.join(whereParts, ' AND ');
             
             // Query messages - need to include Related_Task__r.Project__c for project rollup and Reply_To__c for replies
-            // Normalize limit and ordering inputs
-            Integer normalizedLimit = (limitCount != null && limitCount > 0 && limitCount <= 200) ? limitCount : 100;
+            // Normalize limit, offset, and ordering inputs
+            Integer normalizedLimit = (limitCount != null && limitCount > 0 && limitCount <= 200) ? limitCount : 50;
+            Integer normalizedOffset = (offset != null && offset >= 0) ? offset : 0;
             String normalizedOrderDirection = (orderDirection != null && orderDirection.toUpperCase() == 'ASC') ? 'ASC' : 'DESC';
             
             // Only allow a small, known-safe set of fields for ordering to avoid injection
@@ -422,7 +424,7 @@ public without sharing class PortalMessagingController {
                          'Is_Pinned__c ' +
                          'FROM Message__c ' + whereClause + ' ' +
                          'ORDER BY Is_Pinned__c DESC, ' + normalizedOrderField + ' ' + normalizedOrderDirection + ' ' +
-                         'LIMIT :normalizedLimit';
+                         'LIMIT :normalizedLimit OFFSET :normalizedOffset';
             
             System.debug('getMessages query: ' + query);
             System.debug('getMessages relatedTaskId: ' + relatedTaskId);
