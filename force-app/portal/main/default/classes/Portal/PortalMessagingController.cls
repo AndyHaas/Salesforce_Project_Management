@@ -362,12 +362,14 @@ public without sharing class PortalMessagingController {
             } else if (recipientType == RECIPIENT_TEAM) {
                 accessFilters.add(FIELD_RECIPIENT_TYPE + ' = :recipientTeamValue');
             } else {
-                // Default: both buckets
+                // Default: both buckets (when recipientType is null or empty)
+                // For portal users (with AccountId), show client messages for their account
+                // For Milestone team members (no AccountId), show all team messages
                 if (currentUserAccountId != null) {
-                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = :recipientClientValue AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId');
-                } else {
-                    accessFilters.add(FIELD_RECIPIENT_TYPE + ' = :recipientClientValue');
+                    // Portal user: show messages sent to Client for their account OR messages sent to Team
+                    accessFilters.add('(' + FIELD_RECIPIENT_TYPE + ' = :recipientClientValue AND ' + FIELD_ACCOUNT + ' = :currentUserAccountId)');
                 }
+                // Always include team messages (both portal users and team members can see team messages)
                 accessFilters.add(FIELD_RECIPIENT_TYPE + ' = :recipientTeamValue');
             }
             
@@ -485,6 +487,17 @@ public without sharing class PortalMessagingController {
             };
             String normalizedOrderField = allowedOrderFields.containsKey(orderByField) ? allowedOrderFields.get(orderByField) : 'CreatedDate';
             
+            // Debug: Log WHERE clause and bind variables for troubleshooting
+            System.debug(LoggingLevel.DEBUG, '=== getMessages Query Debug ===');
+            System.debug(LoggingLevel.DEBUG, 'whereClause: ' + whereClause);
+            System.debug(LoggingLevel.DEBUG, 'whereParts size: ' + whereParts.size());
+            System.debug(LoggingLevel.DEBUG, 'currentUserContactId: ' + currentUserContactId);
+            System.debug(LoggingLevel.DEBUG, 'currentUserAccountId: ' + currentUserAccountId);
+            System.debug(LoggingLevel.DEBUG, 'recipientType: ' + recipientType);
+            System.debug(LoggingLevel.DEBUG, 'relatedTaskId: ' + relatedTaskId);
+            System.debug(LoggingLevel.DEBUG, 'relatedProjectId: ' + relatedProjectId);
+            System.debug(LoggingLevel.DEBUG, 'relatedAccountId: ' + relatedAccountId);
+            
             // Build query with proper security enforcement
             // Note: Using without sharing class, but WITH SECURITY_ENFORCED ensures field-level security
             // Declare query variable outside try block so it's accessible in catch block
@@ -500,6 +513,8 @@ public without sharing class PortalMessagingController {
                          'WITH SECURITY_ENFORCED ' +
                          'ORDER BY Is_Pinned__c DESC, ' + normalizedOrderField + ' ' + normalizedOrderDirection + ' ' +
                          'LIMIT :normalizedLimit OFFSET :normalizedOffset';
+            
+            System.debug(LoggingLevel.DEBUG, 'Full query: ' + query);
             
             // Debug logging (remove in production if not needed)
             if (Test.isRunningTest() || LoggingLevel.DEBUG == LoggingLevel.DEBUG) {
