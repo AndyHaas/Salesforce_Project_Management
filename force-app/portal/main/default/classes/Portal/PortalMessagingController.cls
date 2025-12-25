@@ -499,7 +499,31 @@ public without sharing class PortalMessagingController {
             // Use standard Database.query - bind variables work with local variables in scope
             // The bind variables like :currentUserContactId, :searchPattern, :recipientClientValue, etc. will work
             // as long as the variables are in scope when Database.query is called
-            List<Message__c> messages = Database.query(query);
+            List<Message__c> messages;
+            try {
+                messages = Database.query(query);
+            } catch (QueryException qe) {
+                // QueryException often indicates FLS issues
+                String qeMsg = qe.getMessage();
+                System.debug(LoggingLevel.ERROR, 'QueryException in getMessages: ' + qeMsg);
+                System.debug(LoggingLevel.ERROR, 'Query that failed: ' + query);
+                System.debug(LoggingLevel.ERROR, 'User: ' + UserInfo.getUserId() + ', Profile: ' + UserInfo.getProfileId());
+                
+                if (qeMsg.contains('inaccessible field') || qeMsg.contains('secure query')) {
+                    // Provide detailed FLS error message
+                    String flsError = 'Field-level security error: ' + qeMsg;
+                    flsError += ' The portal user may not have read access to one or more Message__c fields. ';
+                    flsError += 'Check the Portal_Messaging permission set field permissions for: ';
+                    flsError += 'Body__c, Sender__c, Sender__r.Name, Sender__r.Email, Recipient_Type__c, ';
+                    flsError += 'Related_Project__c, Related_Project__r.Name, Related_Task__c, Related_Task__r.Name, ';
+                    flsError += 'Mentioned_Contacts__c, Is_Read__c, Deleted__c, Visible_To_Client__c, Is_Edited__c, ';
+                    flsError += 'Last_Edited_Date__c, CreatedDate, CreatedBy.Name, Account__c, Account__r.Name, ';
+                    flsError += 'Reply_To__c, Reply_To__r fields, Is_Pinned__c.';
+                    throw new QueryException(flsError);
+                }
+                throw qe; // Re-throw if not FLS related
+            }
+            
             if (Test.isRunningTest() || LoggingLevel.DEBUG == LoggingLevel.DEBUG) {
                 System.debug(LoggingLevel.DEBUG, 'getMessages found ' + messages.size() + ' messages');
             }
@@ -557,12 +581,55 @@ public without sharing class PortalMessagingController {
             }
             
             return messageInfos;
+        } catch (QueryException e) {
+            // QueryException often indicates FLS issues
+            String errorMsg = e.getMessage();
+            String detailedMsg = 'QueryException: ' + e.getTypeName() + ' - ' + errorMsg;
+            
+            // Always log detailed error information for debugging
+            System.debug(LoggingLevel.ERROR, '=== FLS Error in getMessages ===');
+            System.debug(LoggingLevel.ERROR, 'Error message: ' + errorMsg);
+            System.debug(LoggingLevel.ERROR, 'Query that failed: ' + query);
+            System.debug(LoggingLevel.ERROR, 'User ID: ' + UserInfo.getUserId());
+            System.debug(LoggingLevel.ERROR, 'Profile ID: ' + UserInfo.getProfileId());
+            System.debug(LoggingLevel.ERROR, 'Stack trace: ' + e.getStackTraceString());
+            
+            // Check if it's an FLS error
+            if (errorMsg.contains('inaccessible field') || errorMsg.contains('secure query')) {
+                // Provide detailed FLS error message with all fields that need permission
+                errorMsg = 'Field-level security error: The portal user does not have read access to one or more Message__c fields. ';
+                errorMsg += 'Please check the Portal_Messaging permission set and ensure the following fields have Read access: ';
+                errorMsg += 'Body__c, Sender__c, Sender__r.Name, Sender__r.Email, Recipient_Type__c, ';
+                errorMsg += 'Related_Project__c, Related_Project__r.Name, Related_Task__c, Related_Task__r.Name, ';
+                errorMsg += 'Mentioned_Contacts__c, Is_Read__c, Deleted__c, Visible_To_Client__c, Is_Edited__c, ';
+                errorMsg += 'Last_Edited_Date__c, CreatedDate, CreatedBy.Name, Account__c, Account__r.Name, ';
+                errorMsg += 'Reply_To__c, Reply_To__r.Id, Reply_To__r.Body__c, Reply_To__r.Sender__r.Name, ';
+                errorMsg += 'Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, Is_Pinned__c. ';
+                errorMsg += 'Original error: ' + e.getMessage();
+            }
+            
+            throw new AuraHandledException(errorMsg);
         } catch (Exception e) {
             // Provide more detailed error for debugging
-            String errorMsg = 'Error retrieving messages: ' + e.getMessage();
+            String errorMsg = e.getMessage();
+            String errorType = e.getTypeName();
+            
+            // Always log detailed error information
+            System.debug(LoggingLevel.ERROR, '=== Exception in getMessages ===');
+            System.debug(LoggingLevel.ERROR, 'Exception type: ' + errorType);
+            System.debug(LoggingLevel.ERROR, 'Exception message: ' + errorMsg);
+            System.debug(LoggingLevel.ERROR, 'User ID: ' + UserInfo.getUserId());
+            System.debug(LoggingLevel.ERROR, 'Profile ID: ' + UserInfo.getProfileId());
+            
             if (e.getCause() != null) {
+                System.debug(LoggingLevel.ERROR, 'Cause: ' + e.getCause().getMessage());
                 errorMsg += ' Cause: ' + e.getCause().getMessage();
             }
+            
+            System.debug(LoggingLevel.ERROR, 'Stack trace: ' + e.getStackTraceString());
+            
+            // Include exception type in error message
+            errorMsg = 'Error retrieving messages (' + errorType + '): ' + errorMsg;
             throw new AuraHandledException(errorMsg);
         }
     }

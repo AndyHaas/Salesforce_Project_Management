@@ -296,6 +296,37 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             }
         } catch (error) {
             console.error('Error loading messages:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+            
+            // Extract detailed error message
+            let errorMessage = 'Error retrieving messages';
+            if (error.body) {
+                if (error.body.message) {
+                    errorMessage = error.body.message;
+                } else if (error.body.exceptionMessage) {
+                    errorMessage = error.body.exceptionMessage;
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            // Log full error details for debugging
+            console.error('Full error details:', JSON.stringify({
+                message: errorMessage,
+                body: error.body,
+                stack: error.stack,
+                type: error.type || error.name
+            }, null, 2));
+            
+            // Show user-friendly error message
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error Loading Messages',
+                    message: errorMessage,
+                    variant: 'error',
+                    mode: 'sticky'
+                })
+            );
+            
             if (!append) {
                 this._messages = [];
             }
