@@ -1,7 +1,3 @@
-# Permission Set Comparison: Team Member vs User
-
-## Overview
-
 This document compares `Project_Management_Team_Member` and `Project_Management_User` permission sets to help determine which one to assign to users.
 
 ## Key Differences Summary

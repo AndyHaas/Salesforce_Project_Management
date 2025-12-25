@@ -1,7 +1,3 @@
-# Permission Set Comparison: Manager vs Admin
-
-## Overview
-
 This document compares `Project_Management_Manager` and `Project_Management_Admin` permission sets to help determine which one to assign to users.
 
 ## Key Differences Summary

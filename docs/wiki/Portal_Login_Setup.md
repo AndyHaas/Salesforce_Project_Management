@@ -1,10 +1,8 @@
-# Portal Login Setup
-
-## Overview
-
 The Portal Login system provides passwordless authentication for Experience Cloud portal users using One-Time Password (OTP) verification via email. This eliminates the need for users to remember passwords and provides a secure, user-friendly login experience.
 
-**Location**: `force-app/portal/main/default/`
+**Components Location**: 
+- Component: `force-app/portal/main/default/lwc/portalLogin/`
+- Controller: `force-app/portal/main/default/classes/Portal/PasswordlessLoginController.cls`
 
 ## Key Features
 

@@ -1,7 +1,3 @@
-# Permission Sets
-
-## Overview
-
 This document describes all permission sets used in the Milestone Task Management system. Permission sets provide granular access control for different user types, ensuring users have appropriate permissions for their roles.
 
 ## Permission Sets

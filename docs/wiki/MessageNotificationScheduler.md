@@ -1,10 +1,6 @@
-# MessageNotificationScheduler
-
-## Overview
+The `MessageNotificationScheduler` is a scheduled Apex class that automatically sends email notifications for unread messages in the Portal Messaging system. It checks for messages that have been unread for more than 5 minutes and sends notifications to the appropriate recipients.
 
 **Location**: `force-app/portal/main/default/classes/Portal/MessageNotificationScheduler.cls`
-
-The `MessageNotificationScheduler` is a scheduled Apex class that automatically sends email notifications for unread messages in the Portal Messaging system. It checks for messages that have been unread for more than 5 minutes and sends notifications to the appropriate recipients.
 
 ## Purpose
 

@@ -1,10 +1,6 @@
-# Portal Package Info
-
-## Overview
-
 The Portal Package (`force-app/portal/`) contains all components, controllers, and configuration needed for the Experience Cloud (formerly Community Cloud) portal functionality. This package enables client users to access project management information, communicate with the Milestone team, and manage their projects through a secure web portal.
 
-**Location**: `force-app/portal/`
+**Package Location**: `force-app/portal/`
 
 ## Package Structure
 
