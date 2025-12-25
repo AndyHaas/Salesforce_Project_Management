@@ -367,23 +367,6 @@
                                     </template>
                                 </div>
                             </template>
-                            
-                            <!-- Loading indicator for infinite scroll (at top for reverse chronological) -->
-                            <template if:true={isLoadingMore}>
-                                <div class="slds-align_absolute-center slds-p-around_medium">
-                                    <lightning-spinner alternative-text="Loading older messages" size="small"></lightning-spinner>
-                                    <span class="slds-m-left_small slds-text-body_small slds-text-color_weak">Loading older messages...</span>
-                                </div>
-                            </template>
-                            
-                            <!-- End of messages indicator (at top for reverse chronological) -->
-                            <template if:false={hasMoreMessages}>
-                                <template if:true={hasFilteredMessages}>
-                                    <div class="slds-align_absolute-center slds-p-around_medium">
-                                        <span class="slds-text-body_small slds-text-color_weak">No older messages to load</span>
-                                    </div>
-                                </template>
-                            </template>
                         </template>
                         
                         <template if:false={hasFilteredMessages}>
