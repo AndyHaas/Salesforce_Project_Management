@@ -309,9 +309,9 @@ public without sharing class PortalMessagingController {
             relatedProjectId = normalizeOptional(relatedProjectId);
             relatedTaskId = normalizeOptional(relatedTaskId);
             
-            // Get current user
+            // Get current user (need Name and Email for Contact creation if needed)
             User currentUser = [
-                SELECT Id, ContactId, AccountId
+                SELECT Id, ContactId, AccountId, Name, Email
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
                 LIMIT 1
@@ -508,9 +508,9 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            // Get current user
+            // Get current user (need Name and Email for Contact creation if needed)
             User currentUser = [
-                SELECT Id, ContactId, AccountId
+                SELECT Id, ContactId, AccountId, Name, Email
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
                 WITH SECURITY_ENFORCED
@@ -721,9 +721,9 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            // Get current user
+            // Get current user (need Name and Email for Contact creation if needed)
             User currentUser = [
-                SELECT Id, ContactId
+                SELECT Id, ContactId, Name, Email
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
                 LIMIT 1
@@ -825,9 +825,9 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            // Get current user
+            // Get current user (need Name and Email for Contact creation if needed)
             User currentUser = [
-                SELECT Id, ContactId
+                SELECT Id, ContactId, Name, Email
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
                 LIMIT 1
