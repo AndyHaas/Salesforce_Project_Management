@@ -402,9 +402,13 @@ public without sharing class PortalMessagingController {
             
             // Query messages - need to include Related_Task__r.Project__c for project rollup and Reply_To__c for replies
             // Normalize limit, offset, and ordering inputs
+            // For reverse chronological (newest at bottom), we need to:
+            // 1. Order by CreatedDate ASC (oldest first) so newest are at the end
+            // 2. Use offset from the end (total count - offset - limit)
             Integer normalizedLimit = (limitCount != null && limitCount > 0 && limitCount <= 200) ? limitCount : 50;
             Integer normalizedOffset = (offset != null && offset >= 0) ? offset : 0;
-            String normalizedOrderDirection = (orderDirection != null && orderDirection.toUpperCase() == 'ASC') ? 'ASC' : 'DESC';
+            // Default to ASC for reverse chronological (newest at bottom)
+            String normalizedOrderDirection = (orderDirection != null && orderDirection.toUpperCase() == 'DESC') ? 'DESC' : 'ASC';
             
             // Only allow a small, known-safe set of fields for ordering to avoid injection
             Map<String, String> allowedOrderFields = new Map<String, String>{

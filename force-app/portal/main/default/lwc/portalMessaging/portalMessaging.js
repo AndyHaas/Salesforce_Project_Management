@@ -269,11 +269,11 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             const newMessages = data || [];
             
             if (append) {
-                // Append new messages to existing ones
-                this._messages = [...this._messages, ...newMessages];
+                // Prepend older messages to the beginning (for reverse chronological)
+                this._messages = [...newMessages, ...this._messages];
             } else {
-                // Replace messages (initial load or refresh)
-                this._messages = newMessages;
+                // Replace messages (initial load or refresh) - reverse to show newest at bottom
+                this._messages = newMessages.reverse();
             }
             
             // Check if there are more messages to load
@@ -286,6 +286,11 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             // Mark unread messages as read (only on initial load)
             if (!append) {
                 this.markUnreadMessagesAsRead();
+                // Scroll to bottom after initial load (newest messages)
+                this.scrollToBottom();
+            } else {
+                // When loading older messages, maintain scroll position
+                this.maintainScrollPosition();
             }
         } catch (error) {
             console.error('Error loading messages:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
@@ -307,19 +312,50 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     
     /**
      * @description Handle scroll event to trigger infinite scroll
+     * For reverse chronological (newest at bottom), load more when scrolling UP (near top)
      */
     handleScroll(event) {
         const container = event.currentTarget;
         const scrollTop = container.scrollTop;
-        const scrollHeight = container.scrollHeight;
-        const clientHeight = container.clientHeight;
         
-        // Load more when user scrolls within 200px of bottom
+        // Load more when user scrolls within 200px of top (for reverse chronological)
         const threshold = 200;
-        if (scrollHeight - scrollTop - clientHeight < threshold) {
+        if (scrollTop < threshold) {
             if (this._hasMoreMessages && !this._isLoadingMore) {
                 this.loadMoreMessages();
             }
+        }
+    }
+    
+    /**
+     * @description Scroll to bottom (newest messages)
+     */
+    scrollToBottom() {
+        // Use setTimeout to ensure DOM is updated
+        setTimeout(() => {
+            const messagesList = this.template.querySelector('.messages-list');
+            if (messagesList) {
+                messagesList.scrollTop = messagesList.scrollHeight;
+            }
+        }, 100);
+    }
+    
+    /**
+     * @description Maintain scroll position when loading older messages
+     * Prevents jump when prepending messages
+     */
+    maintainScrollPosition() {
+        const messagesList = this.template.querySelector('.messages-list');
+        if (messagesList) {
+            const previousScrollHeight = messagesList.scrollHeight;
+            const previousScrollTop = messagesList.scrollTop;
+            
+            // Use setTimeout to ensure DOM is updated with new messages
+            setTimeout(() => {
+                const newScrollHeight = messagesList.scrollHeight;
+                const heightDifference = newScrollHeight - previousScrollHeight;
+                messagesList.scrollTop = previousScrollTop + heightDifference;
+            }, 100);
         }
     }
     
