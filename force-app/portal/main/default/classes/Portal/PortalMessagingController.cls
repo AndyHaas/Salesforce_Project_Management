@@ -66,7 +66,8 @@ public without sharing class PortalMessagingController {
                 LIMIT 1
             ];
             
-            // Get or create Contact for the user (Milestone team members won't have ContactId)
+            // Get or create Contact for the user (Sender__c field requires Contact, not User)
+            // Milestone team members don't have ContactId, so we create/find one
             Id senderContactId = getOrCreateContactForUser(currentUser);
             
             // Create message record
@@ -190,12 +191,13 @@ public without sharing class PortalMessagingController {
     
     /**
      * @description Get or create a Contact record for a User
-     * Milestone team members don't have ContactId, so we create/find a Contact for them
+     * Since Sender__c field requires Contact (not User), we need to create/find a Contact
+     * for Milestone team members who don't have ContactId
      * @param user The User record
      * @return Contact ID
      */
     private static Id getOrCreateContactForUser(User user) {
-        // If user already has ContactId, use it
+        // If user already has ContactId, use it (portal users)
         if (user.ContactId != null) {
             return user.ContactId;
         }
@@ -307,7 +309,7 @@ public without sharing class PortalMessagingController {
             relatedProjectId = normalizeOptional(relatedProjectId);
             relatedTaskId = normalizeOptional(relatedTaskId);
             
-            // Get current user's contact and account
+            // Get current user
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
@@ -315,22 +317,20 @@ public without sharing class PortalMessagingController {
                 LIMIT 1
             ];
             
-            // Extract values for bind variables (can't use dot notation in Database.query)
-            Id currentUserContactId = currentUser.ContactId;
+            // Get or create Contact for the user (Sender__c field requires Contact)
+            Id currentUserContactId = getOrCreateContactForUser(currentUser);
             Id currentUserAccountId = currentUser.AccountId;
             
-            // Milestone team members (internal Salesforce users) may not have ContactId
-            // Portal users (clients) always have ContactId
+            // Milestone team members (internal Salesforce users) don't have AccountId
+            // Portal users (clients) always have AccountId
             Boolean isMilestoneTeamMember = (currentUser.AccountId == null);
             
             // --- Build filters deterministically and safely ---
             // Access filter: sender is current user OR allowed recipient bucket
             List<String> accessFilters = new List<String>();
             
-            // Only include sender filter if user has ContactId (portal users)
-            if (currentUserContactId != null) {
-                accessFilters.add(FIELD_SENDER + ' = :currentUserContactId');
-            }
+            // Include sender filter using ContactId (Sender__c is a Contact lookup)
+            accessFilters.add(FIELD_SENDER + ' = :currentUserContactId');
             
             if (recipientType == RECIPIENT_CLIENT) {
                 // Explicitly client-only
@@ -473,10 +473,17 @@ public without sharing class PortalMessagingController {
                 }
                 
                 // Check if current user is mentioned
+                // Note: Mentioned_Contacts__c stores Contact IDs, so we need to check if current user's ContactId is mentioned
+                // For Milestone team members without ContactId, they won't be mentioned via this field
                 info.isMentioned = false;
-                if (String.isNotBlank(msg.Mentioned_Contacts__c) && currentUserContactId != null) {
+                if (String.isNotBlank(msg.Mentioned_Contacts__c)) {
                     List<String> mentionedIds = msg.Mentioned_Contacts__c.split(',');
-                    info.isMentioned = mentionedIds.contains(currentUserContactId);
+                    // For portal users, check their ContactId
+                    // For Milestone team members, they can't be mentioned via Contact mentions
+                    // Use the ContactId we already have (from getOrCreateContactForUser)
+                    if (currentUserContactId != null) {
+                        info.isMentioned = mentionedIds.contains(currentUserContactId);
+                    }
                 }
                 
                 messageInfos.add(info);
@@ -501,7 +508,7 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            // Get current user's contact and account
+            // Get current user
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
@@ -510,12 +517,8 @@ public without sharing class PortalMessagingController {
                 LIMIT 1
             ];
             
-            if (currentUser.ContactId == null) {
-                return new List<MessageInfo>();
-            }
-            
-            // Extract values for bind variables (dot notation is not allowed in Database.query)
-            Id currentUserContactId = currentUser.ContactId;
+            // Get or create Contact for the user (Sender__c field requires Contact)
+            Id currentUserContactId = getOrCreateContactForUser(currentUser);
             Id currentUserAccountId = currentUser.AccountId;
             String recipientClient = RECIPIENT_CLIENT;
             String recipientTeam = RECIPIENT_TEAM;
@@ -581,10 +584,17 @@ public without sharing class PortalMessagingController {
                 }
                 
                 // Check if current user is mentioned
+                // Note: Mentioned_Contacts__c stores Contact IDs, so we need to check if current user's ContactId is mentioned
+                // For Milestone team members without ContactId, they won't be mentioned via this field
                 info.isMentioned = false;
-                if (String.isNotBlank(msg.Mentioned_Contacts__c) && currentUserContactId != null) {
+                if (String.isNotBlank(msg.Mentioned_Contacts__c)) {
                     List<String> mentionedIds = msg.Mentioned_Contacts__c.split(',');
-                    info.isMentioned = mentionedIds.contains(currentUserContactId);
+                    // For portal users, check their ContactId
+                    // For Milestone team members, they can't be mentioned via Contact mentions
+                    // Use the ContactId we already have (from getOrCreateContactForUser)
+                    if (currentUserContactId != null) {
+                        info.isMentioned = mentionedIds.contains(currentUserContactId);
+                    }
                 }
                 
                 messageInfos.add(info);
@@ -711,7 +721,7 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            // Get current user's contact
+            // Get current user
             User currentUser = [
                 SELECT Id, ContactId
                 FROM User
@@ -719,9 +729,8 @@ public without sharing class PortalMessagingController {
                 LIMIT 1
             ];
             
-            if (currentUser.ContactId == null) {
-                throw new AuraHandledException('Current user must be associated with a Contact');
-            }
+            // Get or create Contact for the user (Sender__c field requires Contact)
+            Id currentUserContactId = getOrCreateContactForUser(currentUser);
             
             // Get message and verify sender (no WITH SECURITY_ENFORCED to allow portal edits)
             Message__c message = [
@@ -732,7 +741,7 @@ public without sharing class PortalMessagingController {
             ];
             
             // Only allow sender to edit their own message
-            if (message.Sender__c != currentUser.ContactId) {
+            if (message.Sender__c != currentUserContactId) {
                 throw new AuraHandledException('You can only edit messages you sent');
             }
             
@@ -816,7 +825,7 @@ public without sharing class PortalMessagingController {
         }
         
         try {
-            // Get current user's contact
+            // Get current user
             User currentUser = [
                 SELECT Id, ContactId
                 FROM User
@@ -824,9 +833,8 @@ public without sharing class PortalMessagingController {
                 LIMIT 1
             ];
             
-            if (currentUser.ContactId == null) {
-                throw new AuraHandledException('Current user must be associated with a Contact');
-            }
+            // Get or create Contact for the user (Sender__c field requires Contact)
+            Id currentUserContactId = getOrCreateContactForUser(currentUser);
             
             // Get message and verify sender
             Message__c message = [
@@ -837,7 +845,7 @@ public without sharing class PortalMessagingController {
             ];
             
             // Only allow sender to delete their own message
-            if (message.Sender__c != currentUser.ContactId) {
+            if (message.Sender__c != currentUserContactId) {
                 throw new AuraHandledException('You can only delete messages you sent');
             }
             
