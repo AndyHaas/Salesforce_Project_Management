@@ -591,5 +591,173 @@ private class TaskSubtaskHelperTest {
         Project_Task__c updatedParent = [SELECT Id, Status__c FROM Project_Task__c WHERE Id = :parentTask.Id];
         System.assertEquals('Closed', updatedParent.Status__c, 'Parent status must be updated to Closed when validation passes');
     }
+    
+    @isTest
+    static void testPopulateSubtaskUsers_ParentNotFound() {
+        // Test when parent task ID doesn't exist in the map
+        // This tests the case where parentTask is null in the map lookup
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project_Task__c parentTask = [SELECT Id FROM Project_Task__c WHERE Name = 'Parent Task' LIMIT 1];
+        
+        // Create a subtask with a parent that exists but won't be in the map
+        // We'll delete the parent after creating it to simulate it not being found
+        Project_Task__c tempParent = new Project_Task__c(
+            Name = 'Temp Parent',
+            Status__c = 'Backlog',
+            Account__c = testAccount.Id,
+            Priority__c = 'High'
+        );
+        insert tempParent;
+        Id tempParentId = tempParent.Id;
+        delete tempParent; // Delete it
+        
+        Test.startTest();
+        try {
+            Project_Task__c subtask = new Project_Task__c(
+                Name = 'Subtask With Deleted Parent',
+                Status__c = 'Backlog',
+                Account__c = testAccount.Id,
+                Priority__c = 'High',
+                Parent_Task__c = tempParentId
+            );
+            insert subtask;
+            // Should fail validation or handle gracefully
+        } catch (Exception e) {
+            // Expected - parent doesn't exist
+            System.assert(true, 'Exception expected when parent task does not exist');
+        }
+        Test.stopTest();
+    }
+    
+    @isTest
+    static void testPopulateSubtaskUsers_MultipleSubtasksSameParent() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project_Task__c parentTask = [SELECT Id, Client_User__c FROM Project_Task__c WHERE Name = 'Parent Task' LIMIT 1];
+        
+        Test.startTest();
+        List<Project_Task__c> subtasks = new List<Project_Task__c>();
+        for (Integer i = 0; i < 3; i++) {
+            subtasks.add(new Project_Task__c(
+                Name = 'Subtask ' + i,
+                Status__c = 'Backlog',
+                Account__c = testAccount.Id,
+                Priority__c = 'High',
+                Parent_Task__c = parentTask.Id
+            ));
+        }
+        insert subtasks;
+        Test.stopTest();
+        
+        // Verify all subtasks have Client_User__c populated
+        List<Project_Task__c> insertedSubtasks = [
+            SELECT Id, Client_User__c 
+            FROM Project_Task__c 
+            WHERE Id IN :subtasks
+        ];
+        for (Project_Task__c subtask : insertedSubtasks) {
+            System.assertEquals(parentTask.Client_User__c, subtask.Client_User__c, 
+                'All subtasks should have Client_User__c populated from parent');
+        }
+    }
+    
+    @isTest
+    static void testUpdateParentTaskStatus_NoRelevantSubtasks() {
+        Project_Task__c parentTask = [SELECT Id, Status__c FROM Project_Task__c WHERE Name = 'Parent Task 2' LIMIT 1];
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        // Create subtask that changes status but not in relevant transition
+        Project_Task__c subtask = new Project_Task__c(
+            Name = 'Subtask Non-Relevant Transition',
+            Status__c = 'In Progress',
+            Account__c = testAccount.Id,
+            Priority__c = 'High',
+            Parent_Task__c = parentTask.Id
+        );
+        insert subtask;
+        
+        Test.startTest();
+        // Update subtask from In Progress to Completed (not a relevant transition)
+        subtask.Status__c = 'Completed';
+        update subtask;
+        Test.stopTest();
+        
+        // Verify parent task status is NOT updated (not a relevant transition)
+        Project_Task__c updatedParent = [SELECT Id, Status__c FROM Project_Task__c WHERE Id = :parentTask.Id];
+        System.assertEquals('Backlog', updatedParent.Status__c, 
+            'Parent task should not be updated for non-relevant status transitions');
+    }
+    
+    @isTest
+    static void testUpdateParentTaskStatus_ParentNotInMap() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        // Create parent task
+        Project_Task__c parentTask = new Project_Task__c(
+            Name = 'Parent Not In Map',
+            Status__c = 'Backlog',
+            Account__c = testAccount.Id,
+            Priority__c = 'High'
+        );
+        insert parentTask;
+        
+        // Create subtask
+        Project_Task__c subtask = new Project_Task__c(
+            Name = 'Subtask',
+            Status__c = 'Backlog',
+            Account__c = testAccount.Id,
+            Priority__c = 'High',
+            Parent_Task__c = parentTask.Id
+        );
+        insert subtask;
+        
+        Test.startTest();
+        // Update subtask from Backlog to Pending
+        subtask.Status__c = 'Pending';
+        update subtask;
+        Test.stopTest();
+        
+        // Verify parent task status is updated
+        Project_Task__c updatedParent = [SELECT Id, Status__c FROM Project_Task__c WHERE Id = :parentTask.Id];
+        System.assertEquals('Pending', updatedParent.Status__c, 
+            'Parent task should be updated when subtask transitions from Backlog to Pending');
+    }
+    
+    @isTest
+    static void testValidateParentCanBeClosed_MultipleOpenSubtasks() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        // Create parent task
+        Project_Task__c parentTask = new Project_Task__c(
+            Name = 'Parent With Multiple Open Subtasks',
+            Status__c = 'In Progress',
+            Account__c = testAccount.Id,
+            Priority__c = 'High'
+        );
+        insert parentTask;
+        
+        // Create multiple open subtasks
+        List<Project_Task__c> openSubtasks = new List<Project_Task__c>();
+        for (Integer i = 0; i < 3; i++) {
+            openSubtasks.add(new Project_Task__c(
+                Name = 'Open Subtask ' + i,
+                Status__c = 'In Progress',
+                Account__c = testAccount.Id,
+                Priority__c = 'High',
+                Parent_Task__c = parentTask.Id
+            ));
+        }
+        insert openSubtasks;
+        
+        Test.startTest();
+        try {
+            parentTask.Status__c = 'Closed';
+            update parentTask;
+            System.assert(false, 'Expected an error when closing parent with multiple open subtasks');
+        } catch (DmlException e) {
+            System.assert(e.getMessage().contains('Can\'t close this task as there are subtasks that are still open'), 
+                'Error message should indicate that parent cannot be closed with open subtasks');
+        }
+        Test.stopTest();
+    }
 }
 

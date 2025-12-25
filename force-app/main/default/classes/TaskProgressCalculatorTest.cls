@@ -408,12 +408,12 @@ private class TaskProgressCalculatorTest {
     }
     
     @isTest
-    static void testCalculateProgress_ParentTaskNotInMap() {
+    static void testCalculateProgress_ParentTaskExists() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
         
-        // Test scenario where parent task exists but subtask references it
+        // Test scenario where parent task exists and subtask references it
         Project_Task__c parentTask = new Project_Task__c(
-            Name = 'Parent Task Not In Map',
+            Name = 'Parent Task Exists',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
             Priority__c = 'High'
@@ -561,6 +561,169 @@ private class TaskProgressCalculatorTest {
         // Verify parent task progress is 100%
         Project_Task__c updatedParent = [SELECT Id, Progress_Percentage__c FROM Project_Task__c WHERE Id = :parentTask.Id];
         System.assertEquals(100, updatedParent.Progress_Percentage__c, 'Progress should be 100% when all subtasks are completed');
+    }
+    
+    @isTest
+    static void testCalculateProgress_ParentTaskMissingAccount() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        // Create parent task without Account (should skip update)
+        Project_Task__c parentTask = new Project_Task__c(
+            Name = 'Parent Without Account',
+            Status__c = 'In Progress',
+            Account__c = null, // Missing account
+            Priority__c = 'High'
+        );
+        insert parentTask;
+        
+        // Create subtask
+        Project_Task__c subtask = new Project_Task__c(
+            Name = 'Subtask',
+            Status__c = 'Completed',
+            Parent_Task__c = parentTask.Id,
+            Account__c = testAccount.Id,
+            Priority__c = 'Medium',
+            Estimated_Hours__c = 10,
+            Actual_Hours__c = 10
+        );
+        
+        Test.startTest();
+        insert subtask;
+        Test.stopTest();
+        
+        // Verify parent task progress is NOT updated (missing Account)
+        Project_Task__c updatedParent = [SELECT Id, Progress_Percentage__c FROM Project_Task__c WHERE Id = :parentTask.Id];
+        System.assertEquals(null, updatedParent.Progress_Percentage__c, 
+            'Progress should not be updated when parent task is missing Account');
+    }
+    
+    @isTest
+    static void testCalculateProgress_ParentTaskMissingPriority() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        // Create parent task without Priority (should skip update)
+        Project_Task__c parentTask = new Project_Task__c(
+            Name = 'Parent Without Priority',
+            Status__c = 'In Progress',
+            Account__c = testAccount.Id,
+            Priority__c = null // Missing priority
+        );
+        insert parentTask;
+        
+        // Create subtask
+        Project_Task__c subtask = new Project_Task__c(
+            Name = 'Subtask',
+            Status__c = 'Completed',
+            Parent_Task__c = parentTask.Id,
+            Account__c = testAccount.Id,
+            Priority__c = 'Medium',
+            Estimated_Hours__c = 10,
+            Actual_Hours__c = 10
+        );
+        
+        Test.startTest();
+        insert subtask;
+        Test.stopTest();
+        
+        // Verify parent task progress is NOT updated (missing Priority)
+        Project_Task__c updatedParent = [SELECT Id, Progress_Percentage__c FROM Project_Task__c WHERE Id = :parentTask.Id];
+        System.assertEquals(null, updatedParent.Progress_Percentage__c, 
+            'Progress should not be updated when parent task is missing Priority');
+    }
+    
+    
+    @isTest
+    static void testCalculateProgress_EmptySubtasksList() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        // Create parent task
+        Project_Task__c parentTask = new Project_Task__c(
+            Name = 'Parent With Empty Subtasks',
+            Status__c = 'In Progress',
+            Account__c = testAccount.Id,
+            Priority__c = 'High'
+        );
+        insert parentTask;
+        
+        // Create and delete subtask to trigger calculation with empty list
+        Project_Task__c subtask = new Project_Task__c(
+            Name = 'Temporary Subtask',
+            Status__c = 'Backlog',
+            Parent_Task__c = parentTask.Id,
+            Account__c = testAccount.Id,
+            Priority__c = 'Medium'
+        );
+        insert subtask;
+        
+        Test.startTest();
+        delete subtask;
+        Test.stopTest();
+        
+        // Verify parent task progress is 0 or null (no valid subtasks)
+        Project_Task__c updatedParent = [SELECT Id, Progress_Percentage__c FROM Project_Task__c WHERE Id = :parentTask.Id];
+        System.assert(updatedParent.Progress_Percentage__c == null || updatedParent.Progress_Percentage__c == 0, 
+            'Progress should be 0 or null when there are no valid subtasks');
+    }
+    
+    @isTest
+    static void testCalculateProgress_DecimalPrecision() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        // Create parent task
+        Project_Task__c parentTask = new Project_Task__c(
+            Name = 'Parent For Precision Test',
+            Status__c = 'In Progress',
+            Account__c = testAccount.Id,
+            Priority__c = 'High'
+        );
+        insert parentTask;
+        
+        // Create 3 subtasks - 1 completed = 33.33%
+        List<Project_Task__c> subtasks = new List<Project_Task__c>();
+        subtasks.add(new Project_Task__c(
+            Name = 'Completed',
+            Status__c = 'Completed',
+            Parent_Task__c = parentTask.Id,
+            Account__c = testAccount.Id,
+            Priority__c = 'Medium',
+            Estimated_Hours__c = 10.5,
+            Actual_Hours__c = 10.5
+        ));
+        subtasks.add(new Project_Task__c(
+            Name = 'In Progress',
+            Status__c = 'In Progress',
+            Parent_Task__c = parentTask.Id,
+            Account__c = testAccount.Id,
+            Priority__c = 'Medium',
+            Estimated_Hours__c = 15.75,
+            Actual_Hours__c = 5.25
+        ));
+        subtasks.add(new Project_Task__c(
+            Name = 'Backlog',
+            Status__c = 'Backlog',
+            Parent_Task__c = parentTask.Id,
+            Account__c = testAccount.Id,
+            Priority__c = 'Medium',
+            Estimated_Hours__c = 20.25,
+            Actual_Hours__c = 0
+        ));
+        
+        Test.startTest();
+        insert subtasks;
+        Test.stopTest();
+        
+        // Verify parent task progress and hours with decimal precision
+        Project_Task__c updatedParent = [
+            SELECT Id, Progress_Percentage__c, Total_Estimated_Hours__c, Total_Actual_Hours__c 
+            FROM Project_Task__c 
+            WHERE Id = :parentTask.Id
+        ];
+        System.assertEquals(33.33, updatedParent.Progress_Percentage__c, 
+            'Progress should be 33.33% (1 of 3 completed) with 2 decimal precision');
+        System.assertEquals(46.50, updatedParent.Total_Estimated_Hours__c, 
+            'Total estimated hours should be 46.50 (10.5 + 15.75 + 20.25) with 2 decimal precision');
+        System.assertEquals(15.75, updatedParent.Total_Actual_Hours__c, 
+            'Total actual hours should be 15.75 (10.5 + 5.25 + 0) with 2 decimal precision');
     }
 }
 

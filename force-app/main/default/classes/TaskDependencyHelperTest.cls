@@ -1024,12 +1024,18 @@ private class TaskDependencyHelperTest {
     static void testIsBlocking_VerifySetWhenDependencyAdded() {
         // Test that Is_Blocking is set to true when a dependency relationship is added
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = new Project__c(
+            Name = 'Test Project For Blocking',
+            Account__c = testAccount.Id
+        );
+        insert testProject;
         
         // Create task that will become blocking
         Project_Task__c blockingTask = new Project_Task__c(
             Name = 'Task That Will Block',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
+            Project__c = testProject.Id,
             Priority__c = 'High',
             Is_Blocking__c = false // Initially false
         );
@@ -1071,12 +1077,18 @@ private class TaskDependencyHelperTest {
     static void testIsBlocking_VerifyClearedWhenDependencyRemoved() {
         // Test that Is_Blocking is cleared when all dependency relationships are removed
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = new Project__c(
+            Name = 'Test Project For Clear Blocking',
+            Account__c = testAccount.Id
+        );
+        insert testProject;
         
         // Create blocking task with dependency
         Project_Task__c blockingTask = new Project_Task__c(
             Name = 'Task That Blocks',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
+            Project__c = testProject.Id,
             Priority__c = 'High'
         );
         insert blockingTask;
@@ -1086,6 +1098,7 @@ private class TaskDependencyHelperTest {
             Name = 'Dependent Task',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProject.Id,
             Priority__c = 'Medium'
         );
         insert dependentTask;
@@ -1132,6 +1145,11 @@ private class TaskDependencyHelperTest {
     static void testIsBlocking_VerifySetForAllBlockingStatuses() {
         // Test that Is_Blocking is set to true for all blocking statuses
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = new Project__c(
+            Name = 'Test Project For All Statuses',
+            Account__c = testAccount.Id
+        );
+        insert testProject;
         List<String> blockingStatuses = new List<String>{'Backlog', 'Pending', 'In Progress', 'Blocked'};
         
         Test.startTest();
@@ -1141,6 +1159,7 @@ private class TaskDependencyHelperTest {
                 Name = 'Blocking Task ' + status,
                 Status__c = status,
                 Account__c = testAccount.Id,
+                Project__c = testProject.Id,
                 Priority__c = 'High',
                 Is_Blocking__c = false
             );
@@ -1151,6 +1170,7 @@ private class TaskDependencyHelperTest {
                 Name = 'Dependent Task ' + status,
                 Status__c = 'Backlog',
                 Account__c = testAccount.Id,
+                Project__c = testProject.Id,
                 Priority__c = 'Medium'
             );
             insert dependentTask;
@@ -1323,12 +1343,18 @@ private class TaskDependencyHelperTest {
     static void testIsBlocking_VerifyExactValueSet() {
         // Test that Is_Blocking is set to the exact correct value based on status and dependencies
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Project__c testProject = new Project__c(
+            Name = 'Test Project For Exact Value',
+            Account__c = testAccount.Id
+        );
+        insert testProject;
         
         // Create task that will have dependencies
         Project_Task__c blockingTask = new Project_Task__c(
             Name = 'Task For Exact Value Test',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
+            Project__c = testProject.Id,
             Priority__c = 'High',
             Is_Blocking__c = false // Start with false
         );
@@ -1339,6 +1365,7 @@ private class TaskDependencyHelperTest {
             Name = 'Dependent For Exact Value',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProject.Id,
             Priority__c = 'Medium'
         );
         insert dependentTask;
@@ -1370,6 +1397,85 @@ private class TaskDependencyHelperTest {
         Project_Task__c check3 = [SELECT Id, Is_Blocking__c FROM Project_Task__c WHERE Id = :blockingTask.Id];
         System.assertEquals(true, check3.Is_Blocking__c, 'Is_Blocking must be exactly true for Backlog with dependency');
         Test.stopTest();
+    }
+    
+    @isTest
+    static void testAssessDependencyRisk_SingleParameterOverload() {
+        // Test the single-parameter overload method
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        Project_Task__c blockingTask = new Project_Task__c(
+            Name = 'Blocking For Single Param',
+            Status__c = 'In Progress',
+            Account__c = testAccount.Id,
+            Priority__c = 'High'
+        );
+        Project_Task__c dependentTask = new Project_Task__c(
+            Name = 'Dependent For Single Param',
+            Status__c = 'Backlog',
+            Account__c = testAccount.Id,
+            Priority__c = 'Medium'
+        );
+        insert new List<Project_Task__c>{blockingTask, dependentTask};
+        
+        Project_Task_Relationship__c relationship = new Project_Task_Relationship__c(
+            Task_A__c = dependentTask.Id,
+            Task_B__c = blockingTask.Id,
+            Relationship_Type__c = 'Blocking Dependency'
+        );
+        insert relationship;
+        
+        Test.startTest();
+        // Call single-parameter overload
+        TaskDependencyHelper.assessDependencyRisk(new List<Project_Task__c>{dependentTask});
+        Test.stopTest();
+        
+        // Verify dependent task is at risk
+        Project_Task__c updatedTask = [SELECT Id, At_Risk_Due_to_Dependencies__c FROM Project_Task__c WHERE Id = :dependentTask.Id];
+        System.assertEquals(true, updatedTask.At_Risk_Due_to_Dependencies__c, 
+            'Dependent task should be at risk when using single-parameter overload');
+    }
+    
+    @isTest
+    static void testAssessDependencyRisk_EmptyRelatedTaskIds() {
+        // Test when there are no related task IDs
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        Project_Task__c standaloneTask = new Project_Task__c(
+            Name = 'Standalone Task No Relations',
+            Status__c = 'Backlog',
+            Account__c = testAccount.Id,
+            Priority__c = 'High'
+        );
+        
+        Test.startTest();
+        insert standaloneTask;
+        Test.stopTest();
+        
+        // Should not throw exception
+        Project_Task__c insertedTask = [SELECT Id FROM Project_Task__c WHERE Id = :standaloneTask.Id];
+        System.assertNotEquals(null, insertedTask, 'Task should be created successfully');
+    }
+    
+    @isTest
+    static void testAssessDependencyRisk_EmptyDependentRelationships() {
+        // Test when dependentRelationships list is empty
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        
+        Project_Task__c task = new Project_Task__c(
+            Name = 'Task No Dependent Relations',
+            Status__c = 'Backlog',
+            Account__c = testAccount.Id,
+            Priority__c = 'High'
+        );
+        
+        Test.startTest();
+        insert task;
+        Test.stopTest();
+        
+        // Should not throw exception
+        Project_Task__c insertedTask = [SELECT Id FROM Project_Task__c WHERE Id = :task.Id];
+        System.assertNotEquals(null, insertedTask, 'Task should be created successfully');
     }
 }
 
