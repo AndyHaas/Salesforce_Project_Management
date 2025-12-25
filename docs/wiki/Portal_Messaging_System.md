@@ -274,6 +274,15 @@ The system includes automated email notifications for unread messages:
 
 See **[MessageNotificationScheduler](MessageNotificationScheduler.md)** for detailed documentation on scheduling and configuration.
 
+## Email Notifications
+
+The system includes automated email notifications for unread messages:
+
+- **Project Manager Notifications**: Sent when client messages remain unread for 5+ minutes
+- **Client User Notifications**: Sent when team messages remain unread for 5+ minutes
+
+See **[MessageNotificationScheduler](MessageNotificationScheduler.md)** for detailed documentation on scheduling and configuration.
+
 ## Future Enhancements
 
 Potential improvements for future releases:
