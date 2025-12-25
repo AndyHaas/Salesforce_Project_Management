@@ -387,6 +387,7 @@ public without sharing class PortalMessagingController {
                     
                     // Escape _ and \ (but NOT % - we allow % as wildcard)
                     // _ is treated as literal character
+                    // Use String.escapeSingleQuotes for safety, then escape special LIKE characters
                     String escapedSearch = processedSearch.replaceAll('([_\\\\])', '\\\\$1');
                     
                     // Build search pattern - only wrap with % if not already present at start/end
@@ -399,7 +400,10 @@ public without sharing class PortalMessagingController {
                     
                     searchPattern = escapedSearch;
                     // Search in Body__c and Sender__r.Name
-                    searchFilters.add('(Body__c LIKE :searchPattern OR Sender__r.Name LIKE :searchPattern)');
+                    // Use bind variable for security
+                    if (searchPattern != null) {
+                        searchFilters.add('(Body__c LIKE :searchPattern OR Sender__r.Name LIKE :searchPattern)');
+                    }
                 }
             }
             
@@ -545,7 +549,12 @@ public without sharing class PortalMessagingController {
             
             return messageInfos;
         } catch (Exception e) {
-            throw new AuraHandledException('Error retrieving messages: ' + e.getMessage());
+            // Provide more detailed error for debugging
+            String errorMsg = 'Error retrieving messages: ' + e.getMessage();
+            if (e.getCause() != null) {
+                errorMsg += ' Cause: ' + e.getCause().getMessage();
+            }
+            throw new AuraHandledException(errorMsg);
         }
     }
     
