@@ -8,12 +8,15 @@ This document compares `Project_Management_Manager` and `Project_Management_Admi
 
 | Feature | Project_Management_Manager | Project_Management_Admin |
 |---------|----------------------------|--------------------------|
-| **Modify All Records** | ❌ No (`modifyAllRecords=false`) | ✅ Yes (`modifyAllRecords=true`) |
+| **Modify All Records** | ❌ No (`modifyAllRecords=false`) | ❌ No (`modifyAllRecords=false`) |
 | **View All Records** | ✅ Yes (`viewAllRecords=true`) | ✅ Yes (`viewAllRecords=true`) |
+| **Delete Permission** | ✅ Yes (can delete) | ✅ Yes (can delete) |
 | **Project__c Access** | Read-only | Full access (Create, Edit, Delete) |
 | **Release_Notes_Done__c** | Read-only | Editable |
 | **Apex Classes** | 3 classes | 3 classes (same) |
-| **Record Ownership** | Can only edit own records | Can edit all records |
+| **Record Ownership** | Can only edit own records | Can only edit own records |
+
+**Important**: Both Manager and Admin have `modifyAllRecords=false`, meaning they can only edit records they own. Only Manager and Admin have delete permissions - all other permission sets cannot delete records.
 
 ## Detailed Comparison
 
@@ -47,13 +50,13 @@ Both permission sets have identical Apex class access:
 **Admin:**
 - Create: ✅
 - Read: ✅
-- Edit: ✅ (all records)
+- Edit: ✅ (own records only)
 - Delete: ✅
 - View All Records: ✅
-- **Modify All Records: ✅** (key difference)
+- **Modify All Records: ❌** (same as Manager)
 - View All Fields: ✅
 
-**Impact**: Manager can only edit tasks they own, while Admin can edit any task.
+**Impact**: Both Manager and Admin can only edit tasks they own. The key difference is that Admin can create/edit/delete projects, while Manager cannot.
 
 #### Project__c
 
@@ -93,7 +96,7 @@ Both permission sets have identical Apex class access:
 - View All Records: ✅
 - **Modify All Records: ✅**
 
-**Impact**: Manager can only edit release records they own, while Admin can edit any release record.
+**Impact**: Both Manager and Admin can only edit release records they own. Both have delete permissions.
 
 ### Field Permissions
 
@@ -112,12 +115,14 @@ Both permission sets have identical Apex class access:
 - Can only **edit/delete** records they own
 - Must be assigned as owner to modify records
 - Good for managers who need visibility but limited modification rights
+- **Can delete** records (only Manager and Admin have delete permissions)
 
-#### Admin (`modifyAllRecords=true`)
+#### Admin (`modifyAllRecords=false`)
 - Can **view** all records across the organization
-- Can **edit/delete** any record, regardless of ownership
-- Does not need to be owner to modify records
-- Full administrative control
+- Can only **edit/delete** records they own (same as Manager)
+- Must be assigned as owner to modify records
+- **Can delete** records (only Manager and Admin have delete permissions)
+- **Key difference**: Can create/edit/delete projects (Manager cannot)
 
 ## When to Use Each Permission Set
 

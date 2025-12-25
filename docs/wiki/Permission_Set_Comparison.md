@@ -11,7 +11,7 @@ This document compares `Project_Management_Team_Member` and `Project_Management_
 | **Access Level** | Full administrative access | Limited user access |
 | **Record Visibility** | View all records (`viewAllRecords=true`) | Own records only (`viewAllRecords=false`) |
 | **Record Modification** | Modify all records (`modifyAllRecords=true`) | Own records only (`modifyAllRecords=false`) |
-| **Delete Permission** | Can delete records | Cannot delete records |
+| **Delete Permission** | ❌ Cannot delete records | ❌ Cannot delete records |
 | **Apex Classes** | 7 classes (full access) | 1 class (dashboard only) |
 | **Messaging Access** | Full access to Message__c | No access to Message__c |
 | **Task Helper Classes** | Yes (TaskContextController, TaskDependencyHelper, etc.) | No |
@@ -43,10 +43,10 @@ This document compares `Project_Management_Team_Member` and `Project_Management_
 **Team Member:**
 - Create: ✅
 - Read: ✅
-- Edit: ✅
-- Delete: ✅
+- Edit: ✅ (own records only)
+- Delete: ❌ (only Manager and Admin can delete)
 - View All Records: ✅
-- Modify All Records: ✅
+- Modify All Records: ❌ (changed from true)
 - View All Fields: ✅
 
 **User:**
@@ -63,10 +63,10 @@ This document compares `Project_Management_Team_Member` and `Project_Management_
 **Team Member:**
 - Create: ✅
 - Read: ✅
-- Edit: ✅
-- Delete: ✅
+- Edit: ✅ (own records only)
+- Delete: ❌ (only Manager and Admin can delete)
 - View All Records: ✅
-- Modify All Records: ✅
+- Modify All Records: ❌ (changed from true)
 
 **User:**
 - Create: ❌
@@ -79,9 +79,12 @@ This document compares `Project_Management_Team_Member` and `Project_Management_
 #### Message__c
 
 **Team Member:**
-- Full access: Create, Read, Edit, Delete
+- Create: ✅
+- Read: ✅
+- Edit: ✅ (own records only)
+- Delete: ❌ (only Manager and Admin can delete)
 - View All Records: ✅
-- Modify All Records: ✅
+- Modify All Records: ❌ (changed from true)
 
 **User:**
 - No access: ❌
@@ -141,13 +144,14 @@ This document compares `Project_Management_Team_Member` and `Project_Management_
 ### Use Project_Management_Team_Member When:
 
 - User is a **Milestone Consulting team member** (internal employee)
-- User needs to **manage all projects and tasks** (not just their own)
+- User needs to **view all projects and tasks** (not just their own)
 - User needs **messaging functionality** (send/receive messages)
-- User needs to **delete records** (tasks, projects, messages)
 - User needs access to **task helper classes** (dependencies, progress, subtasks)
 - User needs to **manage content/files** (attachments, documents)
 - User needs to **schedule notifications** (MessageNotificationScheduler)
-- User is a **project manager** or **team lead**
+- User is a **team member** who needs messaging but not delete permissions
+
+**Note**: Team Member can view all records but can only edit their own. They cannot delete records (only Manager and Admin can delete).
 
 ### Use Project_Management_User When:
 
