@@ -1,8 +1,34 @@
+/**
+ * Portal Messaging Component
+ * 
+ * This component works in both Experience Cloud (Portal) and Salesforce contexts.
+ * 
+ * CONTEXT DETECTION:
+ * The component automatically detects its runtime context using multiple methods:
+ * 1. Pathname check: Experience Cloud URLs start with '/s/'
+ * 2. User type: Milestone team members (no AccountId) are in Salesforce context
+ * 3. Page reference type: Experience Cloud pages have 'comm__' prefix, Salesforce has 'standard__'
+ * 
+ * BEHAVIOR BY CONTEXT:
+ * - Portal (Experience Cloud): 
+ *   - Users can only send to "Milestone Team"
+ *   - Recipient type selector is hidden
+ *   - Navigation uses ensureSitePath for portal URLs
+ *   - Default recipientType: "Milestone Team"
+ * 
+ * - Salesforce:
+ *   - Milestone team members can send to "Client" or "Milestone Team"
+ *   - Recipient type selector is shown
+ *   - Can send internal messages (not visible to clients)
+ *   - Navigation uses Lightning Navigation Service
+ *   - Default recipientType: "Client"
+ */
+
 import { LightningElement, api, wire, track } from 'lwc';
 import { refreshApex } from '@salesforce/apex';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE, publish } from 'lightning/messageService';
-import { CurrentPageReference } from 'lightning/navigation';
+import { CurrentPageReference, NavigationMixin } from 'lightning/navigation';
 import sendMessage from '@salesforce/apex/PortalMessagingController.sendMessage';
 import getMessages from '@salesforce/apex/PortalMessagingController.getMessages';
 import getContextInfo from '@salesforce/apex/PortalMessagingController.getContextInfo';
@@ -15,17 +41,17 @@ import deleteMessage from '@salesforce/apex/PortalMessagingController.deleteMess
 import pinMessage from '@salesforce/apex/PortalMessagingController.pinMessage';
 import linkFilesToMessage from '@salesforce/apex/PortalMessagingController.linkFilesToMessage';
 import getMessageFiles from '@salesforce/apex/PortalMessagingController.getMessageFiles';
-import { ensureSitePath, formatDate } from 'c/portalCommon';
+import { ensureSitePath, formatDate, formatDateTime } from 'c/portalCommon';
 import MESSAGE_UPDATE_CHANNEL from '@salesforce/messageChannel/MessageUpdate__c';
 
-export default class PortalMessaging extends LightningElement {
+export default class PortalMessaging extends NavigationMixin(LightningElement) {
     @api recordId; // Automatically populated when on a Lightning Record Page
     @api relatedAccountId;
     @api relatedProjectId;
     @api relatedTaskId;
     
     @track messageBody = '';
-    @track recipientType = 'Milestone Team'; // Always Milestone Team for portal users
+    @track recipientType = null; // Will be set based on user type
     @track isVisibleToClient = true;
     @track searchTerm = '';
     @track selectedMentions = [];
@@ -69,17 +95,63 @@ export default class PortalMessaging extends LightningElement {
                     this.subscribeToMessageUpdates();
                 }
             } else if (error) {
-                console.error('Error getting message context:', error);
+                console.error('Error getting message context:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
             }
         }
     }
     
     _contextInfo = null;
+    _isExperienceCloud = null; // Cached value for Experience Cloud detection
+    
+    /**
+     * @description Detect if component is running in Experience Cloud (Portal) vs Salesforce
+     * Uses multiple detection methods for reliability
+     */
+    get isExperienceCloud() {
+        // Cache the result to avoid repeated checks
+        if (this._isExperienceCloud !== null) {
+            return this._isExperienceCloud;
+        }
+        
+        // Method 1: Check pathname for Experience Cloud prefix
+        if (typeof window !== 'undefined' && window.location) {
+            const pathname = window.location.pathname || '';
+            if (pathname.startsWith('/s/') || pathname.includes('/s/')) {
+                this._isExperienceCloud = true;
+                return true;
+            }
+        }
+        
+        // Method 2: Check if user is Milestone team member (no AccountId = Salesforce context)
+        // Portal users always have AccountId, Salesforce users typically don't
+        if (this._isMilestoneTeamMember === true) {
+            this._isExperienceCloud = false;
+            return false;
+        }
+        
+        // Method 3: Check page reference type
+        // Experience Cloud pages typically have different page reference structure
+        // Default to Experience Cloud if we can't determine (safer for portal users)
+        this._isExperienceCloud = true; // Default assumption
+        return true;
+    }
+    
+    /**
+     * @description Getter to check if we're in Salesforce context (opposite of Experience Cloud)
+     */
+    get isSalesforceContext() {
+        return !this.isExperienceCloud;
+    }
     
     /**
      * @description Wire service to detect current page reference
      * Extracts record ID from page reference when component is placed on a Lightning Record Page
      * Automatically populates relatedAccountId, relatedProjectId, or relatedTaskId based on object type
+     * Also helps detect context
+     * 
+     * NOTE: This wire service behaves differently on Lightning Record Pages vs Community pages:
+     * - Lightning Record Pages: recordId is available via @api AND pageRef.attributes.recordId
+     * - Community pages: recordId might only be in pageRef.state or URL parameters
      */
     @wire(CurrentPageReference)
     resolvePageReference(pageRef) {
@@ -87,25 +159,25 @@ export default class PortalMessaging extends LightningElement {
             return;
         }
         
-        // If recordId is provided via @api (from Lightning Record Page), use it
-        if (this.recordId) {
-            const objectApiName = pageRef.attributes?.objectApiName;
-            
-            // Auto-populate context based on object type
-            if (objectApiName === 'Account' && !this.relatedAccountId) {
-                this.relatedAccountId = this.recordId;
-            } else if (objectApiName === 'Project__c' && !this.relatedProjectId) {
-                this.relatedProjectId = this.recordId;
-            } else if (objectApiName === 'Project_Task__c' && !this.relatedTaskId) {
-                this.relatedTaskId = this.recordId;
+        // Detect context from page reference first
+        // Experience Cloud pages typically have type 'comm__namedPage' or 'comm__page'
+        // Salesforce pages have type 'standard__recordPage', 'standard__objectPage', etc.
+        if (pageRef.type) {
+            const pageType = pageRef.type;
+            if (pageType.startsWith('comm__')) {
+                this._isExperienceCloud = true;
+            } else if (pageType.startsWith('standard__')) {
+                this._isExperienceCloud = false;
             }
         }
         
-        // Also check page reference for recordId (fallback)
+        // On Lightning Record Pages, recordId is available via @api
+        // On Community pages, we need to extract from pageRef
         const { attributes = {}, state = {} } = pageRef;
         const recordId = this.recordId || state.recordId || attributes.recordId;
         const objectApiName = pageRef.attributes?.objectApiName;
         
+        // Auto-populate context based on object type
         if (recordId && objectApiName) {
             if (objectApiName === 'Account' && !this.relatedAccountId) {
                 this.relatedAccountId = recordId;
@@ -114,6 +186,12 @@ export default class PortalMessaging extends LightningElement {
             } else if (objectApiName === 'Project_Task__c' && !this.relatedTaskId) {
                 this.relatedTaskId = recordId;
             }
+            
+            // Trigger message load attempt after context is set
+            // Use setTimeout to ensure this happens after all wire services complete
+            setTimeout(() => {
+                this.attemptLoadMessages();
+            }, 0);
         }
     }
     
@@ -127,24 +205,34 @@ export default class PortalMessaging extends LightningElement {
         if (data) {
             this._contextInfo = data;
         } else if (error) {
-            console.error('Error loading context info:', error);
+            console.error('Error loading context info:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
         }
     }
     
     /**
      * @description Load messages imperatively (since getMessages is non-cacheable)
+     * 
+     * NOTE: For Milestone team members, we pass null for recipientType to see ALL messages
+     * (both Client and Milestone Team). The recipientType is only used when SENDING messages
+     * to specify who the message is sent TO, not when LOADING messages.
      */
     async loadMessages() {
         try {
-            console.log('Loading messages with params:', {
-                recipientType: this.recipientType,
+            // For Milestone team members, pass null to see all messages (both Client and Milestone Team)
+            // For portal users, use the recipientType (which is always 'Milestone Team')
+            const recipientTypeForQuery = this._isMilestoneTeamMember ? null : this.recipientType;
+            
+            console.log('Loading messages with params:', JSON.stringify({
+                recipientType: recipientTypeForQuery,
+                recipientTypeForSending: this.recipientType,
+                isMilestoneTeamMember: this._isMilestoneTeamMember,
                 relatedAccountId: this.relatedAccountId,
                 relatedProjectId: this.relatedProjectId,
                 relatedTaskId: this.relatedTaskId
-            });
+            }, null, 2));
             
             const data = await getMessages({
-                recipientType: this.recipientType,
+                recipientType: recipientTypeForQuery,
                 relatedAccountId: this.relatedAccountId,
                 relatedProjectId: this.relatedProjectId,
                 relatedTaskId: this.relatedTaskId
@@ -156,31 +244,53 @@ export default class PortalMessaging extends LightningElement {
             // Mark unread messages as read
             this.markUnreadMessagesAsRead();
         } catch (error) {
-            console.error('Error loading messages:', error);
+            console.error('Error loading messages:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
             this._messages = [];
             this._messagesError = error;
         }
     }
     
     /**
-     * @description Watch for changes to reactive parameters and reload messages
+     * @description Component lifecycle hook - called when component is inserted into DOM
+     * Handles initialization differently for Lightning Record Pages vs Community pages
      */
-    renderedCallback() {
-        // Track previous values to detect changes
-        if (!this._previousParams) {
-            this._previousParams = {
-                recipientType: this.recipientType,
-                relatedAccountId: this.relatedAccountId,
-                relatedProjectId: this.relatedProjectId,
-                relatedTaskId: this.relatedTaskId
-            };
-            // Initial load
-            this.loadMessages();
+    connectedCallback() {
+        // Initialize previous params to track changes
+        this._previousParams = {
+            recipientType: this.recipientType,
+            relatedAccountId: this.relatedAccountId,
+            relatedProjectId: this.relatedProjectId,
+            relatedTaskId: this.relatedTaskId
+        };
+        
+        // On Lightning Record Pages, recordId is available immediately via @api
+        // On Community pages, it might come from URL or page reference
+        // We'll wait for wire services to resolve before loading
+    }
+    
+    /**
+     * @description Check if we have all required data to load messages
+     * Works differently for Lightning Record Pages vs Community pages
+     */
+    get canLoadMessages() {
+        // Must have recipientType set (from wire service)
+        if (!this.recipientType) {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * @description Attempt to load messages if conditions are met
+     * Called from multiple places to handle different initialization scenarios
+     */
+    attemptLoadMessages() {
+        if (!this.canLoadMessages) {
             return;
         }
         
-        // Check if any parameter changed
-        const paramsChanged = 
+        // Check if params have changed
+        const paramsChanged = !this._previousParams ||
             this._previousParams.recipientType !== this.recipientType ||
             this._previousParams.relatedAccountId !== this.relatedAccountId ||
             this._previousParams.relatedProjectId !== this.relatedProjectId ||
@@ -197,6 +307,15 @@ export default class PortalMessaging extends LightningElement {
         }
     }
     
+    /**
+     * @description Watch for changes to reactive parameters and reload messages
+     * Handles both Lightning Record Pages and Community pages
+     */
+    renderedCallback() {
+        // Use attemptLoadMessages which checks if we can load
+        this.attemptLoadMessages();
+    }
+    
     // Wire service to get mentionable contacts
     @wire(getMentionableContacts, { searchTerm: '$searchTerm' })
     wiredContacts(result) {
@@ -207,7 +326,7 @@ export default class PortalMessaging extends LightningElement {
             this.mentionableContacts = data || [];
             this.filteredContacts = this.mentionableContacts;
         } else if (error) {
-            console.error('Error loading contacts:', error);
+            console.error('Error loading contacts:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
             this.mentionableContacts = [];
             this.filteredContacts = [];
         }
@@ -222,7 +341,7 @@ export default class PortalMessaging extends LightningElement {
         if (data) {
             this._currentUserContactId = data;
         } else if (error) {
-            console.error('Error getting current user contact:', error);
+            console.error('Error getting current user contact:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
         }
     }
     
@@ -231,9 +350,44 @@ export default class PortalMessaging extends LightningElement {
     wiredIsMilestoneTeamMember({ error, data }) {
         if (data !== undefined) {
             this._isMilestoneTeamMember = data;
+            
+            // Update context detection based on user type
+            // Milestone team members (no AccountId) are in Salesforce context
+            if (data === true) {
+                this._isExperienceCloud = false;
+            }
+            
+            // Set default recipientType based on user type
+            // Salesforce users (Milestone team) default to 'Client', Portal users default to 'Milestone Team'
+            const previousRecipientType = this.recipientType;
+            if (this.recipientType === null) {
+                this.recipientType = data ? 'Client' : 'Milestone Team';
+            }
+            
+            // If recipientType was just set, trigger message load attempt
+            // This works for both Lightning Record Pages and Community pages
+            if (previousRecipientType === null && this.recipientType !== null) {
+                // Use setTimeout to ensure this happens after the wire completes
+                // attemptLoadMessages will check if all conditions are met
+                setTimeout(() => {
+                    this.attemptLoadMessages();
+                }, 0);
+            }
         } else if (error) {
-            console.error('Error checking if Milestone team member:', error);
+            console.error('Error checking if Milestone team member:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
             this._isMilestoneTeamMember = false;
+            // Default to portal behavior if check fails
+            const previousRecipientType = this.recipientType;
+            if (this.recipientType === null) {
+                this.recipientType = 'Milestone Team';
+            }
+            
+            // If recipientType was just set, trigger message load attempt
+            if (previousRecipientType === null && this.recipientType !== null) {
+                setTimeout(() => {
+                    this.attemptLoadMessages();
+                }, 0);
+            }
         }
     }
     
@@ -435,19 +589,41 @@ export default class PortalMessaging extends LightningElement {
             });
         }
         
-        return filteredMessages.map(msg => ({
-            ...msg,
-            formattedDate: this.formatMessageDate(msg.createdDate),
-            formattedEditedDate: msg.lastEditedDate ? this.formatMessageDate(msg.lastEditedDate) : '',
-            isFromCurrentUser: this.isFromCurrentUser(msg.senderId),
-            isUnread: !msg.isRead,
-            isEditing: this._editingMessageId === msg.id,
-            isReplying: this._replyingToMessageId === msg.id,
-            replyToFormattedDate: msg.replyToCreatedDate ? this.formatMessageDate(msg.replyToCreatedDate) : '',
-            replyToPreview: this.stripHtmlPreview(msg.replyToMessageBody || ''),
-            taskLink: this.buildLink(msg.relatedTaskId, msg.relatedTaskName, '/project-task'),
-            projectLink: this.buildLink(msg.relatedProjectId, msg.relatedProjectName, '/project')
-        }));
+        return filteredMessages.map(msg => {
+            const taskLink = this.buildLink(msg.relatedTaskId, msg.relatedTaskName, '/project-task');
+            const projectLink = this.buildLink(msg.relatedProjectId, msg.relatedProjectName, '/project');
+            
+            // Prepare navigation data for Salesforce links
+            let taskNavData = null;
+            let projectNavData = null;
+            
+            if (taskLink && taskLink.type === 'standard__recordPage') {
+                taskNavData = JSON.stringify(taskLink);
+            }
+            if (projectLink && projectLink.type === 'standard__recordPage') {
+                projectNavData = JSON.stringify(projectLink);
+            }
+            
+            return {
+                ...msg,
+                formattedDate: this.formatMessageDate(msg.createdDate),
+                formattedEditedDate: msg.lastEditedDate ? this.formatMessageDate(msg.lastEditedDate) : '',
+                isFromCurrentUser: this.isFromCurrentUser(msg.senderId),
+                isUnread: !msg.isRead,
+                isEditing: this._editingMessageId === msg.id,
+                isReplying: this._replyingToMessageId === msg.id,
+                replyToFormattedDate: msg.replyToCreatedDate ? this.formatMessageDate(msg.replyToCreatedDate) : '',
+                replyToPreview: this.stripHtmlPreview(msg.replyToMessageBody || ''),
+                taskLink: taskLink,
+                projectLink: projectLink,
+                // Add flags to determine if link is Salesforce navigation
+                taskLinkIsSalesforce: taskLink && taskLink.type === 'standard__recordPage',
+                projectLinkIsSalesforce: projectLink && projectLink.type === 'standard__recordPage',
+                // JSON strings for navigation data
+                taskNavData: taskNavData,
+                projectNavData: projectNavData
+            };
+        });
     }
     
     /**
@@ -479,20 +655,93 @@ export default class PortalMessaging extends LightningElement {
 
     /**
      * @description Build link object for project/task navigation
+     * Works in both Portal (Experience Cloud) and Salesforce contexts
+     * Uses context detection to determine the appropriate navigation method
      */
     buildLink(id, name, basePath) {
         if (!id || !basePath) {
             return null;
         }
         try {
-            const href = ensureSitePath(`${basePath}/${id}`, { currentPathname: window.location.pathname });
-            return {
-                href,
-                label: name && name.length > 0 ? name : 'View'
-            };
+            // Use context detection to determine navigation method
+            if (this.isSalesforceContext) {
+                // In Salesforce, use Lightning Navigation
+                // Extract object type from basePath
+                let objectApiName;
+                if (basePath.includes('project-task')) {
+                    objectApiName = 'Project_Task__c';
+                } else if (basePath.includes('project')) {
+                    objectApiName = 'Project__c';
+                } else {
+                    objectApiName = 'Account';
+                }
+                
+                // Return navigation config object for Lightning Navigation
+                return {
+                    type: 'standard__recordPage',
+                    attributes: {
+                        recordId: id,
+                        objectApiName: objectApiName,
+                        actionName: 'view'
+                    },
+                    label: name && name.length > 0 ? name : 'View',
+                    recordId: id // Store for click handler
+                };
+            } else {
+                // Portal/Experience Cloud context - use ensureSitePath
+                const href = ensureSitePath(`${basePath}/${id}`, { 
+                    currentPathname: typeof window !== 'undefined' ? window.location.pathname : '' 
+                });
+                return {
+                    href,
+                    label: name && name.length > 0 ? name : 'View'
+                };
+            }
         } catch (e) {
-            console.error('Error building link', e);
+            console.error('Error building link:', JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
             return null;
+        }
+    }
+    
+    /**
+     * @description Handle navigation to record
+     * Works in both Salesforce (Lightning Navigation) and Portal (standard href) contexts
+     */
+    handleNavigateToRecord(event) {
+        const link = event.currentTarget.dataset.link;
+        if (!link) {
+            return;
+        }
+        
+        try {
+            const linkData = JSON.parse(link);
+            
+            // Check if it's a Salesforce navigation config
+            if (linkData.type === 'standard__recordPage') {
+                // Use Lightning Navigation Service for Salesforce
+                this[NavigationMixin.Navigate](linkData);
+            } else if (linkData.href) {
+                // Portal/Experience Cloud link - use standard navigation
+                if (typeof window !== 'undefined' && window.location) {
+                    window.location.href = linkData.href;
+                }
+            }
+        } catch (e) {
+            console.error('Error navigating to record:', JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
+            // Fallback: try to navigate using recordId if available
+            const recordId = event.currentTarget.dataset.recordId;
+            if (recordId && this.isSalesforceContext) {
+                // Try to determine object type from context
+                const objectApiName = event.currentTarget.dataset.objectApiName || 'Project_Task__c';
+                this[NavigationMixin.Navigate]({
+                    type: 'standard__recordPage',
+                    attributes: {
+                        recordId: recordId,
+                        objectApiName: objectApiName,
+                        actionName: 'view'
+                    }
+                });
+            }
         }
     }
     
@@ -546,7 +795,7 @@ export default class PortalMessaging extends LightningElement {
     }
     
     /**
-     * @description Format message date with relative time
+     * @description Format message date with relative time, including time in user's timezone
      */
     formatMessageDate(dateValue) {
         if (!dateValue) {
@@ -559,16 +808,21 @@ export default class PortalMessaging extends LightningElement {
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
         
+        // Format time in user's timezone (HH:MM)
+        const pad = (n) => String(n).padStart(2, '0');
+        const timeStr = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        
         if (diffMins < 1) {
-            return 'Just now';
+            return `Just now (${timeStr})`;
         } else if (diffMins < 60) {
-            return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+            return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago (${timeStr})`;
         } else if (diffHours < 24) {
-            return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago (${timeStr})`;
         } else if (diffDays < 7) {
-            return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            return `${diffDays} day${diffDays > 1 ? 's' : ''} ago (${timeStr})`;
         } else {
-            return formatDate(dateValue, '—');
+            // For older messages, show full date and time in user's timezone
+            return formatDateTime(dateValue, '—');
         }
     }
     
@@ -578,17 +832,37 @@ export default class PortalMessaging extends LightningElement {
      */
     get recipientTypeOptions() {
         return [
-            { label: 'Milestone Team', value: 'Milestone Team' },
-            { label: 'Client', value: 'Client' }
+            { label: 'Client', value: 'Client' },
+            { label: 'Milestone Team', value: 'Milestone Team' }
         ];
     }
     
     /**
+     * @description Check if recipient type selector should be shown
+     * Only show in Salesforce context for Milestone team members
+     */
+    get showRecipientTypeSelector() {
+        return this.isSalesforceContext && this._isMilestoneTeamMember;
+    }
+    
+    /**
+     * @description Check if recipient type is Client
+     */
+    get isClientRecipient() {
+        return this.recipientType === 'Client';
+    }
+    
+    /**
      * @description Handle recipient type change
-     * Note: Not used in portal - recipient type is always 'Milestone Team'
+     * Only used in Salesforce context - Portal users always send to Milestone Team
      */
     handleRecipientTypeChange(event) {
         this.recipientType = event.detail.value;
+        // When sending to Client, ensure it's visible to client
+        // When sending to Milestone Team, allow internal messages
+        if (this.recipientType === 'Client') {
+            this.isVisibleToClient = true;
+        }
     }
     
     /**
@@ -673,7 +947,7 @@ export default class PortalMessaging extends LightningElement {
             // Extract mentioned contact IDs
             const mentionedContactIds = this.selectedMentions.map(m => m.id);
             
-            console.log('Sending message with:', {
+            console.log('Sending message with:', JSON.stringify({
                 messageBody: currentMessageBody.substring(0, 100) + '...',
                 recipientType: this.recipientType,
                 relatedAccountId: this.relatedAccountId,
@@ -682,7 +956,7 @@ export default class PortalMessaging extends LightningElement {
                 mentionedContactIds: mentionedContactIds,
                 isVisibleToClient: this.isVisibleToClient,
                 replyToMessageId: this._replyingToMessageId
-            });
+            }, null, 2));
             
             // Send message
             const messageId = await sendMessage({
@@ -706,7 +980,7 @@ export default class PortalMessaging extends LightningElement {
                         contentVersionIds: this._uploadedFileIds
                     });
                 } catch (fileError) {
-                    console.error('Error linking files:', fileError);
+                    console.error('Error linking files:', JSON.stringify(fileError, Object.getOwnPropertyNames(fileError), 2));
                     // Don't fail the message send if file linking fails
                 }
             }
@@ -746,12 +1020,12 @@ export default class PortalMessaging extends LightningElement {
                 })
             );
         } catch (error) {
-            console.error('Error sending message:', error);
-            console.error('Error details:', {
+            console.error('Error sending message:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+            console.error('Error details:', JSON.stringify({
                 body: error.body,
                 message: error.message,
                 stack: error.stack
-            });
+            }, null, 2));
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Error',
@@ -775,7 +1049,7 @@ export default class PortalMessaging extends LightningElement {
             try {
                 await markAsRead({ messageId: msg.id });
             } catch (error) {
-                console.error('Error marking message as read:', error);
+                console.error('Error marking message as read:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
             }
         }
         
@@ -860,7 +1134,7 @@ export default class PortalMessaging extends LightningElement {
                 })
             );
         } catch (error) {
-            console.error('Error updating message:', error);
+            console.error('Error updating message:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Error',
@@ -1017,7 +1291,7 @@ export default class PortalMessaging extends LightningElement {
                 })
             );
         } catch (error) {
-            console.error('Error pinning message:', error);
+            console.error('Error pinning message:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Error',
@@ -1060,7 +1334,7 @@ export default class PortalMessaging extends LightningElement {
                 })
             );
         } catch (error) {
-            console.error('Error deleting message:', error);
+            console.error('Error deleting message:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Error',

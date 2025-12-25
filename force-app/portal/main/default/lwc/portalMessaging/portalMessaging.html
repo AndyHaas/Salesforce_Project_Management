@@ -294,11 +294,23 @@
                                                 <lightning-icon icon-name="utility:record" size="xx-small">
                                                 </lightning-icon>
                                                 <template if:true={message.projectLink}>
-                                                    <span class="slds-text-body_small">
-                                                        <a href={message.projectLink.href} class="slds-text-link">
-                                                            Project: {message.relatedProjectName}
-                                                        </a>
-                                                    </span>
+                                                    <template if:true={message.projectLinkIsSalesforce}>
+                                                        <span class="slds-text-body_small">
+                                                            <a href="javascript:void(0);" 
+                                                               class="slds-text-link"
+                                                               data-link={message.projectNavData}
+                                                               onclick={handleNavigateToRecord}>
+                                                                Project: {message.relatedProjectName}
+                                                            </a>
+                                                        </span>
+                                                    </template>
+                                                    <template if:false={message.projectLinkIsSalesforce}>
+                                                        <span class="slds-text-body_small">
+                                                            <a href={message.projectLink.href} class="slds-text-link">
+                                                                Project: {message.relatedProjectName}
+                                                            </a>
+                                                        </span>
+                                                    </template>
                                                 </template>
                                                 <template if:false={message.projectLink}>
                                                     <span class="slds-text-body_small">
@@ -315,11 +327,23 @@
                                                 <lightning-icon icon-name="utility:task" size="xx-small">
                                                 </lightning-icon>
                                                 <template if:true={message.taskLink}>
-                                                    <span class="slds-text-body_small">
-                                                        <a href={message.taskLink.href} class="slds-text-link">
-                                                            Task: {message.relatedTaskName}
-                                                        </a>
-                                                    </span>
+                                                    <template if:true={message.taskLinkIsSalesforce}>
+                                                        <span class="slds-text-body_small">
+                                                            <a href="javascript:void(0);" 
+                                                               class="slds-text-link"
+                                                               data-link={message.taskNavData}
+                                                               onclick={handleNavigateToRecord}>
+                                                                Task: {message.relatedTaskName}
+                                                            </a>
+                                                        </span>
+                                                    </template>
+                                                    <template if:false={message.taskLinkIsSalesforce}>
+                                                        <span class="slds-text-body_small">
+                                                            <a href={message.taskLink.href} class="slds-text-link">
+                                                                Task: {message.relatedTaskName}
+                                                            </a>
+                                                        </span>
+                                                    </template>
                                                 </template>
                                                 <template if:false={message.taskLink}>
                                                     <span class="slds-text-body_small">
@@ -461,6 +485,36 @@
                                         </lightning-input-rich-text>
                                     </div>
                                 </div>
+
+                                <!-- Recipient Type Selector (Salesforce Users Only) -->
+                                <template if:true={showRecipientTypeSelector}>
+                                    <div class="slds-form-element slds-m-bottom_medium">
+                                        <label 
+                                            class="slds-form-element__label" 
+                                            for="recipient-type-select">
+                                            <abbr class="slds-required" title="required">*</abbr> 
+                                            Send To
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            <lightning-combobox
+                                                id="recipient-type-select"
+                                                value={recipientType}
+                                                options={recipientTypeOptions}
+                                                onchange={handleRecipientTypeChange}
+                                                placeholder="Select recipient type"
+                                                required>
+                                            </lightning-combobox>
+                                            <div class="slds-form-element__help slds-text-body_small slds-text-color_weak">
+                                                <template if:true={isClientRecipient}>
+                                                    This message will be sent to the client.
+                                                </template>
+                                                <template if:false={isClientRecipient}>
+                                                    This message will be sent to the Milestone Consulting team.
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
 
                                 <!-- Internal Message Checkbox (Milestone Team Only) -->
                                 <template if:true={isMilestoneTeamMember}>
