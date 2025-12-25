@@ -58,10 +58,11 @@ private class MessageNotificationSchedulerTest {
             Is_Read_By_Milestone_Team__c = false,
             Visible_To_Client__c = true,
             Deleted__c = false,
-            PM_Notification_Sent__c = false,
-            CreatedDate = DateTime.now().addMinutes(-6) // 6 minutes ago
+            PM_Notification_Sent__c = false
         );
         insert oldUnreadMessage;
+        // Set created date to 6 minutes ago using Test.setCreatedDate
+        Test.setCreatedDate(oldUnreadMessage.Id, DateTime.now().addMinutes(-6));
         
         // Create unread message from client (less than 5 minutes - should not trigger notification)
         Message__c recentUnreadMessage = new Message__c(
@@ -75,10 +76,11 @@ private class MessageNotificationSchedulerTest {
             Is_Read_By_Milestone_Team__c = false,
             Visible_To_Client__c = true,
             Deleted__c = false,
-            PM_Notification_Sent__c = false,
-            CreatedDate = DateTime.now().addMinutes(-2) // 2 minutes ago
+            PM_Notification_Sent__c = false
         );
         insert recentUnreadMessage;
+        // Set created date to 2 minutes ago
+        Test.setCreatedDate(recentUnreadMessage.Id, DateTime.now().addMinutes(-2));
         
         // Create read message (should not trigger notification)
         Message__c readMessage = new Message__c(
@@ -92,10 +94,11 @@ private class MessageNotificationSchedulerTest {
             Is_Read_By_Milestone_Team__c = true, // Already read
             Visible_To_Client__c = true,
             Deleted__c = false,
-            PM_Notification_Sent__c = false,
-            CreatedDate = DateTime.now().addMinutes(-6)
+            PM_Notification_Sent__c = false
         );
         insert readMessage;
+        // Set created date to 6 minutes ago
+        Test.setCreatedDate(readMessage.Id, DateTime.now().addMinutes(-6));
         
         // Create message with notification already sent (should not trigger again)
         Message__c alreadyNotifiedMessage = new Message__c(
@@ -109,10 +112,11 @@ private class MessageNotificationSchedulerTest {
             Is_Read_By_Milestone_Team__c = false,
             Visible_To_Client__c = true,
             Deleted__c = false,
-            PM_Notification_Sent__c = true, // Already sent
-            CreatedDate = DateTime.now().addMinutes(-6)
+            PM_Notification_Sent__c = true // Already sent
         );
         insert alreadyNotifiedMessage;
+        // Set created date to 6 minutes ago
+        Test.setCreatedDate(alreadyNotifiedMessage.Id, DateTime.now().addMinutes(-6));
     }
     
     @isTest
@@ -207,10 +211,11 @@ private class MessageNotificationSchedulerTest {
             Is_Read_By_Milestone_Team__c = false,
             Visible_To_Client__c = true,
             Deleted__c = false,
-            PM_Notification_Sent__c = false,
-            CreatedDate = DateTime.now().addMinutes(-6)
+            PM_Notification_Sent__c = false
         );
         insert messageWithoutPM;
+        // Set created date to 6 minutes ago
+        Test.setCreatedDate(messageWithoutPM.Id, DateTime.now().addMinutes(-6));
         
         Test.startTest();
         MessageNotificationScheduler.checkAndSendNotifications();
@@ -225,5 +230,160 @@ private class MessageNotificationSchedulerTest {
         
         System.assertEquals(true, updatedMessage.PM_Notification_Sent__c, 
             'Message without PM should be marked as sent to avoid repeated checks');
+    }
+    
+    @isTest
+    static void testClientNotification() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Contact projectManager = [SELECT Id FROM Contact WHERE Email = 'pm@test.com' LIMIT 1];
+        Contact clientUser = [SELECT Id, Email FROM Contact WHERE Email = 'client@test.com' LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        
+        // Create task with client user
+        Project_Task__c testTask = new Project_Task__c(
+            Name = 'Test Task with Client User',
+            Project__c = testProject.Id,
+            Account__c = testAccount.Id,
+            Project_Manager__c = projectManager.Id,
+            Client_User__c = clientUser.Id
+        );
+        insert testTask;
+        
+        // Create unread message from Milestone team to client (older than 5 minutes)
+        Message__c unreadClientMessage = new Message__c(
+            Body__c = 'Test unread message to client',
+            Sender__c = projectManager.Id,
+            Recipient_Type__c = 'Client',
+            Related_Task__c = testTask.Id,
+            Related_Project__c = testProject.Id,
+            Account__c = testAccount.Id,
+            Is_Read_By_Client__c = false, // Client hasn't read it
+            Is_Read_By_Milestone_Team__c = true, // Sender has read it
+            Visible_To_Client__c = true,
+            Deleted__c = false,
+            Client_Notification_Sent__c = false
+        );
+        insert unreadClientMessage;
+        // Set created date to 6 minutes ago
+        Test.setCreatedDate(unreadClientMessage.Id, DateTime.now().addMinutes(-6));
+        
+        Test.startTest();
+        MessageNotificationScheduler.checkAndSendNotifications();
+        Test.stopTest();
+        
+        // Verify message was marked as notification sent
+        Message__c updatedMessage = [
+            SELECT Id, Client_Notification_Sent__c
+            FROM Message__c
+            WHERE Id = :unreadClientMessage.Id
+        ];
+        
+        System.assertEquals(true, updatedMessage.Client_Notification_Sent__c, 
+            'Client message should be marked as notification sent');
+    }
+    
+    @isTest
+    static void testClientNotification_NoClientUser() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Contact projectManager = [SELECT Id FROM Contact WHERE Email = 'pm@test.com' LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        
+        // Create task without client user
+        Project_Task__c testTask = new Project_Task__c(
+            Name = 'Task Without Client User',
+            Project__c = testProject.Id,
+            Account__c = testAccount.Id,
+            Project_Manager__c = projectManager.Id,
+            Client_User__c = null // No client user
+        );
+        insert testTask;
+        
+        Message__c messageWithoutClientUser = new Message__c(
+            Body__c = 'Message without client user',
+            Sender__c = projectManager.Id,
+            Recipient_Type__c = 'Client',
+            Related_Task__c = testTask.Id,
+            Related_Project__c = testProject.Id,
+            Account__c = testAccount.Id,
+            Is_Read_By_Client__c = false,
+            Is_Read_By_Milestone_Team__c = true,
+            Visible_To_Client__c = true,
+            Deleted__c = false,
+            Client_Notification_Sent__c = false
+        );
+        insert messageWithoutClientUser;
+        // Set created date to 6 minutes ago
+        Test.setCreatedDate(messageWithoutClientUser.Id, DateTime.now().addMinutes(-6));
+        
+        Test.startTest();
+        MessageNotificationScheduler.checkAndSendNotifications();
+        Test.stopTest();
+        
+        // Verify message was marked as sent (to avoid checking repeatedly) even though no email was sent
+        Message__c updatedMessage = [
+            SELECT Id, Client_Notification_Sent__c
+            FROM Message__c
+            WHERE Id = :messageWithoutClientUser.Id
+        ];
+        
+        System.assertEquals(true, updatedMessage.Client_Notification_Sent__c, 
+            'Message without client user should be marked as sent to avoid repeated checks');
+    }
+    
+    @isTest
+    static void testClientNotification_NoEmail() {
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Contact projectManager = [SELECT Id FROM Contact WHERE Email = 'pm@test.com' LIMIT 1];
+        Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+        
+        // Create client user contact without email
+        Contact clientUserNoEmail = new Contact(
+            FirstName = 'Client',
+            LastName = 'No Email',
+            Email = null, // No email
+            AccountId = testAccount.Id
+        );
+        insert clientUserNoEmail;
+        
+        // Create task with client user (no email)
+        Project_Task__c testTask = new Project_Task__c(
+            Name = 'Task with Client User No Email',
+            Project__c = testProject.Id,
+            Account__c = testAccount.Id,
+            Project_Manager__c = projectManager.Id,
+            Client_User__c = clientUserNoEmail.Id
+        );
+        insert testTask;
+        
+        Message__c messageWithClientNoEmail = new Message__c(
+            Body__c = 'Message with client no email',
+            Sender__c = projectManager.Id,
+            Recipient_Type__c = 'Client',
+            Related_Task__c = testTask.Id,
+            Related_Project__c = testProject.Id,
+            Account__c = testAccount.Id,
+            Is_Read_By_Client__c = false,
+            Is_Read_By_Milestone_Team__c = true,
+            Visible_To_Client__c = true,
+            Deleted__c = false,
+            Client_Notification_Sent__c = false
+        );
+        insert messageWithClientNoEmail;
+        // Set created date to 6 minutes ago
+        Test.setCreatedDate(messageWithClientNoEmail.Id, DateTime.now().addMinutes(-6));
+        
+        Test.startTest();
+        MessageNotificationScheduler.checkAndSendNotifications();
+        Test.stopTest();
+        
+        // Verify message was marked as sent (to avoid checking repeatedly) even though no email was sent
+        Message__c updatedMessage = [
+            SELECT Id, Client_Notification_Sent__c
+            FROM Message__c
+            WHERE Id = :messageWithClientNoEmail.Id
+        ];
+        
+        System.assertEquals(true, updatedMessage.Client_Notification_Sent__c, 
+            'Message with client user without email should be marked as sent to avoid repeated checks');
     }
 }
