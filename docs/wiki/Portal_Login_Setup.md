@@ -268,6 +268,68 @@ The component uses a two-step card layout:
 ### Custom Fields
 - `force-app/main/default/objects/Contact/fields/Portal_Access_Enabled__c.field-meta.xml`
 
+## OTP Cleanup Process
+
+The system includes an automated cleanup process to remove old OTP records and prevent database bloat.
+
+### Cleanup Scheduler
+
+**`OTPCleanupScheduler`** (`force-app/portal/main/default/classes/Portal/OTPCleanupScheduler.cls`)
+- Scheduled Apex class that deletes old OTP records
+- Configurable retention period via custom metadata
+- Deletes records that are:
+  - Older than the retention period (default: 30 days), OR
+  - Expired and already used (safe to delete immediately)
+
+### Custom Metadata Configuration
+
+**`OTP_Cleanup_Config__mdt`** - Custom metadata type for cleanup settings
+- **`Retention_Days__c`**: Number of days to retain OTP records (default: 30)
+- **Default Config**: `Default_Config` record with 30-day retention
+
+**To Change Retention Period**:
+1. Navigate to **Setup > Custom Metadata Types**
+2. Find **OTP Cleanup Config**
+3. Click **Manage Records**
+4. Edit **Default Config** (or create a new record)
+5. Update **Retention Days** field
+6. Save
+
+### Scheduling the Cleanup Job
+
+Execute the following Apex anonymous script to schedule daily cleanup:
+
+```apex
+// Schedule OTPCleanupScheduler to run daily at 2 AM
+OTPCleanupScheduler scheduler = new OTPCleanupScheduler();
+String cronExpression = '0 0 2 * * ?'; // Daily at 2:00 AM
+String jobName = 'OTP Cleanup Scheduler';
+
+// Check if job already exists and abort it first
+List<CronTrigger> existingJobs = [
+    SELECT Id, CronJobDetail.Name 
+    FROM CronTrigger 
+    WHERE CronJobDetail.Name = :jobName
+];
+if (!existingJobs.isEmpty()) {
+    System.abortJob(existingJobs[0].Id);
+    System.debug('Aborted existing job: ' + existingJobs[0].Id);
+}
+
+// Schedule the new job
+String jobId = System.schedule(jobName, cronExpression, scheduler);
+System.debug('Scheduled job: ' + jobId + ' with expression: ' + cronExpression);
+```
+
+**Recommended Schedule**: Daily at 2:00 AM (low usage time)
+
+### Monitoring Cleanup
+
+Check debug logs after the scheduled job runs to see:
+- Number of records found for cleanup
+- Number of records successfully deleted
+- Any errors during deletion
+
 ## Future Enhancements
 
 Potential improvements for future releases:

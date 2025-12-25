@@ -32,6 +32,10 @@
         <apexClass>MessageNotificationScheduler</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>OTPCleanupScheduler</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <description>Permission set for Milestone Consulting team members - includes full access to project management, task management, messaging, and all administrative functions</description>
     <fieldPermissions>
         <editable>true</editable>

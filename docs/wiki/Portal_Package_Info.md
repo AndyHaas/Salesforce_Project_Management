@@ -120,10 +120,16 @@ force-app/portal/
   - Location: `force-app/portal/main/default/classes/Portal/MessageNotificationScheduler.cls`
   - See: [MessageNotificationScheduler](MessageNotificationScheduler.md)
 
+- **`OTPCleanupScheduler`** - OTP record cleanup scheduler
+  - Deletes old Login_OTP__c records based on retention period
+  - Configurable via custom metadata (default: 30 days)
+  - Location: `force-app/portal/main/default/classes/Portal/OTPCleanupScheduler.cls`
+
 #### Test Classes
 - **`PortalMessagingControllerTest`** - Messaging controller tests
 - **`PasswordlessLoginControllerTest`** - Login controller tests
 - **`MessageNotificationSchedulerTest`** - Scheduler tests
+- **`OTPCleanupSchedulerTest`** - OTP cleanup scheduler tests
 
 ### Experience Cloud Site
 
@@ -149,6 +155,16 @@ force-app/portal/
   - `Expires_At__c` - DateTime expiration
   - `Used__c` - Boolean indicating if used
 - Location: `force-app/portal/main/default/objects/Login_OTP__c/`
+- **Cleanup**: Automated cleanup via `OTPCleanupScheduler` (configurable retention period)
+
+### Custom Metadata Types
+
+#### OTP_Cleanup_Config__mdt
+- Configures OTP record cleanup retention period
+- Fields:
+  - `Retention_Days__c` - Number of days to retain OTP records (default: 30)
+- Location: `force-app/main/default/objects/OTP_Cleanup_Config__mdt/`
+- **Default Config**: `Default_Config` record with 30-day retention
 
 #### Message__c
 - Messaging object for client-team communication
