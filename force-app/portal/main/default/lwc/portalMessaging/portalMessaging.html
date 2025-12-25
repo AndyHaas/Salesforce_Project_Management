@@ -26,6 +26,9 @@
                 </template>
 
                 <template if:false={showMessageSearch}>
+                    <span class="slds-text-body_small slds-text-color_weak slds-m-right_small" title="Message count">
+                        {messageCount} {messageCountText}
+                    </span>
                     <lightning-button-icon
                         icon-name="utility:search"
                         variant="border-filled"

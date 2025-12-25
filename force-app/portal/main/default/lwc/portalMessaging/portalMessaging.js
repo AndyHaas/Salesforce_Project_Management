@@ -867,6 +867,19 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         return this._hasMoreMessages;
     }
     
+    get messageCount() {
+        if (!this._messages || this._messages.length === 0) {
+            return 0;
+        }
+        // Return count of filtered messages (after search)
+        return this.messages.length;
+    }
+    
+    get messageCountText() {
+        const count = this.messageCount;
+        return count === 1 ? 'message' : 'messages';
+    }
+    
     get hasFilteredMessages() {
         const filtered = this.messages;
         return filtered && filtered.length > 0;
