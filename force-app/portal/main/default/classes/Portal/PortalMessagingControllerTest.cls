@@ -904,23 +904,29 @@ private class PortalMessagingControllerTest {
         
         Test.startTest();
         {
-            // Test with task ID (recordId only, no recordType parameter)
+            // Test with task ID
             PortalMessagingController.ContextInfo taskContext = PortalMessagingController.getContextInfo(
-                testTask.Id // recordId
+                null, // relatedAccountId
+                null, // relatedProjectId
+                testTask.Id // relatedTaskId
             );
             
             System.assert(taskContext != null, 'Should return context info for task');
             
             // Test with project ID
             PortalMessagingController.ContextInfo projectContext = PortalMessagingController.getContextInfo(
-                testProject.Id // recordId
+                null, // relatedAccountId
+                testProject.Id, // relatedProjectId
+                null // relatedTaskId
             );
             
             System.assert(projectContext != null, 'Should return context info for project');
             
             // Test with account ID
             PortalMessagingController.ContextInfo accountContext = PortalMessagingController.getContextInfo(
-                testAccount.Id // recordId
+                testAccount.Id, // relatedAccountId
+                null, // relatedProjectId
+                null // relatedTaskId
             );
             
             System.assert(accountContext != null, 'Should return context info for account');
