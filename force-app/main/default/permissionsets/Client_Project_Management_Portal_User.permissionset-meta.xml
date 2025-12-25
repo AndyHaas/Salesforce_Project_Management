@@ -24,7 +24,7 @@
         <apexClass>PortalTaskController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>Comprehensive permission set for Community Users (Portal Users) - includes all portal functionality: messaging, project management, task management, and login</description>
+    <description>Permission set for Client Project Management Portal users - includes all portal functionality: messaging, project management, task management, and login</description>
     <fieldPermissions>
         <editable>true</editable>
         <field>Message__c.Account__c</field>
@@ -91,7 +91,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>Community User</label>
+    <label>Client Project Management Portal User</label>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>

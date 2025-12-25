@@ -28,7 +28,7 @@
         <apexClass>PortalMessagingController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>Comprehensive permission set for Milestone Consulting internal users - includes full access to project management, task management, messaging, and all administrative functions</description>
+    <description>Permission set for Milestone Consulting team members - includes full access to project management, task management, messaging, and all administrative functions</description>
     <fieldPermissions>
         <editable>true</editable>
         <field>Project_Task__c.Actual_Hours__c</field>
@@ -235,7 +235,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>Milestone User</label>
+    <label>Project Management Team Member</label>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>true</allowDelete>
