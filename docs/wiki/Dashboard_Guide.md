@@ -378,7 +378,7 @@ Significant UI/UX updates have been made to the Experience Cloud portal:
 - **HTML Editor Content**: Comprehensive CSS for HTML Editor content in header and footer
 
 #### Portal Features
-- **Custom Login**: OTP authentication via `portalLogin` component
+- **Custom Login**: OTP authentication via `portalLogin` component (see [Portal Login Setup](Portal_Login_Setup.md))
 - **Home Page**: "Coming Soon" page with feature preview cards using Lightning icons
 - **Project Task Views**: List and detail views for project tasks in the portal
 - **Account Views**: List, detail, and related list views for accounts
