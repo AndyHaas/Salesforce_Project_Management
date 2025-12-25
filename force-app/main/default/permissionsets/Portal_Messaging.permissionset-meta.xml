@@ -66,6 +66,11 @@
         <field>Message__c.Visible_To_Client__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Contact.Email</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Portal Messaging</label>
     <objectPermissions>
