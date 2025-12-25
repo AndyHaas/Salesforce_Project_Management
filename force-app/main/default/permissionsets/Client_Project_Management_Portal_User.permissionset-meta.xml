@@ -52,7 +52,12 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Message__c.Is_Read__c</field>
+        <field>Message__c.Is_Read_By_Client__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Message__c.Is_Read_By_Milestone_Team__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

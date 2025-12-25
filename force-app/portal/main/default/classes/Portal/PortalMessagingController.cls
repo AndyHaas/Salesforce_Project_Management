@@ -78,6 +78,7 @@ public without sharing class PortalMessagingController {
         try {
             // Get current user
             User currentUser = getCurrentUserWithContactFields();
+            Id currentUserAccountId = currentUser.AccountId;
             
             // Get or create Contact for the user (Sender__c field requires Contact, not User)
             // Milestone team members don't have ContactId, so we create/find one
@@ -88,7 +89,17 @@ public without sharing class PortalMessagingController {
             message.Body__c = messageBody;
             message.Sender__c = senderContactId;
             message.Recipient_Type__c = recipientType;
-            message.Is_Read__c = false;
+            // Initialize read status based on user type
+            // Sender always sees their own message as "read", but recipient status starts as unread
+            if (currentUserAccountId != null) {
+                // Portal user (client) sending - mark client read as true (they sent it), team read as false
+                message.Is_Read_By_Client__c = true;
+                message.Is_Read_By_Milestone_Team__c = false;
+            } else {
+                // Milestone team member sending - mark team read as true (they sent it), client read as false
+                message.Is_Read_By_Milestone_Team__c = true;
+                message.Is_Read_By_Client__c = false;
+            }
             
             // Set related account, project, or task
             // Priority: Task > Project > Account
@@ -504,7 +515,7 @@ public without sharing class PortalMessagingController {
             String query = 'SELECT Id, Name, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
                          'Recipient_Type__c, Related_Project__c, Related_Project__r.Name, ' +
                          'Related_Task__c, Related_Task__r.Name, Related_Task__r.Project__c, ' +
-                         'Mentioned_Contacts__c, Is_Read__c, Deleted__c, Visible_To_Client__c, ' +
+                         'Mentioned_Contacts__c, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c, Deleted__c, Visible_To_Client__c, ' +
                          'Is_Edited__c, Last_Edited_Date__c, CreatedDate, CreatedBy.Name, ' +
                          'Account__c, Account__r.Name, Reply_To__c, Reply_To__r.Id, Reply_To__r.Body__c, ' +
                          'Reply_To__r.Sender__r.Name, Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, ' +
@@ -546,7 +557,7 @@ public without sharing class PortalMessagingController {
                     flsError += 'Check the Portal_Messaging permission set field permissions for: ';
                     flsError += 'Body__c, Sender__c, Sender__r.Name, Sender__r.Email, Recipient_Type__c, ';
                     flsError += 'Related_Project__c, Related_Project__r.Name, Related_Task__c, Related_Task__r.Name, ';
-                    flsError += 'Mentioned_Contacts__c, Is_Read__c, Deleted__c, Visible_To_Client__c, Is_Edited__c, ';
+                    flsError += 'Mentioned_Contacts__c, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c, Deleted__c, Visible_To_Client__c, Is_Edited__c, ';
                     flsError += 'Last_Edited_Date__c, CreatedDate, CreatedBy.Name, Account__c, Account__r.Name, ';
                     flsError += 'Reply_To__c, Reply_To__r fields, Is_Pinned__c.';
                     throw new QueryException(flsError);
@@ -574,7 +585,14 @@ public without sharing class PortalMessagingController {
                 info.relatedTaskId = msg.Related_Task__c;
                 info.relatedTaskName = msg.Related_Task__r?.Name;
                 info.mentionedContacts = msg.Mentioned_Contacts__c;
-                info.isRead = msg.Is_Read__c;
+                // Set isRead based on user type: clients use Is_Read_By_Client__c, Milestone team uses Is_Read_By_Milestone_Team__c
+                if (currentUserAccountId != null) {
+                    // Portal user (client) - check client read status
+                    info.isRead = msg.Is_Read_By_Client__c != null ? msg.Is_Read_By_Client__c : false;
+                } else {
+                    // Milestone team member - check team read status
+                    info.isRead = msg.Is_Read_By_Milestone_Team__c != null ? msg.Is_Read_By_Milestone_Team__c : false;
+                }
                 info.createdDate = msg.CreatedDate;
                 info.createdBy = msg.CreatedBy?.Name;
                 info.accountId = msg.Account__c;
@@ -678,7 +696,7 @@ public without sharing class PortalMessagingController {
             String query = 'SELECT Id, Name, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
                          'Recipient_Type__c, Related_Project__c, Related_Project__r.Name, ' +
                          'Related_Task__c, Related_Task__r.Name, Related_Task__r.Project__c, ' +
-                         'Mentioned_Contacts__c, Is_Read__c, Deleted__c, Visible_To_Client__c, ' +
+                         'Mentioned_Contacts__c, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c, Deleted__c, Visible_To_Client__c, ' +
                          'Is_Edited__c, Last_Edited_Date__c, CreatedDate, CreatedBy.Name, ' +
                          'Account__c, Account__r.Name, Reply_To__c, Reply_To__r.Id, Reply_To__r.Body__c, ' +
                          'Reply_To__r.Sender__r.Name, Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, ' +
@@ -705,7 +723,14 @@ public without sharing class PortalMessagingController {
                 info.relatedTaskId = msg.Related_Task__c;
                 info.relatedTaskName = msg.Related_Task__r?.Name;
                 info.mentionedContacts = msg.Mentioned_Contacts__c;
-                info.isRead = msg.Is_Read__c;
+                // Set isRead based on user type: clients use Is_Read_By_Client__c, Milestone team uses Is_Read_By_Milestone_Team__c
+                if (currentUserAccountId != null) {
+                    // Portal user (client) - check client read status
+                    info.isRead = msg.Is_Read_By_Client__c != null ? msg.Is_Read_By_Client__c : false;
+                } else {
+                    // Milestone team member - check team read status
+                    info.isRead = msg.Is_Read_By_Milestone_Team__c != null ? msg.Is_Read_By_Milestone_Team__c : false;
+                }
                 info.createdDate = msg.CreatedDate;
                 info.createdBy = msg.CreatedBy?.Name;
                 info.accountId = msg.Account__c;
@@ -822,6 +847,7 @@ public without sharing class PortalMessagingController {
     
     /**
      * @description Mark message as read
+     * Sets the appropriate read field based on user type (client vs Milestone team)
      * @param messageId The message ID
      */
     @AuraEnabled
@@ -831,14 +857,31 @@ public without sharing class PortalMessagingController {
         }
         
         try {
+            // Get current user to determine if they're a client or Milestone team member
+            User currentUser = [
+                SELECT Id, AccountId
+                FROM User
+                WHERE Id = :UserInfo.getUserId()
+                WITH SECURITY_ENFORCED
+                LIMIT 1
+            ];
+            
             Message__c message = [
-                SELECT Id, Is_Read__c
+                SELECT Id, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c
                 FROM Message__c
                 WHERE Id = :messageId
                 LIMIT 1
             ];
             
-            message.Is_Read__c = true;
+            // Set the appropriate read field based on user type
+            if (currentUser.AccountId != null) {
+                // Portal user (client) - mark client read
+                message.Is_Read_By_Client__c = true;
+            } else {
+                // Milestone team member - mark team read
+                message.Is_Read_By_Milestone_Team__c = true;
+            }
+            
             update message;
         } catch (Exception e) {
             throw new AuraHandledException('Error marking message as read: ' + e.getMessage());
