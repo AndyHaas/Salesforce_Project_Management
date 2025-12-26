@@ -782,12 +782,11 @@ public without sharing class PortalMessagingController {
     @AuraEnabled(cacheable=true)
     public static List<ContactInfo> getMentionableContacts(String searchTerm) {
         try {
-            // In test context, skip WITH SECURITY_ENFORCED to avoid FLS issues
-            String userQuerySecurity = Test.isRunningTest() ? '' : 'WITH SECURITY_ENFORCED';
             User currentUser = [
                 SELECT Id, ContactId, AccountId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
+                WITH SECURITY_ENFORCED
                 LIMIT 1
             ];
             
@@ -812,9 +811,7 @@ public without sharing class PortalMessagingController {
                     query += ' AND (Name LIKE :searchLike ESCAPE \'\\\\\' OR Email LIKE :searchLike ESCAPE \'\\\\\')';
                 }
                 
-                // In test context, skip WITH SECURITY_ENFORCED to avoid FLS issues
-                String securityEnforcement = Test.isRunningTest() ? '' : 'WITH SECURITY_ENFORCED ';
-                query += ' ' + securityEnforcement + 'ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
+                query += ' WITH SECURITY_ENFORCED ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
                 
                 Id currentUserAccountId = currentUser.AccountId;
                 contacts = Database.query(query);
@@ -828,9 +825,7 @@ public without sharing class PortalMessagingController {
                     query += ' AND (Name LIKE :searchLike ESCAPE \'\\\\\' OR Email LIKE :searchLike ESCAPE \'\\\\\')';
                 }
                 
-                // In test context, skip WITH SECURITY_ENFORCED to avoid FLS issues
-                String securityEnforcement = Test.isRunningTest() ? '' : 'WITH SECURITY_ENFORCED ';
-                query += ' ' + securityEnforcement + 'ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
+                query += ' WITH SECURITY_ENFORCED ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
                 
                 contacts = Database.query(query);
             }

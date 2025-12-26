@@ -51,8 +51,8 @@ private class PortalMessagingControllerTest {
     @testSetup
     static void setupTestData() {
         // Assign permission sets to test user to ensure FLS access
-        // Use @future method to avoid MIXED_DML_OPERATION
-        // In test context, @future methods run synchronously, but we use Test.startTest() to ensure completion
+        // Use @future method to avoid MIXED_DML_OPERATION (PermissionSetAssignment is a setup object)
+        // In test context, @future methods run synchronously within Test.startTest()/Test.stopTest()
         Test.startTest();
         assignPermissionSets(UserInfo.getUserId());
         Test.stopTest();
