@@ -178,8 +178,34 @@ public without sharing class PortalMessagingController {
                     if (String.isBlank(relatedTaskId) && String.isBlank(relatedProjectId) && String.isBlank(relatedAccountId)) {
                         if (replyToMessage.Related_Task__c != null) {
                             message.Related_Task__c = replyToMessage.Related_Task__c;
+                            // Populate project and account from the inherited task (same logic as when task is provided as parameter)
+                            List<Project_Task__c> tasks = [
+                                SELECT Project__c, Project__r.Account__c
+                                FROM Project_Task__c
+                                WHERE Id = :replyToMessage.Related_Task__c
+                                LIMIT 1
+                            ];
+                            if (!tasks.isEmpty()) {
+                                Project_Task__c task = tasks[0];
+                                if (task.Project__c != null) {
+                                    message.Related_Project__c = task.Project__c;
+                                }
+                                if (task.Project__r?.Account__c != null) {
+                                    message.Account__c = task.Project__r.Account__c;
+                                }
+                            }
                         } else if (replyToMessage.Related_Project__c != null) {
                             message.Related_Project__c = replyToMessage.Related_Project__c;
+                            // Populate account from the inherited project
+                            Project__c project = [
+                                SELECT Account__c
+                                FROM Project__c
+                                WHERE Id = :replyToMessage.Related_Project__c
+                                LIMIT 1
+                            ];
+                            if (project.Account__c != null) {
+                                message.Account__c = project.Account__c;
+                            }
                         } else if (replyToMessage.Account__c != null) {
                             message.Account__c = replyToMessage.Account__c;
                         }
@@ -511,9 +537,7 @@ public without sharing class PortalMessagingController {
             
             // Build query with proper security enforcement
             // Note: Using without sharing class, but WITH SECURITY_ENFORCED ensures field-level security
-            // In test context, skip WITH SECURITY_ENFORCED to avoid FLS issues with test data setup
             // Declare query variable outside try block so it's accessible in catch block
-            String securityEnforcement = Test.isRunningTest() ? '' : 'WITH SECURITY_ENFORCED ';
             String query = 'SELECT Id, Name, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
                          'Recipient_Type__c, Related_Project__c, Related_Project__r.Name, ' +
                          'Related_Task__c, Related_Task__r.Name, Related_Task__r.Project__c, ' +
@@ -523,11 +547,14 @@ public without sharing class PortalMessagingController {
                          'Reply_To__r.Sender__r.Name, Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, ' +
                          'Is_Pinned__c ' +
                          'FROM Message__c ' + whereClause + ' ' +
-                         securityEnforcement +
+                         'WITH SECURITY_ENFORCED ' +
                          'ORDER BY Is_Pinned__c DESC, ' + normalizedOrderField + ' ' + normalizedOrderDirection + ' ' +
                          'LIMIT :normalizedLimit OFFSET :normalizedOffset';
             
             System.debug(LoggingLevel.DEBUG, 'Full query: ' + query);
+            System.debug(LoggingLevel.DEBUG, 'searchPattern: ' + searchPattern);
+            System.debug(LoggingLevel.DEBUG, 'normalizedLimit: ' + normalizedLimit);
+            System.debug(LoggingLevel.DEBUG, 'normalizedOffset: ' + normalizedOffset);
             
             // Debug logging (remove in production if not needed)
             if (Test.isRunningTest() || LoggingLevel.DEBUG == LoggingLevel.DEBUG) {
@@ -546,10 +573,12 @@ public without sharing class PortalMessagingController {
             try {
                 messages = Database.query(query);
             } catch (QueryException qe) {
-                // QueryException often indicates FLS issues
+                // QueryException often indicates FLS issues or query syntax errors
                 String qeMsg = qe.getMessage();
                 System.debug(LoggingLevel.ERROR, 'QueryException in getMessages: ' + qeMsg);
                 System.debug(LoggingLevel.ERROR, 'Query that failed: ' + query);
+                System.debug(LoggingLevel.ERROR, 'searchPattern value: ' + searchPattern);
+                System.debug(LoggingLevel.ERROR, 'searchTerm input: ' + searchTerm);
                 System.debug(LoggingLevel.ERROR, 'User: ' + UserInfo.getUserId() + ', Profile: ' + UserInfo.getProfileId());
                 
                 if (qeMsg.contains('inaccessible field') || qeMsg.contains('secure query')) {
@@ -564,7 +593,8 @@ public without sharing class PortalMessagingController {
                     flsError += 'Reply_To__c, Reply_To__r fields, Is_Pinned__c.';
                     throw new QueryException(flsError);
                 }
-                throw qe; // Re-throw if not FLS related
+                // Re-throw with more context for other query errors
+                throw new QueryException('Query error: ' + qeMsg + ' | Query: ' + query + ' | searchPattern: ' + searchPattern);
             }
             
             if (Test.isRunningTest() || LoggingLevel.DEBUG == LoggingLevel.DEBUG) {
@@ -781,6 +811,8 @@ public without sharing class PortalMessagingController {
      */
     @AuraEnabled(cacheable=true)
     public static List<ContactInfo> getMentionableContacts(String searchTerm) {
+        // Declare searchLike outside try block so it's accessible in catch block for error logging
+        String searchLike = null;
         try {
             User currentUser = [
                 SELECT Id, ContactId, AccountId
@@ -792,7 +824,6 @@ public without sharing class PortalMessagingController {
             
             // Build query with proper bind variables
             List<Contact> contacts;
-            String searchLike = null;
             if (String.isNotBlank(searchTerm)) {
                 // Escape LIKE wildcards to avoid injection via pattern characters
                 String escaped = searchTerm.replaceAll('([%_\\\\])', '\\\\$1');
@@ -843,7 +874,25 @@ public without sharing class PortalMessagingController {
             
             return contactInfos;
         } catch (Exception e) {
-            throw new AuraHandledException('Error retrieving contacts: ' + e.getMessage());
+            // Provide detailed error for debugging
+            String errorMsg = e.getMessage();
+            String errorType = e.getTypeName();
+            
+            System.debug(LoggingLevel.ERROR, '=== Exception in getMentionableContacts ===');
+            System.debug(LoggingLevel.ERROR, 'Exception type: ' + errorType);
+            System.debug(LoggingLevel.ERROR, 'Exception message: ' + errorMsg);
+            System.debug(LoggingLevel.ERROR, 'searchTerm: ' + searchTerm);
+            System.debug(LoggingLevel.ERROR, 'searchLike: ' + searchLike);
+            System.debug(LoggingLevel.ERROR, 'User ID: ' + UserInfo.getUserId());
+            
+            if (e.getCause() != null) {
+                System.debug(LoggingLevel.ERROR, 'Cause: ' + e.getCause().getMessage());
+                errorMsg += ' Cause: ' + e.getCause().getMessage();
+            }
+            
+            System.debug(LoggingLevel.ERROR, 'Stack trace: ' + e.getStackTraceString());
+            
+            throw new AuraHandledException('Error retrieving contacts (' + errorType + '): ' + errorMsg);
         }
     }
     
