@@ -9,7 +9,7 @@
         <literalValue>Backlog</literalValue>
     </fieldOverrides>
     <label>Reject (Client – Backlog)</label>
-    <optionsCreateFeedItem>true</optionsCreateFeedItem>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
         <quickActionLayoutColumns>

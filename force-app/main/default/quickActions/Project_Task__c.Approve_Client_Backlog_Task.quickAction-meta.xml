@@ -13,7 +13,7 @@
         <literalValue>Pending</literalValue>
     </fieldOverrides>
     <label>Approve (Client – Backlog)</label>
-    <optionsCreateFeedItem>true</optionsCreateFeedItem>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
         <quickActionLayoutColumns>

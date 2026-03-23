@@ -5,7 +5,7 @@
         <formula>TRUE</formula>
     </fieldOverrides>
     <label>Approve (PM / Code Review)</label>
-    <optionsCreateFeedItem>true</optionsCreateFeedItem>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
         <quickActionLayoutColumns>

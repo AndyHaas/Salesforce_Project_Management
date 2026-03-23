@@ -5,7 +5,7 @@
  * It handles context detection and ensures messages load correctly.
  */
 
-import { LightningElement, api } from 'lwc';
+import { LightningElement, api, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 
 export default class SalesforceMessaging extends LightningElement {

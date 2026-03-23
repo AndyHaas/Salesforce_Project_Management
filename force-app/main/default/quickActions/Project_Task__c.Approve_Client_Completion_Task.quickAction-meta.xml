@@ -9,7 +9,7 @@
         <literalValue>Completed</literalValue>
     </fieldOverrides>
     <label>Approve Completion (Client)</label>
-    <optionsCreateFeedItem>true</optionsCreateFeedItem>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
         <quickActionLayoutColumns>

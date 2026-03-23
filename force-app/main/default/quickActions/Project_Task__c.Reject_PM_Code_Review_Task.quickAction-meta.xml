@@ -9,7 +9,7 @@
         <literalValue>In Progress</literalValue>
     </fieldOverrides>
     <label>Reject (PM / Code Review)</label>
-    <optionsCreateFeedItem>true</optionsCreateFeedItem>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
         <quickActionLayoutColumns>

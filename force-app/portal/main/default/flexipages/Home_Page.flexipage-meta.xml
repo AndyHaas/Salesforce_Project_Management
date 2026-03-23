@@ -7,8 +7,7 @@
                 <identifier>c_homePage</identifier>
             </componentInstance>
         </itemInstances>
-        <name>
-        main</name>
+        <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
     <masterLabel>Home Page</masterLabel>

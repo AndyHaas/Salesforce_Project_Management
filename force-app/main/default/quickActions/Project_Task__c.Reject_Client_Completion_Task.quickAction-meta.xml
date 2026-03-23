@@ -9,7 +9,7 @@
         <literalValue>In Progress</literalValue>
     </fieldOverrides>
     <label>Reject Completion (Client)</label>
-    <optionsCreateFeedItem>true</optionsCreateFeedItem>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
         <quickActionLayoutColumns>

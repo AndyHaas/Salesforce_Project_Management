@@ -2,7 +2,7 @@
   "type" : "sfdc_cms__route",
   "title" : "autologin",
   "contentBody" : {
-    "activeViewId" : "autologin",
+    "activeViewId" : "login",
     "configurationTags" : [ ],
     "pageAccess" : "UseParent",
     "routeType" : "custom-autologin",
