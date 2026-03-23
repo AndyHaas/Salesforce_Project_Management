@@ -969,7 +969,7 @@ public without sharing class PortalMessagingController {
             
             // Get message and verify sender
             // NOTE: FLS bypassed here to allow portal users to edit their own messages.
-            // Security is enforced via sender verification (line 798) - users can only edit messages they sent.
+            // Security is enforced via sender verification below — users can only edit messages they sent.
             // Field-level security would prevent portal users from updating messages even if they are the sender.
             Message__c message = [
                 SELECT Id, Sender__c, Body__c, Is_Edited__c, Deleted__c
