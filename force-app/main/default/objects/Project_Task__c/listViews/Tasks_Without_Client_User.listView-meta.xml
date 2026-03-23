@@ -7,7 +7,7 @@
     <columns>Status__c</columns>
     <columns>Priority__c</columns>
     <columns>Developer__c</columns>
-    <columns>OWNER.FIRST_NAME</columns>
+    <columns>Project__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
         <field>Client_User__c</field>

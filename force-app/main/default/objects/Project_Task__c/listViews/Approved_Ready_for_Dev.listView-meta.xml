@@ -9,7 +9,7 @@
     <columns>Review_Status_Icons__c</columns>
     <columns>Developer__c</columns>
     <columns>Client_User__c</columns>
-    <columns>OWNER.FIRST_NAME</columns>
+    <columns>Project__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
         <field>Client_Approved_for_Development__c</field>

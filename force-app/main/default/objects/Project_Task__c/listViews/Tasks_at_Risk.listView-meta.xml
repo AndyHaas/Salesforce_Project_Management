@@ -8,7 +8,7 @@
     <columns>Priority__c</columns>
     <columns>At_Risk_Due_to_Dependencies__c</columns>
     <columns>Is_Blocking__c</columns>
-    <columns>OWNER.FIRST_NAME</columns>
+    <columns>Project__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
         <field>At_Risk_Due_to_Dependencies__c</field>

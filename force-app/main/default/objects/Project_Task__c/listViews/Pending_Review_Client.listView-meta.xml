@@ -7,7 +7,7 @@
     <columns>Status__c</columns>
     <columns>Priority__c</columns>
     <columns>Review_Status_Icons__c</columns>
-    <columns>OWNER.FIRST_NAME</columns>
+    <columns>Project__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
         <field>Status__c</field>
