@@ -72,10 +72,11 @@ This package provides a complete project and task management solution for Salesf
 This is an unmanaged package. To install:
 
 1. Clone this repository
-2. Deploy to your Salesforce org using Salesforce CLI:
+2. Deploy to your Salesforce org using Salesforce CLI (deploys `force-app`, including Apex classes and the `TaskProjectTests` suite together):
    ```bash
    sf project deploy start --source-dir force-app
    ```
+   Avoid deploying only individual Apex classes from the IDE if you rely on the **TaskProjectTests** suite in Setup—without redeploying `force-app/main/default/testSuites/TaskProjectTests.testSuite-meta.xml`, the org can show missing suite members until the next full deploy.
 3. Assign appropriate permission sets to users
 
 ## Documentation
