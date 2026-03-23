@@ -1,11 +1,60 @@
 @isTest
 private class ProjectTaskDashboardControllerTest {
+
+    /**
+     * Project_Task__c is master-detail to Project__c; returns an existing Project for the Account or creates one.
+     *
+     * @param accountId Account that owns the Project (Project__c.Account__c).
+     * @return Id of a Project__c suitable for inserting Project_Task__c rows.
+     */
+    private static Id projectForAccount(Id accountId) {
+        List<Project__c> existing = [SELECT Id FROM Project__c WHERE Account__c = :accountId LIMIT 1];
+        if (!existing.isEmpty()) {
+            return existing[0].Id;
+        }
+        Project__c p = new Project__c(
+            Name = 'Unit Test Project',
+            Account__c = accountId,
+            Status__c = 'Not Started'
+        );
+        insert p;
+        return p.Id;
+    }
+
+    /**
+     * Creates Developer, Project Manager, and Client User Contacts on the account.
+     * Contacts must belong to the task Account__c so Client_User__c lookup validation passes.
+     *
+     * @param accountId Account used for Contact.AccountId.
+     * @return Three contacts in order: developer, project manager, client user.
+     */
+    private static List<Contact> insertStakeholderContacts(Id accountId) {
+        List<Contact> contacts = new List<Contact>{
+            new Contact(LastName = 'Dashboard Test Developer', AccountId = accountId),
+            new Contact(LastName = 'Dashboard Test PM', AccountId = accountId),
+            new Contact(LastName = 'Dashboard Test Client', AccountId = accountId)
+        };
+        insert contacts;
+        return contacts;
+    }
     
     @testSetup
     static void setupTestData() {
         // Create test Account
         Account testAccount = new Account(Name = 'Test Account');
         insert testAccount;
+
+        List<Contact> stakeholders = insertStakeholderContacts(testAccount.Id);
+        Id devContactId = stakeholders[0].Id;
+        Id pmContactId = stakeholders[1].Id;
+        Id clientContactId = stakeholders[2].Id;
+
+        Project__c testProject = new Project__c(
+            Name = 'Test Project',
+            Account__c = testAccount.Id,
+            Status__c = 'Not Started'
+        );
+        insert testProject;
         
         // Create test Project Tasks
         List<Project_Task__c> tasks = new List<Project_Task__c>();
@@ -16,6 +65,10 @@ private class ProjectTaskDashboardControllerTest {
             Status__c = 'Backlog',
             Priority__c = 'High',
             Account__c = testAccount.Id,
+            Project__c = testProject.Id,
+            Developer__c = devContactId,
+            Project_Manager__c = pmContactId,
+            Client_User__c = clientContactId,
             Estimated_Hours__c = 10,
             Actual_Hours__c = 8
         ));
@@ -25,6 +78,8 @@ private class ProjectTaskDashboardControllerTest {
             Status__c = 'In Progress',
             Priority__c = 'Medium',
             Account__c = testAccount.Id,
+            Project__c = testProject.Id,
+            Developer__c = devContactId,
             Estimated_Hours__c = 20,
             Actual_Hours__c = 15,
             Progress_Percentage__c = 50
@@ -35,6 +90,9 @@ private class ProjectTaskDashboardControllerTest {
             Status__c = 'In Review',
             Priority__c = 'Low',
             Account__c = testAccount.Id,
+            Project__c = testProject.Id,
+            Project_Manager__c = pmContactId,
+            Client_User__c = clientContactId,
             Reviewed_by_PM_Code_Reviewer__c = true,
             Client_Approved_for_Completion__c = false
         ));
@@ -43,6 +101,8 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Task 4 - Blocked',
             Status__c = 'Blocked',
             Account__c = testAccount.Id,
+            Project__c = testProject.Id,
+            Client_User__c = clientContactId,
             At_Risk_Due_to_Dependencies__c = true
         ));
         
@@ -50,6 +110,9 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Task 5 - Completed',
             Status__c = 'Completed',
             Account__c = testAccount.Id,
+            Project__c = testProject.Id,
+            Developer__c = devContactId,
+            Project_Manager__c = pmContactId,
             Progress_Percentage__c = 100
         ));
         
@@ -176,12 +239,17 @@ private class ProjectTaskDashboardControllerTest {
     static void testGetGroupedTasksWithSummaryFields() {
         Account summaryAccount = new Account(Name = 'Summary Account');
         insert summaryAccount;
+        List<Contact> summaryStakeholders = insertStakeholderContacts(summaryAccount.Id);
+        Id summaryProjectId = projectForAccount(summaryAccount.Id);
         
         Project_Task__c parentTask = new Project_Task__c(
             Name = 'Parent Summary Task',
             Status__c = 'Backlog',
             Account__c = summaryAccount.Id,
-            OwnerId = UserInfo.getUserId(),
+            Project__c = summaryProjectId,
+            Developer__c = summaryStakeholders[0].Id,
+            Project_Manager__c = summaryStakeholders[1].Id,
+            Client_User__c = summaryStakeholders[2].Id,
             Estimated_Hours__c = 10,
             Due_Date__c = Date.today().addDays(5),
             Priority__c = 'High'
@@ -192,10 +260,12 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Child Task',
             Status__c = 'Backlog',
             Account__c = summaryAccount.Id,
+            Project__c = summaryProjectId,
             Parent_Task__c = parentTask.Id,
+            Developer__c = summaryStakeholders[0].Id,
+            Client_User__c = summaryStakeholders[2].Id,
             Due_Date__c = Date.today(),
             Estimated_Hours__c = 5,
-            OwnerId = UserInfo.getUserId(),
             Priority__c = 'Medium'
         );
         insert subtask;
@@ -304,6 +374,7 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetDueDateMetrics() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         // Create tasks with due dates
         List<Project_Task__c> tasks = new List<Project_Task__c>();
@@ -313,6 +384,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Overdue Task',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'High',
             Due_Date__c = Date.today().addDays(-5)
         ));
@@ -322,6 +394,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Due Today Task',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'Medium',
             Due_Date__c = Date.today()
         ));
@@ -331,6 +404,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Due This Week Task',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'Low',
             Due_Date__c = Date.today().addDays(3)
         ));
@@ -340,6 +414,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'No Due Date Task',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'Medium'
         ));
         
@@ -464,6 +539,7 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetProgressMetricsWithVariousProgressValues() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         // Create tasks with various progress percentages
         List<Project_Task__c> tasks = new List<Project_Task__c>();
@@ -472,6 +548,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Task 0%',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'High',
             Progress_Percentage__c = 0
         ));
@@ -480,6 +557,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Task 25%',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'Medium',
             Progress_Percentage__c = 25
         ));
@@ -488,6 +566,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Task 50%',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'Low',
             Progress_Percentage__c = 50
         ));
@@ -496,6 +575,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Task 75%',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'High',
             Progress_Percentage__c = 75
         ));
@@ -504,6 +584,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Task 100%',
             Status__c = 'Completed',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'Medium',
             Progress_Percentage__c = 100
         ));
@@ -512,14 +593,16 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Task No Progress',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'Low'
             // No Progress_Percentage__c
         ));
         
         tasks.add(new Project_Task__c(
-            Name = 'Task Closed',
-            Status__c = 'Closed',
+            Name = 'Task Removed',
+            Status__c = 'Removed',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'High',
             Progress_Percentage__c = 100
         ));
@@ -542,6 +625,7 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetReviewStatusMetricsWithVariousStatuses() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         // Create tasks with various review statuses
         List<Project_Task__c> tasks = new List<Project_Task__c>();
@@ -551,14 +635,16 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'In Review - PM Approved',
             Status__c = 'In Review',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Reviewed_by_PM_Code_Reviewer__c = true,
-            Client_Approved_for_Completion__c = true
+            Client_Approved_for_Completion__c = false
         ));
         
         tasks.add(new Project_Task__c(
             Name = 'In Review - PM Pending',
             Status__c = 'In Review',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Reviewed_by_PM_Code_Reviewer__c = false,
             Client_Approved_for_Completion__c = false
         ));
@@ -568,6 +654,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Backlog - Client Approved',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Client_Approved_for_Development__c = true,
             Ready_for_Client_Review__c = true
         ));
@@ -576,6 +663,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Backlog - Client Pending',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Client_Approved_for_Development__c = false,
             Ready_for_Client_Review__c = false
         ));
@@ -595,6 +683,7 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetHoursMetricsWithNullValues() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         // Create tasks with null hours
         List<Project_Task__c> tasks = new List<Project_Task__c>();
@@ -603,6 +692,7 @@ private class ProjectTaskDashboardControllerTest {
             Name = 'Task No Hours',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'High'
             // No Estimated_Hours__c or Actual_Hours__c
         ));
@@ -673,6 +763,7 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetTaskListPagination() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         // Create multiple tasks to test pagination
         List<Project_Task__c> tasks = new List<Project_Task__c>();
@@ -681,6 +772,7 @@ private class ProjectTaskDashboardControllerTest {
                 Name = 'Pagination Task ' + i,
                 Status__c = 'Backlog',
                 Account__c = testAccount.Id,
+                Project__c = testProjectId,
                 Priority__c = 'Medium'
             ));
         }
@@ -707,13 +799,14 @@ private class ProjectTaskDashboardControllerTest {
         // Create at least one task to ensure the query works
         Account testAccount = new Account(Name = 'Test Account for All Accounts');
         insert testAccount;
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         Project_Task__c task = new Project_Task__c(
             Name = 'Task for All Accounts Test',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
-            Priority__c = 'High',
-            OwnerId = UserInfo.getUserId()
+            Project__c = testProjectId,
+            Priority__c = 'High'
         );
         insert task;
         
@@ -729,13 +822,14 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetGroupedTasksWithSubtasksWithChatterComments() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         Project_Task__c parentTask = new Project_Task__c(
             Name = 'Parent Task With Comments',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
-            Priority__c = 'High',
-            OwnerId = UserInfo.getUserId()
+            Project__c = testProjectId,
+            Priority__c = 'High'
         );
         insert parentTask;
         
@@ -774,14 +868,15 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetGroupedTasksWithSubtasksWithDateFields() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         Project_Task__c task = new Project_Task__c(
             Name = 'Task With Dates',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'High',
-            Due_Date__c = Date.today().addDays(5),
-            OwnerId = UserInfo.getUserId()
+            Due_Date__c = Date.today().addDays(5)
         );
         insert task;
         
@@ -797,14 +892,17 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetGroupedTasksWithSubtasksWithReferenceFields() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
-        User testUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
-        
+        Id testProjectId = projectForAccount(testAccount.Id);
+        Contact devContact = new Contact(LastName = 'RefFieldTest', AccountId = testAccount.Id);
+        insert devContact;
+
         Project_Task__c task = new Project_Task__c(
             Name = 'Task With References',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'High',
-            OwnerId = testUser.Id
+            Developer__c = devContact.Id
         );
         insert task;
         
@@ -820,14 +918,15 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetGroupedTasksWithSubtasksWithPercentField() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         Project_Task__c task = new Project_Task__c(
             Name = 'Task With Progress',
             Status__c = 'In Progress',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'High',
-            Progress_Percentage__c = 75.5,
-            OwnerId = UserInfo.getUserId()
+            Progress_Percentage__c = 75.5
         );
         insert task;
         
@@ -843,11 +942,13 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetGroupedTasksWithSubtasksWithNullFields() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         Project_Task__c task = new Project_Task__c(
             Name = 'Task With Nulls',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
+            Project__c = testProjectId,
             Priority__c = 'High'
             // Many fields are null
         );
@@ -865,14 +966,15 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetGroupedTasksWithSubtasksErrorHandling() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         // Create a task that might cause query issues
         Project_Task__c task = new Project_Task__c(
             Name = 'Task For Error Test',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
-            Priority__c = 'High',
-            OwnerId = UserInfo.getUserId()
+            Project__c = testProjectId,
+            Priority__c = 'High'
         );
         insert task;
         
@@ -891,10 +993,11 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetGroupedTasksWithSubtasksWithAllStatuses() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
-        // Create tasks with all possible statuses
+        // All Status__c picklist values (no separate Closed value on Project_Task__c)
         List<String> statuses = new List<String>{
-            'Completed', 'Closed', 'In Review', 'In Progress', 'Pending', 'Blocked', 'Backlog', 'Removed'
+            'Completed', 'In Review', 'In Progress', 'Pending', 'Blocked', 'Backlog', 'Removed'
         };
         
         List<Project_Task__c> tasks = new List<Project_Task__c>();
@@ -903,8 +1006,8 @@ private class ProjectTaskDashboardControllerTest {
                 Name = 'Task - ' + status,
                 Status__c = status,
                 Account__c = testAccount.Id,
-                Priority__c = 'High',
-                OwnerId = UserInfo.getUserId()
+                Project__c = testProjectId,
+                Priority__c = 'High'
             ));
         }
         insert tasks;
@@ -922,14 +1025,15 @@ private class ProjectTaskDashboardControllerTest {
     @isTest
     static void testGetGroupedTasksWithSubtasksWithUnknownStatus() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
-        // Create a task with a status not in the predefined order
+        // Restricted picklist has no value outside controller status order; use a valid edge label.
         Project_Task__c task = new Project_Task__c(
-            Name = 'Task Unknown Status',
-            Status__c = 'Custom Status',
+            Name = 'Task Removed Status',
+            Status__c = 'Removed',
             Account__c = testAccount.Id,
-            Priority__c = 'High',
-            OwnerId = UserInfo.getUserId()
+            Project__c = testProjectId,
+            Priority__c = 'High'
         );
         insert task;
         
@@ -940,19 +1044,19 @@ private class ProjectTaskDashboardControllerTest {
         
         System.assertNotEquals(null, result, 'Result should not be null');
         System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
-        // Unknown status should still be included in the result
     }
     
     @isTest
     static void testGetGroupedTasksWithSubtasksWithNullStatus() {
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         // Create a task with null status
         Project_Task__c task = new Project_Task__c(
             Name = 'Task Null Status',
             Account__c = testAccount.Id,
-            Priority__c = 'High',
-            OwnerId = UserInfo.getUserId()
+            Project__c = testProjectId,
+            Priority__c = 'High'
             // Status__c is null
         );
         insert task;
@@ -972,13 +1076,14 @@ private class ProjectTaskDashboardControllerTest {
         // This test exercises the code path where field sets might not exist or return empty
         // which will hit the uncovered lines in getFieldSetMembers and getFieldPaths
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Id testProjectId = projectForAccount(testAccount.Id);
         
         Project_Task__c task = new Project_Task__c(
             Name = 'Task for Field Set Test',
             Status__c = 'Backlog',
             Account__c = testAccount.Id,
-            Priority__c = 'High',
-            OwnerId = UserInfo.getUserId()
+            Project__c = testProjectId,
+            Priority__c = 'High'
         );
         insert task;
         
