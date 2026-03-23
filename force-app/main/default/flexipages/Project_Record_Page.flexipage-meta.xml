@@ -207,9 +207,6 @@
                         <valueListItems>
                             <value>Project__c.Create_Time_Entry_Record</value>
                         </valueListItems>
-                        <valueListItems>
-                            <value>Project__c.Slack_Alerts</value>
-                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -952,16 +949,6 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>runtime_slack:slackRecordChannel</componentName>
-                <identifier>runtime_slack_slackRecordChannel</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-c239fc3c-d2c0-41c2-9a0b-ab19568f6fc1</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
                 <componentInstanceProperties>
                     <name>active</name>
                     <value>true</value>
@@ -1008,20 +995,6 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>flexipage_tab1</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-c239fc3c-d2c0-41c2-9a0b-ab19568f6fc1</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Slack</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>flexipage_tab</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
