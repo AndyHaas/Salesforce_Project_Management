@@ -157,7 +157,7 @@
     <formulas>
         <name>formCurrCalcCost</name>
         <dataType>Currency</dataType>
-        <expression>{!Go_Through_Time_Sheet_Entries.Contract_Pricing__r.Calculated_Per_Hour_Rate__c} * {!Go_Through_Time_Sheet_Entries.Sum_of_Time__c}</expression>
+        <expression>{!$Record.Project__r.Per_Hour_Rate__c} * {!Go_Through_Time_Sheet_Entries.Sum_of_Time__c}</expression>
         <scale>2</scale>
     </formulas>
     <interviewLabel>RT-AS-Time Sheet Calculate Cost {!$Flow.CurrentDateTime}</interviewLabel>

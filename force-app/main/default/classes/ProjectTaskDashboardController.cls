@@ -806,10 +806,9 @@ public without sharing class ProjectTaskDashboardController {
     @AuraEnabled(cacheable=true)
     public static List<Account> getAccounts() {
         return [
-            SELECT Id, Name 
-            FROM Account 
-            WHERE Active__c = true 
-            AND Type = 'Customer'
+            SELECT Id, Name
+            FROM Account
+            WHERE Type = 'Customer'
             AND Id IN (SELECT Account__c FROM Project_Task__c WHERE Account__c != null)
             ORDER BY Name
         ];
