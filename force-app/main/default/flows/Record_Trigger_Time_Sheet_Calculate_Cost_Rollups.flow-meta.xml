@@ -160,8 +160,8 @@
         <expression>{!$Record.Project__r.Per_Hour_Rate__c} * {!Go_Through_Time_Sheet_Entries.Sum_of_Time__c}</expression>
         <scale>2</scale>
     </formulas>
-    <interviewLabel>RT-AS-Time Sheet Calculate Cost {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>RT-AS-Time Sheet Calculate Cost</label>
+    <interviewLabel>Record Trigger - Time Sheet - Calculate Cost Rollups {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Record Trigger - Time Sheet - Calculate Cost Rollups</label>
     <loops>
         <name>Go_through_Open_Projects</name>
         <label>Go through Open Projects</label>

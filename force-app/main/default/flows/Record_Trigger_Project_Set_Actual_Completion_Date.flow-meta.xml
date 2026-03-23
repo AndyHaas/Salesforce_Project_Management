@@ -48,8 +48,8 @@
         </rules>
     </decisions>
     <description>When a project reaches Deployed and is not yet invoiced, sets Actual Completion Date on the project record.</description>
-    <interviewLabel>RT-AS-Project {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>RT-AS-Project-Status Updated</label>
+    <interviewLabel>Record Trigger - Project - Set Actual Completion Date {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Record Trigger - Project - Set Actual Completion Date</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>

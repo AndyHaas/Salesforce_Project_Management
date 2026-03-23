@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Community_Task_URL_Format__c</fullName>
+    <description>Full URL to open the task in Experience Cloud. Include {0} where the Project_Task__c Id should go (18 chars). Example: https://mysite.force.com/customer/s/project-task/{0}</description>
+    <externalId>false</externalId>
+    <label>Community Task URL Format</label>
+    <length>2000</length>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

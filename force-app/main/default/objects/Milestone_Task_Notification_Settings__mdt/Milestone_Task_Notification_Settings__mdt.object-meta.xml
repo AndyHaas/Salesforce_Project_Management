@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Optional Experience Cloud link template for task approval notification emails. Use {0} as the Project Task Id placeholder.</description>
+    <label>Milestone Task Notification Settings</label>
+    <pluralLabel>Milestone Task Notification Settings</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

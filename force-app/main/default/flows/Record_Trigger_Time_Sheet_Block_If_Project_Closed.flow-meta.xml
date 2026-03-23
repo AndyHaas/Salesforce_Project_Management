@@ -45,8 +45,8 @@
         </rules>
     </decisions>
     <description>This flow currently has a validation rule in it to make sure you can&apos;t add any more timesheet entries or modify them once the project is completed</description>
-    <interviewLabel>RT-BS-Time Sheet {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>RT-BS-Time Sheet</label>
+    <interviewLabel>Record Trigger - Time Sheet - Block If Project Closed {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Record Trigger - Time Sheet - Block If Project Closed</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>

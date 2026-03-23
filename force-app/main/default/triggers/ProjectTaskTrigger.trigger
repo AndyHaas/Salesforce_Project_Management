@@ -67,8 +67,6 @@
  * - TaskProgressCalculator: Handles progress calculation
  * - TaskDependencyHelper: Handles dependency risk assessment
  * 
- * NOTE: All helper classes use "with sharing" to respect sharing rules.
- * 
  * @author Milestone Consulting
  * @date Created: November 19, 2025
  */
