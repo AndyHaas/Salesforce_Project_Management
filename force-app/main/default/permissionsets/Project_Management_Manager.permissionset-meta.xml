@@ -60,11 +60,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Project_Task__c.Project_Manager__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Project_Task__c.Estimated_Hours__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -120,17 +115,22 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Project_Task__c.Ready_for_Client_Review__c</field>
+        <field>Project_Task__c.Project_Manager__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Project_Task__c.Release_Notes__c</field>
+        <field>Project_Task__c.Ready_for_Client_Review__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>Project_Task__c.Release_Notes_Done__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Project_Task__c.Release_Notes__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -250,7 +250,7 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <tabSettings>
-        <tab>Project_Task__c</tab>
+        <tab>Project_Task_Analytics</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
@@ -258,7 +258,7 @@
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
-        <tab>Project_Task_Analytics</tab>
+        <tab>Project_Task__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
