@@ -3,7 +3,7 @@
 This package directory contains all components related to the Experience Cloud portal functionality, including:
 
 - **Custom Login Page** with OTP authentication
-- **Experience Cloud** LWCs and Apex (site/network are created in each subscriber org; not in source)
+- **Experience Cloud Site** configuration
 - **Portal Access Fields** on Contact and Account objects
 
 ## Contents
@@ -19,6 +19,9 @@ This package directory contains all components related to the Experience Cloud p
   - Features: Infinite scrolling, server-side search, file attachments, mentions, replies
   - Works in both Experience Cloud and Salesforce Lightning contexts
 - `salesforceMessaging` - Wrapper component for Salesforce Lightning Experience
+
+### Networks (Experience Cloud Sites)
+- `Client - Project Management Portal` - Experience Cloud site configuration
 
 ### Custom Fields
 - `Contact.Portal_Access_Enabled__c` - Checkbox to enable portal access for contacts

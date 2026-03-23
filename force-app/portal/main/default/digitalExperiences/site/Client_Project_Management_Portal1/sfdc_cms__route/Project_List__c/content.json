@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "Project List",
+  "contentBody" : {
+    "activeViewId" : "Project_List",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "list-Project__c",
+    "urlPrefix" : "project"
+  },
+  "urlName" : "project-list"
+}
