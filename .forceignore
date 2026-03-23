@@ -11,6 +11,6 @@ package.xml
 # LWC Jest
 **/__tests__/**
 
-# Experience Cloud CMS bundles are org-specific; deploy fails on missing views / schema drift.
-# Retrieve with `sf project retrieve start --metadata DigitalExperienceBundle` when syncing the site.
-**/digitalExperiences/**
+# Experience Cloud CMS lives in force-app/portal only. Ignore any stray copy under main app.
+# Deploy portal with: sf project deploy start --source-dir force-app/portal
+force-app/main/default/digitalExperiences/**

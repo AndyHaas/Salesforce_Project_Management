@@ -21,7 +21,14 @@ This package directory contains all components related to the Experience Cloud p
 - `salesforceMessaging` - Wrapper component for Salesforce Lightning Experience
 
 ### Networks (Experience Cloud Sites)
-- `Client - Project Management Portal` - Experience Cloud site configuration
+- `Client - Project Management Portal` - Experience Cloud site configuration (`networks/Client - Project Management Portal.network-meta.xml`)
+
+### Digital Experience bundle & config
+- `digitalExperienceConfigs/Client_Project_Management_Portal1.digitalExperienceConfig-meta.xml`
+- `digitalExperiences/site/Client_Project_Management_Portal1/` (bundle + `Client_Project_Management_Portal1.digitalExperience-meta.xml`)
+
+### Permission sets
+- `Client_Project_Management_Portal_User` — assign to portal users (lives in this package, not `force-app/main`)
 
 ### Custom Fields
 - `Contact.Portal_Access_Enabled__c` - Checkbox to enable portal access for contacts
@@ -57,6 +64,9 @@ Portal setup instructions are included in the main [Dashboard Guide](../docs/wik
 
 ## Notes
 
+- If deploy fails with **no CustomSite named `Client_Project_Management_Portal`**, that site record may exist only in the org. Retrieve it into this package:  
+  `sf project retrieve start --metadata CustomSite:Client_Project_Management_Portal --target-org <alias>`  
+  then redeploy `force-app/portal`.
 - The portal fields on Contact and Account are included here so they can be excluded if portal functionality is not desired
 - If you want to keep the fields but not the portal site, you can deploy just the fields from this package
 - Platform Cache must be enabled in your org for OTP functionality to work
