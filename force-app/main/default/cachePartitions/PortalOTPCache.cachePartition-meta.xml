@@ -4,7 +4,7 @@
     <isDefaultPartition>true</isDefaultPartition>
     <masterLabel>PortalOTPCache</masterLabel>
     <platformCachePartitionTypes>
-        <allocatedCapacity>10</allocatedCapacity>
+        <allocatedCapacity>3</allocatedCapacity>
         <allocatedPartnerCapacity>0</allocatedPartnerCapacity>
         <allocatedPurchasedCapacity>0</allocatedPurchasedCapacity>
         <allocatedTrialCapacity>0</allocatedTrialCapacity>

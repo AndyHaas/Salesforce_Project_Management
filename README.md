@@ -74,7 +74,7 @@ This is an unmanaged package. To install:
 1. Clone this repository
 2. Deploy to your Salesforce org using Salesforce CLI:
    ```bash
-   sf project deploy start
+   sf project deploy start --source-dir force-app
    ```
 3. Assign appropriate permission sets to users
 
