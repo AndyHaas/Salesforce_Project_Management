@@ -17,7 +17,7 @@
         </inputParameters>
         <nameSegment>driveconnect__automateDrive</nameSegment>
     </actionCalls>
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
         <name>Is_New_Account</name>

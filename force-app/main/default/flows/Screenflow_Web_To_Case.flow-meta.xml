@@ -22,7 +22,7 @@
         </inputParameters>
         <nameSegment>FileUploadImprovedHelper</nameSegment>
     </actionCalls>
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <interviewLabel>Screenflow Web-To-Case {!$Flow.CurrentDateTime}</interviewLabel>
     <isAdditionalPermissionRequiredToRun>true</isAdditionalPermissionRequiredToRun>

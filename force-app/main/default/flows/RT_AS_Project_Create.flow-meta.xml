@@ -16,7 +16,7 @@
         </inputParameters>
         <nameSegment>driveconnect__automateDrive</nameSegment>
     </actionCalls>
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <interviewLabel>RT {!$Flow.CurrentDateTime}</interviewLabel>
     <label>RT-AS-Project-Create Root Drive Folder</label>

@@ -85,7 +85,7 @@
         <nameSegment>Timesheet_Entry_New_Entry_Bluewave</nameSegment>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
-    <apiVersion>60.0</apiVersion>
+    <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <environments>Default</environments>
     <interviewLabel>Launch Bluewave Time Entry Slack Actions {!$Flow.CurrentDateTime}</interviewLabel>

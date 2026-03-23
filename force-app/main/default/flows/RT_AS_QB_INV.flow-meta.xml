@@ -22,7 +22,7 @@
         </inputParameters>
         <nameSegment>FlowAction_CallSubflowHandler</nameSegment>
     </actionCalls>
-    <apiVersion>52.0</apiVersion>
+    <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
         <name>Invoice_Rejected</name>
