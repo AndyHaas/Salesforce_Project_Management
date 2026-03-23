@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>val_ProjectCompleted__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>This is used in a complex validation rule to make sure the project has not been completed. If the project has no more time entries can be inputed</description>
+    <label>val_ProjectCompleted</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

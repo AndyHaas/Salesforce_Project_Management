@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type__c</fullName>
+    <businessStatus>Active</businessStatus>
+    <label>Type</label>
+    <required>false</required>
+    <securityClassification>Public</securityClassification>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Adhoc - Platform Configuration</fullName>
+                <default>false</default>
+                <label>Adhoc - Platform Configuration</label>
+            </value>
+            <value>
+                <fullName>Adhoc - Development</fullName>
+                <default>false</default>
+                <label>Adhoc - Development</label>
+            </value>
+            <value>
+                <fullName>Administrative</fullName>
+                <default>false</default>
+                <label>Administrative</label>
+            </value>
+            <value>
+                <fullName>Bug Fix</fullName>
+                <default>false</default>
+                <label>Bug Fix</label>
+            </value>
+            <value>
+                <fullName>Deployment</fullName>
+                <default>false</default>
+                <label>Deployment</label>
+            </value>
+            <value>
+                <fullName>Documentation</fullName>
+                <default>false</default>
+                <label>Documentation</label>
+            </value>
+            <value>
+                <fullName>Feature Request - Development</fullName>
+                <default>false</default>
+                <label>Feature Request - Development</label>
+            </value>
+            <value>
+                <fullName>Feature Request - Platform Configuration</fullName>
+                <default>false</default>
+                <label>Feature Request - Platform Configuration</label>
+            </value>
+            <value>
+                <fullName>Jira Support</fullName>
+                <default>false</default>
+                <label>Jira Support</label>
+            </value>
+            <value>
+                <fullName>Meetings</fullName>
+                <default>false</default>
+                <label>Meetings</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+            <value>
+                <fullName>Project Management</fullName>
+                <default>false</default>
+                <label>Project Management</label>
+            </value>
+            <value>
+                <fullName>Reports/Dashboards</fullName>
+                <default>false</default>
+                <label>Reports/Dashboards</label>
+            </value>
+            <value>
+                <fullName>Test Scripts</fullName>
+                <default>false</default>
+                <label>Test Scripts</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -17,6 +17,10 @@
             <fullName>Medium</fullName>
             <default>false</default>
         </values>
+        <values>
+            <fullName>Urgent</fullName>
+            <default>false</default>
+        </values>
     </picklistValues>
     <picklistValues>
         <picklist>Status__c</picklist>
@@ -26,10 +30,6 @@
         </values>
         <values>
             <fullName>Blocked</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Closed</fullName>
             <default>false</default>
         </values>
         <values>
