@@ -5,6 +5,10 @@
         <formula>TRUE</formula>
     </fieldOverrides>
     <fieldOverrides>
+        <field>Ready_for_Client_Review__c</field>
+        <formula>FALSE</formula>
+    </fieldOverrides>
+    <fieldOverrides>
         <field>Status__c</field>
         <literalValue>Pending</literalValue>
     </fieldOverrides>
@@ -21,6 +25,6 @@
         </quickActionLayoutColumns>
         <quickActionLayoutColumns/>
     </quickActionLayout>
-    <successMessage>Task approved for development</successMessage>
+    <successMessage>Client approved; task moved to Pending</successMessage>
     <type>Update</type>
 </QuickAction>
