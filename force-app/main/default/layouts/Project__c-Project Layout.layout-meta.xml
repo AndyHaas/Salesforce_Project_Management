@@ -176,14 +176,6 @@
     </relatedLists>
     <relatedLists>
         <excludeButtons>MassChangeOwner</excludeButtons>
-        <excludeButtons>New</excludeButtons>
-        <fields>NAME</fields>
-        <fields>Invoice_Date__c</fields>
-        <fields>Due_Date__c</fields>
-        <relatedList>Quickbooks_Invoice__c.Project__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <excludeButtons>MassChangeOwner</excludeButtons>
         <fields>Milestone_Employee__c</fields>
         <relatedList>Project_Team__c.Project__c</relatedList>
     </relatedLists>
