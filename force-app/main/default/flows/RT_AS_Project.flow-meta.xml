@@ -15,7 +15,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Create_Invoice_Sub</targetReference>
+            <targetReference>Update_Project</targetReference>
         </connector>
     </assignments>
     <decisions>
@@ -47,7 +47,7 @@
             <label>Completed</label>
         </rules>
     </decisions>
-    <description>This flow will hold the subflows for anything that happens to the Project Object.</description>
+    <description>When a project reaches Deployed and is not yet invoiced, sets Actual Completion Date on the project record.</description>
     <interviewLabel>RT-AS-Project {!$Flow.CurrentDateTime}</interviewLabel>
     <label>RT-AS-Project-Status Updated</label>
     <processMetadataValues>
@@ -73,7 +73,7 @@
         <name>Update_Project</name>
         <label>Update Project</label>
         <locationX>50</locationX>
-        <locationY>695</locationY>
+        <locationY>575</locationY>
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
@@ -87,27 +87,4 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
-    <subflows>
-        <name>Create_Invoice_Sub</name>
-        <label>Create Invoice</label>
-        <locationX>50</locationX>
-        <locationY>575</locationY>
-        <connector>
-            <targetReference>Update_Project</targetReference>
-        </connector>
-        <flowName>Create_Quickbooks_Invoice_from_Project_Record</flowName>
-        <inputAssignments>
-            <name>recordId</name>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </inputAssignments>
-    </subflows>
-    <textTemplates>
-        <name>jsonCreateInvoice</name>
-        <isViewedAsPlainText>true</isViewedAsPlainText>
-        <text>{
-&quot;recordId&quot;:&quot;{!$Record}&quot;
-}</text>
-    </textTemplates>
 </Flow>

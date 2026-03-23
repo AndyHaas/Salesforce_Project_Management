@@ -205,10 +205,10 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>Project__c.New_Time_Entry</value>
+                            <value>Project__c.Create_Time_Entry_Record</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Project__c.Complete_Time_Entry</value>
+                            <value>Project__c.Slack_Alerts</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -1208,16 +1208,6 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>showShareControls</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentName>driveconnect:driveConnect</componentName>
-                <identifier>driveconnect_driveConnect</identifier>
-            </componentInstance>
-        </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
