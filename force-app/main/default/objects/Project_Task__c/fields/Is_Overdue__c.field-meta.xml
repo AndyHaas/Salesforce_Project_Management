@@ -11,7 +11,6 @@
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <inlineHelpText>Automatically checked when Due Date is in the past and task status is not Completed or Closed. Used for filtering and reporting on overdue tasks.</inlineHelpText>
     <label>Is Overdue</label>
-    <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>

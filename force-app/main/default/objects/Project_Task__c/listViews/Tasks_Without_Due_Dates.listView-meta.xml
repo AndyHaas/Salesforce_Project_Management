@@ -1,25 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Approved_Ready_for_Dev</fullName>
+    <fullName>Tasks_Without_Due_Dates</fullName>
     <columns>NAME</columns>
     <columns>Account__c</columns>
     <columns>CREATED_DATE</columns>
     <columns>Status__c</columns>
     <columns>Priority__c</columns>
     <columns>Review_Status_Icons__c</columns>
-    <columns>Developer__c</columns>
-    <columns>Client_User__c</columns>
-    <columns>OWNER.FIRST_NAME</columns>
+    <columns>Progress_Percentage__c</columns>
+    <columns>Estimated_Hours__c</columns>
+    <columns>Actual_Hours__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
-        <field>Client_Approved_for_Development__c</field>
+        <field>Due_Date__c</field>
         <operation>equals</operation>
-        <value>1</value>
     </filters>
-    <filters>
-        <field>Developer__c</field>
-        <operation>equals</operation>
-        <value>null</value>
-    </filters>
-    <label>Approved - Ready for Dev</label>
+    <label>Tasks Without Due Dates</label>
 </ListView>

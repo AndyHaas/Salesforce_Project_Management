@@ -4,13 +4,13 @@
     <description>Links a Project Task to its Project.</description>
     <inlineHelpText>Select the Project this task belongs to.</inlineHelpText>
     <label>Project</label>
-    <type>MasterDetail</type>
     <referenceTo>Project__c</referenceTo>
     <relationshipLabel>Project Tasks</relationshipLabel>
     <relationshipName>Project_Tasks</relationshipName>
     <relationshipOrder>0</relationshipOrder>
     <reparentableMasterDetail>true</reparentableMasterDetail>
-    <writeRequiresMasterRead>true</writeRequiresMasterRead>
     <trackFeedHistory>false</trackFeedHistory>
     <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>true</writeRequiresMasterRead>
 </CustomField>
