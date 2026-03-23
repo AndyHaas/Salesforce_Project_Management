@@ -38,6 +38,11 @@
     <description>Approval workflow that triggers when a Project Task in Backlog status is marked as ready for client review. When Ready_for_Client_Review__c is set to true, this flow sends an approval request to the client for backlog item approval. Upon approval, it sets Client_Approved_for_Development__c to true and Status to &quot;Pending&quot;. Upon rejection, it sets Client_Approved_for_Development__c to false and Status back to &quot;Backlog&quot;.</description>
     <environments>Default</environments>
     <formulas>
+        <name>form_ApproverUserId</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.CreatedById}</expression>
+    </formulas>
+    <formulas>
         <name>form_txt_RecordId</name>
         <dataType>String</dataType>
         <expression>{!$Record.Id}</expression>
@@ -59,7 +64,7 @@
             <actionType>stepApproval</actionType>
             <assignees>
                 <assignee>
-                    <stringValue>andy.haas@milestoneconsulting.tech.dev</stringValue>
+                    <elementReference>form_ApproverUserId</elementReference>
                 </assignee>
                 <assigneeType>User</assigneeType>
             </assignees>

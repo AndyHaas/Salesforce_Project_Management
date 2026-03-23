@@ -38,6 +38,11 @@
     <description>Approval workflow that triggers when a Project Task is submitted for PM/Code Reviewer review. When Status is set to &quot;In Review&quot; and Reviewed_by_PM_Code_Reviewer__c is false, this flow sends an approval request to the PM/Code Reviewer. Upon approval, it sets Reviewed_by_PM_Code_Reviewer__c to true, which triggers the Client Completion Approval Process. Upon rejection, it sets Reviewed_by_PM_Code_Reviewer__c to false and Status back to &quot;In Progress&quot;.</description>
     <environments>Default</environments>
     <formulas>
+        <name>form_ApproverUserId</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.CreatedById}</expression>
+    </formulas>
+    <formulas>
         <name>form_txt_RecordId</name>
         <dataType>String</dataType>
         <expression>{!$Record.Id}</expression>
@@ -59,7 +64,7 @@
             <actionType>stepApproval</actionType>
             <assignees>
                 <assignee>
-                    <stringValue>andy.haas@milestoneconsulting.tech.dev</stringValue>
+                    <elementReference>form_ApproverUserId</elementReference>
                 </assignee>
                 <assigneeType>User</assigneeType>
             </assignees>
