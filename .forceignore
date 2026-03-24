@@ -11,6 +11,5 @@ package.xml
 # LWC Jest
 **/__tests__/**
 
-# Experience Cloud CMS lives in force-app/portal only. Ignore any stray copy under main app.
-# Deploy portal with: sf project deploy start --source-dir force-app/portal
+# Ignore stray Experience Cloud bundle copy under main app if present.
 force-app/main/default/digitalExperiences/**
