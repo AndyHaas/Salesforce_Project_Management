@@ -47,7 +47,7 @@
 | `Portal_Config__c`                                           | Portal-related configuration records (used with add-on as applicable). |
 | `Release_Notes__c` / `Release_Tag__c` / `Release_Version__c` | Release documentation structure.                                       |
 
-Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** and **`OTP_Cleanup_Config__mdt`** (OTP/schedulers are exercised when the Portal Add-On is deployed—see [Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/getting-started/setup-guide)).
+Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** and **`OTP_Cleanup_Config__mdt`** (OTP/schedulers are exercised when the Portal Add-On is deployed—see [Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Setup-Guide)).
 
 ## Permission sets (core)
 
@@ -82,7 +82,7 @@ Edit under `.wiki`, commit and push **from `.wiki`** to update the published wik
 2. Authorize your org: `sf org login web --alias yourOrg`
 3. Deploy: `sf project deploy start --source-dir force-app`
 4. Assign **core** permission sets to pilot users.
-5. Complete **[Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/getting-started/setup-guide)**.
+5. Complete **[Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Setup-Guide)**.
 6. If you use Experience Cloud, deploy the **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** and complete its setup (cache, email, site, schedulers).
 
 > Avoid repeatedly deploying **only** individual Apex files from the IDE if you rely on **`TaskProjectTests`** in Setup—keep **`force-app/main/default/testSuites/TaskProjectTests.testSuite-meta.xml`** in sync with a **full** `force-app` deploy when possible.
