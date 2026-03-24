@@ -2,7 +2,7 @@
 
 **Commercial Salesforce solution** for delivery organizations that need **projects**, **tasks**, **dependencies**, **time**, and **review workflows** in **your** Salesforce org. **Optional client-facing Experience Cloud** (OTP login, portal UI, portal messaging) is a separate **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** repository that deploys into the same org after core.
 
-> This repository contains **unmanaged metadata** (Apex, LWC, flows, objects, permission sets). **Purchased customers** receive rights to deploy and use it per their agreement with **Milestone Consulting**. [Product overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/getting-started/Product-Overview) · [Licensing & support](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/Licensing-and-Support) · [Portal Add-On wiki](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/portal-add-on)
+> This repository contains **unmanaged metadata** (Apex, LWC, flows, objects, permission sets). **Purchased customers** receive rights to deploy and use it per their agreement with **Milestone Consulting**. [Product overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Product-Overview) · [Licensing & support](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Licensing-and-Support) · [Portal Add-On wiki](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/portal-add-on)
 
 ---
 
@@ -31,7 +31,7 @@
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | `force-app/main/default` | **Default (and only) package directory** in this project: objects, LWCs, Apex, flows, internal permission sets, tests. |
 
-**Optional portal:** clone and deploy **[Salesforce-Project-Management---Portal-Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** as a second Salesforce project after core. See the [deployment overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/processes/Deployment-Overview) and [Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/portal-add-on).
+**Optional portal:** clone and deploy **[Salesforce-Project-Management---Portal-Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** as a second Salesforce project after core. See the [deployment overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Deployment-Overview) and [Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/portal-add-on).
 
 **API version:** see `sfdx-project.json` (`sourceApiVersion`).
 
@@ -47,7 +47,7 @@
 | `Portal_Config__c`                                           | Portal-related configuration records (used with add-on as applicable). |
 | `Release_Notes__c` / `Release_Tag__c` / `Release_Version__c` | Release documentation structure.                                       |
 
-Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** and **`OTP_Cleanup_Config__mdt`** (OTP/schedulers are exercised when the Portal Add-On is deployed—see [Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/getting-started/Setup-Guide)).
+Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** and **`OTP_Cleanup_Config__mdt`** (OTP/schedulers are exercised when the Portal Add-On is deployed—see [Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Setup-Guide)).
 
 ## Permission sets (core)
 
@@ -60,7 +60,7 @@ Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** an
 
 **`Client_Project_Management_Portal_User`** and other client portal access ship with the **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)**.
 
-Details: [Permission Sets](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/Permission-Sets).
+Details: [Permission Sets](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Permission-Sets).
 
 ## Documentation (wiki)
 
@@ -82,7 +82,7 @@ Edit under `.wiki`, commit and push **from `.wiki`** to update the published wik
 2. Authorize your org: `sf org login web --alias yourOrg`
 3. Deploy: `sf project deploy start --source-dir force-app`
 4. Assign **core** permission sets to pilot users.
-5. Complete **[Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/getting-started/Setup-Guide)**.
+5. Complete **[Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Setup-Guide)**.
 6. If you use Experience Cloud, deploy the **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** and complete its setup (cache, email, site, schedulers).
 
 > Avoid repeatedly deploying **only** individual Apex files from the IDE if you rely on **`TaskProjectTests`** in Setup—keep **`force-app/main/default/testSuites/TaskProjectTests.testSuite-meta.xml`** in sync with a **full** `force-app` deploy when possible.
@@ -150,7 +150,7 @@ Replace `04tXXXXXXXXXXXXXXX` with the **subscriber package version Id** from `sf
 - **Platform Cache** and related items when using OTP portal login (add-on).
 - **Salesforce CLI** (`sf`), **Node.js** for LWC tooling (`npm install`).
 
-Full checklist: [System requirements](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/System-Requirements).
+Full checklist: [System requirements](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/System-Requirements).
 
 ## Development
 
@@ -190,6 +190,6 @@ For **Milestone** internal or **partner** contributions: use feature branches, d
 
 - **Product questions / defects:** use the support channel in your agreement.
 - **Salesforce platform:** open cases with Salesforce as appropriate.
-- **Wiki:** [Licensing and support](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/Licensing-and-Support).
+- **Wiki:** [Licensing and support](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Licensing-and-Support).
 
 Repository issues may be used for **public** bug reports or discussions **if** your program allows—confirm with Milestone before relying on GitHub for SLA-bound support.
