@@ -87,6 +87,49 @@ Edit under `.wiki`, commit and push **from `.wiki`** to update the published wik
 
 > Avoid repeatedly deploying **only** individual Apex files from the IDE if you rely on **`TaskProjectTests`** in Setup—keep **`force-app/main/default/testSuites/TaskProjectTests.testSuite-meta.xml`** in sync with a **full** `force-app` deploy when possible.
 
+### Install link (unlocked package — same metadata, subscriber-friendly URL)
+
+Salesforce does not generate a permanent install URL from source on GitHub alone. You create an **unlocked** second-generation package in a **Dev Hub**, publish a **package version**, then share the URL below with the **subscriber package version Id** (`04t…`).
+
+**Install URL (production orgs)**
+
+```text
+https://login.salesforce.com/packaging/installPackage.apexp?p0=04tXXXXXXXXXXXXXXX
+```
+
+**Install URL (sandbox orgs)**
+
+```text
+https://test.salesforce.com/packaging/installPackage.apexp?p0=04tXXXXXXXXXXXXXXX
+```
+
+Replace `04tXXXXXXXXXXXXXXX` with your version’s subscriber Id (from the `sf package version create` output, **Setup → Packaging → Package Manager**, or `sf package version list`).
+
+**Maintainer: create the package once (writes `packageAliases` in `sfdx-project.json`)**
+
+```bash
+sf package create \
+  --name "Milestone Project Management Core" \
+  --package-type Unlocked \
+  --path force-app \
+  --no-namespace \
+  --target-dev-hub YourDevHubAlias
+```
+
+**Maintainer: create a new installable version**
+
+```bash
+sf package version create \
+  --package "Milestone Project Management Core" \
+  --installation-key-bypass \
+  --wait 90 \
+  --target-dev-hub YourDevHubAlias
+```
+
+After the version is **Available**, copy the `04t` Id into the URLs above. Optional: promote the version for production installs per your release process (`sf package version promote`).
+
+> **Legacy unmanaged (1GP)** packages use **Setup → Package Manager** to upload an unmanaged package; the install link still uses the same `installPackage.apexp?p0=` pattern with the uploaded version’s Id. New work should prefer **unlocked** packages and the CLI flow above.
+
 ## System requirements (summary)
 
 - Salesforce **Enterprise** (or higher) typical for full Experience Cloud; confirm with your AE.
