@@ -87,61 +87,25 @@ Edit under `.wiki`, commit and push **from `.wiki`** to update the published wik
 
 > Avoid repeatedly deploying **only** individual Apex files from the IDE if you rely on **`TaskProjectTests`** in Setup—keep **`force-app/main/default/testSuites/TaskProjectTests.testSuite-meta.xml`** in sync with a **full** `force-app` deploy when possible.
 
-### Install link (unlocked package — same metadata, subscriber-friendly URL)
+### Install unlocked package (released version)
 
-Salesforce does not generate a permanent install URL from source on GitHub alone. You create an **unlocked** second-generation package in a **Dev Hub**, publish a **package version**, then share the URL below with the **subscriber package version Id** (`04t…`).
+Install **before production** in a **full sandbox** when possible. After install, complete the **[Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Setup-Guide)** and assign **core** permission sets.
 
-**Install URL (production orgs)**
+**Subscriber package version Id (current released build):** `04tQm0000039ZpdIAE`  
+_Update this Id in the table below whenever Milestone promotes a new package version (see internal guide)._
 
-```text
-https://login.salesforce.com/packaging/installPackage.apexp?p0=04tXXXXXXXXXXXXXXX
-```
+| Environment    | Install link                                                                                                                      |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Production** | [Install in production (login.salesforce.com)](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tQm0000039ZpdIAE) |
+| **Sandbox**    | [Install in sandbox (test.salesforce.com)](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tQm0000039ZpdIAE)      |
 
-**Install URL (sandbox orgs)**
-
-```text
-https://test.salesforce.com/packaging/installPackage.apexp?p0=04tXXXXXXXXXXXXXXX
-```
-
-Replace `04tXXXXXXXXXXXXXXX` with your version’s subscriber Id (from the `sf package version create` output, **Setup → Packaging → Package Manager**, or `sf package version list`).
-
-Packaging commands below use the **Milestone Dev Hub** org alias **`milestoneDevHub`**. If your CLI default Dev Hub is already set (`sf config get target-dev-hub`), you can omit `--target-dev-hub`.
-
-**Maintainer: create the package once (writes `packageAliases` in `sfdx-project.json`)**
+You can also install from the CLI after authorizing the target org:
 
 ```bash
-sf package create \
-  --name "Milestone Project Management Core" \
-  --package-type Unlocked \
-  --path force-app \
-  --no-namespace \
-  --target-dev-hub milestoneDevHub
+sf package install --package 04tQm0000039ZpdIAE --target-org yourOrgAlias
 ```
 
-**Maintainer: create a new installable version**
-
-Use **`--code-coverage`** so Apex tests run during validation. **Without it, the version cannot be promoted** (`sf package version promote` fails with “Code coverage has not been run for this version”). Packaged code must meet Salesforce’s **75%** Apex coverage requirement.
-
-```bash
-sf package version create \
-  --package "Milestone Project Management Core" \
-  --installation-key-bypass \
-  --code-coverage \
-  --wait 120 \
-  --target-dev-hub milestoneDevHub
-```
-
-After the version is **Available**, copy the `04t` Id into the install URLs above. To mark that version as **released** (required for some subscriber / production install flows), promote it in the Dev Hub:
-
-```bash
-sf package version promote \
-  --package 04tXXXXXXXXXXXXXXX \
-  --target-dev-hub milestoneDevHub
-```
-
-Replace `04tXXXXXXXXXXXXXXX` with the **subscriber package version Id** from `sf package version create` / **Package Versions** in Setup. This only succeeds for versions created **with** `--code-coverage` that meet the **75%** Apex coverage rule. Add **`--no-prompt`** to skip the confirmation prompt (for example in CI).
-
-> **Legacy unmanaged (1GP)** packages use **Setup → Package Manager** to upload an unmanaged package; the install link still uses the same `installPackage.apexp?p0=` pattern with the uploaded version’s Id. New work should prefer **unlocked** packages and the CLI flow above.
+**Milestone internal:** creating package versions, code coverage, and promotion — see **[Internal Unlocked Package Release](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/internal-unlocked-package-release)** (wiki).
 
 ## System requirements (summary)
 
