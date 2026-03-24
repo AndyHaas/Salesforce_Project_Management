@@ -60,7 +60,7 @@ Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** an
 
 **`Client_Project_Management_Portal_User`** and other client portal access ship with the **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)**.
 
-Details: [Permission Sets](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/permission-sets).
+Details: [Permission Sets](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Permission-Sets).
 
 ## Documentation (wiki)
 
