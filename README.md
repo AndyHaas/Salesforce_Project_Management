@@ -17,7 +17,7 @@ This package provides a complete project and task management solution for Salesf
 
 ## Documentation (wiki)
 
-End-user and admin documentation is maintained in the [GitHub Wiki](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki). The wiki is a separate Git repository attached as the **`.wiki`** submodule in this project; after cloning, run `git submodule update --init .wiki` to edit pages locally, then commit and push from `.wiki` to update the wiki on GitHub.
+End-user and admin documentation lives in the [GitHub Wiki](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki). Source for those pages is **only** the **`.wiki`** directory at the repo root—a separate Git repository ([submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)). After cloning, run `git submodule update --init .wiki` (or clone with `--recurse-submodules`), edit Markdown under `.wiki`, then commit and push **from `.wiki`** to update the published wiki. Do not add a second `wiki/` or `docs/wiki/` tree; a root-level `wiki/` folder is ignored by `.gitignore` to avoid accidental duplicates.
 
 ## Package Contents
 
@@ -82,10 +82,6 @@ This is an unmanaged package. To install:
    ```
    Avoid deploying only individual Apex classes from the IDE if you rely on the **TaskProjectTests** suite in Setup—without redeploying `force-app/main/default/testSuites/TaskProjectTests.testSuite-meta.xml`, the org can show missing suite members until the next full deploy.
 3. Assign appropriate permission sets to users
-
-## Documentation
-
-- [Dashboard Guide](docs/wiki/Dashboard_Guide.md) - Comprehensive documentation for dashboard components, task relationships, and field set configuration
 
 ## Development
 

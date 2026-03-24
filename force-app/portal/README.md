@@ -60,7 +60,7 @@ When creating a package, simply don't include the `force-app/portal` directory. 
 
 ## Setup
 
-Portal setup instructions are included in the main [Dashboard Guide](../docs/wiki/Dashboard_Guide.md#portaldigital-experience-updates). For detailed portal configuration, refer to the Experience Cloud documentation in Salesforce Setup.
+Portal setup and dashboard context are documented in the [Project Task Dashboard Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/client-guides/project-task-dashboard#portal-digital-experience-updates) (GitHub Wiki). For detailed portal configuration, refer to the Experience Cloud documentation in Salesforce Setup.
 
 ## Notes
 
