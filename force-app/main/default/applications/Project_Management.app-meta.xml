@@ -10,7 +10,7 @@
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
     <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
-    <label>Project Management</label>
+    <label>Milestone Salesforce Project Management</label>
     <navType>Console</navType>
     <tabs>standard-home</tabs>
     <tabs>Project_Task_List</tabs>

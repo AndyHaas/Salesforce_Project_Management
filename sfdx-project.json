@@ -10,7 +10,7 @@
       "package": "Portal"
     }
   ],
-  "name": "Milestone-Task-Management",
+  "name": "Milestone-Salesforce-Project-Management",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
   "sourceApiVersion": "66.0"

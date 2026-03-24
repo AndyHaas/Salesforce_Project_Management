@@ -1,5 +1,5 @@
 {
-  "name": "milestone-task-management",
+  "name": "milestone-salesforce-project-management",
   "private": true,
   "version": "1.0.0",
   "description": "Unmanaged Salesforce package for Milestone project and task management, Experience Cloud portal, and portal messaging (LWC, Apex, tooling).",
