@@ -31,7 +31,7 @@
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | `force-app/main/default` | **Default (and only) package directory** in this project: objects, LWCs, Apex, flows, internal permission sets, tests. |
 
-**Optional portal:** clone and deploy **[Salesforce-Project-Management---Portal-Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** as a second Salesforce project after core. See the [deployment overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/processes/deployment-overview) and [Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/portal-add-on).
+**Optional portal:** clone and deploy **[Salesforce-Project-Management---Portal-Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** as a second Salesforce project after core. See the [deployment overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Deployment-Overview) and [Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/portal-add-on).
 
 **API version:** see `sfdx-project.json` (`sourceApiVersion`).
 
