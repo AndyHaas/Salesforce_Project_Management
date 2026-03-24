@@ -2,7 +2,7 @@
 
 **Commercial Salesforce solution** for delivery organizations that need **projects**, **tasks**, **dependencies**, **time**, and **review workflows** in **your** Salesforce org. **Optional client-facing Experience Cloud** (OTP login, portal UI, portal messaging) is a separate **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** repository that deploys into the same org after core.
 
-> This repository contains **unmanaged metadata** (Apex, LWC, flows, objects, permission sets). **Purchased customers** receive rights to deploy and use it per their agreement with **Milestone Consulting**. [Product overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/getting-started/product-overview) · [Licensing & support](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/licensing-and-support) · [Portal Add-On wiki](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/portal-add-on)
+> This repository contains **unmanaged metadata** (Apex, LWC, flows, objects, permission sets). **Purchased customers** receive rights to deploy and use it per their agreement with **Milestone Consulting**. [Product overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Product-Overview) · [Licensing & support](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Licensing-and-Support) · [Portal Add-On wiki](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/portal-add-on)
 
 ---
 
@@ -132,6 +132,6 @@ For **Milestone** internal or **partner** contributions: use feature branches, d
 
 - **Product questions / defects:** use the support channel in your agreement.
 - **Salesforce platform:** open cases with Salesforce as appropriate.
-- **Wiki:** [Licensing and support](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/licensing-and-support).
+- **Wiki:** [Licensing and support](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Licensing-and-Support).
 
 Repository issues may be used for **public** bug reports or discussions **if** your program allows—confirm with Milestone before relying on GitHub for SLA-bound support.
