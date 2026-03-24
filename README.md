@@ -91,18 +91,18 @@ Edit under `.wiki`, commit and push **from `.wiki`** to update the published wik
 
 Install **before production** in a **full sandbox** when possible. After install, complete the **[Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Setup-Guide)** and assign **core** permission sets.
 
-**Subscriber package version Id (current released build):** `04tQm0000039ZpdIAE`  
+**Subscriber package version Id (current released build):** `04tQm0000039ZxhIAE`  
 _Update this Id in the table below whenever Milestone promotes a new package version (see internal guide)._
 
 | Environment    | Install link                                                                                                                      |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| **Production** | [Install in production (login.salesforce.com)](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tQm0000039ZpdIAE) |
-| **Sandbox**    | [Install in sandbox (test.salesforce.com)](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tQm0000039ZpdIAE)      |
+| **Production** | [Install in production (login.salesforce.com)](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tQm0000039ZxhIAE) |
+| **Sandbox**    | [Install in sandbox (test.salesforce.com)](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tQm0000039ZxhIAE)      |
 
 You can also install from the CLI after authorizing the target org:
 
 ```bash
-sf package install --package 04tQm0000039ZpdIAE --target-org yourOrgAlias
+sf package install --package 04tQm0000039ZxhIAE --target-org yourOrgAlias
 ```
 
 **Milestone internal:** creating package versions, code coverage, and promotion — see **[Internal Unlocked Package Release](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/internal-unlocked-package-release)** (wiki).
