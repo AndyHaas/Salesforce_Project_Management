@@ -1,17 +1,19 @@
 {
   "packageDirectories": [
     {
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
       "path": "force-app",
       "default": true,
       "package": "Milestone Project Management Core",
-      "versionName": "Release 1.0",
-      "versionNumber": "1.0.0.NEXT",
-      "versionDescription": "Core metadata for subscriber install via package URL (unlocked 2GP)."
+      "versionDescription": ""
     }
   ],
   "name": "Milestone-Salesforce-Project-Management",
   "namespace": "",
   "sfdcLoginUrl": "https://login.sforce.com",
   "sourceApiVersion": "66.0",
-  "packageAliases": {}
+  "packageAliases": {
+    "Milestone Project Management Core": "0HoQm00000001fFKAQ"
+  }
 }
