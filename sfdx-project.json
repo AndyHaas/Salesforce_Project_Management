@@ -7,6 +7,6 @@
   ],
   "name": "Milestone-Salesforce-Project-Management",
   "namespace": "",
-  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sfdcLoginUrl": "https://login.sforce.com",
   "sourceApiVersion": "66.0"
 }
