@@ -94,7 +94,7 @@ Edit under `.wiki`, commit and push **from `.wiki`** to update the published wik
 - **Platform Cache** and related items when using OTP portal login (add-on).
 - **Salesforce CLI** (`sf`), **Node.js** for LWC tooling (`npm install`).
 
-Full checklist: [System requirements](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/reference/system-requirements).
+Full checklist: [System requirements](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/System-Requirements).
 
 ## Development
 
