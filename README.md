@@ -149,6 +149,8 @@ Full checklist: [System requirements](https://github.com/Milestone-Consulting/Sa
 - Node.js and npm
 - VS Code with Salesforce Extensions (recommended)
 
+**Scratch orgs / packaging:** This repo includes **`.sf/config.json`** with **`org-capitalize-record-types=true`** so record types from scratch definitions stay **capitalized** when Salesforce changes the CLI default. Keep that key if you merge local `sf` settings (`target-org`, `target-dev-hub`, etc.) into the same file. Other contents under **`.sf/`** (for example **`orgs/`**) stay gitignored.
+
 ### Setup
 
 ```bash

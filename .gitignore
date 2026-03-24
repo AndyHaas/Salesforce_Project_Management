@@ -5,8 +5,9 @@
 # Wiki content belongs in the .wiki submodule only (not a second root-level wiki/ folder)
 /wiki/
 
-# Salesforce cache
-.sf/
+# Salesforce local cache (shared CLI defaults: see .sf/config.json)
+.sf/*
+!.sf/config.json
 .sfdx/
 .localdevserver/
 deploy-options.json
