@@ -1,8 +1,8 @@
 {
-  "name": "salesforce-app",
+  "name": "milestone-task-management",
   "private": true,
   "version": "1.0.0",
-  "description": "Salesforce App",
+  "description": "Unmanaged Salesforce package for Milestone project and task management, Experience Cloud portal, and portal messaging (LWC, Apex, tooling).",
   "scripts": {
     "lint": "eslint **/{aura,lwc}/**/*.js",
     "test": "npm run test:unit",
