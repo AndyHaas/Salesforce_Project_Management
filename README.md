@@ -15,6 +15,10 @@ This package provides a complete project and task management solution for Salesf
 - **Experience Cloud Portal**: Client portal with custom login and task visibility
 - **Portal Messaging**: Secure messaging system for client-team communication with infinite scrolling, search, and file attachments
 
+## Documentation (wiki)
+
+End-user and admin documentation is maintained in the [GitHub Wiki](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki). The wiki is a separate Git repository attached as the **`.wiki`** submodule in this project; after cloning, run `git submodule update --init .wiki` to edit pages locally, then commit and push from `.wiki` to update the wiki on GitHub.
+
 ## Package Contents
 
 ### Custom Objects
