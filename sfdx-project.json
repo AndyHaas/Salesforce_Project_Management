@@ -14,6 +14,7 @@
   "sfdcLoginUrl": "https://login.sforce.com",
   "sourceApiVersion": "66.0",
   "packageAliases": {
-    "Milestone Project Management Core": "0HoQm00000001fFKAQ"
+    "Milestone Project Management Core": "0HoQm00000001fFKAQ",
+    "Milestone Project Management Core@0.1.0-1": "04tQm0000039Zb7IAE"
   }
 }
