@@ -105,6 +105,8 @@ https://test.salesforce.com/packaging/installPackage.apexp?p0=04tXXXXXXXXXXXXXXX
 
 Replace `04tXXXXXXXXXXXXXXX` with your version’s subscriber Id (from the `sf package version create` output, **Setup → Packaging → Package Manager**, or `sf package version list`).
 
+Packaging commands below use the **Milestone Dev Hub** org alias **`milestoneDevHub`**. If your CLI default Dev Hub is already set (`sf config get target-dev-hub`), you can omit `--target-dev-hub`.
+
 **Maintainer: create the package once (writes `packageAliases` in `sfdx-project.json`)**
 
 ```bash
@@ -113,7 +115,7 @@ sf package create \
   --package-type Unlocked \
   --path force-app \
   --no-namespace \
-  --target-dev-hub YourDevHubAlias
+  --target-dev-hub milestoneDevHub
 ```
 
 **Maintainer: create a new installable version**
@@ -123,7 +125,7 @@ sf package version create \
   --package "Milestone Project Management Core" \
   --installation-key-bypass \
   --wait 90 \
-  --target-dev-hub YourDevHubAlias
+  --target-dev-hub milestoneDevHub
 ```
 
 After the version is **Available**, copy the `04t` Id into the URLs above. Optional: promote the version for production installs per your release process (`sf package version promote`).
