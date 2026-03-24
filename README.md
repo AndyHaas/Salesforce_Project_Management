@@ -120,15 +120,18 @@ sf package create \
 
 **Maintainer: create a new installable version**
 
+Use **`--code-coverage`** so Apex tests run during validation. **Without it, the version cannot be promoted** (`sf package version promote` fails with “Code coverage has not been run for this version”). Packaged code must meet Salesforce’s **75%** Apex coverage requirement.
+
 ```bash
 sf package version create \
   --package "Milestone Project Management Core" \
   --installation-key-bypass \
-  --wait 90 \
+  --code-coverage \
+  --wait 120 \
   --target-dev-hub milestoneDevHub
 ```
 
-After the version is **Available**, copy the `04t` Id into the URLs above. Optional: promote the version for production installs per your release process (`sf package version promote`).
+After the version is **Available**, copy the `04t` Id into the URLs above. To mark a version as **released** for subscriber production installs, run `sf package version promote` (only works on versions created **with** `--code-coverage` and passing coverage).
 
 > **Legacy unmanaged (1GP)** packages use **Setup → Package Manager** to upload an unmanaged package; the install link still uses the same `installPackage.apexp?p0=` pattern with the uploaded version’s Id. New work should prefer **unlocked** packages and the CLI flow above.
 
