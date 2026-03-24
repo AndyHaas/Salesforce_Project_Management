@@ -131,7 +131,15 @@ sf package version create \
   --target-dev-hub milestoneDevHub
 ```
 
-After the version is **Available**, copy the `04t` Id into the URLs above. To mark a version as **released** for subscriber production installs, run `sf package version promote` (only works on versions created **with** `--code-coverage` and passing coverage).
+After the version is **Available**, copy the `04t` Id into the install URLs above. To mark that version as **released** (required for some subscriber / production install flows), promote it in the Dev Hub:
+
+```bash
+sf package version promote \
+  --package 04tXXXXXXXXXXXXXXX \
+  --target-dev-hub milestoneDevHub
+```
+
+Replace `04tXXXXXXXXXXXXXXX` with the **subscriber package version Id** from `sf package version create` / **Package Versions** in Setup. This only succeeds for versions created **with** `--code-coverage` that meet the **75%** Apex coverage rule. Add **`--no-prompt`** to skip the confirmation prompt (for example in CI).
 
 > **Legacy unmanaged (1GP)** packages use **Setup → Package Manager** to upload an unmanaged package; the install link still uses the same `installPackage.apexp?p0=` pattern with the uploaded version’s Id. New work should prefer **unlocked** packages and the CLI flow above.
 
