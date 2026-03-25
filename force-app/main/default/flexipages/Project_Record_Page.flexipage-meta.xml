@@ -205,7 +205,10 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>Project__c.Create_Time_Entry_Record</value>
+                            <value>Project__c.New_Time_Entry</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Project__c.Complete_Time_Entry</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -835,6 +838,16 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>groupedTaskList</componentName>
+                <identifier>c_groupedTaskList</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-74998b93-f544-451a-b9ef-a66d3a73f797</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>active</name>
                     <value>true</value>
@@ -867,6 +880,20 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>detailTab</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-74998b93-f544-451a-b9ef-a66d3a73f797</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>Project Task</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+                <identifier>flexipage_tab</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
@@ -1009,6 +1036,24 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>recordId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedAccountId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedProjectId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedTaskId</name>
+                </componentInstanceProperties>
+                <componentName>portalMessaging</componentName>
+                <identifier>c_portalMessaging</identifier>
+            </componentInstance>
+        </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
