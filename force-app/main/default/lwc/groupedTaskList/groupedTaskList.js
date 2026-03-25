@@ -33,6 +33,22 @@ import USER_ID from '@salesforce/user/Id';
 /** Standard Account record Id prefix (same in all orgs). Avoids empty task list when getObjectInfo is slow or errors. */
 const STANDARD_ACCOUNT_KEY_PREFIX = '001';
 
+/** Compare Salesforce Ids allowing 15- vs 18-char forms */
+function salesforceIdsEqual(a, b) {
+    if (a == null || b == null) {
+        return false;
+    }
+    const sa = String(a).trim();
+    const sb = String(b).trim();
+    if (sa === sb) {
+        return true;
+    }
+    if (sa.length >= 15 && sb.length >= 15) {
+        return sa.substring(0, 15).toLowerCase() === sb.substring(0, 15).toLowerCase();
+    }
+    return false;
+}
+
 export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @api recordId; // Account or Project Id on record pages (see resolvedProjectId)
     @api accountId; // Can be set manually for App/Home pages
@@ -262,10 +278,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (this.resolvedProjectId) {
             return [];
         }
-        // Portal: force current user's account (or none) to avoid showing all accounts
-        if (this.isExperienceSite) {
-            return this.currentUserAccountId ? [this.currentUserAccountId] : [];
-        }
 
         // Priority (internal): 1. message channel filter, 2. recordId, 3. selectedAccountId, 4. accountId, 5. currentUserAccountId (when enabled)
         let accountIds = [];
@@ -296,9 +308,24 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         } else if (this.useCurrentUserAccount && this.currentUserAccountId) {
             accountIds = [this.currentUserAccountId];
         }
-        
-        // Filter out empty strings and null values
-        return accountIds.filter(id => id != null && (typeof id === 'string' ? id.trim().length > 0 : true));
+
+        const result = accountIds.filter(id => id != null && (typeof id === 'string' ? id.trim().length > 0 : true));
+
+        // Experience Cloud App/Home (no Account record in context): scope to the logged-in user's Account.
+        // Do NOT override when viewing an Account record page — recordId must drive the query (see recordId branch above).
+        if (result.length === 0 && this.isExperienceSite) {
+            const rid = this.recordId;
+            const pre = typeof rid === 'string' && rid.length >= 3 ? rid.substring(0, 3) : '';
+            const viewingAccountRecord =
+                rid &&
+                (pre === STANDARD_ACCOUNT_KEY_PREFIX ||
+                    (this._accountKeyPrefix && pre === this._accountKeyPrefix));
+            if (!viewingAccountRecord) {
+                return this.currentUserAccountId ? [this.currentUserAccountId] : [];
+            }
+        }
+
+        return result;
     }
     
     get isFilteredByAccount() {
@@ -995,10 +1022,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (!contactIdToMatch) {
             return false;
         }
-        
-        return projectManagerId === contactIdToMatch ||
-               developerId === contactIdToMatch ||
-               clientUserId === contactIdToMatch;
+
+        return (
+            salesforceIdsEqual(projectManagerId, contactIdToMatch) ||
+            salesforceIdsEqual(developerId, contactIdToMatch) ||
+            salesforceIdsEqual(clientUserId, contactIdToMatch)
+        );
     }
     
     getStatusBadgeClass(status) {
