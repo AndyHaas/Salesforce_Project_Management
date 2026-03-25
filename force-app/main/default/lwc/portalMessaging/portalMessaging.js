@@ -25,6 +25,7 @@
  */
 
 import { LightningElement, api, wire, track } from 'lwc';
+import { subscribe as empSubscribe, unsubscribe as empUnsubscribe, onError } from 'lightning/empApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE, publish } from 'lightning/messageService';
 import { CurrentPageReference, NavigationMixin } from 'lightning/navigation';
@@ -42,6 +43,28 @@ import linkFilesToMessage from '@salesforce/apex/PortalMessagingController.linkF
 import getMessageFiles from '@salesforce/apex/PortalMessagingController.getMessageFiles';
 import { ensureSitePath, formatDate, formatDateTime } from 'c/portalCommon';
 import MESSAGE_UPDATE_CHANNEL from '@salesforce/messageChannel/MessageUpdate__c';
+
+/** CDC channels (org must enable Change Data Capture on these entities). */
+const CDC_CHANNELS = [
+    '/data/AccountChangeEvent',
+    '/data/Project__ChangeEvent',
+    '/data/Project_Task__ChangeEvent'
+];
+
+const CDC_REPLAY_ID = -1;
+
+/** Single EMP error listener across all component instances. */
+let empApiErrorListenerRegistered = false;
+
+function registerEmpApiErrorListener() {
+    if (empApiErrorListenerRegistered) {
+        return;
+    }
+    empApiErrorListenerRegistered = true;
+    onError((error) => {
+        console.error('Streaming API (Change Data Capture) error:', JSON.stringify(error));
+    });
+}
 
 export default class PortalMessaging extends NavigationMixin(LightningElement) {
     @api recordId; // Automatically populated when on a Lightning Record Page
@@ -66,6 +89,9 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     _wiredContactsResult;
     _messageContext;
     _messageSubscription;
+    /** @type {object[]} Subscription handles from lightning/empApi subscribe */
+    _cdcSubscriptions = [];
+    _cdcDebounceTimer = null;
     @track _editingMessageId = null;
     @track _editingMessageBody = '';
     @track _isModalOpen = false;
@@ -227,6 +253,114 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
                 JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
             );
         }
+    }
+    
+    /**
+     * Manual refresh: same reload path as CDC (messages + context).
+     */
+    async handleRefreshMessages() {
+        if (this._cdcDebounceTimer) {
+            clearTimeout(this._cdcDebounceTimer);
+            this._cdcDebounceTimer = null;
+        }
+        try {
+            await this.loadMessages(false);
+            await this.loadContextInfo();
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Refreshed',
+                    message: 'Messages were updated.',
+                    variant: 'success'
+                })
+            );
+        } catch (e) {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Refresh failed',
+                    message: 'Could not reload messages.',
+                    variant: 'error'
+                })
+            );
+        }
+    }
+    
+    /**
+     * Subscribe to Account / Project / Task Change Data Capture channels (empApi).
+     */
+    async subscribeToChangeDataCapture() {
+        registerEmpApiErrorListener();
+        for (const channel of CDC_CHANNELS) {
+            try {
+                const subscription = await empSubscribe(channel, CDC_REPLAY_ID, (response) => {
+                    this.handleCdcEvent(response);
+                });
+                this._cdcSubscriptions.push(subscription);
+            } catch (e) {
+                console.error(`CDC subscribe failed for ${channel}:`, e);
+            }
+        }
+    }
+    
+    /**
+     * @param {object} response empApi message callback argument
+     */
+    handleCdcEvent(response) {
+        try {
+            let payload = response?.data?.payload;
+            if (payload == null) {
+                return;
+            }
+            if (typeof payload === 'string') {
+                payload = JSON.parse(payload);
+            }
+            if (this.isCdcEventRelevant(payload)) {
+                this.scheduleCdcRefresh();
+            }
+        } catch (e) {
+            console.error('CDC event handling error:', e);
+        }
+    }
+    
+    /**
+     * True when any CDC record id matches this component's related Account / Project / Task.
+     */
+    isCdcEventRelevant(payload) {
+        const header = payload?.ChangeEventHeader;
+        if (!header || !Array.isArray(header.recordIds)) {
+            return false;
+        }
+        const ctxIds = [this.relatedAccountId, this.relatedProjectId, this.relatedTaskId].filter(
+            (id) => id != null && String(id).length > 0
+        );
+        if (ctxIds.length === 0) {
+            return false;
+        }
+        const recordSet = new Set(header.recordIds);
+        return ctxIds.some((id) => recordSet.has(id));
+    }
+    
+    /**
+     * Debounce CDC-triggered reloads to avoid bursts of getMessages calls.
+     */
+    scheduleCdcRefresh() {
+        if (this._cdcDebounceTimer) {
+            clearTimeout(this._cdcDebounceTimer);
+        }
+        this._cdcDebounceTimer = setTimeout(() => {
+            this._cdcDebounceTimer = null;
+            this.loadMessages(false).then(() => this.loadContextInfo());
+        }, 400);
+    }
+    
+    unsubscribeChangeDataCapture() {
+        if (this._cdcDebounceTimer) {
+            clearTimeout(this._cdcDebounceTimer);
+            this._cdcDebounceTimer = null;
+        }
+        for (const sub of this._cdcSubscriptions) {
+            empUnsubscribe(sub, () => {});
+        }
+        this._cdcSubscriptions = [];
     }
     
     /**
@@ -657,12 +791,14 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         if (this._messageContext) {
             this.subscribeToMessageUpdates();
         }
+        void this.subscribeToChangeDataCapture();
     }
     
     /**
      * @description Lifecycle hook - component is removed from the DOM
      */
     disconnectedCallback() {
+        this.unsubscribeChangeDataCapture();
         // Unsubscribe from message updates
         if (this._messageSubscription) {
             unsubscribe(this._messageSubscription);

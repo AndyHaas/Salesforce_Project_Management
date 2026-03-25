@@ -1,7 +1,17 @@
 <template>
     <template if:true={showHeaderEnabled}>
         <lightning-card class="messaging-card">
-            <!-- Header Actions (Search) -->
+            <!-- Refresh left (title slot); count/search stay in actions on the right -->
+            <div slot="title" class="messaging-card-title-left">
+                <lightning-button-icon
+                    icon-name="utility:refresh"
+                    variant="border-filled"
+                    alternative-text="Refresh messages"
+                    title="Refresh messages"
+                    onclick={handleRefreshMessages}
+                    class="messaging-refresh-button">
+                </lightning-button-icon>
+            </div>
             <div slot="actions" class="slds-grid slds-grid_vertical-align-center">
                 <template if:true={showMessageSearch}>
                     <div class="slds-form-element slds-m-right_small">
