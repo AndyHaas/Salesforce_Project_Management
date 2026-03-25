@@ -1105,8 +1105,20 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>forceChatter:recordFeedContainer</componentName>
-                <identifier>forceChatter_recordFeedContainer</identifier>
+                <componentInstanceProperties>
+                    <name>recordId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedAccountId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedProjectId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedTaskId</name>
+                </componentInstanceProperties>
+                <componentName>portalMessaging</componentName>
+                <identifier>c_portalMessaging</identifier>
             </componentInstance>
         </itemInstances>
         <name>Facet-1f307f66-4dc8-4de3-b9fb-d7d07a84501f</name>
@@ -1125,7 +1137,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Chatter</value>
+                    <value>Activity</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>flexipage_tab</identifier>

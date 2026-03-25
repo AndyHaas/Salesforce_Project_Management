@@ -1,0 +1,22 @@
+<svg width="120px" height="120px" viewBox="0 0 120 120" version="1.1"
+	xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+		<path
+			d="M120,108 C120,114.6 114.6,120 108,120 L12,120 C5.4,120 0,114.6 0,108 L0,12 C0,5.4 5.4,0 12,0 L108,0 C114.6,0 120,5.4 120,12 L120,108 Z"
+			id="Shape" fill="#1589EE" />
+		<g id="messaging-icon" transform="translate(20.000000, 20.000000)" fill="#FFFFFF">
+			<!-- Message bubble 1 -->
+			<path
+				d="M0,0 L60,0 C62.209139,0 64,1.790861 64,4 L64,24 C64,26.209139 62.209139,28 60,28 L20,28 L8,40 L8,4 C8,1.790861 9.790861,0 12,0 L20,0 Z"
+				id="bubble1" fill="#FFFFFF" fill-rule="nonzero" />
+			<!-- Message bubble 2 -->
+			<path
+				d="M16,48 L76,48 C78.209139,48 80,49.790861 80,52 L80,72 C80,74.209139 78.209139,76 76,76 L36,76 L24,88 L24,52 C24,49.790861 25.790861,48 28,48 L36,48 Z"
+				id="bubble2" fill="#FFFFFF" fill-rule="nonzero" opacity="0.8" />
+			<!-- Message bubble 3 -->
+			<path
+				d="M0,96 L60,96 C62.209139,96 64,97.790861 64,100 L64,120 C64,122.209139 62.209139,124 60,124 L20,124 L8,136 L8,100 C8,97.790861 9.790861,96 12,96 L20,96 Z"
+				id="bubble3" fill="#FFFFFF" fill-rule="nonzero" opacity="0.6" />
+		</g>
+	</g>
+</svg>
