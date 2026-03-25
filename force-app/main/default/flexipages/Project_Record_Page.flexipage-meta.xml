@@ -937,6 +937,24 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>recordId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedAccountId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedProjectId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedTaskId</name>
+                </componentInstanceProperties>
+                <componentName>portalMessaging</componentName>
+                <identifier>c_portalMessaging</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>showLegacyActivityComposer</name>
                     <value>false</value>
                 </componentInstanceProperties>
@@ -1036,24 +1054,6 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>recordId</name>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedAccountId</name>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedProjectId</name>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedTaskId</name>
-                </componentInstanceProperties>
-                <componentName>portalMessaging</componentName>
-                <identifier>c_portalMessaging</identifier>
-            </componentInstance>
-        </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
