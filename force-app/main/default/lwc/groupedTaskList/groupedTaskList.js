@@ -30,6 +30,9 @@ import { refreshApex } from '@salesforce/apex';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
 import USER_ID from '@salesforce/user/Id';
 
+/** Standard Account record Id prefix (same in all orgs). Avoids empty task list when getObjectInfo is slow or errors. */
+const STANDARD_ACCOUNT_KEY_PREFIX = '001';
+
 export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @api recordId; // Account or Project Id on record pages (see resolvedProjectId)
     @api accountId; // Can be set manually for App/Home pages
@@ -270,8 +273,21 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (this._filteredAccountIds.length > 0) {
             accountIds = this._filteredAccountIds;
         } else if (this.recordId) {
-            if (this._accountKeyPrefix && this.recordId.substring(0, 3) === this._accountKeyPrefix) {
-                accountIds = [this.recordId];
+            const rid = this.recordId;
+            const pre = typeof rid === 'string' && rid.length >= 3 ? rid.substring(0, 3) : '';
+            const matchesProject =
+                this._projectKeyPrefix && pre === this._projectKeyPrefix;
+            const matchesAccount =
+                pre === STANDARD_ACCOUNT_KEY_PREFIX ||
+                (this._accountKeyPrefix && pre === this._accountKeyPrefix);
+
+            if (matchesProject) {
+                accountIds = [];
+            } else if (matchesAccount) {
+                accountIds = [rid];
+            } else if (!this._accountKeyPrefix && !this._projectKeyPrefix) {
+                // Describe not ready yet — keep legacy behavior (Account record pages are the common case)
+                accountIds = [rid];
             }
         } else if (this.selectedAccountId) {
             accountIds = [this.selectedAccountId];
