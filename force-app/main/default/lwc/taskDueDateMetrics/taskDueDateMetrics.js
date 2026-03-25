@@ -301,5 +301,3 @@ export default class TaskDueDateMetrics extends NavigationMixin(LightningElement
         });
     }
 }
-
-

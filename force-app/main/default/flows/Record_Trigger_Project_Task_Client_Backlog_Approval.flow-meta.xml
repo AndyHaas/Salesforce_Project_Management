@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Send_Approval_Email</name>
         <label>Send Approval Email</label>
-        <locationX>176</locationX>
-        <locationY>287</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>ProjectTaskApprovalNotificationSender</actionName>
         <actionType>apex</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -20,7 +20,7 @@
                 <stringValue>BACKLOG_CLIENT</stringValue>
             </value>
         </inputParameters>
-        <nameSegment>sendNotifications</nameSegment>
+        <nameSegment>ProjectTaskApprovalNotificationSender</nameSegment>
         <offset>0</offset>
     </actionCalls>
     <apiVersion>66.0</apiVersion>
@@ -49,7 +49,7 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <start>
-        <locationX>50</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Send_Approval_Email</targetReference>

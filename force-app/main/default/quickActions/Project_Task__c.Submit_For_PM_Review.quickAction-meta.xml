@@ -12,7 +12,7 @@
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
                 <field>Status__c</field>
-                <uiBehavior>Readonly</uiBehavior>
+                <uiBehavior>Required</uiBehavior>
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
         <quickActionLayoutColumns/>

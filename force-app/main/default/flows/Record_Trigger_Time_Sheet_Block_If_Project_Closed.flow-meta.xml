@@ -5,8 +5,8 @@
     <assignments>
         <name>Set_Validation_Flag_Project_Completed</name>
         <label>Set Validation Flag - Project Completed</label>
-        <locationX>50</locationX>
-        <locationY>551</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>$Record.val_ProjectCompleted__c</assignToReference>
             <operator>Assign</operator>
@@ -18,8 +18,8 @@
     <decisions>
         <name>Is_Project_Completed</name>
         <label>Is Project Completed</label>
-        <locationX>182</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>Continue</defaultConnectorLabel>
         <rules>
             <name>Project_Completed_and_Invoiced</name>
@@ -69,8 +69,8 @@
     <recordLookups>
         <name>Get_Project</name>
         <label>Get Project</label>
-        <locationX>182</locationX>
-        <locationY>311</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Is_Project_Completed</targetReference>
@@ -88,7 +88,7 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <start>
-        <locationX>56</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Get_Project</targetReference>

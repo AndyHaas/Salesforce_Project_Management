@@ -286,4 +286,3 @@ export default class TaskHoverCard extends LightningElement {
         return luminance > 0.5 ? '#080707' : '#ffffff';
     }
 }
-

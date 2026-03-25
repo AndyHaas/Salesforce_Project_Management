@@ -12,19 +12,20 @@
                                 label=""
                                 label-hidden
                                 placeholder="Filter by Account"
-                                value={selectedAccountId}
-                                options={accounts}
+                                value={accountFilterComboboxValue}
+                                options={accountFilterOptions}
                                 onchange={handleAccountChange}
                                 class="account-filter-combobox">
                             </lightning-combobox>
                         </div>
                     </template>
+
                     <template if:false={isPortalMode}>
                         <div class="slds-col">
                             <lightning-combobox
                                 label=""
                                 label-hidden
-                                placeholder="Filter by Contact"
+                                placeholder="Filter by project manager"
                                 value={selectedContactId}
                                 options={assignedContacts}
                                 onchange={handleContactSelected}
@@ -35,19 +36,19 @@
                 </div>
             </div>
             <div class="slds-col actions-container slds-grid slds-grid_vertical-align-center">
-                <template if:true={isFilteredByProject}>
-                    <lightning-badge 
-                        label="Filter by Project" 
+                <template if:true={showProjectScopeFilterBadge}>
+                    <lightning-badge
+                        label="Filter by Project"
                         class="slds-m-right_small"
-                        title="Tasks are filtered to show only those associated with the selected project">
+                        title="Tasks are limited to the selected project">
                     </lightning-badge>
                 </template>
                 <template if:true={isFilteredByAccount}>
                     <template if:false={isFilteredByProject}>
-                        <lightning-badge 
-                            label="Filtered by Account" 
+                        <lightning-badge
+                            label="Filtered by Account"
                             class="slds-m-right_small"
-                            title="Tasks are filtered to show only those associated with the selected account(s)">
+                            title="Tasks are limited to the selected account(s)">
                         </lightning-badge>
                     </template>
                 </template>
@@ -604,4 +605,3 @@
         </template>
     </lightning-card>
 </template>
-

@@ -4,8 +4,7 @@
     <defaultValue>true</defaultValue>
     <description>If false, this message is only visible to Milestone Consulting team members and not to clients.</description>
     <label>Visible to Client</label>
-    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>
-

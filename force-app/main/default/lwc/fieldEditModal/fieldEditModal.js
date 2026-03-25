@@ -251,4 +251,3 @@ export default class FieldEditModal extends LightningElement {
         return this._isOpen ? 'slds-backdrop slds-backdrop_open' : 'slds-backdrop';
     }
 }
-

@@ -40,4 +40,3 @@ public without sharing class DisplayDensityController {
         }
     }
 }
-

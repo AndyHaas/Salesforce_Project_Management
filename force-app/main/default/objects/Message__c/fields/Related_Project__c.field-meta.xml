@@ -7,8 +7,7 @@
     <relationshipLabel>Project Messages</relationshipLabel>
     <relationshipName>Project_Messages</relationshipName>
     <required>false</required>
-    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
 </CustomField>
-

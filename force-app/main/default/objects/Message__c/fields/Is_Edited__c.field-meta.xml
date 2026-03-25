@@ -4,8 +4,7 @@
     <defaultValue>false</defaultValue>
     <description>Indicates if this message has been edited after it was originally sent.</description>
     <label>Is Edited</label>
-    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>
-

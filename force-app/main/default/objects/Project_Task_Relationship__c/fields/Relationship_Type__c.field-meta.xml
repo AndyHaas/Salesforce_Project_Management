@@ -5,7 +5,6 @@
     <inlineHelpText>Select the type of relationship: Related = tasks are related but not dependent. Blocking Dependency = the Task cannot proceed until the Related Task is completed. Epic/Feature Parent = the Task is part of a larger epic or feature represented by the Related Task.</inlineHelpText>
     <label>Relationship Type</label>
     <required>false</required>
-    <trackFeedHistory>false</trackFeedHistory>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>

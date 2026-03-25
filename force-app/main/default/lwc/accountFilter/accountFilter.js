@@ -274,4 +274,3 @@ export default class AccountFilter extends LightningElement {
         return this.selectedAccountIds.length > 0;
     }
 }
-

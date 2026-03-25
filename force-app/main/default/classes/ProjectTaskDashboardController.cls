@@ -14,7 +14,7 @@
  *   - taskProgressMetrics: getProgressMetrics()
  *   - taskDueDateMetrics: getDueDateMetrics()
  *   - taskListComponent: getTaskList(), getTaskListFieldSetDefinition()
- *   - groupedTaskList: getGroupedTasksWithSubtasks(), getAccounts()
+ *   - groupedTaskList: getGroupedTasksWithSubtasks(), getAccounts(), getProjectManagerContacts()
  * 
  * NOTE: Task context panel functionality has been moved to TaskContextController
  */
@@ -813,6 +813,40 @@ public without sharing class ProjectTaskDashboardController {
             ORDER BY Name
         ];
     }
+
+    /**
+     * Distinct Contacts used as Project Manager on tasks (for PM-only contact filter).
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<ContactOption> getProjectManagerContacts() {
+        Set<Id> contactIds = new Set<Id>();
+        for (Project_Task__c t : [
+            SELECT Project_Manager__c
+            FROM Project_Task__c
+            WHERE Project_Manager__c != null
+            LIMIT 10000
+        ]) {
+            contactIds.add(t.Project_Manager__c);
+        }
+        if (contactIds.isEmpty()) {
+            return new List<ContactOption>();
+        }
+        List<Contact> contacts = [
+            SELECT Id, Name, Email
+            FROM Contact
+            WHERE Id IN :contactIds
+            ORDER BY Name
+            LIMIT 1000
+        ];
+        List<ContactOption> options = new List<ContactOption>();
+        for (Contact c : contacts) {
+            ContactOption option = new ContactOption();
+            option.label = c.Name + (c.Email != null ? ' (' + c.Email + ')' : '');
+            option.value = c.Id;
+            options.add(option);
+        }
+        return options;
+    }
     
     @AuraEnabled(cacheable=true)
     public static String getCurrentUserAccountId() {
@@ -1489,4 +1523,3 @@ public without sharing class ProjectTaskDashboardController {
     }
     
 }
-

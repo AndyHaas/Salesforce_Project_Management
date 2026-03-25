@@ -505,4 +505,3 @@ public without sharing class TaskContextController {
         @AuraEnabled public String versionId;
     }
 }
-

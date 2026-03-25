@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <flexiPageRegions>
         <itemInstances>
@@ -35,8 +35,7 @@
                 <identifier>RecordProjected_Number_of_Hours_cField2</identifier>
                 <visibilityRule>
                     <criteria>
-                        <leftValue
-            >{!Record.Projected_Number_of_Hours__c}</leftValue>
+                        <leftValue>{!Record.Projected_Number_of_Hours__c}</leftValue>
                         <operator>GT</operator>
                         <rightValue>0</rightValue>
                     </criteria>
@@ -90,8 +89,7 @@
                 <identifier>RecordBurn_Rate_cField3</identifier>
                 <visibilityRule>
                     <criteria>
-                        <leftValue
-            >{!Record.Projected_Number_of_Hours__c}</leftValue>
+                        <leftValue>{!Record.Projected_Number_of_Hours__c}</leftValue>
                         <operator>GT</operator>
                         <rightValue>0</rightValue>
                     </criteria>
@@ -136,8 +134,7 @@
                 <identifier>RecordProjected_Number_of_Hours_cField</identifier>
                 <visibilityRule>
                     <criteria>
-                        <leftValue
-            >{!Record.Projected_Number_of_Hours__c}</leftValue>
+                        <leftValue>{!Record.Projected_Number_of_Hours__c}</leftValue>
                         <operator>GT</operator>
                         <rightValue>0</rightValue>
                     </criteria>
@@ -191,8 +188,7 @@
                 <identifier>RecordBurn_Rate_cField2</identifier>
                 <visibilityRule>
                     <criteria>
-                        <leftValue
-            >{!Record.Projected_Number_of_Hours__c}</leftValue>
+                        <leftValue>{!Record.Projected_Number_of_Hours__c}</leftValue>
                         <operator>GT</operator>
                         <rightValue>0</rightValue>
                     </criteria>
@@ -209,7 +205,10 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>Project__c.Create_Time_Entry_Record</value>
+                            <value>Project__c.New_Time_Entry</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Project__c.Complete_Time_Entry</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -225,8 +224,7 @@
                     <name>secondaryFields</name>
                     <value>Facet-5ndgw9n1krl</value>
                 </componentInstanceProperties>
-                <componentName
-        >record_flexipage:dynamicHighlights</componentName>
+                <componentName>record_flexipage:dynamicHighlights</componentName>
                 <identifier>record_flexipage_dynamicHighlights2</identifier>
                 <visibilityRule>
                     <booleanFilter>1 OR 2</booleanFilter>
@@ -260,8 +258,7 @@
                     <name>secondaryFields</name>
                     <value>Facet-bsgll151swc</value>
                 </componentInstanceProperties>
-                <componentName
-        >record_flexipage:dynamicHighlights</componentName>
+                <componentName>record_flexipage:dynamicHighlights</componentName>
                 <identifier>record_flexipage_dynamicHighlights</identifier>
                 <visibilityRule>
                     <booleanFilter>1 AND 2</booleanFilter>
@@ -841,6 +838,16 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>groupedTaskList</componentName>
+                <identifier>c_groupedTaskList</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-74998b93-f544-451a-b9ef-a66d3a73f797</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>active</name>
                     <value>true</value>
@@ -875,6 +882,20 @@
                 <identifier>detailTab</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-74998b93-f544-451a-b9ef-a66d3a73f797</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>Project Task</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+                <identifier>flexipage_tab</identifier>
+            </componentInstance>
+        </itemInstances>
         <mode>Replace</mode>
         <name>maintabs</name>
         <type>Facet</type>
@@ -890,10 +911,8 @@
                     <name>variant</name>
                     <value>linear</value>
                 </componentInstanceProperties>
-                <componentName
-        >runtime_sales_pathassistant:pathAssistant</componentName>
-                <identifier
-        >runtime_sales_pathassistant_pathAssistant</identifier>
+                <componentName>runtime_sales_pathassistant:pathAssistant</componentName>
+                <identifier>runtime_sales_pathassistant_pathAssistant</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -921,8 +940,7 @@
                     <name>showLegacyActivityComposer</name>
                     <value>false</value>
                 </componentInstanceProperties>
-                <componentName
-        >runtime_sales_activities:activityPanel</componentName>
+                <componentName>runtime_sales_activities:activityPanel</componentName>
                 <identifier>runtime_sales_activities_activityPanel</identifier>
             </componentInstance>
         </itemInstances>
@@ -1018,6 +1036,24 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>recordId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedAccountId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedProjectId</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedTaskId</name>
+                </componentInstanceProperties>
+                <componentName>portalMessaging</componentName>
+                <identifier>c_portalMessaging</identifier>
+            </componentInstance>
+        </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
