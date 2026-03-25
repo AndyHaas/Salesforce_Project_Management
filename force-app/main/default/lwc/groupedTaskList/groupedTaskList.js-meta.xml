@@ -3,7 +3,7 @@
     <apiVersion>66.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>Grouped Task List</masterLabel>
-    <description>Displays project tasks grouped by category or status with filtering capabilities</description>
+    <description>Displays project tasks grouped by status. Project record pages scope to this project only (no project picker).</description>
     <targets>
         <target>lightning__AppPage</target>
         <target>lightning__RecordPage</target>

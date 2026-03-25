@@ -395,6 +395,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return !this.showAllAccessibleTasks && this.useProjectScopedWire && !!this.projectIdForWire;
     }
 
+
+    /** Badge only when project scope is non-obvious (e.g. @api projectId on app page). Hidden on Project record pages. */
+    get showProjectScopeFilterBadge() {
+        return this.isFilteredByProject && !this.isProjectRecordPage;
+    }
+
     get isAllAccessibleScope() {
         return this.showAllAccessibleTasks === true;
     }

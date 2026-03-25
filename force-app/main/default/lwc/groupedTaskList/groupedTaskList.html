@@ -44,7 +44,7 @@
                     </lightning-badge>
                 </template>
                 <template if:false={isAllAccessibleScope}>
-                    <template if:true={isFilteredByProject}>
+                    <template if:true={showProjectScopeFilterBadge}>
                         <lightning-badge
                             label="Filter by Project"
                             class="slds-m-right_small"
