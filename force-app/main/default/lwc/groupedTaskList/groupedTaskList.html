@@ -19,19 +19,7 @@
                             </lightning-combobox>
                         </div>
                     </template>
-                    <template if:true={shouldShowProjectFilter}>
-                        <div class="slds-col">
-                            <lightning-combobox
-                                label=""
-                                label-hidden
-                                placeholder="Filter by Project"
-                                value={projectFilterComboboxValue}
-                                options={projectFilterOptions}
-                                onchange={handleProjectFilterChange}
-                                class="project-filter-combobox">
-                            </lightning-combobox>
-                        </div>
-                    </template>
+
                     <template if:false={isPortalMode}>
                         <div class="slds-col">
                             <lightning-combobox

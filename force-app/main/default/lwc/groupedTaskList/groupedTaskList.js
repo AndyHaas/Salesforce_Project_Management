@@ -21,7 +21,6 @@ import PROJECT_OBJECT from '@salesforce/schema/Project__c';
 import getGroupedTasksWithSubtasks from '@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasks';
 import getGroupedTasksWithSubtasksByProject from '@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasksByProject';
 import getAccounts from '@salesforce/apex/ProjectTaskDashboardController.getAccounts';
-import getProjectsWithTasks from '@salesforce/apex/ProjectTaskDashboardController.getProjectsWithTasks';
 import getProjectManagerContacts from '@salesforce/apex/ProjectTaskDashboardController.getProjectManagerContacts';
 import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
 import getCurrentUserAccountId from '@salesforce/apex/ProjectTaskDashboardController.getCurrentUserAccountId';
@@ -36,9 +35,6 @@ const STANDARD_ACCOUNT_KEY_PREFIX = '001';
 
 const ACCOUNT_SEL_THIS = '__THIS_ACCOUNT__';
 const ACCOUNT_SEL_ALL = '__ALL_ACCOUNTS__';
-const PROJECT_SEL_THIS = '__THIS_PROJECT__';
-const PROJECT_SEL_ALL = '__ALL_PROJECTS__';
-
 /** Compare Salesforce Ids allowing 15- vs 18-char forms */
 function salesforceIdsEqual(a, b) {
     if (a == null || b == null) {
@@ -133,11 +129,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     selectedAccountId = null; // App/Home: '' = All Accounts, else Account Id
     currentUserAccountId = null; // Account associated to the logged-in user (Experience Cloud)
     @track _recordPageAccountSelection = ACCOUNT_SEL_THIS;
-    @track _recordPageProjectSelection = PROJECT_SEL_THIS;
     @track showAllAccessibleTasks = false;
-    _projectOptions = [];
 
-    /** Key prefixes from getObjectInfo — used to treat recordId as Account vs Project__c */
+    /** Key prefixes from getObjectInfo - used to treat recordId as Account vs Project__c */
     _accountKeyPrefix;
     _projectKeyPrefix;
 
@@ -181,6 +175,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this._projectKeyPrefix && rid.substring(0, 3) === this._projectKeyPrefix;
     }
 
+
     /** Load tasks via getGroupedTasksWithSubtasksByProject (not account/global wire) */
     get useProjectScopedWire() {
         if (this.showAllAccessibleTasks) {
@@ -189,17 +184,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (this.projectId) {
             return true;
         }
-        if (!this.isProjectRecordPage) {
-            return false;
-        }
-        const sel = this._recordPageProjectSelection;
-        if (sel === PROJECT_SEL_ALL) {
-            return false;
-        }
-        if (sel === PROJECT_SEL_THIS) {
-            return true;
-        }
-        return !!(sel && typeof sel === 'string' && (sel.length === 15 || sel.length === 18));
+        return this.isProjectRecordPage;
     }
 
     /**
@@ -212,14 +197,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (this.projectId) {
             return this.projectId;
         }
-        const sel = this._recordPageProjectSelection;
-        if (sel === PROJECT_SEL_THIS) {
-            return this.recordId;
-        }
-        return sel;
+        return this.recordId;
     }
 
-    /** @deprecated use projectIdForWire — kept for minimal churn in debug logs */
+    /** @deprecated use projectIdForWire - kept for minimal churn in debug logs */
     get resolvedProjectId() {
         return this.projectIdForWire;
     }
@@ -237,16 +218,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         }
     }
 
-    @wire(getProjectsWithTasks)
-    wiredProjectsWithTasks({ error, data }) {
-        if (data) {
-            this._projectOptions = data;
-        } else if (error) {
-            console.error('Error loading projects:', error);
-            this._projectOptions = [];
-        }
-    }
-
     get accountFilterOptions() {
         const rows = this._accountRecords || [];
         const mapped = rows.map((acc) => ({ label: acc.Name, value: acc.Id }));
@@ -260,16 +231,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return [{ label: 'All Accounts', value: '' }, ...mapped];
     }
 
-    get projectFilterOptions() {
-        const rows = this._projectOptions || [];
-        const mapped = rows.map((p) => ({ label: p.label, value: p.value }));
-        return [
-            { label: 'This Project', value: PROJECT_SEL_THIS },
-            { label: 'All Projects', value: PROJECT_SEL_ALL },
-            ...mapped
-        ];
-    }
-
     get accountFilterComboboxValue() {
         if (this.isAccountRecordPage) {
             return this._recordPageAccountSelection || ACCOUNT_SEL_THIS;
@@ -277,10 +238,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this.selectedAccountId != null ? this.selectedAccountId : '';
     }
 
-    get projectFilterComboboxValue() {
-        return this._recordPageProjectSelection || PROJECT_SEL_THIS;
-    }
-    
     @wire(getCurrentUserAccountId)
     wiredUserAccount({ error, data }) {
         if (data) {
@@ -482,16 +439,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this.showAccountFilter !== false;
     }
 
-    get shouldShowProjectFilter() {
-        if (this.isPortalMode) {
-            return false;
-        }
-        if (this.showAllAccessibleTasks) {
-            return false;
-        }
-        return this.isProjectRecordPage;
-    }
-    
     connectedCallback() {
         // Status colors will be loaded via wire service
         // Initialize with empty object - will be populated by getStatusColors wire
@@ -1508,15 +1455,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         }
     }
 
-    handleProjectFilterChange(event) {
-        const v = event.detail.value;
-        this._recordPageProjectSelection =
-            v === undefined || v === null ? PROJECT_SEL_THIS : v;
-        if (this.statusGroups && this.statusGroups.length > 0) {
-            this.refreshFilteredStatusGroups();
-        }
-    }
-    
     refreshFilteredStatusGroups() {
         if (!this.statusGroups || this.statusGroups.length === 0) {
             this.filteredStatusGroups = [];

@@ -14,7 +14,7 @@
  *   - taskProgressMetrics: getProgressMetrics()
  *   - taskDueDateMetrics: getDueDateMetrics()
  *   - taskListComponent: getTaskList(), getTaskListFieldSetDefinition()
- *   - groupedTaskList: getGroupedTasksWithSubtasks(), getAccounts()
+ *   - groupedTaskList: getGroupedTasksWithSubtasks(), getAccounts(), getProjectManagerContacts()
  * 
  * NOTE: Task context panel functionality has been moved to TaskContextController
  */
@@ -812,35 +812,6 @@ public without sharing class ProjectTaskDashboardController {
             AND Id IN (SELECT Account__c FROM Project_Task__c WHERE Account__c != null)
             ORDER BY Name
         ];
-    }
-
-    /**
-     * Projects that have at least one Project Task (for grouped task list project picker).
-     */
-    @AuraEnabled(cacheable=true)
-    public static List<ProjectOption> getProjectsWithTasks() {
-        List<Project__c> projects = [
-            SELECT Id, Name
-            FROM Project__c
-            WHERE Id IN (SELECT Project__c FROM Project_Task__c WHERE Project__c != null)
-            ORDER BY Name
-            LIMIT 2000
-        ];
-        List<ProjectOption> options = new List<ProjectOption>();
-        for (Project__c p : projects) {
-            ProjectOption o = new ProjectOption();
-            o.label = p.Name;
-            o.value = p.Id;
-            options.add(o);
-        }
-        return options;
-    }
-
-    public class ProjectOption {
-        @AuraEnabled
-        public String label;
-        @AuraEnabled
-        public String value;
     }
 
     /**
