@@ -376,4 +376,3 @@ export default class TaskListComponent extends NavigationMixin(LightningElement)
         }, record);
     }
 }
-

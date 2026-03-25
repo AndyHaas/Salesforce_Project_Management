@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Client_Approver_User__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Salesforce user who receives client-facing approval steps (backlog and completion). Populated automatically from Client User (Contact) when an active User exists for that contact.</description>
+    <inlineHelpText>Used by Flow Approvals. Synced from Client User when possible; you can override manually if needed.</inlineHelpText>
+    <label>Client Approver (User)</label>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>Project Tasks (Client Approver)</relationshipLabel>
+    <relationshipName>Project_Tasks_As_Client_Approver</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

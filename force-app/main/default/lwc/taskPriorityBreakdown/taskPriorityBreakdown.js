@@ -322,4 +322,3 @@ export default class TaskPriorityBreakdown extends NavigationMixin(LightningElem
         });
     }
 }
-

@@ -96,4 +96,3 @@ public without sharing class TaskProgressCalculator {
         }
     }
 }
-

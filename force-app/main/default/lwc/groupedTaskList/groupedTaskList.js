@@ -21,10 +21,11 @@ import PROJECT_OBJECT from '@salesforce/schema/Project__c';
 import getGroupedTasksWithSubtasks from '@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasks';
 import getGroupedTasksWithSubtasksByProject from '@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasksByProject';
 import getAccounts from '@salesforce/apex/ProjectTaskDashboardController.getAccounts';
+import getProjectsWithTasks from '@salesforce/apex/ProjectTaskDashboardController.getProjectsWithTasks';
+import getProjectManagerContacts from '@salesforce/apex/ProjectTaskDashboardController.getProjectManagerContacts';
 import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
 import getCurrentUserAccountId from '@salesforce/apex/ProjectTaskDashboardController.getCurrentUserAccountId';
 import getCurrentUserContactId from '@salesforce/apex/ProjectTaskDashboardController.getCurrentUserContactId';
-import getAssignedContacts from '@salesforce/apex/ProjectTaskDashboardController.getAssignedContacts';
 import getDisplayDensity from '@salesforce/apex/DisplayDensityController.getDisplayDensity';
 import { refreshApex } from '@salesforce/apex';
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from '@salesforce/messageChannel/AccountFilter__c';
@@ -32,6 +33,11 @@ import USER_ID from '@salesforce/user/Id';
 
 /** Standard Account record Id prefix (same in all orgs). Avoids empty task list when getObjectInfo is slow or errors. */
 const STANDARD_ACCOUNT_KEY_PREFIX = '001';
+
+const ACCOUNT_SEL_THIS = '__THIS_ACCOUNT__';
+const ACCOUNT_SEL_ALL = '__ALL_ACCOUNTS__';
+const PROJECT_SEL_THIS = '__THIS_PROJECT__';
+const PROJECT_SEL_ALL = '__ALL_PROJECTS__';
 
 /** Compare Salesforce Ids allowing 15- vs 18-char forms */
 function salesforceIdsEqual(a, b) {
@@ -122,10 +128,14 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     recordTypes = []; // Available record types for Project_Task__c
     defaultRecordTypeId = null; // Default record type ID
     
-    // Account filter dropdown
-    accounts = [];
-    selectedAccountId = null; // Selected account from dropdown
+    // Account filter dropdown (App pages use selectedAccountId; Account record pages use _recordPageAccountSelection)
+    _accountRecords = [];
+    selectedAccountId = null; // App/Home: '' = All Accounts, else Account Id
     currentUserAccountId = null; // Account associated to the logged-in user (Experience Cloud)
+    @track _recordPageAccountSelection = ACCOUNT_SEL_THIS;
+    @track _recordPageProjectSelection = PROJECT_SEL_THIS;
+    @track showAllAccessibleTasks = false;
+    _projectOptions = [];
 
     /** Key prefixes from getObjectInfo — used to treat recordId as Account vs Project__c */
     _accountKeyPrefix;
@@ -149,21 +159,69 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         }
     }
 
+    /** True when flexipage host record is an Account */
+    get isAccountRecordPage() {
+        const rid = this.recordId;
+        if (!rid || typeof rid !== 'string' || rid.length < 3) {
+            return false;
+        }
+        const pre = rid.substring(0, 3);
+        return (
+            pre === STANDARD_ACCOUNT_KEY_PREFIX ||
+            (this._accountKeyPrefix && pre === this._accountKeyPrefix)
+        );
+    }
+
+    /** True when flexipage host record is a Project__c */
+    get isProjectRecordPage() {
+        const rid = this.recordId;
+        if (!rid || typeof rid !== 'string' || rid.length < 3) {
+            return false;
+        }
+        return this._projectKeyPrefix && rid.substring(0, 3) === this._projectKeyPrefix;
+    }
+
+    /** Load tasks via getGroupedTasksWithSubtasksByProject (not account/global wire) */
+    get useProjectScopedWire() {
+        if (this.showAllAccessibleTasks) {
+            return false;
+        }
+        if (this.projectId) {
+            return true;
+        }
+        if (!this.isProjectRecordPage) {
+            return false;
+        }
+        const sel = this._recordPageProjectSelection;
+        if (sel === PROJECT_SEL_ALL) {
+            return false;
+        }
+        if (sel === PROJECT_SEL_THIS) {
+            return true;
+        }
+        return !!(sel && typeof sel === 'string' && (sel.length === 15 || sel.length === 18));
+    }
+
     /**
-     * Project scope for data loading: explicit @api projectId, else recordId when on a Project__c record page.
+     * Project Id passed to Apex project wire; undefined when account/global path should load data.
      */
-    get resolvedProjectId() {
+    get projectIdForWire() {
+        if (!this.useProjectScopedWire) {
+            return undefined;
+        }
         if (this.projectId) {
             return this.projectId;
         }
-        const rid = this.recordId;
-        if (!rid || typeof rid !== 'string') {
-            return undefined;
+        const sel = this._recordPageProjectSelection;
+        if (sel === PROJECT_SEL_THIS) {
+            return this.recordId;
         }
-        if (this._projectKeyPrefix && rid.substring(0, 3) === this._projectKeyPrefix) {
-            return rid;
-        }
-        return undefined;
+        return sel;
+    }
+
+    /** @deprecated use projectIdForWire — kept for minimal churn in debug logs */
+    get resolvedProjectId() {
+        return this.projectIdForWire;
     }
 
     // Density mode: 'comfy' (default) or 'compact' - loaded from user's Salesforce preference
@@ -172,16 +230,55 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @wire(getAccounts)
     wiredAccounts({ error, data }) {
         if (data) {
-            this.accounts = [
-                { label: 'All Accounts', value: '' },
-                ...data.map(acc => ({
-                    label: acc.Name,
-                    value: acc.Id
-                }))
-            ];
+            this._accountRecords = data;
         } else if (error) {
             console.error('Error loading accounts:', error);
+            this._accountRecords = [];
         }
+    }
+
+    @wire(getProjectsWithTasks)
+    wiredProjectsWithTasks({ error, data }) {
+        if (data) {
+            this._projectOptions = data;
+        } else if (error) {
+            console.error('Error loading projects:', error);
+            this._projectOptions = [];
+        }
+    }
+
+    get accountFilterOptions() {
+        const rows = this._accountRecords || [];
+        const mapped = rows.map((acc) => ({ label: acc.Name, value: acc.Id }));
+        if (this.isAccountRecordPage) {
+            return [
+                { label: 'This Account', value: ACCOUNT_SEL_THIS },
+                { label: 'All Accounts', value: ACCOUNT_SEL_ALL },
+                ...mapped
+            ];
+        }
+        return [{ label: 'All Accounts', value: '' }, ...mapped];
+    }
+
+    get projectFilterOptions() {
+        const rows = this._projectOptions || [];
+        const mapped = rows.map((p) => ({ label: p.label, value: p.value }));
+        return [
+            { label: 'This Project', value: PROJECT_SEL_THIS },
+            { label: 'All Projects', value: PROJECT_SEL_ALL },
+            ...mapped
+        ];
+    }
+
+    get accountFilterComboboxValue() {
+        if (this.isAccountRecordPage) {
+            return this._recordPageAccountSelection || ACCOUNT_SEL_THIS;
+        }
+        return this.selectedAccountId != null ? this.selectedAccountId : '';
+    }
+
+    get projectFilterComboboxValue() {
+        return this._recordPageProjectSelection || PROJECT_SEL_THIS;
     }
     
     @wire(getCurrentUserAccountId)
@@ -208,12 +305,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     
     wiredAssignedContactsResult;
     
-    @wire(getAssignedContacts)
+    @wire(getProjectManagerContacts)
     wiredAssignedContacts(result) {
         this.wiredAssignedContactsResult = result;
         const { error, data } = result;
         if (data) {
-            // Add "All Contacts" option at the beginning
+            // PM-only filter; empty value = no contact filter
             this.assignedContacts = [
                 { label: 'All Contacts', value: '' },
                 ...data
@@ -275,15 +372,26 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get effectiveAccountIds() {
-        if (this.resolvedProjectId) {
+        if (this.showAllAccessibleTasks) {
+            return [];
+        }
+        if (this.useProjectScopedWire) {
             return [];
         }
 
-        // Priority (internal): 1. message channel filter, 2. recordId, 3. selectedAccountId, 4. accountId, 5. currentUserAccountId (when enabled)
         let accountIds = [];
-        
+
         if (this._filteredAccountIds.length > 0) {
             accountIds = this._filteredAccountIds;
+        } else if (this.isAccountRecordPage) {
+            const sel = this._recordPageAccountSelection;
+            if (sel === ACCOUNT_SEL_ALL) {
+                accountIds = [];
+            } else if (sel === ACCOUNT_SEL_THIS) {
+                accountIds = [this.recordId];
+            } else if (sel && typeof sel === 'string' && (sel.length === 15 || sel.length === 18)) {
+                accountIds = [sel];
+            }
         } else if (this.recordId) {
             const rid = this.recordId;
             const pre = typeof rid === 'string' && rid.length >= 3 ? rid.substring(0, 3) : '';
@@ -298,7 +406,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             } else if (matchesAccount) {
                 accountIds = [rid];
             } else if (!this._accountKeyPrefix && !this._projectKeyPrefix) {
-                // Describe not ready yet — keep legacy behavior (Account record pages are the common case)
                 accountIds = [rid];
             }
         } else if (this.selectedAccountId) {
@@ -309,31 +416,34 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             accountIds = [this.currentUserAccountId];
         }
 
-        const result = accountIds.filter(id => id != null && (typeof id === 'string' ? id.trim().length > 0 : true));
+        const result = accountIds.filter(
+            (id) => id != null && (typeof id === 'string' ? id.trim().length > 0 : true)
+        );
 
-        // Experience Cloud App/Home (no Account record in context): scope to the logged-in user's Account.
-        // Do NOT override when viewing an Account record page — recordId must drive the query (see recordId branch above).
-        if (result.length === 0 && this.isExperienceSite) {
-            const rid = this.recordId;
-            const pre = typeof rid === 'string' && rid.length >= 3 ? rid.substring(0, 3) : '';
-            const viewingAccountRecord =
-                rid &&
-                (pre === STANDARD_ACCOUNT_KEY_PREFIX ||
-                    (this._accountKeyPrefix && pre === this._accountKeyPrefix));
-            if (!viewingAccountRecord) {
-                return this.currentUserAccountId ? [this.currentUserAccountId] : [];
+        if (result.length === 0 && this.isExperienceSite && !this.showAllAccessibleTasks) {
+            if (this.isAccountRecordPage || this.isProjectRecordPage) {
+                return result;
             }
+            return this.currentUserAccountId ? [this.currentUserAccountId] : [];
         }
 
         return result;
     }
-    
+
     get isFilteredByAccount() {
-        return this.effectiveAccountIds.length > 0;
+        return !this.showAllAccessibleTasks && this.effectiveAccountIds.length > 0;
     }
-    
+
     get isFilteredByProject() {
-        return !!this.resolvedProjectId;
+        return !this.showAllAccessibleTasks && this.useProjectScopedWire && !!this.projectIdForWire;
+    }
+
+    get isAllAccessibleScope() {
+        return this.showAllAccessibleTasks === true;
+    }
+
+    get allAccessibleScopeMenuLabel() {
+        return this.showAllAccessibleTasks ? 'Use page scope filters' : 'All tasks I can access';
     }
 
     get isPortalMode() {
@@ -354,16 +464,32 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get shouldShowAccountFilter() {
-        // Hide account filter in portal mode or when on a record page
         if (this.isPortalMode) {
             return false;
         }
-        // Hide on Account record pages (recordId is set)
+        if (this.showAllAccessibleTasks) {
+            return false;
+        }
+        if (this.isProjectRecordPage) {
+            return false;
+        }
+        if (this.isAccountRecordPage) {
+            return true;
+        }
         if (this.recordId) {
             return false;
         }
-        const showFilter = this.showAccountFilter !== false;
-        return showFilter;
+        return this.showAccountFilter !== false;
+    }
+
+    get shouldShowProjectFilter() {
+        if (this.isPortalMode) {
+            return false;
+        }
+        if (this.showAllAccessibleTasks) {
+            return false;
+        }
+        return this.isProjectRecordPage;
     }
     
     connectedCallback() {
@@ -406,6 +532,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         const selectedValue = event.detail.value;
         
         switch(selectedValue) {
+            case 'allAccessibleScope':
+                this.showAllAccessibleTasks = !this.showAllAccessibleTasks;
+                break;
             case 'myTasks':
                 this.handleMeModeToggle();
                 break;
@@ -440,12 +569,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     @wire(getGroupedTasksWithSubtasks, { accountIds: '$effectiveAccountIds' })
     wiredGroupedTasks(result) {
         // DEBUG: Log when this wire is called
-        console.log('[DEBUG] wiredGroupedTasks called - resolvedProjectId:', this.resolvedProjectId, 'hasData:', !!result?.data);
-        
-        if (this.resolvedProjectId) {
-            // Don't clear statusGroups here - we're using project-based query
-            // Just return early to prevent account-based query from running
-            console.log('[DEBUG] wiredGroupedTasks - resolvedProjectId is set, skipping account-based query');
+        console.log('[DEBUG] wiredGroupedTasks called - useProjectScopedWire:', this.useProjectScopedWire, 'hasData:', !!result?.data);
+
+        if (this.useProjectScopedWire) {
+            console.log('[DEBUG] wiredGroupedTasks - project-scoped wire active, skipping account-based query');
             return;
         }
         this.wiredGroupedTasksResult = result;
@@ -635,24 +762,18 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         }
     }
 
-    @wire(getGroupedTasksWithSubtasksByProject, { projectId: '$resolvedProjectId' })
+    @wire(getGroupedTasksWithSubtasksByProject, { projectId: '$projectIdForWire' })
     wiredGroupedTasksByProject(result) {
         // DEBUG: Always log when this wire method is called
-        console.log('[DEBUG] wiredGroupedTasksByProject called - resolvedProjectId:', this.resolvedProjectId, 'hasData:', !!result?.data, 'hasError:', !!result?.error);
-        
-        if (!this.resolvedProjectId) {
-            // Clear statusGroups when projectId is removed
-            console.log('[DEBUG] wiredGroupedTasksByProject - No resolvedProjectId, clearing data');
-            this.statusGroups = [];
-            this.filteredStatusGroups = [];
-            // Reset toggle states when switching away from project view
-            this.showCompletedTasks = false;
-            this.showRemovedTasks = false;
+        console.log('[DEBUG] wiredGroupedTasksByProject called - projectIdForWire:', this.projectIdForWire, 'hasData:', !!result?.data, 'hasError:', !!result?.error);
+
+        if (!this.projectIdForWire) {
+            console.log('[DEBUG] wiredGroupedTasksByProject - No projectIdForWire; leaving list to account/global wire');
             return;
         }
-        
+
         // Validate projectId format (should be 15 or 18 character Salesforce ID)
-        const pid = this.resolvedProjectId;
+        const pid = this.projectIdForWire;
         if (typeof pid !== 'string' || (pid.length !== 15 && pid.length !== 18)) {
             console.error('[DEBUG] wiredGroupedTasksByProject - Invalid projectId format:', pid);
             this.error = { message: 'Invalid project ID format' };
@@ -665,7 +786,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (data) {
             try {
                 // DEBUG: Log project ID and data received
-                console.log('[DEBUG] wiredGroupedTasksByProject - Project ID:', this.resolvedProjectId);
+                console.log('[DEBUG] wiredGroupedTasksByProject - Project ID:', this.projectIdForWire);
                 console.log('[DEBUG] wiredGroupedTasksByProject - Status groups count:', data.statusGroups?.length || 0);
                 
                 // Clear any existing statusGroups first to prevent data mixing
@@ -1007,27 +1128,30 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     isTaskAssignedToMe(task) {
-        // Check if current user/contact is assigned as Project Manager, Developer, or Client User
-        // Handle undefined, null, and empty string values
         const projectManagerId = task.projectManagerId ? String(task.projectManagerId) : '';
         const developerId = task.developerId ? String(task.developerId) : '';
         const clientUserId = task.clientUserId ? String(task.clientUserId) : '';
-        
-        // Determine which Contact ID to use for comparison
-        // Portal: use currentUserContactId; Salesforce: use selectedContactId
-        const contactIdToMatch = this.isPortalMode 
-            ? (this.currentUserContactId ? String(this.currentUserContactId) : null)
-            : (this.selectedContactId ? String(this.selectedContactId) : null);
-        
-        if (!contactIdToMatch) {
-            return false;
+
+        // Salesforce contact combobox: Project Manager only
+        if (this.selectedContactId) {
+            const sel = String(this.selectedContactId);
+            return salesforceIdsEqual(projectManagerId, sel);
         }
 
-        return (
-            salesforceIdsEqual(projectManagerId, contactIdToMatch) ||
-            salesforceIdsEqual(developerId, contactIdToMatch) ||
-            salesforceIdsEqual(clientUserId, contactIdToMatch)
-        );
+        // Portal "My tasks": match PM, Developer, or Client User to the logged-in Contact
+        if (this.isPortalMode && this.showMyTasksOnly) {
+            const uid = this.currentUserContactId ? String(this.currentUserContactId) : null;
+            if (!uid) {
+                return false;
+            }
+            return (
+                salesforceIdsEqual(projectManagerId, uid) ||
+                salesforceIdsEqual(developerId, uid) ||
+                salesforceIdsEqual(clientUserId, uid)
+            );
+        }
+
+        return false;
     }
     
     getStatusBadgeClass(status) {
@@ -1111,12 +1235,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         return this.summaryFieldDefinitions && this.summaryFieldDefinitions.length > 0;
     }
     
-    // Removed grid-related getters - now using HTML table structure which handles alignment automatically
-    
-    get isFilteredByAccount() {
-        return this.effectiveAccountIds && this.effectiveAccountIds.length > 0;
-    }
-    
     get displayStatusGroups() {
         return this.filteredStatusGroups;
     }
@@ -1163,28 +1281,18 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get hasCompletedTasks() {
-        // Only check for completed tasks when filtering by project
-        // When resolvedProjectId is undefined, we shouldn't show the toggle
-        if (!this.resolvedProjectId) {
-            return false;
-        }
-        
-        // Check if there are any completed tasks in the status groups
         if (!this.statusGroups || this.statusGroups.length === 0) {
             return false;
         }
-        
-        // Ensure statusGroups is an array of objects, not strings
+
         if (typeof this.statusGroups[0] === 'string') {
-            // If statusGroups is an array of strings, check if 'Completed' is in it
             return this.statusGroups.includes('Completed');
         }
-        
-        const hasCompleted = this.statusGroups.some(group => {
+
+        const hasCompleted = this.statusGroups.some((group) => {
             const status = (group?.status || '').trim();
             return status === 'Completed';
         });
-        console.log('[DEBUG] hasCompletedTasks - Project ID:', this.resolvedProjectId, 'Has completed:', hasCompleted, 'Status groups count:', this.statusGroups.length);
         return hasCompleted;
     }
     
@@ -1203,24 +1311,15 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get hasRemovedTasks() {
-        // Only check for removed tasks when filtering by project
-        // When resolvedProjectId is undefined, we shouldn't show the toggle
-        if (!this.resolvedProjectId) {
-            return false;
-        }
-        
-        // Check if there are any removed tasks in the status groups
         if (!this.statusGroups || this.statusGroups.length === 0) {
             return false;
         }
-        
-        // Ensure statusGroups is an array of objects, not strings
+
         if (typeof this.statusGroups[0] === 'string') {
-            // If statusGroups is an array of strings, check if 'Removed' is in it
             return this.statusGroups.includes('Removed');
         }
-        
-        return this.statusGroups.some(group => {
+
+        return this.statusGroups.some((group) => {
             const status = (group?.status || '').trim();
             return status === 'Removed';
         });
@@ -1397,10 +1496,22 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     handleAccountChange(event) {
-        this.selectedAccountId = event.detail.value || null;
-        // The wire will automatically refresh when effectiveAccountIds changes
-        // But we also need to ensure Contact filter is reapplied after Account filter changes
-        // refreshFilteredStatusGroups() will be called by wiredGroupedTasks, but we ensure it's called here too
+        const v = event.detail.value;
+        if (this.isAccountRecordPage) {
+            this._recordPageAccountSelection =
+                v === undefined || v === null ? ACCOUNT_SEL_THIS : v;
+        } else {
+            this.selectedAccountId = v === undefined || v === null || v === '' ? '' : v;
+        }
+        if (this.statusGroups && this.statusGroups.length > 0) {
+            this.refreshFilteredStatusGroups();
+        }
+    }
+
+    handleProjectFilterChange(event) {
+        const v = event.detail.value;
+        this._recordPageProjectSelection =
+            v === undefined || v === null ? PROJECT_SEL_THIS : v;
         if (this.statusGroups && this.statusGroups.length > 0) {
             this.refreshFilteredStatusGroups();
         }

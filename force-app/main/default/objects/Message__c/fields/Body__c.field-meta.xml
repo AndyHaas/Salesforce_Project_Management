@@ -3,11 +3,8 @@
     <fullName>Body__c</fullName>
     <label>Message Body</label>
     <length>131072</length>
-    <required>false</required>
-    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
     <type>LongTextArea</type>
     <visibleLines>10</visibleLines>
 </CustomField>
-

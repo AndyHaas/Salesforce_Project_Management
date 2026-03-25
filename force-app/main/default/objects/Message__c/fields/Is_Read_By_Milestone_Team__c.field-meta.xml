@@ -3,7 +3,6 @@
     <fullName>Is_Read_By_Milestone_Team__c</fullName>
     <defaultValue>false</defaultValue>
     <label>Is Read By Milestone Team</label>
-    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

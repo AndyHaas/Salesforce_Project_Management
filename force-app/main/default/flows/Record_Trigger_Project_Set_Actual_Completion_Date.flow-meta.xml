@@ -5,8 +5,8 @@
     <assignments>
         <name>Set_Actual_Completed_Date</name>
         <label>Set Actual Completed Date</label>
-        <locationX>50</locationX>
-        <locationY>455</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>$Record.Actual_Completion_Date__c</assignToReference>
             <operator>Assign</operator>
@@ -21,8 +21,8 @@
     <decisions>
         <name>Project_Completed</name>
         <label>Project Completed</label>
-        <locationX>182</locationX>
-        <locationY>335</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>Not Completed</defaultConnectorLabel>
         <rules>
             <name>Completed</name>
@@ -72,12 +72,12 @@
     <recordUpdates>
         <name>Update_Project</name>
         <label>Update Project</label>
-        <locationX>50</locationX>
-        <locationY>575</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>56</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Project_Completed</targetReference>

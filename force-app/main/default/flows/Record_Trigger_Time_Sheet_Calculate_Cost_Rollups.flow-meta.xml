@@ -5,8 +5,8 @@
     <assignments>
         <name>Add_projected_hours</name>
         <label>Add projected hours</label>
-        <locationX>446</locationX>
-        <locationY>1547</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>numProjectedHours</assignToReference>
             <operator>Add</operator>
@@ -28,8 +28,8 @@
     <assignments>
         <name>Calculate_Cost</name>
         <label>Calculate Cost</label>
-        <locationX>754</locationX>
-        <locationY>755</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>currTotalCost</assignToReference>
             <operator>Add</operator>
@@ -44,8 +44,8 @@
     <assignments>
         <name>Set_Project_Price</name>
         <label>Set Project Price</label>
-        <locationX>50</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>currTotalCost</assignToReference>
             <operator>Assign</operator>
@@ -60,8 +60,8 @@
     <decisions>
         <name>Is_Billable</name>
         <label>Is Billable</label>
-        <locationX>886</locationX>
-        <locationY>647</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Go_Through_Time_Sheet_Entries</targetReference>
         </defaultConnector>
@@ -85,8 +85,8 @@
     <decisions>
         <name>Is_Project_Set_Cost</name>
         <label>Is Project Set Cost</label>
-        <locationX>358</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Go_Through_Time_Sheet_Entries</targetReference>
         </defaultConnector>
@@ -110,8 +110,8 @@
     <decisions>
         <name>Status_open</name>
         <label>Status open?</label>
-        <locationX>578</locationX>
-        <locationY>1439</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Go_through_Open_Projects</targetReference>
         </defaultConnector>
@@ -165,8 +165,8 @@
     <loops>
         <name>Go_through_Open_Projects</name>
         <label>Go through Open Projects</label>
-        <locationX>358</locationX>
-        <locationY>1331</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <collectionReference>Get_Open_Projects</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -179,8 +179,8 @@
     <loops>
         <name>Go_Through_Time_Sheet_Entries</name>
         <label>Go Through Time Sheet Entries</label>
-        <locationX>666</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <collectionReference>Get_Time_Sheet_Entries</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -212,8 +212,8 @@
     <recordLookups>
         <name>Get_Open_Projects</name>
         <label>Get Open Projects</label>
-        <locationX>358</locationX>
-        <locationY>1223</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Go_through_Open_Projects</targetReference>
@@ -240,8 +240,8 @@
     <recordLookups>
         <name>Get_Time_Sheet_Entries</name>
         <label>Get Time Sheet Entries</label>
-        <locationX>358</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Is_Project_Set_Cost</targetReference>
@@ -275,8 +275,8 @@
     <recordUpdates>
         <name>Update_Burn_Rate_on_Account</name>
         <label>Update Burn Rate on Account</label>
-        <locationX>358</locationX>
-        <locationY>1823</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -302,8 +302,8 @@
     <recordUpdates>
         <name>Update_Project</name>
         <label>Update Project</label>
-        <locationX>358</locationX>
-        <locationY>1115</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>Get_Open_Projects</targetReference>
         </connector>
@@ -324,7 +324,7 @@
         <object>Project__c</object>
     </recordUpdates>
     <start>
-        <locationX>232</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Get_Time_Sheet_Entries</targetReference>

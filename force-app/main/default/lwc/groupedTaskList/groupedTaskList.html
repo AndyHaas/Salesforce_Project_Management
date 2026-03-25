@@ -12,10 +12,23 @@
                                 label=""
                                 label-hidden
                                 placeholder="Filter by Account"
-                                value={selectedAccountId}
-                                options={accounts}
+                                value={accountFilterComboboxValue}
+                                options={accountFilterOptions}
                                 onchange={handleAccountChange}
                                 class="account-filter-combobox">
+                            </lightning-combobox>
+                        </div>
+                    </template>
+                    <template if:true={shouldShowProjectFilter}>
+                        <div class="slds-col">
+                            <lightning-combobox
+                                label=""
+                                label-hidden
+                                placeholder="Filter by Project"
+                                value={projectFilterComboboxValue}
+                                options={projectFilterOptions}
+                                onchange={handleProjectFilterChange}
+                                class="project-filter-combobox">
                             </lightning-combobox>
                         </div>
                     </template>
@@ -24,7 +37,7 @@
                             <lightning-combobox
                                 label=""
                                 label-hidden
-                                placeholder="Filter by Contact"
+                                placeholder="Filter by project manager"
                                 value={selectedContactId}
                                 options={assignedContacts}
                                 onchange={handleContactSelected}
@@ -35,20 +48,29 @@
                 </div>
             </div>
             <div class="slds-col actions-container slds-grid slds-grid_vertical-align-center">
-                <template if:true={isFilteredByProject}>
-                    <lightning-badge 
-                        label="Filter by Project" 
+                <template if:true={isAllAccessibleScope}>
+                    <lightning-badge
+                        label="All accessible tasks"
                         class="slds-m-right_small"
-                        title="Tasks are filtered to show only those associated with the selected project">
+                        title="Showing all project tasks you can access (not limited to this page record)">
                     </lightning-badge>
                 </template>
-                <template if:true={isFilteredByAccount}>
-                    <template if:false={isFilteredByProject}>
-                        <lightning-badge 
-                            label="Filtered by Account" 
+                <template if:false={isAllAccessibleScope}>
+                    <template if:true={isFilteredByProject}>
+                        <lightning-badge
+                            label="Filter by Project"
                             class="slds-m-right_small"
-                            title="Tasks are filtered to show only those associated with the selected account(s)">
+                            title="Tasks are limited to the selected project">
                         </lightning-badge>
+                    </template>
+                    <template if:true={isFilteredByAccount}>
+                        <template if:false={isFilteredByProject}>
+                            <lightning-badge
+                                label="Filtered by Account"
+                                class="slds-m-right_small"
+                                title="Tasks are limited to the selected account(s)">
+                            </lightning-badge>
+                        </template>
                     </template>
                 </template>
                 <div class="button-group-wrapper">
@@ -74,6 +96,13 @@
                             variant="border-filled"
                             menu-alignment="auto"
                             onselect={handleMenuSelect}>
+                            <template if:false={isPortalMode}>
+                                <lightning-menu-item
+                                    label={allAccessibleScopeMenuLabel}
+                                    value="allAccessibleScope"
+                                    icon-name="utility:world">
+                                </lightning-menu-item>
+                            </template>
                             <template if:true={showMyTasksButton}>
                                 <lightning-menu-item 
                                     label={meModeButtonLabel}

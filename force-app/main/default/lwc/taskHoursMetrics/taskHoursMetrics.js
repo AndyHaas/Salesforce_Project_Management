@@ -344,4 +344,3 @@ export default class TaskHoursMetrics extends LightningElement {
         return this._internalShowChart;
     }
 }
-

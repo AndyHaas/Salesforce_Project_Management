@@ -4,6 +4,7 @@
     <defaultValue>30</defaultValue>
     <description>Number of days to retain OTP records before deletion. Default is 30 days.</description>
     <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <inlineHelpText>Enter the number of days to keep OTP records. Records older than this will be deleted during cleanup.</inlineHelpText>
     <label>Retention Days</label>
     <precision>18</precision>

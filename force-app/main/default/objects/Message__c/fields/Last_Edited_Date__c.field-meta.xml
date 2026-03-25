@@ -3,8 +3,8 @@
     <fullName>Last_Edited_Date__c</fullName>
     <description>Date and time when this message was last edited.</description>
     <label>Last Edited Date</label>
-    <trackFeedHistory>false</trackFeedHistory>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>DateTime</type>
 </CustomField>
-

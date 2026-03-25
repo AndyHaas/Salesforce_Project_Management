@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <applicationVisibilities>
         <application>Project_Management</application>
@@ -24,8 +24,7 @@
         <apexClass>TaskSubtaskHelper</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description
-  >Permission set for Milestone Consulting team members - full access to project and task management. Portal messaging and related Apex ship with the separate Portal Add-On package.</description>
+    <description>Permission set for Milestone Consulting team members - full access to project and task management. Portal messaging and related Apex ship with the separate Portal Add-On package.</description>
     <fieldPermissions>
         <editable>true</editable>
         <field>Message__c.Account__c</field>

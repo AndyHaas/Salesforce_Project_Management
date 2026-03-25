@@ -3,10 +3,6 @@
     <description>Message channel for messaging updates in Portal Messaging components</description>
     <isExposed>true</isExposed>
     <lightningMessageFields>
-        <description>Related Account ID to filter messages</description>
-        <fieldName>relatedAccountId</fieldName>
-    </lightningMessageFields>
-    <lightningMessageFields>
         <description>Related Project ID to filter messages</description>
         <fieldName>relatedProjectId</fieldName>
     </lightningMessageFields>
@@ -15,9 +11,12 @@
         <fieldName>relatedTaskId</fieldName>
     </lightningMessageFields>
     <lightningMessageFields>
-        <description>Action type: 'sent' or 'deleted'</description>
+        <description>Action type: &apos;sent&apos; or &apos;deleted&apos;</description>
         <fieldName>action</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <description>Related Account ID to filter messages</description>
+        <fieldName>relatedAccountId</fieldName>
     </lightningMessageFields>
     <masterLabel>Message Update</masterLabel>
 </LightningMessageChannel>
-

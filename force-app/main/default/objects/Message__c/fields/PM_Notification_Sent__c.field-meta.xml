@@ -3,7 +3,6 @@
     <fullName>PM_Notification_Sent__c</fullName>
     <defaultValue>false</defaultValue>
     <label>PM Notification Sent</label>
-    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

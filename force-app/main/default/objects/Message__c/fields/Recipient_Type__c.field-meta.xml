@@ -3,7 +3,6 @@
     <fullName>Recipient_Type__c</fullName>
     <label>Recipient Type</label>
     <required>true</required>
-    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
@@ -24,4 +23,3 @@
         </valueSetDefinition>
     </valueSet>
 </CustomField>
-

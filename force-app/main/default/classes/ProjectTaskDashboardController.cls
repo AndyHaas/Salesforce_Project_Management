@@ -813,6 +813,69 @@ public without sharing class ProjectTaskDashboardController {
             ORDER BY Name
         ];
     }
+
+    /**
+     * Projects that have at least one Project Task (for grouped task list project picker).
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<ProjectOption> getProjectsWithTasks() {
+        List<Project__c> projects = [
+            SELECT Id, Name
+            FROM Project__c
+            WHERE Id IN (SELECT Project__c FROM Project_Task__c WHERE Project__c != null)
+            ORDER BY Name
+            LIMIT 2000
+        ];
+        List<ProjectOption> options = new List<ProjectOption>();
+        for (Project__c p : projects) {
+            ProjectOption o = new ProjectOption();
+            o.label = p.Name;
+            o.value = p.Id;
+            options.add(o);
+        }
+        return options;
+    }
+
+    public class ProjectOption {
+        @AuraEnabled
+        public String label;
+        @AuraEnabled
+        public String value;
+    }
+
+    /**
+     * Distinct Contacts used as Project Manager on tasks (for PM-only contact filter).
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<ContactOption> getProjectManagerContacts() {
+        Set<Id> contactIds = new Set<Id>();
+        for (Project_Task__c t : [
+            SELECT Project_Manager__c
+            FROM Project_Task__c
+            WHERE Project_Manager__c != null
+            LIMIT 10000
+        ]) {
+            contactIds.add(t.Project_Manager__c);
+        }
+        if (contactIds.isEmpty()) {
+            return new List<ContactOption>();
+        }
+        List<Contact> contacts = [
+            SELECT Id, Name, Email
+            FROM Contact
+            WHERE Id IN :contactIds
+            ORDER BY Name
+            LIMIT 1000
+        ];
+        List<ContactOption> options = new List<ContactOption>();
+        for (Contact c : contacts) {
+            ContactOption option = new ContactOption();
+            option.label = c.Name + (c.Email != null ? ' (' + c.Email + ')' : '');
+            option.value = c.Id;
+            options.add(option);
+        }
+        return options;
+    }
     
     @AuraEnabled(cacheable=true)
     public static String getCurrentUserAccountId() {
@@ -1489,4 +1552,3 @@ public without sharing class ProjectTaskDashboardController {
     }
     
 }
-

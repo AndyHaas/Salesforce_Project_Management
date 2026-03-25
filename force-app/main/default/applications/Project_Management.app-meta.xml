@@ -22,10 +22,10 @@
     <uiType>Lightning</uiType>
     <workspaceConfig>
         <mappings>
-            <tab>Project_Task_List</tab>
+            <tab>Project_Task_Analytics</tab>
         </mappings>
         <mappings>
-            <tab>Project_Task_Analytics</tab>
+            <tab>Project_Task_List</tab>
         </mappings>
         <mappings>
             <tab>Project_Task__c</tab>

@@ -3,12 +3,12 @@
     <description>Message channel for account filter changes in Project Task Dashboard components</description>
     <isExposed>true</isExposed>
     <lightningMessageFields>
-        <description>Array of Account IDs to filter by (empty array for all accounts)</description>
-        <fieldName>accountIds</fieldName>
-    </lightningMessageFields>
-    <lightningMessageFields>
         <description>Single Account ID (for backward compatibility)</description>
         <fieldName>accountId</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <description>Array of Account IDs to filter by (empty array for all accounts)</description>
+        <fieldName>accountIds</fieldName>
     </lightningMessageFields>
     <masterLabel>Account Filter</masterLabel>
 </LightningMessageChannel>
