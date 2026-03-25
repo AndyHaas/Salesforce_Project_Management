@@ -180,7 +180,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     selectedAccountId = null; // App/Home: '' = All Accounts, else Account Id
     currentUserAccountId = null; // Account associated to the logged-in user (Experience Cloud)
     @track _recordPageAccountSelection = ACCOUNT_SEL_THIS;
-    @track showAllAccessibleTasks = false;
     @track _resolvedHostRecordIdFromPage;
 
     /** Key prefixes from getObjectInfo - used to treat recordId as Account vs Project__c */
@@ -230,9 +229,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     /** Load tasks via getGroupedTasksWithSubtasksByProject (not account/global wire) */
     get useProjectScopedWire() {
-        if (this.showAllAccessibleTasks) {
-            return false;
-        }
         if (this.projectId) {
             return true;
         }
@@ -381,9 +377,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
     
     get effectiveAccountIds() {
-        if (this.showAllAccessibleTasks) {
-            return [];
-        }
         if (this.useProjectScopedWire) {
             return [];
         }
@@ -424,7 +417,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             (id) => id != null && (typeof id === 'string' ? id.trim().length > 0 : true)
         );
 
-        if (result.length === 0 && this.isExperienceSite && !this.showAllAccessibleTasks) {
+        if (result.length === 0 && this.isExperienceSite) {
             if (this.isAccountRecordPage || this.isProjectRecordPage) {
                 return result;
             }
@@ -435,25 +428,17 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
 
     get isFilteredByAccount() {
-        return !this.showAllAccessibleTasks && this.effectiveAccountIds.length > 0;
+        return this.effectiveAccountIds.length > 0;
     }
 
     get isFilteredByProject() {
-        return !this.showAllAccessibleTasks && this.useProjectScopedWire && !!this.projectIdForWire;
+        return this.useProjectScopedWire && !!this.projectIdForWire;
     }
 
 
     /** Badge only when project scope is non-obvious (e.g. @api projectId on app page). Hidden on Project record pages. */
     get showProjectScopeFilterBadge() {
         return this.isFilteredByProject && !this.isProjectRecordPage;
-    }
-
-    get isAllAccessibleScope() {
-        return this.showAllAccessibleTasks === true;
-    }
-
-    get allAccessibleScopeMenuLabel() {
-        return this.showAllAccessibleTasks ? 'Use page scope filters' : 'All tasks I can access';
     }
 
     get isPortalMode() {
@@ -475,9 +460,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     
     get shouldShowAccountFilter() {
         if (this.isPortalMode) {
-            return false;
-        }
-        if (this.showAllAccessibleTasks) {
             return false;
         }
         if (this.isProjectRecordPage) {
@@ -532,9 +514,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         const selectedValue = event.detail.value;
         
         switch(selectedValue) {
-            case 'allAccessibleScope':
-                this.showAllAccessibleTasks = !this.showAllAccessibleTasks;
-                break;
             case 'myTasks':
                 this.handleMeModeToggle();
                 break;

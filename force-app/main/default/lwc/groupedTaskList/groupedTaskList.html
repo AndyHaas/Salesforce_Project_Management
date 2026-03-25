@@ -36,29 +36,20 @@
                 </div>
             </div>
             <div class="slds-col actions-container slds-grid slds-grid_vertical-align-center">
-                <template if:true={isAllAccessibleScope}>
+                <template if:true={showProjectScopeFilterBadge}>
                     <lightning-badge
-                        label="All accessible tasks"
+                        label="Filter by Project"
                         class="slds-m-right_small"
-                        title="Showing all project tasks you can access (not limited to this page record)">
+                        title="Tasks are limited to the selected project">
                     </lightning-badge>
                 </template>
-                <template if:false={isAllAccessibleScope}>
-                    <template if:true={showProjectScopeFilterBadge}>
+                <template if:true={isFilteredByAccount}>
+                    <template if:false={isFilteredByProject}>
                         <lightning-badge
-                            label="Filter by Project"
+                            label="Filtered by Account"
                             class="slds-m-right_small"
-                            title="Tasks are limited to the selected project">
+                            title="Tasks are limited to the selected account(s)">
                         </lightning-badge>
-                    </template>
-                    <template if:true={isFilteredByAccount}>
-                        <template if:false={isFilteredByProject}>
-                            <lightning-badge
-                                label="Filtered by Account"
-                                class="slds-m-right_small"
-                                title="Tasks are limited to the selected account(s)">
-                            </lightning-badge>
-                        </template>
                     </template>
                 </template>
                 <div class="button-group-wrapper">
@@ -84,13 +75,6 @@
                             variant="border-filled"
                             menu-alignment="auto"
                             onselect={handleMenuSelect}>
-                            <template if:false={isPortalMode}>
-                                <lightning-menu-item
-                                    label={allAccessibleScopeMenuLabel}
-                                    value="allAccessibleScope"
-                                    icon-name="utility:world">
-                                </lightning-menu-item>
-                            </template>
                             <template if:true={showMyTasksButton}>
                                 <lightning-menu-item 
                                     label={meModeButtonLabel}
