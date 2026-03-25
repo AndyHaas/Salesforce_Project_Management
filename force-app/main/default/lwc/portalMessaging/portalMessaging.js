@@ -25,7 +25,6 @@
  */
 
 import { LightningElement, api, wire, track } from 'lwc';
-import { refreshApex } from '@salesforce/apex';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE, publish } from 'lightning/messageService';
 import { CurrentPageReference, NavigationMixin } from 'lightning/navigation';
@@ -80,6 +79,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     _hasMoreMessages = true;
     _messagesPerPage = 50;
     _searchTimeout = null;
+    /** Bind to lightning-input-rich-text label-visible (boolean, not string "false"). */
+    richTextLabelVisible = false;
     
     get showHeaderEnabled() {
         return true;
@@ -106,6 +107,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     }
     
     _contextInfo = null;
+    /** @description Dedupe imperative getContextInfo when only related* ids change (independent of recipientType). */
+    _lastContextParamKey = null;
     _isExperienceCloud = null; // Cached value for Experience Cloud detection
     
     /**
@@ -200,17 +203,29 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         }
     }
     
-    // Wire service to get context information
-    @wire(getContextInfo, {
-        relatedAccountId: '$relatedAccountId',
-        relatedProjectId: '$relatedProjectId',
-        relatedTaskId: '$relatedTaskId'
-    })
-    wiredContextInfo({ error, data }) {
-        if (data) {
-            this._contextInfo = data;
-        } else if (error) {
-            console.error('Error loading context info:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+    /**
+     * Load header/footer context from Apex (imperative).
+     * @wire(getContextInfo) was not reliably populating _contextInfo when related* ids come from the page/flexipage;
+     * keep in sync with the same related* params as getMessages.
+     */
+    async loadContextInfo() {
+        if (!this.relatedAccountId && !this.relatedProjectId && !this.relatedTaskId) {
+            this._contextInfo = null;
+            return;
+        }
+        try {
+            const data = await getContextInfo({
+                relatedAccountId: this.relatedAccountId || undefined,
+                relatedProjectId: this.relatedProjectId || undefined,
+                relatedTaskId: this.relatedTaskId || undefined
+            });
+            this._contextInfo = data || null;
+        } catch (error) {
+            this._contextInfo = null;
+            console.error(
+                'Error loading context info:',
+                JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
+            );
         }
     }
     
@@ -246,18 +261,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             
             this._isLoadingMore = true;
             
-            console.log('Loading messages with params:', JSON.stringify({
-                recipientType: recipientTypeForQuery,
-                recipientTypeForSending: this.recipientType,
-                isMilestoneTeamMember: this._isMilestoneTeamMember,
-                relatedAccountId: this.relatedAccountId,
-                relatedProjectId: this.relatedProjectId,
-                relatedTaskId: this.relatedTaskId,
-                offset: this._currentOffset,
-                limit: this._messagesPerPage,
-                append: append
-            }, null, 2));
-            
             const data = await getMessages({
                 recipientType: recipientTypeForQuery,
                 relatedAccountId: this.relatedAccountId,
@@ -286,7 +289,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             this._currentOffset += newMessages.length;
             
             this._messagesError = null;
-            console.log('Messages loaded:', newMessages.length, 'Total:', this._messages.length, 'Has more:', this._hasMoreMessages);
             
             // Mark unread messages as read (only on initial load)
             if (!append) {
@@ -410,24 +412,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     }
     
     /**
-     * @description Component lifecycle hook - called when component is inserted into DOM
-     * Handles initialization differently for Lightning Record Pages vs Community pages
-     */
-    connectedCallback() {
-        // Initialize previous params to track changes
-        this._previousParams = {
-            recipientType: this.recipientType,
-            relatedAccountId: this.relatedAccountId,
-            relatedProjectId: this.relatedProjectId,
-            relatedTaskId: this.relatedTaskId
-        };
-        
-        // On Lightning Record Pages, recordId is available immediately via @api
-        // On Community pages, it might come from URL or page reference
-        // We'll wait for wire services to resolve before loading
-    }
-    
-    /**
      * @description Check if we have all required data to load messages
      * Works differently for Lightning Record Pages vs Community pages
      */
@@ -467,12 +451,29 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     }
     
     /**
+     * Refresh Apex context when Account / Project / Task ids change.
+     * Does not wait for recipientType (unlike attemptLoadMessages), so showProjectContext can resolve on Account pages.
+     */
+    attemptLoadContextInfo() {
+        const key = [
+            this.relatedAccountId || '',
+            this.relatedProjectId || '',
+            this.relatedTaskId || ''
+        ].join('|');
+        if (this._lastContextParamKey === key) {
+            return;
+        }
+        this._lastContextParamKey = key;
+        this.loadContextInfo();
+    }
+    
+    /**
      * @description Watch for changes to reactive parameters and reload messages
      * Handles both Lightning Record Pages and Community pages
      */
     renderedCallback() {
-        // Use attemptLoadMessages which checks if we can load
         this.attemptLoadMessages();
+        this.attemptLoadContextInfo();
     }
     
     // Wire service to get mentionable contacts
@@ -631,7 +632,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
      * @description Show project link in message footer only on Account host — not on Project__c or Project_Task__c.
      */
     get showProjectContext() {
-        return this._contextInfo && this._contextInfo.contextType === 'Account';
+        const ctx = this._contextInfo;
+        return !!(ctx && ctx.contextType === 'Account');
     }
     
     /**
@@ -645,10 +647,13 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
      * @description Lifecycle hook - component is inserted into the DOM
      */
     connectedCallback() {
-        // Load messages on initialization
+        this._previousParams = {
+            recipientType: this.recipientType,
+            relatedAccountId: this.relatedAccountId,
+            relatedProjectId: this.relatedProjectId,
+            relatedTaskId: this.relatedTaskId
+        };
         this.loadMessages();
-        
-        // Subscribe to message updates
         if (this._messageContext) {
             this.subscribeToMessageUpdates();
         }
@@ -750,8 +755,18 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
                 projectNavData = JSON.stringify(projectLink);
             }
             
+            const messageItemClass = [
+                'message-item',
+                !msg.isRead ? 'message-unread' : '',
+                msg.isMentioned ? 'message-mentioned' : '',
+                msg.isPinned ? 'message-pinned' : ''
+            ]
+                .filter(Boolean)
+                .join(' ');
+            
             return {
                 ...msg,
+                messageItemClass,
                 formattedDate: this.formatMessageDate(msg.createdDate),
                 formattedEditedDate: msg.lastEditedDate ? this.formatMessageDate(msg.lastEditedDate) : '',
                 isFromCurrentUser: this.isFromCurrentUser(msg.senderId),
@@ -1140,17 +1155,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             // Extract mentioned contact IDs
             const mentionedContactIds = this.selectedMentions.map(m => m.id);
             
-            console.log('Sending message with:', JSON.stringify({
-                messageBody: currentMessageBody.substring(0, 100) + '...',
-                recipientType: this.recipientType,
-                relatedAccountId: this.relatedAccountId,
-                relatedProjectId: this.relatedProjectId,
-                relatedTaskId: this.relatedTaskId,
-                mentionedContactIds: mentionedContactIds,
-                isVisibleToClient: this.isVisibleToClient,
-                replyToMessageId: this._replyingToMessageId
-            }, null, 2));
-            
             // Send message
             const messageId = await sendMessage({
                 messageBody: currentMessageBody,
@@ -1162,8 +1166,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
                 isVisibleToClient: this.isVisibleToClient,
                 replyToMessageId: this._replyingToMessageId
             });
-            
-            console.log('Message sent successfully, ID:', messageId);
             
             // Link files if any were uploaded
             if (this._uploadedFileIds && this._uploadedFileIds.length > 0) {
@@ -1201,7 +1203,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             this.publishMessageUpdate('sent');
             
             // Reload messages after sending - reset to show newest at bottom
-            console.log('Reloading messages after send...');
             this._currentOffset = 0;
             this._hasMoreMessages = true;
             await this.loadMessages(false);
@@ -1213,8 +1214,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
                     this.scrollToBottom();
                 }, 50);
             });
-            
-            console.log('Messages reloaded');
             
             this.dispatchEvent(
                 new ShowToastEvent({
