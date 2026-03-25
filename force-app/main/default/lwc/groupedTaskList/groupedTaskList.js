@@ -65,19 +65,52 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     
     @wire(CurrentPageReference)
     resolvePageReference(pageRef) {
-        // Only extract projectId from URL if it's not already set via @api
-        if (this.projectId) {
-            return;
-        }
-        
         if (!pageRef) {
             return;
         }
 
         const { attributes = {}, state = {} } = pageRef;
-        let projectId = state.recordId || attributes.recordId || state.c__projectId;
+        const objectApiName = attributes.objectApiName || '';
+        const recordIdFromRef = state.recordId || attributes.recordId;
 
-        // If not found in page reference, try parsing URL pathname
+        /**
+         * When @api recordId is missing, capture host Account / Project from the page.
+         * Never assign generic recordId to projectId — on Account pages that value is the Account Id and would
+         * incorrectly drive getGroupedTasksWithSubtasksByProject.
+         */
+        if (!this.recordId && recordIdFromRef && typeof recordIdFromRef === 'string') {
+            const pre = recordIdFromRef.substring(0, 3);
+            const matchesProjectPrefix =
+                this._projectKeyPrefix && pre === this._projectKeyPrefix;
+            const matchesAccountPrefix =
+                pre === STANDARD_ACCOUNT_KEY_PREFIX ||
+                (this._accountKeyPrefix && pre === this._accountKeyPrefix);
+            const isProjectObject = objectApiName && objectApiName.endsWith('Project__c');
+            const isAccountObject = objectApiName === 'Account';
+
+            if (isProjectObject || (matchesProjectPrefix && !matchesAccountPrefix)) {
+                this._resolvedHostRecordIdFromPage = recordIdFromRef;
+                if (!this.projectId) {
+                    this.projectId = recordIdFromRef;
+                }
+                return;
+            }
+            if (
+                isAccountObject ||
+                (matchesAccountPrefix && !matchesProjectPrefix) ||
+                (!objectApiName && pre === STANDARD_ACCOUNT_KEY_PREFIX)
+            ) {
+                this._resolvedHostRecordIdFromPage = recordIdFromRef;
+                return;
+            }
+        }
+
+        if (this.projectId) {
+            return;
+        }
+
+        let projectId = state.c__projectId || attributes.c__projectId;
+
         if (!projectId && typeof window !== 'undefined') {
             let pathname = window.location.pathname || '';
             pathname = pathname.replace(/^\/s/, '');
@@ -88,15 +121,33 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             }
         }
 
-        // Only update if we found a projectId and it's different from current
-        // IMPORTANT: Don't clear statusGroups here - let the wire service handle it
         if (projectId && projectId !== this.projectId) {
-            console.log('[DEBUG] resolvePageReference - Extracted projectId from URL:', projectId);
-            // Set projectId - the wire service will reactively update
+            console.log('[DEBUG] resolvePageReference - projectId from URL:', projectId);
             this.projectId = projectId;
         }
+
+        if (
+            !this.recordId &&
+            !this._resolvedHostRecordIdFromPage &&
+            typeof window !== 'undefined'
+        ) {
+            let pathname = window.location.pathname || '';
+            pathname = pathname.replace(/^\/s/, '');
+            const parts = pathname.split('/').filter(Boolean);
+            const accountIdx = parts.indexOf('account');
+            if (accountIdx !== -1 && accountIdx + 1 < parts.length) {
+                const candidate = decodeURIComponent(parts[accountIdx + 1]);
+                if (candidate.startsWith(STANDARD_ACCOUNT_KEY_PREFIX)) {
+                    this._resolvedHostRecordIdFromPage = candidate;
+                }
+            }
+        }
     }
-    
+
+    /** Host record id for Account / Project scoping (flexipage recordId or page-ref fallback). */
+    get effectiveRecordId() {
+        return this.recordId || this._resolvedHostRecordIdFromPage || undefined;
+    }
     isExperienceSite = false; // Detect Experience Cloud context to adjust defaults (fallback if context not set)
     statusGroups = [];
     filteredStatusGroups = []; // Filtered tasks based on "Me" mode and other toggles
@@ -130,6 +181,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     currentUserAccountId = null; // Account associated to the logged-in user (Experience Cloud)
     @track _recordPageAccountSelection = ACCOUNT_SEL_THIS;
     @track showAllAccessibleTasks = false;
+    @track _resolvedHostRecordIdFromPage;
 
     /** Key prefixes from getObjectInfo - used to treat recordId as Account vs Project__c */
     _accountKeyPrefix;
@@ -155,7 +207,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     /** True when flexipage host record is an Account */
     get isAccountRecordPage() {
-        const rid = this.recordId;
+        const rid = this.effectiveRecordId;
         if (!rid || typeof rid !== 'string' || rid.length < 3) {
             return false;
         }
@@ -168,7 +220,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     /** True when flexipage host record is a Project__c */
     get isProjectRecordPage() {
-        const rid = this.recordId;
+        const rid = this.effectiveRecordId;
         if (!rid || typeof rid !== 'string' || rid.length < 3) {
             return false;
         }
@@ -197,7 +249,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (this.projectId) {
             return this.projectId;
         }
-        return this.recordId;
+        return this.effectiveRecordId;
     }
 
     /** @deprecated use projectIdForWire - kept for minimal churn in debug logs */
@@ -341,16 +393,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (this._filteredAccountIds.length > 0) {
             accountIds = this._filteredAccountIds;
         } else if (this.isAccountRecordPage) {
-            const sel = this._recordPageAccountSelection;
-            if (sel === ACCOUNT_SEL_ALL) {
-                accountIds = [];
-            } else if (sel === ACCOUNT_SEL_THIS) {
-                accountIds = [this.recordId];
-            } else if (sel && typeof sel === 'string' && (sel.length === 15 || sel.length === 18)) {
-                accountIds = [sel];
+            if (this.effectiveRecordId) {
+                accountIds = [this.effectiveRecordId];
             }
-        } else if (this.recordId) {
-            const rid = this.recordId;
+        } else if (this.effectiveRecordId) {
+            const rid = this.effectiveRecordId;
             const pre = typeof rid === 'string' && rid.length >= 3 ? rid.substring(0, 3) : '';
             const matchesProject =
                 this._projectKeyPrefix && pre === this._projectKeyPrefix;
@@ -411,7 +458,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     get isPortalMode() {
         // If on a record page (Account record page), always use Salesforce navigation
-        if (this.recordId) {
+        if (this.effectiveRecordId) {
             return false;
         }
         // Use isSalesforceContext property if explicitly set (preferred)
@@ -437,9 +484,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             return false;
         }
         if (this.isAccountRecordPage) {
-            return true;
+            return false;
         }
-        if (this.recordId) {
+        if (this.effectiveRecordId) {
             return false;
         }
         return this.showAccountFilter !== false;
