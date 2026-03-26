@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>合約將傳送至與商機關聯的電子郵件地址</help>
+    <label></label>
+    <name>echosign_dev1__Recipient_Lead__c</name>
+    <relationshipLabel></relationshipLabel>
+</CustomFieldTranslation>

@@ -1,0 +1,72 @@
+<template>
+    <footer class="portal-footer">
+        <div class="footer-grid">
+            <div class="footer-column about">
+                <div class="brand">
+                    <img
+                        src={brand.logoResource}
+                        alt={brand.name}
+                        class="brand-logo"
+                    />
+                </div>
+                <p class="about-text">
+                    {brand.tagline}
+                </p>
+                <div class="contact-block">
+                    <a class="contact-link" href={contact.emailHref}>
+                        <lightning-icon icon-name="utility:email" size="x-small" class="contact-icon"></lightning-icon>
+                        <span>{contact.email}</span>
+                    </a>
+                    <a class="contact-link" href={contact.phoneHref}>
+                        <lightning-icon icon-name="utility:phone_portrait" size="x-small" class="contact-icon"></lightning-icon>
+                        <span>{contact.phone}</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h4>Portal Navigation</h4>
+                <ul class="footer-links">
+                    <template for:each={navLinks} for:item="link">
+                        <li key={link.href}>
+                            <a href={link.href}>{link.label}</a>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4>Resources</h4>
+                <ul class="footer-links">
+                    <template for:each={resourceLinks} for:item="link">
+                        <li key={link.href}>
+                            <a href={link.href}>{link.label}</a>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4>Support</h4>
+                <p class="support-text">Need help? Contact your project team.</p>
+                <div class="contact-block">
+                    <a class="contact-link" href={contact.emailHref} aria-label="Send support email">
+                        <lightning-icon icon-name="utility:email" size="x-small" class="contact-icon"></lightning-icon>
+                        <span>Portal Support</span>
+                    </a>
+                    <a class="contact-link" href={contact.phoneHref} aria-label="Call support">
+                        <lightning-icon icon-name="utility:phone_portrait" size="x-small" class="contact-icon"></lightning-icon>
+                        <span>{contact.phone}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© {currentYear} Milestone Consulting, LLC. All rights reserved.</p>
+            <div class="footer-meta">
+                <span class="version">{versionLabel}</span>
+            </div>
+        </div>
+    </footer>
+</template>

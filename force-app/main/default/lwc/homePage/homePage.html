@@ -1,0 +1,162 @@
+<template>
+    <div class="home-page-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">
+                Welcome<template if:true={userFirstName}> {userFirstName}</template>!
+            </h1>
+            <p class="welcome-subtitle">
+                Manage your projects and tasks from here.
+            </p>
+        </div>
+
+        <!-- Active Projects, Review Required, and Latest Messages Section -->
+        <div class="two-column-layout">
+            <!-- Active Projects Card -->
+            <div class="custom-card">
+                <div class="card-header">
+                    <lightning-icon icon-name="utility:briefcase" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Active Projects</h2>
+                </div>
+                <div class="card-body">
+                    <template if:true={isLoading}>
+                        <div class="loading-container">
+                            <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                        </div>
+                    </template>
+                    <template if:false={isLoading}>
+                        <template if:true={hasActiveProjects}>
+                            <div class="table-container">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                    <thead>
+                                        <tr>
+                                            <template for:each={projectsColumns} for:item="col">
+                                                <th key={col.fieldName} scope="col">
+                                                    <div class="slds-truncate" title={col.label}>{col.label}</div>
+                                                </th>
+                                            </template>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={projectsTableRows} for:item="row">
+                                            <tr key={row.key} class="project-row" data-record-id={row.recordId} onclick={handleProjectRowClick}>
+                                                <template for:each={row.cells} for:item="cell">
+                                                    <td key={cell.key}>
+                                                        <div class="slds-truncate" title={cell.value}>
+                                                            <template if:true={cell.isLink}>
+                                                                <a href="javascript:void(0);" data-record-id={cell.recordId} onclick={handleProjectRowClick} class="project-link">{cell.value}</a>
+                                                            </template>
+                                                            <template if:false={cell.isLink}>
+                                                                {cell.value}
+                                                            </template>
+                                                        </div>
+                                                    </td>
+                                                </template>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </template>
+                        <template if:false={hasActiveProjects}>
+                            <div class="empty-state">
+                                <p>No active projects found.</p>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Review Required Card -->
+            <div class="custom-card">
+                <div class="card-header notification-header">
+                    <lightning-icon icon-name="utility:bell" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Review Required</h2>
+                </div>
+                <div class="card-body">
+                    <template if:true={isLoading}>
+                        <div class="loading-container">
+                            <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                        </div>
+                    </template>
+                    <template if:false={isLoading}>
+                        <template if:true={hasTasksNeedingReview}>
+                            <div class="notification-content">
+                                <div class="notification-text">
+                                    <p>You have <strong>{tasksNeedingReviewCount}</strong> task(s) ready for your review.</p>
+                                </div>
+                                <div class="notification-action">
+                                    <lightning-button 
+                                        label="View Tasks" 
+                                        variant="brand"
+                                        icon-name="utility:preview"
+                                        onclick={handleViewReviewTasks}>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={hasTasksNeedingReview}>
+                            <div class="empty-state">
+                                <p>No tasks require review at this time.</p>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+            </div>
+            <!-- Latest Messages Card -->
+            <div class="custom-card">
+                <div class="card-header messages-header">
+                    <lightning-icon icon-name="utility:message" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Latest Comments</h2>
+                </div>
+                <div class="card-body">
+                    <c-portal-message-feed
+                        related-account-id={userAccountId}
+                        limit-count="5"
+                        order-by-field="CreatedDate"
+                        order-direction="DESC">
+                    </c-portal-message-feed>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coming Soon Cards Section -->
+        <div class="three-column-layout">
+            <div class="custom-card coming-soon-card">
+                <div class="card-header">
+                    <lightning-icon icon-name="utility:money" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Billing & Invoices</h2>
+                </div>
+                <div class="card-body">
+                    <div class="coming-soon-content">
+                        <p>Coming Soon</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom-card coming-soon-card">
+                <div class="card-header">
+                    <lightning-icon icon-name="utility:account" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Account Management</h2>
+                </div>
+                <div class="card-body">
+                    <div class="coming-soon-content">
+                        <p>Coming Soon</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom-card coming-soon-card">
+                <div class="card-header">
+                    <lightning-icon icon-name="utility:contact" size="small" class="header-icon"></lightning-icon>
+                    <h2 class="card-title">Contact Management</h2>
+                </div>
+                <div class="card-body">
+                    <div class="coming-soon-content">
+                        <p>Coming Soon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

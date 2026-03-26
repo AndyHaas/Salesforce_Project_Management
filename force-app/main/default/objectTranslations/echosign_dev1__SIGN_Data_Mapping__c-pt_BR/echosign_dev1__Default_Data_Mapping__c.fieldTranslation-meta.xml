@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Marque esta caixa se desejar executar o mapeamento de dados como padrão em todos os contratos enviados. Você pode substituir o padrão se especificar um outro mapeamento de dados a ser utilizado em um contrato ou modelo de contrato específicos.</help>
+    <label></label>
+    <name>echosign_dev1__Default_Data_Mapping__c</name>
+</CustomFieldTranslation>

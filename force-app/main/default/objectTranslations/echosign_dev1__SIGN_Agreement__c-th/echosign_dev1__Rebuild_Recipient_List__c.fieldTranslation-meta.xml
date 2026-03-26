@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>ตั้งค่าฟิลด์นี้ให้บังคับใช้เพจข้อตกลงของ Adobe Acrobat Sign พื้นฐาน และเพจข้อตกลงของ Adobe Acrobat Sign ขั้นสูง เพื่อสร้างรายชื่อผู้รับที่เกี่ยวข้องอีกครั้งโดยใช้ฟิลด์ ค้นหา ในระเบียนบันทึกข้อตกลง</help>
+    <label></label>
+    <name>echosign_dev1__Rebuild_Recipient_List__c</name>
+</CustomFieldTranslation>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>이 계약 템플릿에 대해 참조될 Salesforce 개체를 지정합니다(예: Opportunity, Lead).</help>
+    <label></label>
+    <name>echosign_dev1__Master_Object_Type__c</name>
+</CustomFieldTranslation>

@@ -1,0 +1,98 @@
+{
+  "type" : "sfdc_cms__themeLayout",
+  "title" : "Scoped Header and Footer",
+  "contentBody" : {
+    "component" : {
+      "attributes" : {
+        "hideThemeFooter" : false,
+        "showThemeFooterAtBottom" : true,
+        "stickyThemeHeader" : true
+      },
+      "children" : [ {
+        "children" : [ {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,0)",
+            "componentSpacerSize" : "",
+            "dxpStyle" : { },
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"237d30c6-f448-4040-a576-dad7ef64e2df\",\"columns\":[{\"UUID\":\"7a8f6cef-974a-43f0-aa0a-b41d42ebd438\",\"columnName\":\"Column 1\",\"columnKey\":\"headerSection\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionMinHeight" : "",
+            "sectionVerticalAlign" : "flex-start"
+          },
+          "children" : [ {
+            "children" : [ {
+              "attributes" : {
+                "dxpStyle" : { },
+                "projectTasksFilterName" : "All",
+                "projectTasksObjectApiName" : "Project_Task__c",
+                "projectsFilterName" : "All",
+                "projectsObjectApiName" : "Project__c"
+              },
+              "definition" : "c:portalHeader",
+              "id" : "f47bc7b3-2fe8-43f5-83eb-5de284ea044f",
+              "type" : "component"
+            } ],
+            "id" : "7a8f6cef-974a-43f0-aa0a-b41d42ebd438",
+            "name" : "headerSection",
+            "title" : "Theme Header",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "237d30c6-f448-4040-a576-dad7ef64e2df",
+          "type" : "component"
+        } ],
+        "id" : "5eb166ec-64e7-44c9-b8c0-70f025df862e",
+        "name" : "header",
+        "title" : "Theme Header",
+        "type" : "region"
+      }, {
+        "children" : [ {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,1)",
+            "componentSpacerSize" : "",
+            "dxpStyle" : { },
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"67507ba5-f9ff-43c3-8ac9-cec47e38af06\",\"columns\":[{\"UUID\":\"d52c548a-d248-4fca-a6ea-93d4fc3f598a\",\"columnName\":\"Column 1\",\"columnKey\":\"footerSection\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionMinHeight" : "",
+            "sectionVerticalAlign" : "flex-start"
+          },
+          "children" : [ {
+            "children" : [ {
+              "attributes" : {
+                "versionLabel" : "Portal v0.1.33"
+              },
+              "definition" : "c:portalFooter",
+              "id" : "31b72402-0d27-4524-a78c-c5c38b947530",
+              "type" : "component"
+            } ],
+            "id" : "d52c548a-d248-4fca-a6ea-93d4fc3f598a",
+            "name" : "footerSection",
+            "title" : "Theme Footer",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "67507ba5-f9ff-43c3-8ac9-cec47e38af06",
+          "type" : "component"
+        } ],
+        "id" : "5b3a748c-9ea0-465a-a3be-e83ac9d36b96",
+        "name" : "footer",
+        "title" : "Theme Footer",
+        "type" : "region"
+      } ],
+      "definition" : "community_byo:scopedHeaderAndFooter",
+      "id" : "d69445b2-1cc1-47e5-9cbb-f81d3a1a255d",
+      "type" : "component"
+    }
+  },
+  "urlName" : "scoped-header-and-footer"
+}

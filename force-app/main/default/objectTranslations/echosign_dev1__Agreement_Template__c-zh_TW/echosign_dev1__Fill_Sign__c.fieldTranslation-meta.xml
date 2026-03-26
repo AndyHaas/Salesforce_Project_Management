@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>啟用此選項時，合約或文件只會顯示給傳送者填寫和簽署。「後置傳送」頁面可用於轉送已簽署的文件。</help>
+    <label></label>
+    <name>echosign_dev1__Fill_Sign__c</name>
+</CustomFieldTranslation>

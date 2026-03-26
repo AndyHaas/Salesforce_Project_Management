@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Selecteer de gegevenstoewijzing om Adobe Acrobat Sign-veldinvoer uit de ondertekende overeenkomst weer toe te wijzen aan Salesforce.</help>
+    <label></label>
+    <name>echosign_dev1__Data_Mapping__c</name>
+    <relationshipLabel></relationshipLabel>
+</CustomFieldTranslation>

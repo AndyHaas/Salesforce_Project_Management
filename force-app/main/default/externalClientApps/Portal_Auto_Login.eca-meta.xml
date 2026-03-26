@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExternalClientApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <contactEmail>andy.haas@milestoneconsulting.tech</contactEmail>
+    <distributionState>Local</distributionState>
+    <isProtected>false</isProtected>
+    <label>Portal Auto-Login</label>
+    <orgScopedExternalApp>00DEc00000FWM3B:Portal_Auto_Login</orgScopedExternalApp>
+</ExternalClientApplication>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Recipient_Role__c</name>
+    <picklistValues>
+        <masterLabel>Acceptor</masterLabel>
+        <translation>ผู้ยอมรับ</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approver</masterLabel>
+        <translation>ผู้อนุมัติ</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Certified Recipient</masterLabel>
+        <translation>ผู้รับที่ได้รับการรับรอง</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegate to Acceptor</masterLabel>
+        <translation>มอบหมายไปยังผู้ยอมรับ</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegate to Approver</masterLabel>
+        <translation>มอบหมายหน้าที่ให้กับผู้อนุมัติ</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegate to Certified Recipient</masterLabel>
+        <translation>มอบหมายหน้าที่เป็นผู้รับที่ได้รับการรับรอง</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegate to Form Filler</masterLabel>
+        <translation>มอบหมายการกรอกแบบฟอร์ม</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegate to Signer</masterLabel>
+        <translation>มอบหมายหน้าที่ให้กับผู้เซ็น</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Form Filler</masterLabel>
+        <translation>ผู้ช่วยกรอกแบบฟอร์ม</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signer</masterLabel>
+        <translation>ผู้เซ็น</translation>
+    </picklistValues>
+</CustomFieldTranslation>

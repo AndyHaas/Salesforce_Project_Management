@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Geef het aantal dagen op tot de overeenkomst vervalt en niet langer kan worden ondertekend.</help>
+    <label></label>
+    <name>echosign_dev1__DaysUntilSigningDeadline__c</name>
+</CustomFieldTranslation>

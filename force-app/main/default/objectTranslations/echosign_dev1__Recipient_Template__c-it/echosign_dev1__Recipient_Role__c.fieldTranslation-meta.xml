@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Recipient_Role__c</name>
+    <picklistValues>
+        <masterLabel>Acceptor</masterLabel>
+        <translation>Accettatore</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approver</masterLabel>
+        <translation>Approvatore</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Certified Recipient</masterLabel>
+        <translation>Destinatario certificato</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegate to Acceptor</masterLabel>
+        <translation>Delega ad accettatore</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegate to Approver</masterLabel>
+        <translation>Delega all&apos;approvatore</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegate to Certified Recipient</masterLabel>
+        <translation>Delega a destinatario certificato</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegate to Form Filler</masterLabel>
+        <translation>Delega a compilatore modulo</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegate to Signer</masterLabel>
+        <translation>Delega al firmatario</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Form Filler</masterLabel>
+        <translation>Compilatore modulo</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signer</masterLabel>
+        <translation>Firmatario</translation>
+    </picklistValues>
+</CustomFieldTranslation>

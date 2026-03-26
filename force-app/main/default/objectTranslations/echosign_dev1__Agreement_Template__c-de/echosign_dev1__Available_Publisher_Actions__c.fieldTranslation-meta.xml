@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Machen Sie diese Vertragsvorlage im Masterobjektdatensatz für Absendende über die Chatter-Feed-Aktion „Adobe Acrobat Sign Send for Signature“ verfügbar.</help>
+    <label></label>
+    <name>echosign_dev1__Available_Publisher_Actions__c</name>
+</CustomFieldTranslation>

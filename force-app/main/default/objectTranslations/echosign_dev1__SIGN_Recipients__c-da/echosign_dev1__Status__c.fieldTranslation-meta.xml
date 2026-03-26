@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Status__c</name>
+    <picklistValues>
+        <masterLabel>Accepted</masterLabel>
+        <translation>Accepteret</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved</masterLabel>
+        <translation>Godkendt</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Declined</masterLabel>
+        <translation>Afvist</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegated</masterLabel>
+        <translation>Delegeret</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delivered</masterLabel>
+        <translation>Leveret</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Form-Filled</masterLabel>
+        <translation>Formular udfyldt</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Recalled</masterLabel>
+        <translation>Tilbagekaldt</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Replaced</masterLabel>
+        <translation>Udskiftet</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Shared</masterLabel>
+        <translation>Delt</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signed</masterLabel>
+        <translation>Underskrevet</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Acceptance</masterLabel>
+        <translation>Venter på accept</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Approval</masterLabel>
+        <translation>Venter på godkendelse</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Authoring</masterLabel>
+        <translation>Venter på oprettelse</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Delegation</masterLabel>
+        <translation>Venter på delegering</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Delivery</masterLabel>
+        <translation>Venter på levering</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Faxin</masterLabel>
+        <translation>Venter på Faxin</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Form-Filling</masterLabel>
+        <translation>Venter på formularudfyldning</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Review</masterLabel>
+        <translation>Venter på gennemgang</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Signature</masterLabel>
+        <translation>Venter på underskrift</translation>
+    </picklistValues>
+</CustomFieldTranslation>

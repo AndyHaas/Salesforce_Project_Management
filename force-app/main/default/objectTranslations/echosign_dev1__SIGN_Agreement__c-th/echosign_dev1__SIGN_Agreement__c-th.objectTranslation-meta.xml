@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>ข้อตกลง</value>
+    </caseValues>
+    <fieldSets>
+        <label></label>
+        <name>echosign_dev1__AdditionalFieldSet</name>
+    </fieldSets>
+    <layouts>
+        <layout>Agreement Layout Enterprise / Unlimited</layout>
+        <sections>
+            <label>ฟังก์ชันของ EchoSign</label>
+            <section>EchoSign Functions</section>
+        </sections>
+        <sections>
+            <label>ตัวเลือกของ EchoSign</label>
+            <section>EchoSign Options</section>
+        </sections>
+        <sections>
+            <label>ข้อความ</label>
+            <section>Message</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Agreement Layout Professional</layout>
+        <sections>
+            <label>ฟังก์ชันของ EchoSign</label>
+            <section>EchoSign Functions</section>
+        </sections>
+        <sections>
+            <label>ฟิลด์ภายใน EchoSign - ห้ามแก้ไข</label>
+            <section>EchoSign Internal Fields - DO NOT EDIT</section>
+        </sections>
+        <sections>
+            <label>ตัวเลือกของ EchoSign</label>
+            <section>EchoSign Options</section>
+        </sections>
+        <sections>
+            <label>ข้อความ</label>
+            <section>Message</section>
+        </sections>
+    </layouts>
+    <nameFieldLabel>ชื่อข้อตกลง</nameFieldLabel>
+    <validationRules>
+        <errorMessage></errorMessage>
+        <name>echosign_dev1__Maximum_Expiration_Days</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage></errorMessage>
+        <name>echosign_dev1__Signing_Deadline_Future</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage></errorMessage>
+        <name>echosign_dev1__WrittenWithoutPosition</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage></errorMessage>
+        <name>echosign_dev1__Written_Without_Revisions</name>
+    </validationRules>
+    <webLinks>
+        <label></label>
+        <name>echosign_dev1__Cancel_Agreement_Bulk</name>
+    </webLinks>
+    <webLinks>
+        <label></label>
+        <name>echosign_dev1__Delete_Agreement</name>
+    </webLinks>
+    <webLinks>
+        <label></label>
+        <name>echosign_dev1__Delete_Agreement_Bulk</name>
+    </webLinks>
+    <webLinks>
+        <label></label>
+        <name>echosign_dev1__RefreshStatus</name>
+    </webLinks>
+    <webLinks>
+        <label></label>
+        <name>echosign_dev1__SendReminder</name>
+    </webLinks>
+    <webLinks>
+        <label></label>
+        <name>echosign_dev1__Send_Agreement_Bulk</name>
+    </webLinks>
+    <webLinks>
+        <label></label>
+        <name>echosign_dev1__Send_Reminder_Bulk</name>
+    </webLinks>
+    <webLinks>
+        <label></label>
+        <name>echosign_dev1__SendforSignature</name>
+    </webLinks>
+    <webLinks>
+        <label></label>
+        <name>echosign_dev1__Update_Agreement_Bulk</name>
+    </webLinks>
+</CustomObjectTranslation>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Geben Sie eine Nachricht ein, die an die Empfänger gesendet wird.</help>
+    <label></label>
+    <name>echosign_dev1__Message__c</name>
+</CustomFieldTranslation>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Signer_Verification_Method__c</name>
+    <picklistValues>
+        <masterLabel>Acrobat Sign</masterLabel>
+        <translation></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Digital Identity</masterLabel>
+        <translation>Digitaaliset tunnistetiedot</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Email</masterLabel>
+        <translation>Sähköposti</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Email OTP</masterLabel>
+        <translation>Lähetä OTP-koodi sähköpostitse</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Government ID</masterLabel>
+        <translation>Henk.todistus</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>KBA</masterLabel>
+        <translation></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Password</masterLabel>
+        <translation>Salasana</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Phone</masterLabel>
+        <translation>Puhelin</translation>
+    </picklistValues>
+</CustomFieldTranslation>

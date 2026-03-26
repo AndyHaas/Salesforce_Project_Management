@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Status__c</name>
+    <picklistValues>
+        <masterLabel>Accepted</masterLabel>
+        <translation>ยอมรับแล้ว</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved</masterLabel>
+        <translation>อนุมัติ</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Declined</masterLabel>
+        <translation>ปฏิเสธแล้ว</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegated</masterLabel>
+        <translation>มอบหมายงานแล้ว</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delivered</masterLabel>
+        <translation>จัดส่งแล้ว</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Form-Filled</masterLabel>
+        <translation>กรอกแบบฟอร์มแล้ว</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Recalled</masterLabel>
+        <translation>เรียกคืนแล้ว</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Replaced</masterLabel>
+        <translation>แทนที่แล้ว</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Shared</masterLabel>
+        <translation>แชร์แล้ว</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signed</masterLabel>
+        <translation>ที่ได้รับการเซ็น</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Acceptance</masterLabel>
+        <translation>รอการยอมรับ</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Approval</masterLabel>
+        <translation>กำลังรอการอนุมัติ</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Authoring</masterLabel>
+        <translation>กำลังรอการจัดการ</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Delegation</masterLabel>
+        <translation>กำลังรอการมอบหมายงาน</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Delivery</masterLabel>
+        <translation>กำลังรอการจัดส่ง</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Faxin</masterLabel>
+        <translation>กำลังรอ Faxin</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Form-Filling</masterLabel>
+        <translation>รอการกรอกแบบฟอร์ม</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Review</masterLabel>
+        <translation>กำลังรอให้พิจารณา</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Signature</masterLabel>
+        <translation>กำลังรอลายเซ็น</translation>
+    </picklistValues>
+</CustomFieldTranslation>

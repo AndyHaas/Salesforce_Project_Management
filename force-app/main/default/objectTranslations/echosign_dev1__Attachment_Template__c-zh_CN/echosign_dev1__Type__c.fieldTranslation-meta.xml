@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Type__c</name>
+    <picklistValues>
+        <masterLabel>Document Builder Template</masterLabel>
+        <translation>Document Builder 模板</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Document from Content</masterLabel>
+        <translation>来自内容的文档</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Document from EchoSign Library</masterLabel>
+        <translation>EchoSign 库中的文档</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Document from Library</masterLabel>
+        <translation>来自库的文档</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Document from Master Object</masterLabel>
+        <translation>来自主对象的文档</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Quote Document from Master Quote</masterLabel>
+        <translation>来自主引用的引用文档</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Quote Document from Opportunity Quote</masterLabel>
+        <translation>来自业务机会引用的引用文档</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Runtime Variable</masterLabel>
+        <translation>运行时变量</translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>ทำเครื่องหมายในช่องนี้หากคุณไม่ต้องการให้มีการสร้างผู้รับการจองพื้นที่ที่ไม่มีข้อมูลในหน้าข้อตกลงหากไม่พบระเบียนตามเกณฑ์ที่เลือกไว้</help>
+    <label></label>
+    <name>echosign_dev1__Do_Not_Create_Empty__c</name>
+</CustomFieldTranslation>

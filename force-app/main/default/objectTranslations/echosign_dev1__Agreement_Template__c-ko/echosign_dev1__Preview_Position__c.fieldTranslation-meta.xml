@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>서명을 위해 계약을 전송하기 전에 서명자가 문서의 필드를 미리 보고 위치를 지정할 수 있도록 합니다.</help>
+    <label></label>
+    <name>echosign_dev1__Preview_Position__c</name>
+</CustomFieldTranslation>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Require_Exact_Title__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Prevents loose matching.</description>
+    <inlineHelpText>Requires exact title match.</inlineHelpText>
+    <label>Require Exact Title</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

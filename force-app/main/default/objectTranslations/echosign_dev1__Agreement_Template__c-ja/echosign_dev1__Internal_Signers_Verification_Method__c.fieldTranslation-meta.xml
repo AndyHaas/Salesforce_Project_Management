@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>内部署名者が文書を表示したり署名したりするには、ID を確認する必要があります。</help>
+    <label></label>
+    <name>echosign_dev1__Internal_Signers_Verification_Method__c</name>
+    <picklistValues>
+        <masterLabel>Acrobat Sign authentication</masterLabel>
+        <translation>Acrobat Sign 認証</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Knowledge based authentication</masterLabel>
+        <translation>ナレッジベース認証</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Password to sign agreement</masterLabel>
+        <translation>契約に署名するパスワード</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Web identity authentication (DEPRECATED)</masterLabel>
+        <translation>Web ID 認証 (非推奨)</translation>
+    </picklistValues>
+</CustomFieldTranslation>

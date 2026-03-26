@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>选择在发送协议进行签名之前，用于将 Salesforce 字段合并到 Adobe Acrobat Sign 协议中的合并映射。</help>
+    <label></label>
+    <name>echosign_dev1__Merge_Mapping__c</name>
+    <relationshipLabel></relationshipLabel>
+</CustomFieldTranslation>

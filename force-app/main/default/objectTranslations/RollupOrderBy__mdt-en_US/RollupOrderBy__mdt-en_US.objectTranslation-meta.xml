@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Rollup Order By</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Rollup Order Bys</value>
+    </caseValues>
+    <layouts>
+        <layout>Rollup Order By Layout</layout>
+        <sections>
+            <label></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Sorting</section>
+        </sections>
+    </layouts>
+    <startsWith>Consonant</startsWith>
+    <validationRules>
+        <errorMessage></errorMessage>
+        <name>Must_Be_Valid_Rollup</name>
+    </validationRules>
+</CustomObjectTranslation>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Status__c</name>
+    <picklistValues>
+        <masterLabel>Accepted</masterLabel>
+        <translation>已接受</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved</masterLabel>
+        <translation>已批准</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Declined</masterLabel>
+        <translation>已拒绝</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegated</masterLabel>
+        <translation>已委派</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delivered</masterLabel>
+        <translation>已交付</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Form-Filled</masterLabel>
+        <translation>已填写表单</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Recalled</masterLabel>
+        <translation>已撤回</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Replaced</masterLabel>
+        <translation>已更换</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Shared</masterLabel>
+        <translation>已共享</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signed</masterLabel>
+        <translation>已签名</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Acceptance</masterLabel>
+        <translation>等待接受</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Approval</masterLabel>
+        <translation>等待批准中</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Authoring</masterLabel>
+        <translation>等待编辑</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Delegation</masterLabel>
+        <translation>等待委派</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Delivery</masterLabel>
+        <translation>正在等待交付</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Faxin</masterLabel>
+        <translation>等待发送传真</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Form-Filling</masterLabel>
+        <translation>正在等待填写表单</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Review</masterLabel>
+        <translation>等待审阅</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Signature</masterLabel>
+        <translation>正在等待签名</translation>
+    </picklistValues>
+</CustomFieldTranslation>

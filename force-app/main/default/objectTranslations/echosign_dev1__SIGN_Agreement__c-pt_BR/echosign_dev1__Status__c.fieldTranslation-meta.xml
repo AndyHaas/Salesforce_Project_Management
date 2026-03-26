@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Status__c</name>
+    <picklistValues>
+        <masterLabel>Accepted</masterLabel>
+        <translation>Aceito</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved</masterLabel>
+        <translation>Aprovado</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Canceled / Declined</masterLabel>
+        <translation>Cancelado/Recusado</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Created</masterLabel>
+        <translation>Criado em</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delivered</masterLabel>
+        <translation>Entregue</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Draft</masterLabel>
+        <translation>Rascunho</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Expired</masterLabel>
+        <translation>Expirado</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Form-Filled</masterLabel>
+        <translation>Formulário preenchido</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Acceptance</masterLabel>
+        <translation>Enviado para aceitação</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Approval</masterLabel>
+        <translation>Enviado para aprovação</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Delivery</masterLabel>
+        <translation>Enviado para recebimento</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Form-Filling</masterLabel>
+        <translation>Enviado para preenchimento de formulário</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Signature</masterLabel>
+        <translation>Enviado para assinatura</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Pre-Send</masterLabel>
+        <translation>Pré-envio</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Send in Progress</masterLabel>
+        <translation>Envio em andamento</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signed</masterLabel>
+        <translation>assinado</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Acceptance</masterLabel>
+        <translation>Aguardando a contra-aceitação</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Approval</masterLabel>
+        <translation>Aguardando contra aprovação</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Delivery</masterLabel>
+        <translation>Aguardando a contra-entrega</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Form-Filling</masterLabel>
+        <translation>Aguardando o contra-preenchimento de formulário</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Signature</masterLabel>
+        <translation>Aguardando contra assinatura</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for my Delegation</masterLabel>
+        <translation>Aguardando minha delegação</translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Signer_Verification_Method__c</name>
+    <picklistValues>
+        <masterLabel>Acrobat Sign</masterLabel>
+        <translation></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Digital Identity</masterLabel>
+        <translation>Цифровое удостоверение</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Email</masterLabel>
+        <translation>Эл. почта</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Email OTP</masterLabel>
+        <translation>Одноразовый пароль по эл. почте</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Government ID</masterLabel>
+        <translation></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>KBA</masterLabel>
+        <translation>Контрольные вопросы</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Password</masterLabel>
+        <translation>Пароль</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Phone</masterLabel>
+        <translation>Телефон</translation>
+    </picklistValues>
+</CustomFieldTranslation>

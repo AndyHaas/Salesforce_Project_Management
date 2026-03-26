@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Tämä valintaruutu osoittaa, että käyttäjän sähköpostiosoite on todennettu Adobe Acrobat Sign -sovellusliittymässä.</help>
+    <label></label>
+    <name>echosign_dev1__EchoSign_Email_Verified__c</name>
+</CustomFieldTranslation>
