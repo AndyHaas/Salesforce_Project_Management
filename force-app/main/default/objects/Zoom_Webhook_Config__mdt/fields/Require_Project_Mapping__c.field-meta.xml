@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Require_Project_Mapping__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Prevents fallback or guessing.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Requires mapping for processing.</inlineHelpText>
+    <label>Require Project Mapping</label>
+    <type>Checkbox</type>
+</CustomField>

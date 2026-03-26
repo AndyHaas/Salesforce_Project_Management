@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Processing_Status__c</fullName>
+    <description>Tracks lifecycle.</description>
+    <inlineHelpText>Current processing state.</inlineHelpText>
+    <label>Processing Status</label>
+    <required>true</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Received</fullName>
+                <default>false</default>
+                <label>Received</label>
+            </value>
+            <value>
+                <fullName>Queued</fullName>
+                <default>false</default>
+                <label>Queued</label>
+            </value>
+            <value>
+                <fullName>Processing</fullName>
+                <default>false</default>
+                <label>Processing</label>
+            </value>
+            <value>
+                <fullName>Completed</fullName>
+                <default>false</default>
+                <label>Completed</label>
+            </value>
+            <value>
+                <fullName>Failed</fullName>
+                <default>false</default>
+                <label>Failed</label>
+            </value>
+            <value>
+                <fullName>Skipped - Duplicate</fullName>
+                <default>false</default>
+                <label>Skipped - Duplicate</label>
+            </value>
+            <value>
+                <fullName>Skipped - Inactive</fullName>
+                <default>false</default>
+                <label>Skipped - Inactive</label>
+            </value>
+            <value>
+                <fullName>Skipped - Validation</fullName>
+                <default>false</default>
+                <label>Skipped - Validation</label>
+            </value>
+            <value>
+                <fullName>Failed - No Meeting Mapping</fullName>
+                <default>false</default>
+                <label>Failed - No Meeting Mapping</label>
+            </value>
+            <value>
+                <fullName>Failed - Invalid Project</fullName>
+                <default>false</default>
+                <label>Failed - Invalid Project</label>
+            </value>
+            <value>
+                <fullName>Completed - No Attendees</fullName>
+                <default>false</default>
+                <label>Completed - No Attendees</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
