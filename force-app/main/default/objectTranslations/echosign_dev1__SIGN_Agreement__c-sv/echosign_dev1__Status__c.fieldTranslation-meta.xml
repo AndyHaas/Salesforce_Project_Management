@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Status__c</name>
+    <picklistValues>
+        <masterLabel>Accepted</masterLabel>
+        <translation>Accepterat</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved</masterLabel>
+        <translation>Godkänt</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Canceled / Declined</masterLabel>
+        <translation>Avbrutet/avvisat</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Created</masterLabel>
+        <translation>Skapad</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delivered</masterLabel>
+        <translation>Levererat</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Draft</masterLabel>
+        <translation>Utkast</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Expired</masterLabel>
+        <translation>Förfallen</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Form-Filled</masterLabel>
+        <translation>Formulär ifyllt</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Acceptance</masterLabel>
+        <translation>Skickat för accepterande</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Approval</masterLabel>
+        <translation>Skickat för godkännande</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Delivery</masterLabel>
+        <translation>Under leverans</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Form-Filling</masterLabel>
+        <translation>Skickat för ifyllnad</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Signature</masterLabel>
+        <translation>Skickat för signatur</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Pre-Send</masterLabel>
+        <translation>För-skicka</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Send in Progress</masterLabel>
+        <translation>Sändning pågår</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signed</masterLabel>
+        <translation>Signerat</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Acceptance</masterLabel>
+        <translation>Väntar på kontraaccepterande</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Approval</masterLabel>
+        <translation>Väntar på motgodkännande</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Delivery</masterLabel>
+        <translation>Väntar på kontraleverans</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Form-Filling</masterLabel>
+        <translation>Väntar på kontrainmatning</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Signature</masterLabel>
+        <translation>Väntar på motsignatur</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for my Delegation</masterLabel>
+        <translation>Väntar på min delegering</translation>
+    </picklistValues>
+</CustomFieldTranslation>

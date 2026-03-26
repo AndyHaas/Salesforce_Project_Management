@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Status__c</name>
+    <picklistValues>
+        <masterLabel>Accepted</masterLabel>
+        <translation>同意済み</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved</masterLabel>
+        <translation>承認済み</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Canceled / Declined</masterLabel>
+        <translation>取り消し済み / 拒否済み</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Created</masterLabel>
+        <translation>作成日</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delivered</masterLabel>
+        <translation>配信済み</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Draft</masterLabel>
+        <translation>ドラフト</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Expired</masterLabel>
+        <translation>期限切れ</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Form-Filled</masterLabel>
+        <translation>フォーム入力済み</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Acceptance</masterLabel>
+        <translation>同意用に送信</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Approval</masterLabel>
+        <translation>承認用に送信</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Delivery</masterLabel>
+        <translation>配信用に送信</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Form-Filling</masterLabel>
+        <translation>フォーム入力用に送信</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Signature</masterLabel>
+        <translation>署名用に送信</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Pre-Send</masterLabel>
+        <translation>事前送信</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Send in Progress</masterLabel>
+        <translation>送信中です</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signed</masterLabel>
+        <translation>署名済み</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Acceptance</masterLabel>
+        <translation>相手の同意を待っています</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Approval</masterLabel>
+        <translation>相手の承認を待っています</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Delivery</masterLabel>
+        <translation>相手の配信を待っています</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Form-Filling</masterLabel>
+        <translation>相手のフォーム入力を待っています</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Signature</masterLabel>
+        <translation>相手の署名を待っています</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for my Delegation</masterLabel>
+        <translation>委任待ち</translation>
+    </picklistValues>
+</CustomFieldTranslation>

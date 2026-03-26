@@ -1,0 +1,10 @@
+<template>
+    <!-- Wrapper for Salesforce context - delegates to core messaging component -->
+    <!-- Note: portalMessaging component is in portal namespace but accessible from Salesforce -->
+    <c-portal-messaging
+        record-id={recordId}
+        related-account-id={relatedAccountId}
+        related-project-id={relatedProjectId}
+        related-task-id={relatedTaskId}>
+    </c-portal-messaging>
+</template>

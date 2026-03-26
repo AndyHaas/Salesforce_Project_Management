@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Angiv modtagerrækkefølgen til underskrivning af dokumenter.</help>
+    <label></label>
+    <name>echosign_dev1__Signature_Flow__c</name>
+    <picklistValues>
+        <masterLabel>Recipients sign in any order</masterLabel>
+        <translation>Modtagere underskriver i enhver rækkefølge</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Recipients sign in order</masterLabel>
+        <translation>Modtagerne underskriver i rækkefølge</translation>
+    </picklistValues>
+</CustomFieldTranslation>

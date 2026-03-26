@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>zoom_app__Join_before_host__c</fullName>
+    <defaultValue>false</defaultValue>
+    <deprecated>false</deprecated>
+    <inlineHelpText>Allow users to join the meeting before the host arrives.</inlineHelpText>
+    <label>Enable Join Before Host</label>
+    <type>Checkbox</type>
+</CustomField>

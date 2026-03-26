@@ -1,0 +1,11 @@
+<html><head>
+	<title></title>
+</head>
+<body style="height: auto; min-height: auto;"><span style="font-family:Arial,Helvetica,sans-serif;">Dear&nbsp;{{{Recipient.Name}}},<br />
+We are contacting you in regard to a new invoice #&nbsp;{{{Order.OrderNumber}}} that has been created on your account. You may find the invoice attached.<br />
+<br />
+We look forward to conducting future business with you.<br />
+<br />
+Thank You<br />
+{{{Organization.Name}}}<br />
+{{{Organization.Address}}}</span></body></html>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>選取資料對應，將已簽署合約中的 Adobe Acrobat Sign 欄位輸入對應回 Salesforce。</help>
+    <label></label>
+    <name>echosign_dev1__Data_Mapping__c</name>
+    <relationshipLabel></relationshipLabel>
+</CustomFieldTranslation>

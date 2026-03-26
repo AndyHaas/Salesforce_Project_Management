@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Markera detta alternativ om även du ska signera detta avtal. Välj sedan om du eller mottagaren ska signera först.</help>
+    <label></label>
+    <name>echosign_dev1__SenderSigns__c</name>
+</CustomFieldTranslation>

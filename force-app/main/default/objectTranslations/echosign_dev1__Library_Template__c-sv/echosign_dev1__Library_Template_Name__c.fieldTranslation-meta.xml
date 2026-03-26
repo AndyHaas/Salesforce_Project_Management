@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Biblioteksmallens namn kan innehålla upp till 255 tecken.</help>
+    <label></label>
+    <name>echosign_dev1__Library_Template_Name__c</name>
+</CustomFieldTranslation>

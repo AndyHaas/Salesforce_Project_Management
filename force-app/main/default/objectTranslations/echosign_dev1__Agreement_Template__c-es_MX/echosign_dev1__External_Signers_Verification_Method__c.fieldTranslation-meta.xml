@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Asegúrese de que antes de que los firmantes externos puedan ver o firmar el documento, tengan que verificar su identidad.</help>
+    <label></label>
+    <name>echosign_dev1__External_Signers_Verification_Method__c</name>
+    <picklistValues>
+        <masterLabel>Acrobat Sign authentication</masterLabel>
+        <translation></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Knowledge based authentication</masterLabel>
+        <translation>Autenticación basada en conocimientos</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Password to sign agreement</masterLabel>
+        <translation>Contraseña para firmar acuerdo</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Web identity authentication (DEPRECATED)</masterLabel>
+        <translation>Autenticación de identidad web</translation>
+    </picklistValues>
+</CustomFieldTranslation>

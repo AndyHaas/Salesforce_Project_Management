@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Status__c</name>
+    <picklistValues>
+        <masterLabel>Accepted</masterLabel>
+        <translation>Geaccepteerd</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved</masterLabel>
+        <translation>Goedgekeurd</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Canceled / Declined</masterLabel>
+        <translation>Geannuleerd/geweigerd</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Created</masterLabel>
+        <translation>Gemaakt</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delivered</masterLabel>
+        <translation>Geleverd</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Draft</masterLabel>
+        <translation>Concept</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Expired</masterLabel>
+        <translation>Vervallen</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Form-Filled</masterLabel>
+        <translation>Formulier ingevuld</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Acceptance</masterLabel>
+        <translation>Verzonden voor acceptatie</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Approval</masterLabel>
+        <translation>Verzonden voor goedkeuring</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Delivery</masterLabel>
+        <translation>Verzonden ter levering</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Form-Filling</masterLabel>
+        <translation>Verzonden voor invulling formulier</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out for Signature</masterLabel>
+        <translation>Verzonden voor ondertekening</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Pre-Send</masterLabel>
+        <translation>Vooraf verzenden</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Send in Progress</masterLabel>
+        <translation>Wordt verzonden...</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signed</masterLabel>
+        <translation>Ondertekend</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Acceptance</masterLabel>
+        <translation>Wachten op tweede acceptatie</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Approval</masterLabel>
+        <translation>Wachten op tweede goedkeuring</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Delivery</masterLabel>
+        <translation>Wachten op tweede levering</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Form-Filling</masterLabel>
+        <translation>Wachten op tweede invulling formulier</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Counter-Signature</masterLabel>
+        <translation>Wachten op tweede handtekening</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for my Delegation</masterLabel>
+        <translation>Wachtend op mijn delegatie</translation>
+    </picklistValues>
+</CustomFieldTranslation>

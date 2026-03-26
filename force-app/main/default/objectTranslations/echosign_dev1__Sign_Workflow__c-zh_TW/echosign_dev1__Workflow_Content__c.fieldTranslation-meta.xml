@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>JSON 字串格式的簽署工作流程內容</help>
+    <label></label>
+    <name>echosign_dev1__Workflow_Content__c</name>
+</CustomFieldTranslation>

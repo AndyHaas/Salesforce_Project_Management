@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>På huvudobjektsposten gör du den här avtalsmallen tillgänglig för avsändare med åtgärden för att skicka Adobe Acrobat Sign Chatter-matning för signering.</help>
+    <label></label>
+    <name>echosign_dev1__Available_Publisher_Actions__c</name>
+</CustomFieldTranslation>

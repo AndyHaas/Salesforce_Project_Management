@@ -34,8 +34,4 @@
         <field>Validate_Signature__c</field>
         <value xsi:type="xsd:boolean">false</value>
     </values>
-    <values>
-        <field>Webhook_Secret_Token__c</field>
-        <value xsi:nil="true"/>
-    </values>
 </CustomMetadata>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>User__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>User associated with this OTP</description>
+    <label>User</label>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>Login OTPs</relationshipLabel>
+    <relationshipName>Login_OTPs</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

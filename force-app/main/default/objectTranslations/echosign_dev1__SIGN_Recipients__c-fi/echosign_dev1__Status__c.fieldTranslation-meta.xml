@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Status__c</name>
+    <picklistValues>
+        <masterLabel>Accepted</masterLabel>
+        <translation>Hyväksytty</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved</masterLabel>
+        <translation>Hyväksytty</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Declined</masterLabel>
+        <translation>Hylätty</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delegated</masterLabel>
+        <translation>Delegoitu</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Delivered</masterLabel>
+        <translation>Toimitettu</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Form-Filled</masterLabel>
+        <translation>Lomake täytetty</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Recalled</masterLabel>
+        <translation>Peruutettu</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Replaced</masterLabel>
+        <translation>Korvattu</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Shared</masterLabel>
+        <translation>Jaettu</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signed</masterLabel>
+        <translation>Allekirjoitettu</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Acceptance</masterLabel>
+        <translation>Odottaa hyväksyntää</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Approval</masterLabel>
+        <translation>Odottaa hyväksyntää</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Authoring</masterLabel>
+        <translation>Odottaa sisällönluontia</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Delegation</masterLabel>
+        <translation>Odotetaan delegointia</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Delivery</masterLabel>
+        <translation>Odotetaan toimitusta</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Faxin</masterLabel>
+        <translation>Odotetaan faksausta.</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Form-Filling</masterLabel>
+        <translation>Odotetaan lomakkeen täyttöä</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Review</masterLabel>
+        <translation>Odotetaan tarkistusta</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Waiting for Signature</masterLabel>
+        <translation>Odottaa allekirjoitusta</translation>
+    </picklistValues>
+</CustomFieldTranslation>

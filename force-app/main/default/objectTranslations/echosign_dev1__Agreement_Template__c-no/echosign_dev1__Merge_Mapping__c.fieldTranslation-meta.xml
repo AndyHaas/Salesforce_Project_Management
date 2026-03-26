@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Velg flettetilordning for å flette Salesforce-felt inn i Adobe Acrobat Sign-avtalen før den sendes til signering.</help>
+    <label></label>
+    <name>echosign_dev1__Merge_Mapping__c</name>
+    <relationshipLabel></relationshipLabel>
+</CustomFieldTranslation>

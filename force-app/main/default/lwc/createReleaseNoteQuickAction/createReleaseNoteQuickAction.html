@@ -1,0 +1,25 @@
+<template>
+    <lightning-card title="Create Release Note">
+        <div class="slds-p-around_medium">
+            <template if:true={isSubmitting}>
+                <lightning-spinner alternative-text="Saving release note"></lightning-spinner>
+            </template>
+            <lightning-record-edit-form object-api-name="Release_Notes__c" onsubmit={handleSubmit}>
+                <lightning-messages></lightning-messages>
+                <lightning-input-field field-name="Release_Notes_Text__c" required></lightning-input-field>
+                <lightning-input-field field-name="Release_Version__c"></lightning-input-field>
+                <lightning-input-field field-name="Release_Tag__c"></lightning-input-field>
+                <div class="slds-m-top_medium slds-text-align_right">
+                    <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+                    <lightning-button
+                        class="slds-m-left_small"
+                        variant="brand"
+                        type="submit"
+                        label="Save"
+                        disabled={isSubmitting}>
+                    </lightning-button>
+                </div>
+            </lightning-record-edit-form>
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,73 @@
+<template>
+    <lightning-card title={cardTitle}>
+        <template if:true={isLoading}>
+            <div class="slds-p-around_medium slds-text-align_center">
+                <lightning-spinner size="medium" variant="brand" alternative-text="Loading"></lightning-spinner>
+            </div>
+        </template>
+        <template if:false={isLoading}>
+        <template if:true={isReady}>
+            <template if:true={error}>
+                <div class="slds-p-around_medium slds-text-color_error">
+                    Error loading list view: {errorMessage}
+                </div>
+            </template>
+            <template if:false={error}>
+                <template if:true={hasData}>
+                    <div class="table-container slds-p-horizontal_medium slds-p-vertical_small">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <thead>
+                                <tr>
+                                    <template for:each={tableColumns} for:item="col">
+                                        <th key={col.fieldName} scope="col">
+                                            <div class="slds-truncate" title={col.label}>{col.label}</div>
+                                        </th>
+                                    </template>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={tableRows} for:item="row">
+                                    <tr key={row.key} class="record-row" data-record-id={row.recordId} onclick={handleRowClick}>
+                                        <template for:each={row.cells} for:item="cell">
+                                            <td key={cell.key}>
+                                                <div class="slds-truncate" title={cell.value}>
+                                                    <template if:true={cell.isLink}>
+                                                        <template if:true={cell.linkUrl}>
+                                                            <a href={cell.linkUrl} target="_blank" rel="noopener noreferrer" class="record-link">{cell.value}</a>
+                                                        </template>
+                                                        <template if:false={cell.linkUrl}>
+                                                            <a href="javascript:void(0);" data-record-id={cell.recordId} onclick={handleNavigateToRecord} class="record-link">{cell.value}</a>
+                                                        </template>
+                                                    </template>
+                                                    <template if:false={cell.isLink}>
+                                                        {cell.value}
+                                                    </template>
+                                                </div>
+                                            </td>
+                                        </template>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+                <template if:false={hasData}>
+                    <div class="slds-p-around_medium">
+                        No records found.
+                    </div>
+                </template>
+            </template>
+        </template>
+        <template if:false={isReady}>
+            <div class="slds-p-around_medium slds-text-color_error">
+                <template if:true={accessDenied}>
+                    Access denied.
+                </template>
+                <template if:false={accessDenied}>
+                    Unable to load data. Please check the URL parameters.
+                </template>
+            </div>
+        </template>
+        </template>
+    </lightning-card>
+</template>

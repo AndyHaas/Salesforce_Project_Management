@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Log Entry</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Log Entries</value>
+    </caseValues>
+    <fieldSets>
+        <label></label>
+        <name>Related_List_Defaults</name>
+    </fieldSets>
+    <layouts>
+        <layout>Log Entry Layout</layout>
+        <sections>
+            <label></label>
+            <section>Apex Class Information</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Database Result</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Exception Information</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Flow Information</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>HTTP Request</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>HTTP Response</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Lightning Component Information</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Limits</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Message Information</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Related Record</section>
+        </sections>
+    </layouts>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

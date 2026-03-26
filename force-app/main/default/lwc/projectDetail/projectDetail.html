@@ -1,0 +1,125 @@
+<template>
+    <lightning-card title="Project Detail" class="medium-card">
+        <template if:true={projectId}>
+            <template if:true={hasData}>
+                <div class="page">
+                    <div class="header">
+                        <div class="title-block">
+                            <p class="eyebrow">Project</p>
+                            <h2 class="project-name">{project.name}</h2>
+                            <p class="meta">Account: {displayAccount}</p>
+                        </div>
+                        <span class={statusBadgeClass} style={statusBadgeStyle}>{displayStatus}</span>
+                    </div>
+
+                    <div class="metrics">
+                        <div class="metric">
+                            <p class="label">Total Tasks</p>
+                            <p class="value">{taskMetrics.totalTasks}</p>
+                        </div>
+                        <div class="metric">
+                            <p class="label">Open Tasks</p>
+                            <p class="value">{taskMetrics.openTasks}</p>
+                        </div>
+                        <div class="metric">
+                            <p class="label">Completed</p>
+                            <p class="value">{taskMetrics.completedTasks}</p>
+                        </div>
+                        <div class="metric">
+                            <p class="label">Est. Hours</p>
+                            <p class="value">{taskMetrics.totalEstimatedHours}</p>
+                        </div>
+                        <div class="metric">
+                            <p class="label">Actual Hours</p>
+                            <p class="value">{taskMetrics.totalActualHours}</p>
+                        </div>
+                        <div class="metric">
+                            <p class="label">Burn Rate</p>
+                            <p class="value">{displayBurnRate}</p>
+                        </div>
+                    </div>
+
+                    <div class="details">
+                        <div class="detail-item">
+                            <span class="label">Invoiced</span>
+                            <span class="detail-value">{displayInvoiced}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Created</span>
+                            <span class="detail-value">{displayCreatedDate}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Start Date</span>
+                            <span class="detail-value">{displayStartDate}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">End Date</span>
+                            <span class="detail-value">{displayEndDate}</span>
+                        </div>
+                    </div>
+                    
+                    <div class={sectionLayoutClass}>
+                        <!-- Project Task Files Section -->
+                        <template if:true={hasFiles}>
+                            <div class="section-card">
+                                <h3 class="section-title">Project Task Files ({filesCount})</h3>
+                                <div class="section-content">
+                                    <div class="files-list">
+                                        <template for:each={files} for:item="file">
+                                            <div key={file.id} class="file-item">
+                                                <lightning-icon icon-name="utility:file" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                <a href={file.downloadUrl} target="_blank" rel="noopener noreferrer" class="file-link">
+                                                    {file.title}
+                                                </a>
+                                                <span class="file-meta">
+                                                    ({file.formattedSize} • {file.formattedDate})
+                                                </span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        
+                        <!-- Messages Section -->
+                        <template if:true={projectId}>
+                            <div class="section-card messages-section">
+                                <h3 class="section-title">Messages</h3>
+                                <div class="section-content">
+                                    <c-portal-messaging 
+                                        related-project-id={projectId}
+                                        show-header="false">
+                                    </c-portal-messaging>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Invoices Section (placeholder) -->
+                        <template if:true={hasInvoices}>
+                            <div class="section-card invoices-section">
+                                <h3 class="section-title">Invoices</h3>
+                                <div class="section-content">
+                                    <p class="muted">Coming soon: view and download invoices for this project, see payment status, and access links to pay online.</p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={error}>
+                <p class="error">{error}</p>
+            </template>
+
+            <template if:true={isLoading}>
+                <div class="center">
+                    <lightning-spinner alternative-text="Loading project" variant="brand" size="medium"></lightning-spinner>
+                </div>
+            </template>
+        </template>
+
+        <template if:false={projectId}>
+            <p class="muted">No project id provided in URL.</p>
+        </template>
+    </lightning-card>
+</template>

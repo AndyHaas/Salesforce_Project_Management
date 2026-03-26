@@ -1,0 +1,3 @@
+<aura:component implements="force:lightningQuickAction,force:hasRecordId" access="global">
+    <c:createReleaseNoteQuickAction record-id="{!v.recordId}"/>
+</aura:component>

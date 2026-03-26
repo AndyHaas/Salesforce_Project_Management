@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>選取收件者的語言。</help>
+    <label></label>
+    <name>echosign_dev1__AgreementLocale__c</name>
+    <picklistValues>
+        <masterLabel>Chinese (China)</masterLabel>
+        <translation>中文 (中國)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Chinese (Taiwan region)</masterLabel>
+        <translation>中文 (台灣地區)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Croatian (Croatia)</masterLabel>
+        <translation>克羅埃西亞文 (克羅埃西亞)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Czech (Czech Republic)</masterLabel>
+        <translation>捷克文 (捷克共和國)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Danish (Denmark)</masterLabel>
+        <translation>丹麥文 (丹麥)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Dutch (Netherlands)</masterLabel>
+        <translation>荷蘭文 (荷蘭)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>English (United Kingdom)</masterLabel>
+        <translation>英文 (英國)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>English (United States)</masterLabel>
+        <translation>英文 (美國)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Finnish (Finland)</masterLabel>
+        <translation>芬蘭文 (芬蘭)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>French (France)</masterLabel>
+        <translation>法文 (法國)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>German (Germany)</masterLabel>
+        <translation>德文 (德國)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Hungarian (Hungary)</masterLabel>
+        <translation>匈牙利文 (匈牙利)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Icelandic (Iceland)</masterLabel>
+        <translation>冰島文 (冰島)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Indonesian (Indonesia)</masterLabel>
+        <translation>印尼文 (印尼)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Italian (Italy)</masterLabel>
+        <translation>義大利文 (義大利)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Japanese (Japan)</masterLabel>
+        <translation>日文 (日本)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Korean (South Korea)</masterLabel>
+        <translation>韓文 (南韓)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Malay (Malaysia)</masterLabel>
+        <translation>馬來文 (馬來西亞)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Norwegian (Bokmal: Norway)</masterLabel>
+        <translation>挪威文 (巴克摩: 挪威)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Norwegian (Norway)</masterLabel>
+        <translation>挪威文 (挪威)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Norwegian (Nynorsk: Norway)</masterLabel>
+        <translation>挪威文 (耐諾斯克: 挪威)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Polish (Poland)</masterLabel>
+        <translation>波蘭文 (波蘭)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Portuguese (Brazil)</masterLabel>
+        <translation>葡萄牙文 (巴西)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Portuguese (Portugal)</masterLabel>
+        <translation>葡萄牙文 (葡萄牙)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Romanian (Romania)</masterLabel>
+        <translation>羅馬尼亞文 (羅馬尼亞)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Russian (Russia)</masterLabel>
+        <translation>俄文 (俄羅斯)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Slovak (Slovakia)</masterLabel>
+        <translation>斯洛伐克文 (斯洛伐克)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Slovenian (Slovenia)</masterLabel>
+        <translation>斯洛維尼亞文 (斯洛維尼亞)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Spanish (Basque: Spain)</masterLabel>
+        <translation>西班牙文 (巴斯克文: 西班牙)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Spanish (Catalan: Spain)</masterLabel>
+        <translation>西班牙文 (卡達隆尼亞文: 西班牙)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Spanish (Spain)</masterLabel>
+        <translation>西班牙文 (西班牙)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Swedish (Sweden)</masterLabel>
+        <translation>瑞典文 (瑞典)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Thai (Thailand)</masterLabel>
+        <translation>泰文 (泰國)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Turkish (Turkey)</masterLabel>
+        <translation>土耳其文 (土耳其)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Ukrainian (Ukraine)</masterLabel>
+        <translation>烏克蘭文 (烏克蘭)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Vietnamese (Vietnam)</masterLabel>
+        <translation>越南文 (越南)</translation>
+    </picklistValues>
+</CustomFieldTranslation>

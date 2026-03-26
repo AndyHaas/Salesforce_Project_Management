@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label></label>
+    <name>echosign_dev1__Source_Type__c</name>
+    <picklistValues>
+        <masterLabel>Audit Trail</masterLabel>
+        <translation>ร่องรอยการตรวจสอบ</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signed Agreement - Merged PDF</masterLabel>
+        <translation>ข้อตกลงที่ลงลายเซ็น - PDF รวม</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Signed Agreement - Separate PDFs</masterLabel>
+        <translation>ข้อตกลงที่ลงลายเซ็น - PDF แยกต่างหาก</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Supporting Documents</masterLabel>
+        <translation>เอกสารประกอบ</translation>
+    </picklistValues>
+</CustomFieldTranslation>

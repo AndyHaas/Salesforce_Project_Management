@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>수신자의 언어를 선택합니다.</help>
+    <label></label>
+    <name>echosign_dev1__Language__c</name>
+    <picklistValues>
+        <masterLabel>Chinese (China)</masterLabel>
+        <translation>중국어(중국)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Chinese (Taiwan region)</masterLabel>
+        <translation>중국어(대만 지역)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Croatian (Croatia)</masterLabel>
+        <translation>크로아티아어(크로아티아)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Czech (Czech Republic)</masterLabel>
+        <translation>체코어(체코)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Danish (Denmark)</masterLabel>
+        <translation>덴마크어(덴마크)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Dutch (Netherlands)</masterLabel>
+        <translation>네덜란드어(네덜란드)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>English (United Kingdom)</masterLabel>
+        <translation>영어(영국)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>English (United States)</masterLabel>
+        <translation>영어(미국)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Finnish (Finland)</masterLabel>
+        <translation>핀란드어(핀란드)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>French (France)</masterLabel>
+        <translation>프랑스어(프랑스)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>German (Germany)</masterLabel>
+        <translation>독일어(독일)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Hungarian (Hungary)</masterLabel>
+        <translation>헝가리어(헝가리)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Icelandic (Iceland)</masterLabel>
+        <translation>아이슬란드어(아이슬란드)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Indonesian (Indonesia)</masterLabel>
+        <translation>인도네시아어(인도네시아)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Italian (Italy)</masterLabel>
+        <translation>이탈리아어(이탈리아)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Japanese (Japan)</masterLabel>
+        <translation>일본어(일본)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Korean (South Korea)</masterLabel>
+        <translation>한국어(대한민국)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Malay (Malaysia)</masterLabel>
+        <translation>말레이어(말레이시아)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Norwegian (Bokmal: Norway)</masterLabel>
+        <translation>노르웨이어(복말: 노르웨이)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Norwegian (Norway)</masterLabel>
+        <translation>노르웨이어(노르웨이)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Norwegian (Nynorsk: Norway)</masterLabel>
+        <translation>노르웨이어(뉘노르스크: 노르웨이)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Polish (Poland)</masterLabel>
+        <translation>폴란드어(폴란드)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Portuguese (Brazil)</masterLabel>
+        <translation>포르투갈어(브라질)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Portuguese (Portugal)</masterLabel>
+        <translation>포르투갈어(포르투갈)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Romanian (Romania)</masterLabel>
+        <translation>루마니아어(루마니아)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Russian (Russia)</masterLabel>
+        <translation>러시아어(러시아)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Slovak (Slovakia)</masterLabel>
+        <translation>슬로바키아어(슬로바키아)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Slovenian (Slovenia)</masterLabel>
+        <translation>슬로베니아어(슬로베니아)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Spanish (Basque: Spain)</masterLabel>
+        <translation>스페인어(바스크: 스페인)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Spanish (Catalan: Spain)</masterLabel>
+        <translation>스페인어(카탈루냐어: 스페인)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Spanish (Spain)</masterLabel>
+        <translation>스페인어(스페인)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Swedish (Sweden)</masterLabel>
+        <translation>스웨덴어(스웨덴)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Thai (Thailand)</masterLabel>
+        <translation>태국어(태국)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Turkish (Turkey)</masterLabel>
+        <translation>터키어(터키)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Ukrainian (Ukraine)</masterLabel>
+        <translation>우크라이나어(우크라이나)</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Vietnamese (Vietnam)</masterLabel>
+        <translation>베트남어(베트남)</translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Quando o contrato está como envio automático ou enviado usando um fluxo de trabalho automatizado, o contrato será enviado em nome do usuário especificado pelo campo. Se não for especificado, o usuário do contexto atual será usado da forma normal.</help>
+    <label></label>
+    <name>echosign_dev1__Sender_User__c</name>
+</CustomFieldTranslation>

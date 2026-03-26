@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Send automatiske påminnelser til underskrivere.</help>
+    <label></label>
+    <name>echosign_dev1__Automatic_Reminders__c</name>
+    <picklistValues>
+        <masterLabel>Every Business Day, Until Signed</masterLabel>
+        <translation>Hver virkedag til signert</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Every Day, Until Signed</masterLabel>
+        <translation>Hver dag til signert</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Every Fifth Day, Until Signed</masterLabel>
+        <translation>Hver femte dag til signert</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Every Other Day, Until Signed</masterLabel>
+        <translation>Annenhver dag til signert</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Every Third Day, Until Signed</masterLabel>
+        <translation>Hver tredje dag til signert</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Every Week, Until Signed</masterLabel>
+        <translation>Hver uke til signert</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Never</masterLabel>
+        <translation>Aldri</translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Project</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Projects</value>
+    </caseValues>
+    <layouts>
+        <layout>Project Layout</layout>
+        <sections>
+            <label></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <quickActions>
+        <label></label>
+        <name>Complete_Time_Entry</name>
+    </quickActions>
+    <quickActions>
+        <label></label>
+        <name>Create_Time_Entry_Record</name>
+    </quickActions>
+    <quickActions>
+        <label></label>
+        <name>New_Time_Entry</name>
+    </quickActions>
+    <quickActions>
+        <label></label>
+        <name>Send_to_Slack</name>
+    </quickActions>
+    <quickActions>
+        <label></label>
+        <name>Slack_Alerts</name>
+    </quickActions>
+    <startsWith>Consonant</startsWith>
+    <validationRules>
+        <errorMessage></errorMessage>
+        <name>Invoiced_and_Deployed</name>
+    </validationRules>
+    <webLinks>
+        <label></label>
+        <name>Invoice</name>
+    </webLinks>
+    <webLinks>
+        <label></label>
+        <name>Send_to_Slack</name>
+    </webLinks>
+    <webLinks>
+        <label></label>
+        <name>Slack_Alerts</name>
+    </webLinks>
+</CustomObjectTranslation>

@@ -1,0 +1,368 @@
+/**
+ * @description Portal-facing controller for Project detail data and metrics.
+ * Provides scoped access for Experience Cloud users to Project details and
+ * summarized Project Task metrics for a single project.
+ */
+public without sharing class PortalProjectController {
+
+    @AuraEnabled(cacheable=true)
+    public static ProjectDetailResult getProjectDetail(Id projectId) {
+        if (projectId == null) {
+            throw new AuraHandledException('Project Id is required');
+        }
+
+        User currentUser = [
+            SELECT AccountId
+            FROM User
+            WHERE Id = :UserInfo.getUserId()
+            LIMIT 1
+        ];
+
+        if (currentUser.AccountId == null) {
+            throw new AuraHandledException('Access denied');
+        }
+
+        List<Project__c> projects = [
+            SELECT Id,
+                Name,
+                Status__c,
+                Burn_Rate__c,
+                Account__c,
+                Account__r.Name,
+                Invoiced__c,
+                CreatedDate,
+                Expected_Completion_Date__c,
+                Actual_Completion_Date__c,
+                Total_Time__c,
+                Projected_Number_of_Hours__c
+            FROM Project__c
+            WHERE Id = :projectId
+            AND Account__c = :currentUser.AccountId
+            LIMIT 1
+        ];
+
+        if (projects.isEmpty()) {
+            throw new AuraHandledException('Project not found or access denied');
+        }
+
+        Project__c project = projects[0];
+
+        ProjectDetailResult result = new ProjectDetailResult();
+        result.project = new ProjectInfo();
+        result.project.id = project.Id;
+        result.project.name = project.Name;
+        result.project.status = project.Status__c;
+        result.project.burnRate = project.Burn_Rate__c;
+        result.project.accountId = project.Account__c;
+        result.project.accountName = project.Account__r != null ? project.Account__r.Name : null;
+        result.project.invoiced = project.Invoiced__c;
+        result.project.createdDate = project.CreatedDate;
+        result.project.startDate = null; // Not available on Project__c
+        result.project.endDate = project.Expected_Completion_Date__c;
+        result.project.totalEstimatedHours = project.Projected_Number_of_Hours__c;
+        result.project.totalActualHours = project.Total_Time__c;
+
+        // Aggregate task metrics scoped to this project (and account as an extra guard)
+        TaskMetrics metrics = new TaskMetrics();
+
+        // Query all tasks to get accurate counts and handle all statuses properly
+        // Note: Project__c is Master-Detail, so all tasks belong to this project
+        // Account__c filter removed to ensure we get all tasks for the project
+        List<Project_Task__c> allTasks = [
+            SELECT Id, Status__c, Estimated_Hours__c, Actual_Hours__c, Account__c
+            FROM Project_Task__c
+            WHERE Project__c = :projectId
+        ];
+
+        // Debug: Log task count
+        System.debug('PortalProjectController: Total tasks queried: ' + allTasks.size());
+        System.debug('PortalProjectController: Project ID: ' + projectId);
+        
+        // Debug: Check for completed tasks specifically with this project
+        List<Project_Task__c> completedTasks = [
+            SELECT Id, Status__c, Project__c
+            FROM Project_Task__c
+            WHERE Project__c = :projectId
+            AND Status__c = 'Completed'
+        ];
+        System.debug('PortalProjectController: Completed tasks query result: ' + completedTasks.size());
+        
+        // Debug: Check if there are ANY completed tasks for this account (regardless of project)
+        List<Project_Task__c> allCompletedForAccount = [
+            SELECT Id, Status__c, Project__c, Project__r.Name
+            FROM Project_Task__c
+            WHERE Account__c = :project.Account__c
+            AND Status__c = 'Completed'
+            LIMIT 10
+        ];
+        System.debug('PortalProjectController: All completed tasks for account: ' + allCompletedForAccount.size());
+        if (!allCompletedForAccount.isEmpty()) {
+            System.debug('PortalProjectController: Sample completed task Project: ' + allCompletedForAccount[0].Project__c + ' (' + allCompletedForAccount[0].Project__r?.Name + ')');
+        }
+        
+        // Debug: Check total count with aggregate
+        AggregateResult totalCount = [
+            SELECT COUNT(Id) total
+            FROM Project_Task__c
+            WHERE Project__c = :projectId
+        ];
+        System.debug('PortalProjectController: Aggregate total count: ' + totalCount.get('total'));
+        
+        // Debug: Check status breakdown with aggregate
+        List<AggregateResult> statusBreakdown = [
+            SELECT Status__c status, COUNT(Id) cnt
+            FROM Project_Task__c
+            WHERE Project__c = :projectId
+            GROUP BY Status__c
+        ];
+        System.debug('PortalProjectController: Status breakdown from aggregate: ' + statusBreakdown);
+
+        // Count tasks by status
+        Map<String, Integer> statusCounts = new Map<String, Integer>();
+        Integer completedCount = 0;
+        Decimal totalEstimated = 0;
+        Decimal totalActual = 0;
+        
+        for (Project_Task__c task : allTasks) {
+            String status = task.Status__c;
+            String displayStatus = String.isBlank(status) ? 'Backlog' : status.trim();
+            
+            // Count by status
+            Integer currentCount = statusCounts.containsKey(displayStatus) ? statusCounts.get(displayStatus) : 0;
+            statusCounts.put(displayStatus, currentCount + 1);
+            
+            // Count completed tasks
+            if (String.isNotBlank(status) && status.trim().equalsIgnoreCase('Completed')) {
+                completedCount++;
+            }
+            
+            // Sum hours
+            if (task.Estimated_Hours__c != null) {
+                totalEstimated += task.Estimated_Hours__c;
+            }
+            if (task.Actual_Hours__c != null) {
+                totalActual += task.Actual_Hours__c;
+            }
+        }
+
+        // Debug: Log status counts
+        System.debug('PortalProjectController: Status counts: ' + statusCounts);
+        System.debug('PortalProjectController: Completed count: ' + completedCount);
+
+        // Build status counts list for response
+        for (String statusKey : statusCounts.keySet()) {
+            StatusCount sc = new StatusCount();
+            sc.status = statusKey;
+            sc.count = statusCounts.get(statusKey);
+            metrics.statusCounts.add(sc);
+        }
+
+        // Set metrics
+        metrics.totalTasks = allTasks.size();
+        metrics.totalEstimatedHours = totalEstimated;
+        metrics.totalActualHours = totalActual;
+        metrics.completedTasks = completedCount;
+        metrics.openTasks = metrics.totalTasks - metrics.completedTasks;
+        
+        // Debug: Log final metrics
+        System.debug('PortalProjectController: Final metrics - Total: ' + metrics.totalTasks + ', Completed: ' + metrics.completedTasks + ', Open: ' + metrics.openTasks);
+        result.taskMetrics = metrics;
+
+        return result;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static GroupedTasksResult getProjectTasks(Id projectId) {
+        if (projectId == null) {
+            throw new AuraHandledException('Project Id is required');
+        }
+
+        User currentUser = [
+            SELECT AccountId
+            FROM User
+            WHERE Id = :UserInfo.getUserId()
+            LIMIT 1
+        ];
+
+        if (currentUser.AccountId == null) {
+            throw new AuraHandledException('Access denied');
+        }
+
+        // Verify the project belongs to the user's account to avoid cross-account access
+        List<Project__c> projects = [
+            SELECT Id, Account__c
+            FROM Project__c
+            WHERE Id = :projectId
+            AND Account__c = :currentUser.AccountId
+            LIMIT 1
+        ];
+
+        if (projects.isEmpty()) {
+            throw new AuraHandledException('Project not found or access denied');
+        }
+
+        List<Project_Task__c> tasks = [
+            SELECT Id,
+                Name,
+                Status__c,
+                Priority__c,
+                Due_Date__c,
+                Estimated_Hours__c,
+                Actual_Hours__c,
+                Progress_Percentage__c
+            FROM Project_Task__c
+            WHERE Project__c = :projectId
+            AND Account__c = :projects[0].Account__c
+            ORDER BY Status__c, CreatedDate DESC
+            LIMIT 500
+        ];
+
+        Map<String, StatusGroup> grouped = new Map<String, StatusGroup>();
+
+        for (Project_Task__c task : tasks) {
+            String statusKey = task.Status__c != null ? task.Status__c : 'Backlog';
+
+            if (!grouped.containsKey(statusKey)) {
+                StatusGroup sg = new StatusGroup();
+                sg.status = statusKey;
+                grouped.put(statusKey, sg);
+            }
+
+            TaskSummary summary = new TaskSummary();
+            summary.id = task.Id;
+            summary.name = task.Name;
+            summary.status = task.Status__c;
+            summary.priority = task.Priority__c;
+            summary.dueDate = task.Due_Date__c;
+            summary.estimatedHours = task.Estimated_Hours__c;
+            summary.actualHours = task.Actual_Hours__c;
+            summary.progressPercentage = task.Progress_Percentage__c;
+
+            grouped.get(statusKey).tasks.add(summary);
+        }
+
+        GroupedTasksResult result = new GroupedTasksResult();
+        result.statusGroups = grouped.values();
+        return result;
+    }
+
+    public class ProjectDetailResult {
+        @AuraEnabled public ProjectInfo project;
+        @AuraEnabled public TaskMetrics taskMetrics;
+    }
+
+    public class ProjectInfo {
+        @AuraEnabled public Id id;
+        @AuraEnabled public String name;
+        @AuraEnabled public String status;
+        @AuraEnabled public Decimal burnRate;
+        @AuraEnabled public Id accountId;
+        @AuraEnabled public String accountName;
+        @AuraEnabled public Boolean invoiced;
+        @AuraEnabled public Datetime createdDate;
+        @AuraEnabled public Date startDate;
+        @AuraEnabled public Date endDate;
+        @AuraEnabled public Decimal totalEstimatedHours;
+        @AuraEnabled public Decimal totalActualHours;
+    }
+
+    public class TaskMetrics {
+        @AuraEnabled public Integer totalTasks = 0;
+        @AuraEnabled public Integer openTasks = 0;
+        @AuraEnabled public Integer completedTasks = 0;
+        @AuraEnabled public Decimal totalEstimatedHours = 0;
+        @AuraEnabled public Decimal totalActualHours = 0;
+        @AuraEnabled public List<StatusCount> statusCounts = new List<StatusCount>();
+    }
+
+    public class StatusCount {
+        @AuraEnabled public String status;
+        @AuraEnabled public Integer count;
+    }
+
+    public class GroupedTasksResult {
+        @AuraEnabled public List<StatusGroup> statusGroups = new List<StatusGroup>();
+    }
+
+    public class StatusGroup {
+        @AuraEnabled public String status;
+        @AuraEnabled public List<TaskSummary> tasks = new List<TaskSummary>();
+    }
+
+    public class TaskSummary {
+        @AuraEnabled public Id id;
+        @AuraEnabled public String name;
+        @AuraEnabled public String status;
+        @AuraEnabled public String priority;
+        @AuraEnabled public Date dueDate;
+        @AuraEnabled public Decimal estimatedHours;
+        @AuraEnabled public Decimal actualHours;
+        @AuraEnabled public Decimal progressPercentage;
+    }
+    
+    /**
+     * @description Get all files linked to all tasks in a project
+     * @param projectId The Project ID
+     * @return List of FileInfo with file details
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<FileInfo> getProjectTaskFiles(Id projectId) {
+        if (projectId == null) {
+            return new List<FileInfo>();
+        }
+        
+        // Get all task IDs for this project
+        List<Project_Task__c> tasks = [
+            SELECT Id
+            FROM Project_Task__c
+            WHERE Project__c = :projectId
+        ];
+        
+        if (tasks.isEmpty()) {
+            return new List<FileInfo>();
+        }
+        
+        Set<Id> taskIds = new Set<Id>();
+        for (Project_Task__c task : tasks) {
+            taskIds.add(task.Id);
+        }
+        
+        List<FileInfo> files = new List<FileInfo>();
+        
+        // Get all files linked to any task in this project
+        List<ContentDocumentLink> links = [
+            SELECT ContentDocumentId, ContentDocument.Title, ContentDocument.FileExtension,
+                   ContentDocument.ContentSize, ContentDocument.CreatedDate, ContentDocument.CreatedBy.Name,
+                   ContentDocument.LatestPublishedVersionId, LinkedEntityId
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId IN :taskIds
+            ORDER BY ContentDocument.CreatedDate DESC
+        ];
+        
+        for (ContentDocumentLink link : links) {
+            FileInfo file = new FileInfo();
+            file.id = link.ContentDocumentId;
+            file.title = link.ContentDocument.Title;
+            file.extension = link.ContentDocument.FileExtension;
+            file.size = link.ContentDocument.ContentSize;
+            file.createdDate = link.ContentDocument.CreatedDate;
+            file.createdBy = link.ContentDocument.CreatedBy?.Name;
+            file.versionId = link.ContentDocument.LatestPublishedVersionId;
+            file.taskId = link.LinkedEntityId; // Track which task this file belongs to
+            files.add(file);
+        }
+        
+        return files;
+    }
+    
+    public class FileInfo {
+        @AuraEnabled public String id;
+        @AuraEnabled public String title;
+        @AuraEnabled public String extension;
+        @AuraEnabled public Long size;
+        @AuraEnabled public DateTime createdDate;
+        @AuraEnabled public String createdBy;
+        @AuraEnabled public String versionId;
+        @AuraEnabled public String taskId; // For project files, track which task it belongs to
+    }
+}

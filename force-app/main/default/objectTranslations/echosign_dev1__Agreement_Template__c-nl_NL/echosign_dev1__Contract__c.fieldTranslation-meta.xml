@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Stel de Salesforce-id in van de contractrecord waarin de overeenkomst moet worden opgezocht.</help>
+    <label></label>
+    <name>echosign_dev1__Contract__c</name>
+</CustomFieldTranslation>
