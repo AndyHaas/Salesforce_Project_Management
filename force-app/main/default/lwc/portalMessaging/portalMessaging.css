@@ -2,13 +2,6 @@
     margin-bottom: 1rem;
 }
 
-/* Title slot: keep refresh on the left; actions slot remains right-aligned by SLDS */
-.messaging-card-title-left {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-
 .context-display {
     display: flex;
     align-items: flex-start;
@@ -243,3 +236,4 @@
         border-left-color: inherit;
     }
 }
+

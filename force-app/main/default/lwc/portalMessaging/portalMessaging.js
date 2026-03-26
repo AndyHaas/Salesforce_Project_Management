@@ -25,7 +25,7 @@
  */
 
 import { LightningElement, api, wire, track } from 'lwc';
-import { subscribe as empSubscribe, unsubscribe as empUnsubscribe, onError } from 'lightning/empApi';
+import { refreshApex } from '@salesforce/apex';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE, publish } from 'lightning/messageService';
 import { CurrentPageReference, NavigationMixin } from 'lightning/navigation';
@@ -43,28 +43,6 @@ import linkFilesToMessage from '@salesforce/apex/PortalMessagingController.linkF
 import getMessageFiles from '@salesforce/apex/PortalMessagingController.getMessageFiles';
 import { ensureSitePath, formatDate, formatDateTime } from 'c/portalCommon';
 import MESSAGE_UPDATE_CHANNEL from '@salesforce/messageChannel/MessageUpdate__c';
-
-/** CDC channels (org must enable Change Data Capture on these entities). */
-const CDC_CHANNELS = [
-    '/data/AccountChangeEvent',
-    '/data/Project__ChangeEvent',
-    '/data/Project_Task__ChangeEvent'
-];
-
-const CDC_REPLAY_ID = -1;
-
-/** Single EMP error listener across all component instances. */
-let empApiErrorListenerRegistered = false;
-
-function registerEmpApiErrorListener() {
-    if (empApiErrorListenerRegistered) {
-        return;
-    }
-    empApiErrorListenerRegistered = true;
-    onError((error) => {
-        console.error('Streaming API (Change Data Capture) error:', JSON.stringify(error));
-    });
-}
 
 export default class PortalMessaging extends NavigationMixin(LightningElement) {
     @api recordId; // Automatically populated when on a Lightning Record Page
@@ -89,9 +67,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     _wiredContactsResult;
     _messageContext;
     _messageSubscription;
-    /** @type {object[]} Subscription handles from lightning/empApi subscribe */
-    _cdcSubscriptions = [];
-    _cdcDebounceTimer = null;
     @track _editingMessageId = null;
     @track _editingMessageBody = '';
     @track _isModalOpen = false;
@@ -105,8 +80,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     _hasMoreMessages = true;
     _messagesPerPage = 50;
     _searchTimeout = null;
-    /** Bind to lightning-input-rich-text label-visible (boolean, not string "false"). */
-    richTextLabelVisible = false;
     
     get showHeaderEnabled() {
         return true;
@@ -133,8 +106,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     }
     
     _contextInfo = null;
-    /** @description Dedupe imperative getContextInfo when only related* ids change (independent of recipientType). */
-    _lastContextParamKey = null;
     _isExperienceCloud = null; // Cached value for Experience Cloud detection
     
     /**
@@ -229,138 +200,18 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         }
     }
     
-    /**
-     * Load header/footer context from Apex (imperative).
-     * @wire(getContextInfo) was not reliably populating _contextInfo when related* ids come from the page/flexipage;
-     * keep in sync with the same related* params as getMessages.
-     */
-    async loadContextInfo() {
-        if (!this.relatedAccountId && !this.relatedProjectId && !this.relatedTaskId) {
-            this._contextInfo = null;
-            return;
+    // Wire service to get context information
+    @wire(getContextInfo, {
+        relatedAccountId: '$relatedAccountId',
+        relatedProjectId: '$relatedProjectId',
+        relatedTaskId: '$relatedTaskId'
+    })
+    wiredContextInfo({ error, data }) {
+        if (data) {
+            this._contextInfo = data;
+        } else if (error) {
+            console.error('Error loading context info:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
         }
-        try {
-            const data = await getContextInfo({
-                relatedAccountId: this.relatedAccountId || undefined,
-                relatedProjectId: this.relatedProjectId || undefined,
-                relatedTaskId: this.relatedTaskId || undefined
-            });
-            this._contextInfo = data || null;
-        } catch (error) {
-            this._contextInfo = null;
-            console.error(
-                'Error loading context info:',
-                JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-            );
-        }
-    }
-    
-    /**
-     * Manual refresh: same reload path as CDC (messages + context).
-     */
-    async handleRefreshMessages() {
-        if (this._cdcDebounceTimer) {
-            clearTimeout(this._cdcDebounceTimer);
-            this._cdcDebounceTimer = null;
-        }
-        try {
-            await this.loadMessages(false);
-            await this.loadContextInfo();
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Refreshed',
-                    message: 'Messages were updated.',
-                    variant: 'success'
-                })
-            );
-        } catch (e) {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Refresh failed',
-                    message: 'Could not reload messages.',
-                    variant: 'error'
-                })
-            );
-        }
-    }
-    
-    /**
-     * Subscribe to Account / Project / Task Change Data Capture channels (empApi).
-     */
-    async subscribeToChangeDataCapture() {
-        registerEmpApiErrorListener();
-        for (const channel of CDC_CHANNELS) {
-            try {
-                const subscription = await empSubscribe(channel, CDC_REPLAY_ID, (response) => {
-                    this.handleCdcEvent(response);
-                });
-                this._cdcSubscriptions.push(subscription);
-            } catch (e) {
-                console.error(`CDC subscribe failed for ${channel}:`, e);
-            }
-        }
-    }
-    
-    /**
-     * @param {object} response empApi message callback argument
-     */
-    handleCdcEvent(response) {
-        try {
-            let payload = response?.data?.payload;
-            if (payload == null) {
-                return;
-            }
-            if (typeof payload === 'string') {
-                payload = JSON.parse(payload);
-            }
-            if (this.isCdcEventRelevant(payload)) {
-                this.scheduleCdcRefresh();
-            }
-        } catch (e) {
-            console.error('CDC event handling error:', e);
-        }
-    }
-    
-    /**
-     * True when any CDC record id matches this component's related Account / Project / Task.
-     */
-    isCdcEventRelevant(payload) {
-        const header = payload?.ChangeEventHeader;
-        if (!header || !Array.isArray(header.recordIds)) {
-            return false;
-        }
-        const ctxIds = [this.relatedAccountId, this.relatedProjectId, this.relatedTaskId].filter(
-            (id) => id != null && String(id).length > 0
-        );
-        if (ctxIds.length === 0) {
-            return false;
-        }
-        const recordSet = new Set(header.recordIds);
-        return ctxIds.some((id) => recordSet.has(id));
-    }
-    
-    /**
-     * Debounce CDC-triggered reloads to avoid bursts of getMessages calls.
-     */
-    scheduleCdcRefresh() {
-        if (this._cdcDebounceTimer) {
-            clearTimeout(this._cdcDebounceTimer);
-        }
-        this._cdcDebounceTimer = setTimeout(() => {
-            this._cdcDebounceTimer = null;
-            this.loadMessages(false).then(() => this.loadContextInfo());
-        }, 400);
-    }
-    
-    unsubscribeChangeDataCapture() {
-        if (this._cdcDebounceTimer) {
-            clearTimeout(this._cdcDebounceTimer);
-            this._cdcDebounceTimer = null;
-        }
-        for (const sub of this._cdcSubscriptions) {
-            empUnsubscribe(sub, () => {});
-        }
-        this._cdcSubscriptions = [];
     }
     
     /**
@@ -395,6 +246,18 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             
             this._isLoadingMore = true;
             
+            console.log('Loading messages with params:', JSON.stringify({
+                recipientType: recipientTypeForQuery,
+                recipientTypeForSending: this.recipientType,
+                isMilestoneTeamMember: this._isMilestoneTeamMember,
+                relatedAccountId: this.relatedAccountId,
+                relatedProjectId: this.relatedProjectId,
+                relatedTaskId: this.relatedTaskId,
+                offset: this._currentOffset,
+                limit: this._messagesPerPage,
+                append: append
+            }, null, 2));
+            
             const data = await getMessages({
                 recipientType: recipientTypeForQuery,
                 relatedAccountId: this.relatedAccountId,
@@ -423,6 +286,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             this._currentOffset += newMessages.length;
             
             this._messagesError = null;
+            console.log('Messages loaded:', newMessages.length, 'Total:', this._messages.length, 'Has more:', this._hasMoreMessages);
             
             // Mark unread messages as read (only on initial load)
             if (!append) {
@@ -546,6 +410,24 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     }
     
     /**
+     * @description Component lifecycle hook - called when component is inserted into DOM
+     * Handles initialization differently for Lightning Record Pages vs Community pages
+     */
+    connectedCallback() {
+        // Initialize previous params to track changes
+        this._previousParams = {
+            recipientType: this.recipientType,
+            relatedAccountId: this.relatedAccountId,
+            relatedProjectId: this.relatedProjectId,
+            relatedTaskId: this.relatedTaskId
+        };
+        
+        // On Lightning Record Pages, recordId is available immediately via @api
+        // On Community pages, it might come from URL or page reference
+        // We'll wait for wire services to resolve before loading
+    }
+    
+    /**
      * @description Check if we have all required data to load messages
      * Works differently for Lightning Record Pages vs Community pages
      */
@@ -585,29 +467,12 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     }
     
     /**
-     * Refresh Apex context when Account / Project / Task ids change.
-     * Does not wait for recipientType (unlike attemptLoadMessages), so showProjectContext can resolve on Account pages.
-     */
-    attemptLoadContextInfo() {
-        const key = [
-            this.relatedAccountId || '',
-            this.relatedProjectId || '',
-            this.relatedTaskId || ''
-        ].join('|');
-        if (this._lastContextParamKey === key) {
-            return;
-        }
-        this._lastContextParamKey = key;
-        this.loadContextInfo();
-    }
-    
-    /**
      * @description Watch for changes to reactive parameters and reload messages
      * Handles both Lightning Record Pages and Community pages
      */
     renderedCallback() {
+        // Use attemptLoadMessages which checks if we can load
         this.attemptLoadMessages();
-        this.attemptLoadContextInfo();
     }
     
     // Wire service to get mentionable contacts
@@ -756,18 +621,18 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     }
     
     /**
-     * @description Account line in message footer is never shown (all hosts).
+     * @description Show account context in message list (when viewing at project or task level)
      */
     get showAccountContext() {
-        return false;
+        return this._contextInfo && 
+               (this._contextInfo.contextType === 'Project' || this._contextInfo.contextType === 'Task');
     }
-
+    
     /**
-     * @description Show project link in message footer only on Account host — not on Project__c or Project_Task__c.
+     * @description Show project context in message list (when viewing at task level)
      */
     get showProjectContext() {
-        const ctx = this._contextInfo;
-        return !!(ctx && ctx.contextType === 'Account');
+        return this._contextInfo && this._contextInfo.contextType === 'Task';
     }
     
     /**
@@ -781,24 +646,19 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
      * @description Lifecycle hook - component is inserted into the DOM
      */
     connectedCallback() {
-        this._previousParams = {
-            recipientType: this.recipientType,
-            relatedAccountId: this.relatedAccountId,
-            relatedProjectId: this.relatedProjectId,
-            relatedTaskId: this.relatedTaskId
-        };
+        // Load messages on initialization
         this.loadMessages();
+        
+        // Subscribe to message updates
         if (this._messageContext) {
             this.subscribeToMessageUpdates();
         }
-        void this.subscribeToChangeDataCapture();
     }
     
     /**
      * @description Lifecycle hook - component is removed from the DOM
      */
     disconnectedCallback() {
-        this.unsubscribeChangeDataCapture();
         // Unsubscribe from message updates
         if (this._messageSubscription) {
             unsubscribe(this._messageSubscription);
@@ -891,18 +751,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
                 projectNavData = JSON.stringify(projectLink);
             }
             
-            const messageItemClass = [
-                'message-item',
-                !msg.isRead ? 'message-unread' : '',
-                msg.isMentioned ? 'message-mentioned' : '',
-                msg.isPinned ? 'message-pinned' : ''
-            ]
-                .filter(Boolean)
-                .join(' ');
-            
             return {
                 ...msg,
-                messageItemClass,
                 formattedDate: this.formatMessageDate(msg.createdDate),
                 formattedEditedDate: msg.lastEditedDate ? this.formatMessageDate(msg.lastEditedDate) : '',
                 isFromCurrentUser: this.isFromCurrentUser(msg.senderId),
@@ -1291,6 +1141,17 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             // Extract mentioned contact IDs
             const mentionedContactIds = this.selectedMentions.map(m => m.id);
             
+            console.log('Sending message with:', JSON.stringify({
+                messageBody: currentMessageBody.substring(0, 100) + '...',
+                recipientType: this.recipientType,
+                relatedAccountId: this.relatedAccountId,
+                relatedProjectId: this.relatedProjectId,
+                relatedTaskId: this.relatedTaskId,
+                mentionedContactIds: mentionedContactIds,
+                isVisibleToClient: this.isVisibleToClient,
+                replyToMessageId: this._replyingToMessageId
+            }, null, 2));
+            
             // Send message
             const messageId = await sendMessage({
                 messageBody: currentMessageBody,
@@ -1302,6 +1163,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
                 isVisibleToClient: this.isVisibleToClient,
                 replyToMessageId: this._replyingToMessageId
             });
+            
+            console.log('Message sent successfully, ID:', messageId);
             
             // Link files if any were uploaded
             if (this._uploadedFileIds && this._uploadedFileIds.length > 0) {
@@ -1339,6 +1202,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             this.publishMessageUpdate('sent');
             
             // Reload messages after sending - reset to show newest at bottom
+            console.log('Reloading messages after send...');
             this._currentOffset = 0;
             this._hasMoreMessages = true;
             await this.loadMessages(false);
@@ -1350,6 +1214,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
                     this.scrollToBottom();
                 }, 50);
             });
+            
+            console.log('Messages reloaded');
             
             this.dispatchEvent(
                 new ShowToastEvent({
@@ -1684,3 +1550,4 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         }
     }
 }
+

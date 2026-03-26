@@ -10,6 +10,3 @@ package.xml
 
 # LWC Jest
 **/__tests__/**
-
-# Ignore stray Experience Cloud bundle copy under main app if present.
-force-app/main/default/digitalExperiences/**

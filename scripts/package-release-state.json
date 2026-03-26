@@ -1,0 +1,6 @@
+{
+  "_comment": "Maintained by scripts/package-version-release.sh and scripts/package_release_state.py. Commit after create/promote so the team shares the same pending/released Ids.",
+  "pendingRelease": null,
+  "lastPromotedRelease": null,
+  "history": []
+}

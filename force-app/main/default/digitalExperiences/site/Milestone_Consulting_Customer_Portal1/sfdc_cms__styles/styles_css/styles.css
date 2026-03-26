@@ -13,3 +13,37 @@ html {
 body {
     margin: 0;
 }
+
+/*
+ * LWR: section padding is on community_layout-section.comm-section-container (DXP tokens),
+ * not on .background-image-overlay (full-bleed overlay sibling).
+ */
+community_layout-section.comm-section-container:has(c-portal-header),
+community_layout-section.comm-section-container:has(c-portal-login),
+community_layout-section.comm-section-container:has(c-passwordless-login) {
+    --dxp-c-section-content-spacing-block-start: 0;
+    --dxp-c-section-content-spacing-inline-end: 0;
+    --dxp-c-section-content-spacing-block-end: 0;
+    --dxp-c-section-content-spacing-inline-start: 0;
+    --dxp-style-c-padding-top: 0;
+    --dxp-style-c-padding-right: 0;
+    --dxp-style-c-padding-bottom: 0;
+    --dxp-style-c-padding-left: 0;
+    --dxp-s-section-content-spacing-block-start: 0;
+    --dxp-s-section-content-spacing-inline-end: 0;
+    --dxp-s-section-content-spacing-block-end: 0;
+    --dxp-s-section-content-spacing-inline-start: 0;
+    --dxp-c-section-min-height-desktop: min-content;
+    --dxp-c-l-section-min-height: min-content;
+    padding: 0 !important;
+    min-height: 0 !important;
+}
+
+@media only screen and (min-width: 64.0625em) {
+    community_layout-section.comm-section-container:has(c-portal-header),
+    community_layout-section.comm-section-container:has(c-portal-login),
+    community_layout-section.comm-section-container:has(c-passwordless-login) {
+        padding: 0 !important;
+        min-height: 0 !important;
+    }
+}

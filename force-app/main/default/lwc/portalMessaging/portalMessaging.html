@@ -1,30 +1,16 @@
 <template>
     <template if:true={showHeaderEnabled}>
         <lightning-card class="messaging-card">
-            <!-- Refresh left (title slot); count/search stay in actions on the right -->
-            <div slot="title" class="messaging-card-title-left">
-                <lightning-button-icon
-                    icon-name="utility:refresh"
-                    variant="border-filled"
-                    alternative-text="Refresh messages"
-                    title="Refresh messages"
-                    onclick={handleRefreshMessages}
-                    class="messaging-refresh-button">
-                </lightning-button-icon>
-            </div>
+            <!-- Header Actions (Search) -->
             <div slot="actions" class="slds-grid slds-grid_vertical-align-center">
                 <template if:true={showMessageSearch}>
                     <div class="slds-form-element slds-m-right_small">
                         <div class="slds-form-element__control">
                             <lightning-input
-                                id="portal-message-search"
-                                name="portal-message-search"
                                 type="text"
                                 value={messageSearchTerm}
                                 onchange={handleMessageSearchChange}
                                 placeholder="Search messages..."
-                                variant="label-hidden"
-                                label="Search messages"
                                 class="message-search-input">
                             </lightning-input>
                         </div>
@@ -96,7 +82,10 @@
                             <template for:each={messages} for:item="message">
                                 <div 
                                     key={message.id}
-                                    class={message.messageItemClass}
+                                    class="message-item"
+                                    class:message-unread={message.isUnread}
+                                    class:message-mentioned={message.isMentioned}
+                                    class:message-pinned={message.isPinned}
                                     data-message-id={message.id}
                                 >
                                     <div class="message-header">
@@ -276,8 +265,6 @@
                                     <template if:true={message.isEditing}>
                                         <div class="message-edit">
                                             <lightning-input-rich-text
-                                                label="Edit message"
-                                                label-visible={richTextLabelVisible}
                                                 value={_editingMessageBody}
                                                 onchange={handleEditBodyChange}
                                                 placeholder="Edit your message...">
@@ -506,8 +493,6 @@
                                     </label>
                                     <div class="slds-form-element__control">
                                         <lightning-input-rich-text
-                                            label="Message"
-                                            label-visible={richTextLabelVisible}
                                             value={messageBody}
                                             onchange={handleMessageBodyChange}
                                             placeholder="Type your message here..."
@@ -528,7 +513,6 @@
                                         <div class="slds-form-element__control">
                                             <lightning-combobox
                                                 id="recipient-type-select"
-                                                name="portal-recipient-type"
                                                 value={recipientType}
                                                 options={recipientTypeOptions}
                                                 onchange={handleRecipientTypeChange}
@@ -552,8 +536,6 @@
                                     <div class="slds-form-element slds-m-bottom_medium">
                                         <div class="slds-form-element__control">
                                             <lightning-input
-                                                id="portal-message-internal-only"
-                                                name="portal-message-internal-only"
                                                 type="checkbox"
                                                 label="Internal (Milestone Only - Not Visible to Clients)"
                                                 checked={isInternalMessage}

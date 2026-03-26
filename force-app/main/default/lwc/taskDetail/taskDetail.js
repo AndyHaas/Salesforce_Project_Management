@@ -3,7 +3,7 @@ import { CurrentPageReference } from 'lightning/navigation';
 import { NavigationMixin } from 'lightning/navigation';
 import getTaskDetail from '@salesforce/apex/PortalTaskController.getTaskDetail';
 import getStatusColors from '@salesforce/apex/StatusColorController.getStatusColors';
-import { formatDate, formatNumber, formatPercent } from 'c/portalCommon';
+import { formatDate, formatNumber, formatPercent } from 'c/taskFormatUtils';
 
 export default class TaskDetail extends NavigationMixin(LightningElement) {
     @track taskId;
