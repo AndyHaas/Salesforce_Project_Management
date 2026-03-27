@@ -24,6 +24,8 @@
         <members>ForgotPasswordControllerTest</members>
         <members>MessageFilesSupport</members>
         <members>MessageFilesSupportTest</members>
+        <members>MessageVisibilitySupport</members>
+        <members>MessageVisibilitySupportTest</members>
         <members>MessageNotificationScheduler</members>
         <members>MessageNotificationSchedulerTest</members>
         <members>MyProfilePageController</members>

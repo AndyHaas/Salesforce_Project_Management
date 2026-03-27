@@ -17,9 +17,8 @@
  *   - Default recipientType: "Milestone Team"
  *
  * - Salesforce:
- *   - Milestone team members can send to "Client" or "Milestone Team"
- *   - Recipient type selector is shown
- *   - Can send internal messages (not visible to clients)
+ *   - Milestone team members choose "Visible To": Client or Milestone Team
+ *   - Visibility on the portal follows Recipient_Type__c (and Visible_To_Client__c set on save)
  *   - Navigation uses Lightning Navigation Service
  *   - Default recipientType: "Client"
  */
@@ -86,7 +85,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
 
   @track messageBody = "";
   @track recipientType = null; // Will be set based on user type
-  @track isVisibleToClient = true;
   @track searchTerm = "";
   @track selectedMentions = [];
   @track showMentionDropdown = false;
@@ -260,8 +258,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    * @description Load messages imperatively (since getMessages is non-cacheable)
    *
    * NOTE: For Milestone team members, we pass null for recipientType to see ALL messages
-   * (both Client and Milestone Team). The recipientType is only used when SENDING messages
-   * to specify who the message is sent TO, not when LOADING messages.
+   * (both visibility buckets). The combobox recipientType is only used when composing/sending.
    *
    * @param {Boolean} append - If true, append to existing messages (for infinite scroll). If false, replace.
    */
@@ -650,10 +647,13 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
-   * @description Getter for isInternalMessage (inverse of isVisibleToClient)
+   * @description Visible_To_Client__c for new messages: portal senders always true; internal senders true only when Visible To = Client.
    */
-  get isInternalMessage() {
-    return !this.isVisibleToClient;
+  get visibleToClientForSend() {
+    if (!this._isMilestoneTeamMember) {
+      return true;
+    }
+    return this.recipientType === "Client";
   }
 
   /**
@@ -896,7 +896,10 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
           this.relatedTaskId === msg.relatedTaskId
         ),
         attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
-        hasAttachments: Array.isArray(msg.files) && msg.files.length > 0
+        hasAttachments: Array.isArray(msg.files) && msg.files.length > 0,
+        // Team-only (not on client portal): Milestone Team recipient and not visible to client
+        isTeamOnlyRecipient:
+          msg.visibleToClient === false && msg.recipientType !== "Client"
       };
     });
   }
@@ -1186,25 +1189,24 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
+   * @description Help text on the Visible To combobox (Salesforce / Milestone team).
+   */
+  get recipientTypeFieldHelp() {
+    if (this.recipientType === "Client") {
+      return "The client will see this message on the portal.";
+    }
+    if (this.recipientType === "Milestone Team") {
+      return "Only Milestone Consulting team members will see this message; it will not appear to clients.";
+    }
+    return "Choose whether this message is visible to the client or limited to the Milestone team.";
+  }
+
+  /**
    * @description Handle recipient type change
    * Only used in Salesforce context - Portal users always send to Milestone Team
    */
   handleRecipientTypeChange(event) {
     this.recipientType = event.detail.value;
-    // When sending to Client, ensure it's visible to client
-    // When sending to Milestone Team, allow internal messages
-    if (this.recipientType === "Client") {
-      this.isVisibleToClient = true;
-    }
-  }
-
-  /**
-   * @description Handle visibility to client change
-   * Checkbox is checked when message is internal (not visible to client)
-   */
-  handleVisibilityChange(event) {
-    // Checkbox checked = internal (not visible to client) = isVisibleToClient = false
-    this.isVisibleToClient = !event.target.checked;
   }
 
   /**
@@ -1394,7 +1396,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             relatedProjectId: this.relatedProjectId,
             relatedTaskId: this.relatedTaskId,
             mentionedContactIds: mentionedContactIds,
-            isVisibleToClient: this.isVisibleToClient,
+            isVisibleToClient: this.visibleToClientForSend,
             replyToMessageId: this._replyingToMessageId
           },
           null,
@@ -1410,7 +1412,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         relatedProjectId: this.relatedProjectId,
         relatedTaskId: this.relatedTaskId,
         mentionedContactIds: mentionedContactIds,
-        isVisibleToClient: this.isVisibleToClient,
+        isVisibleToClient: this.visibleToClientForSend,
         replyToMessageId: this._replyingToMessageId
       });
 
@@ -1435,7 +1437,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       // Clear form
       this.messageBody = "";
       this.selectedMentions = [];
-      this.isVisibleToClient = true; // Reset to default
       this.resetComposerFilesState();
       this._replyingToMessageId = null;
       this._replyingToMessage = null;

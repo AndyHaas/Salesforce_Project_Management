@@ -138,9 +138,9 @@
                       </template>
 
                       <template if:true={isMilestoneTeamMember}>
-                        <template if:false={message.visibleToClient}>
+                        <template if:true={message.isTeamOnlyRecipient}>
                           <lightning-badge
-                            label="Internal"
+                            label="Team only"
                             variant="warning"
                             class="slds-m-left_x-small"
                           >
@@ -581,58 +581,21 @@
                   </div>
                 </div>
 
-                <!-- Recipient Type Selector (Salesforce Users Only) -->
+                <!-- Visible To (Salesforce / Milestone team only) -->
                 <template if:true={showRecipientTypeSelector}>
                   <div class="slds-form-element slds-m-bottom_medium">
-                    <label
-                      class="slds-form-element__label"
-                      for="recipient-type-select"
-                    >
-                      <abbr class="slds-required" title="required">*</abbr>
-                      Send To
-                    </label>
                     <div class="slds-form-element__control">
                       <lightning-combobox
-                        id="recipient-type-select"
+                        name="recipientType"
+                        label="Visible To"
                         value={recipientType}
                         options={recipientTypeOptions}
+                        field-level-help={recipientTypeFieldHelp}
                         onchange={handleRecipientTypeChange}
-                        placeholder="Select recipient type"
+                        placeholder="Select who can see this message"
                         required
                       >
                       </lightning-combobox>
-                      <div
-                        class="slds-form-element__help slds-text-body_small slds-text-color_weak"
-                      >
-                        <template if:true={isClientRecipient}>
-                          This message will be sent to the client.
-                        </template>
-                        <template if:false={isClientRecipient}>
-                          This message will be sent to the Milestone Consulting
-                          team.
-                        </template>
-                      </div>
-                    </div>
-                  </div>
-                </template>
-
-                <!-- Internal Message Checkbox (Milestone Team Only) -->
-                <template if:true={isMilestoneTeamMember}>
-                  <div class="slds-form-element slds-m-bottom_medium">
-                    <div class="slds-form-element__control">
-                      <lightning-input
-                        type="checkbox"
-                        label="Internal (Milestone Only - Not Visible to Clients)"
-                        checked={isInternalMessage}
-                        onchange={handleVisibilityChange}
-                      >
-                      </lightning-input>
-                      <div
-                        class="slds-form-element__help slds-text-body_small slds-text-color_weak"
-                      >
-                        When checked, this message will only be visible to
-                        Milestone Consulting team members, not to clients.
-                      </div>
                     </div>
                   </div>
                 </template>

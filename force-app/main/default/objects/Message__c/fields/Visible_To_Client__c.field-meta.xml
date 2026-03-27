@@ -3,7 +3,7 @@
     <fullName>Visible_To_Client__c</fullName>
     <defaultValue>true</defaultValue>
     <description
-  >If false, this message is only visible to Milestone Consulting team members and not to clients.</description>
+  >If false, this message does not appear to portal clients. For internal senders this follows Recipient Type (Client = visible on the portal; Milestone Team = team-only). Portal senders are always visible to themselves on the portal.</description>
     <label>Visible to Client</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
