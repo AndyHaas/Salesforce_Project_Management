@@ -109,7 +109,7 @@
                     <div class="message-sender">
                       <template if:true={message.isPinned}>
                         <lightning-icon
-                          icon-name="utility:pin"
+                          icon-name="utility:pinned"
                           size="xx-small"
                           class="slds-m-right_xx-small pinned-icon"
                           title="Pinned"
@@ -213,34 +213,34 @@
                               >
                               </lightning-button-icon>
                             </template>
-                          </lightning-button-group>
 
-                          <template if:true={isMilestoneTeamMember}>
-                            <template if:true={message.isPinned}>
-                              <lightning-button-icon
-                                icon-name="utility:unpin"
-                                variant="border-filled"
-                                alternative-text="Unpin message"
-                                title="Unpin message"
-                                data-message-id={message.id}
-                                onclick={handlePinMessage}
-                                class="slds-m-left_x-small pin-button"
-                              >
-                              </lightning-button-icon>
+                            <template if:true={isMilestoneTeamMember}>
+                              <template if:true={message.isPinned}>
+                                <lightning-button-icon
+                                  icon-name="utility:pinned"
+                                  variant="border-filled"
+                                  alternative-text="Unpin message"
+                                  title="Unpin message"
+                                  data-message-id={message.id}
+                                  onclick={handlePinMessage}
+                                  class="pin-button"
+                                >
+                                </lightning-button-icon>
+                              </template>
+                              <template if:false={message.isPinned}>
+                                <lightning-button-icon
+                                  icon-name="utility:pin"
+                                  variant="border-filled"
+                                  alternative-text="Pin message"
+                                  title="Pin message"
+                                  data-message-id={message.id}
+                                  onclick={handlePinMessage}
+                                  class="pin-button"
+                                >
+                                </lightning-button-icon>
+                              </template>
                             </template>
-                            <template if:false={message.isPinned}>
-                              <lightning-button-icon
-                                icon-name="utility:pin"
-                                variant="border-filled"
-                                alternative-text="Pin message"
-                                title="Pin message"
-                                data-message-id={message.id}
-                                onclick={handlePinMessage}
-                                class="slds-m-left_x-small pin-button"
-                              >
-                              </lightning-button-icon>
-                            </template>
-                          </template>
+                          </lightning-button-group>
                         </div>
                       </template>
                     </div>
