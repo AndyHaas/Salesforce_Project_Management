@@ -2,6 +2,7 @@
   "tabWidth": 2,
   "useTabs": false,
   "trailingComma": "none",
+  "printWidth": 120,
   "plugins": ["prettier-plugin-apex", "@prettier/plugin-xml"],
   "overrides": [
     {
@@ -11,6 +12,18 @@
     {
       "files": "*.{cmp,page,component}",
       "options": { "parser": "html" }
+    },
+    {
+      "files": "force-app/**/*.xml",
+      "options": { "printWidth": 160 }
+    },
+    {
+      "files": "manifest*.xml",
+      "options": { "printWidth": 160 }
+    },
+    {
+      "files": "**/lwc/**/*.js-meta.xml",
+      "options": { "printWidth": 320 }
     }
   ]
 }

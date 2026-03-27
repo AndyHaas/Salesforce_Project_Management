@@ -3,13 +3,11 @@
     <apiVersion>66.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>Portal Messaging</masterLabel>
-    <description
-  >Messaging component for sending and receiving messages related to accounts, projects, or tasks</description>
+    <description>Messaging component for sending and receiving messages related to accounts, projects, or tasks</description>
     <targets>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
-        <target>
-        lightning__AppPage</target>
+        <target>lightning__AppPage</target>
         <target>lightning__RecordPage</target>
         <target>lightning__HomePage</target>
     </targets>
@@ -20,112 +18,26 @@
                 <object>Project__c</object>
                 <object>Project_Task__c</object>
             </objects>
-            <property
-        name="recordId"
-        type="String"
-        label="Record ID"
-        description="Automatically populated with the record ID when placed on a record page"
-      />
-            <property
-        name="relatedAccountId"
-        type="String"
-        label="Related Account ID"
-        description="Account ID for message context (auto-populated when on Account record page)"
-      />
-            <property
-        name="relatedProjectId"
-        type="String"
-        label="Related Project ID"
-        description="Project ID for message context (auto-populated when on Project record page)"
-      />
-            <property
-        name="relatedTaskId"
-        type="String"
-        label="Related Task ID"
-        description="Task ID for message context (auto-populated when on Task record page)"
-      />
-            <property
-        name="hidePinnedMessagesSection"
-        type="Boolean"
-        label="Hide Pinned Messages Section"
-        default="false"
-        description="When checked, removes the pinned summary panel and preview button. Thread still lists messages in chronological order."
-      />
-            <property
-        name="pinnedSectionCollapsedByDefault"
-        type="Boolean"
-        label="Pinned Section Starts Collapsed"
-        default="false"
-        description="When checked, the pinned summary is hidden on load; users open it with the preview icon."
-      />
+            <property name="recordId" type="String" label="Record ID" description="Automatically populated with the record ID when placed on a record page" />
+            <property name="relatedAccountId" type="String" label="Related Account ID" description="Account ID for message context (auto-populated when on Account record page)" />
+            <property name="relatedProjectId" type="String" label="Related Project ID" description="Project ID for message context (auto-populated when on Project record page)" />
+            <property name="relatedTaskId" type="String" label="Related Task ID" description="Task ID for message context (auto-populated when on Task record page)" />
+            <property name="hidePinnedMessagesSection" type="Boolean" label="Hide Pinned Messages Section" default="false" description="When checked, removes the pinned summary panel and preview button. Thread still lists messages in chronological order." />
+            <property name="pinnedSectionCollapsedByDefault" type="Boolean" label="Pinned Section Starts Collapsed" default="false" description="When checked, the pinned summary is hidden on load; users open it with the preview icon." />
         </targetConfig>
         <targetConfig targets="lightning__AppPage,lightning__HomePage">
-            <property
-        name="relatedAccountId"
-        type="String"
-        label="Related Account ID"
-        description="Account ID for message context"
-      />
-            <property
-        name="relatedProjectId"
-        type="String"
-        label="Related Project ID"
-        description="Project ID for message context"
-      />
-            <property
-        name="relatedTaskId"
-        type="String"
-        label="Related Task ID"
-        description="Task ID for message context"
-      />
-            <property
-        name="hidePinnedMessagesSection"
-        type="Boolean"
-        label="Hide Pinned Messages Section"
-        default="false"
-        description="When checked, removes the pinned summary panel and preview button. Thread still lists messages in chronological order."
-      />
-            <property
-        name="pinnedSectionCollapsedByDefault"
-        type="Boolean"
-        label="Pinned Section Starts Collapsed"
-        default="false"
-        description="When checked, the pinned summary is hidden on load; users open it with the preview icon."
-      />
+            <property name="relatedAccountId" type="String" label="Related Account ID" description="Account ID for message context" />
+            <property name="relatedProjectId" type="String" label="Related Project ID" description="Project ID for message context" />
+            <property name="relatedTaskId" type="String" label="Related Task ID" description="Task ID for message context" />
+            <property name="hidePinnedMessagesSection" type="Boolean" label="Hide Pinned Messages Section" default="false" description="When checked, removes the pinned summary panel and preview button. Thread still lists messages in chronological order." />
+            <property name="pinnedSectionCollapsedByDefault" type="Boolean" label="Pinned Section Starts Collapsed" default="false" description="When checked, the pinned summary is hidden on load; users open it with the preview icon." />
         </targetConfig>
         <targetConfig targets="lightningCommunity__Default">
-            <property
-        name="relatedAccountId"
-        type="String"
-        label="Related Account ID"
-        description="Account ID for message context"
-      />
-            <property
-        name="relatedProjectId"
-        type="String"
-        label="Related Project ID"
-        description="Project ID for message context"
-      />
-            <property
-        name="relatedTaskId"
-        type="String"
-        label="Related Task ID"
-        description="Task ID for message context"
-      />
-            <property
-        name="hidePinnedMessagesSection"
-        type="Boolean"
-        label="Hide Pinned Messages Section"
-        default="false"
-        description="When checked, removes the pinned summary panel and preview button. Thread still lists messages in chronological order."
-      />
-            <property
-        name="pinnedSectionCollapsedByDefault"
-        type="Boolean"
-        label="Pinned Section Starts Collapsed"
-        default="false"
-        description="When checked, the pinned summary is hidden on load; users open it with the preview icon."
-      />
+            <property name="relatedAccountId" type="String" label="Related Account ID" description="Account ID for message context" />
+            <property name="relatedProjectId" type="String" label="Related Project ID" description="Project ID for message context" />
+            <property name="relatedTaskId" type="String" label="Related Task ID" description="Task ID for message context" />
+            <property name="hidePinnedMessagesSection" type="Boolean" label="Hide Pinned Messages Section" default="false" description="When checked, removes the pinned summary panel and preview button. Thread still lists messages in chronological order." />
+            <property name="pinnedSectionCollapsedByDefault" type="Boolean" label="Pinned Section Starts Collapsed" default="false" description="When checked, the pinned summary is hidden on load; users open it with the preview icon." />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
