@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>如果您还需要签署此文档，则选中此选项。然后选择是您先签名还是您的收件人先签名。</help>
-    <label></label>
-    <name>echosign_dev1__SenderSigns__c</name>
-</CustomFieldTranslation>

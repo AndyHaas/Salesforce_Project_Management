@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>กำหนดจำนวนวันก่อนที่ข้อตกลงจะหมดอายุ</help>
-    <label></label>
-    <name>echosign_dev1__Days_Until_Expiration2__c</name>
-</CustomFieldTranslation>

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>När avtalet skickas automatiskt eller skickas i ett automatiskt arbetsflöde, kommer avtalet att skickas för användaren som är angiven i detta fält. Om inget anges kommer den aktuella användaren att användas som vanligt.</help>
-    <label></label>
-    <name>echosign_dev1__Sender_User__c</name>
-</CustomFieldTranslation>

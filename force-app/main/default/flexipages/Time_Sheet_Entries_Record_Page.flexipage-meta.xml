@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <flexiPageRegions>
         <itemInstances>
@@ -77,7 +77,8 @@
                     <name>secondaryFields</name>
                     <value>Facet-45d19f2d-b77e-4338-b983-6a9c06636c95</value>
                 </componentInstanceProperties>
-                <componentName>record_flexipage:dynamicHighlights</componentName>
+                <componentName
+        >record_flexipage:dynamicHighlights</componentName>
                 <identifier>record_flexipage_dynamicHighlights</identifier>
             </componentInstance>
         </itemInstances>
@@ -138,6 +139,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Project__c</fieldItem>
                 <identifier>RecordProject__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Consultant__c</fieldItem>
+                <identifier>RecordConsultant__cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>

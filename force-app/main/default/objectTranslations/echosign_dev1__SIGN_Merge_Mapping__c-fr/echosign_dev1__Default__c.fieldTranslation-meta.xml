@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>Activez cette option pour que ce mappage de fusion soit exécuté par défaut pour tous les accords envoyés. Vous pouvez remplacer la valeur par défaut si vous spécifiez un autre mappage de fusion à utiliser avec un accord ou un modèle d’accord spécifique.</help>
-    <label></label>
-    <name>echosign_dev1__Default__c</name>
-</CustomFieldTranslation>

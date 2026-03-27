@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>Dette er URL&apos;en for arbejdsområdet. Åbnes i et nyt vindue.</help>
-    <label></label>
-    <name>CodeBuilder__URL__c</name>
-</CustomFieldTranslation>

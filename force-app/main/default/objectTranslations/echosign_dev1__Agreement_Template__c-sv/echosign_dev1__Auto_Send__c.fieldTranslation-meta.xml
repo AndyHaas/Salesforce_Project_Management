@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>Skicka avtalet automatiskt utan att visa skicka-sidan (t.ex. utlösta arbetsflöden). Se till att lägga till en mottagare och en bifogad fil om du använder detta alternativ.</help>
-    <label></label>
-    <name>echosign_dev1__Auto_Send__c</name>
-</CustomFieldTranslation>

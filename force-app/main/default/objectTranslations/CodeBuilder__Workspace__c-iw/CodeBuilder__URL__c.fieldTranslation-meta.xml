@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>זוהי כתובת ה-URL של סביבת העבודה. נפתחת בחלון חדש.</help>
-    <label></label>
-    <name>CodeBuilder__URL__c</name>
-</CustomFieldTranslation>

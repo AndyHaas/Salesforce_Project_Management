@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>Når aftalen sendes automatisk eller sendes vha. en automatisk arbejdsproces, sendes aftalen på vegne af den bruger, der er angivet vha. dette felt. Hvis det ikke er angivet, bruges den aktuelle kontekstbruger som sædvanlig.</help>
-    <label></label>
-    <name>echosign_dev1__Sender_User__c</name>
-</CustomFieldTranslation>

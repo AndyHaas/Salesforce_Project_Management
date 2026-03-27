@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>启用后，协议或文档将只呈递给发件人进行填写并签名。可使用“发布发送”页面转发已签名的文档。</help>
-    <label></label>
-    <name>echosign_dev1__Fill_Sign__c</name>
-</CustomFieldTranslation>

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>대상 필드의 값을 입력합니다.</help>
-    <label></label>
-    <name>echosign_dev1__Constant_Value__c</name>
-</CustomFieldTranslation>

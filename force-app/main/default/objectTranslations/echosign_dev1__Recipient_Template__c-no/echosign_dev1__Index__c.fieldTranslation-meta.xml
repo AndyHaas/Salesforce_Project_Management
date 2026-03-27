@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>Angi indeks for signeringsrekkefølge for mottakeren som genereres av denne malen. Hvis samme indeksnummer angis for flere mottakermaler, blir det generert hybridmottakere.</help>
-    <label></label>
-    <name>echosign_dev1__Index__c</name>
-</CustomFieldTranslation>

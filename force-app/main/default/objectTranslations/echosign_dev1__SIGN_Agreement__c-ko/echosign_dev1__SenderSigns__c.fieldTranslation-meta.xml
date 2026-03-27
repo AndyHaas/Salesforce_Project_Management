@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>귀하도 이 계약에 서명해야 하는 경우 이 옵션을 선택합니다. 그런 다음 귀하가 먼저 서명할지, 아니면 수신자가 먼저 서명할지를 선택합니다.</help>
-    <label></label>
-    <name>echosign_dev1__SenderSigns__c</name>
-</CustomFieldTranslation>

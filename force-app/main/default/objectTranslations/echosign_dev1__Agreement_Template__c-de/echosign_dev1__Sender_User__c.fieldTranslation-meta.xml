@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>Wenn die Vereinbarung automatisch oder mithilfe eines autom. Arbeitsablaufs gesendet wird, wird sie im Namen des Benutzers gesendet, dessen Name sich in diesem Feld befindet. Wenn nichts angegeben wird, wird wie üblich der akt. Kontextbenutzer verwendet.</help>
-    <label></label>
-    <name>echosign_dev1__Sender_User__c</name>
-</CustomFieldTranslation>

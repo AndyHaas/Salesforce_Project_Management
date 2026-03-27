@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>Seleziona questa casella per consentire agli altri utenti in questa organizzazione Salesforce di inviare accordi Adobe Acrobat Sign a nome di questo utente.</help>
-    <label></label>
-    <name>echosign_dev1__EchoSign_Allow_Delegated_Sending__c</name>
-</CustomFieldTranslation>

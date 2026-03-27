@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>核取此方塊，即可讓此 Salesforce 組織中的其他人代表這位使用者傳送 Adobe Acrobat Sign 合約。</help>
-    <label></label>
-    <name>echosign_dev1__EchoSign_Allow_Delegated_Sending__c</name>
-</CustomFieldTranslation>

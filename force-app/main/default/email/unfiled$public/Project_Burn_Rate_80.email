@@ -1,7 +1,0 @@
-{!Project__c.Name}
-
-Burn Rate: {!Project__c.Burn_Rate__c}
-Burn Hours: {!Project__c.Burn_Hours__c}
-Budgeted Time: {!Project__c.Projected_Number_of_Hours__c}
-
-Go to project: https://milestoneconsulting.lightning.force.com/lightning/r/Project__c/{!Project__c.Id}/view

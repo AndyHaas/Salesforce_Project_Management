@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>選取合併對應，將 Salesforce 欄位合併至 Adobe Acrobat Sign 合約，然後再傳送合約以供簽署。</help>
-    <label></label>
-    <name>echosign_dev1__Merge_Mapping__c</name>
-    <relationshipLabel></relationshipLabel>
-</CustomFieldTranslation>

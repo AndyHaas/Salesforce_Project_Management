@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>如果希望默认对所有发送的协议运行此合并映射，可选中此框。如果对特定的协议或协议模板指定使用另外的合并映射，则可以覆盖默认设置。</help>
-    <label></label>
-    <name>echosign_dev1__Default__c</name>
-</CustomFieldTranslation>

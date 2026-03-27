@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>每周或每天自动向收件人发送提醒。</help>
-    <label></label>
-    <name>echosign_dev1__Enable_Automatic_Reminders__c</name>
-</CustomFieldTranslation>

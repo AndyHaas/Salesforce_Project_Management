@@ -37,15 +37,14 @@
 
 ## Custom objects (inventory)
 
-| API name                                                     | Purpose                                                                |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `Project__c`                                                 | Engagement / body of work.                                             |
-| `Project_Task__c`                                            | Tasks, subtasks, progress, review, assignments.                        |
-| `Project_Task_Relationship__c`                               | Task-to-task links and dependency graph.                               |
-| `Message__c`                                                 | Messaging records (UI/controllers for portal contexts in add-on).      |
-| `Time_Sheet_Entries__c`                                      | Time entry lines.                                                      |
-| `Portal_Config__c`                                           | Portal-related configuration records (used with add-on as applicable). |
-| `Release_Notes__c` / `Release_Tag__c` / `Release_Version__c` | Release documentation structure.                                       |
+| API name                                                     | Purpose                                                           |
+| ------------------------------------------------------------ | ----------------------------------------------------------------- |
+| `Project__c`                                                 | Engagement / body of work.                                        |
+| `Project_Task__c`                                            | Tasks, subtasks, progress, review, assignments.                   |
+| `Project_Task_Relationship__c`                               | Task-to-task links and dependency graph.                          |
+| `Message__c`                                                 | Messaging records (UI/controllers for portal contexts in add-on). |
+| `Time_Sheet_Entries__c`                                      | Time entry lines.                                                 |
+| `Release_Notes__c` / `Release_Tag__c` / `Release_Version__c` | Release documentation structure.                                  |
 
 Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** and **`OTP_Cleanup_Config__mdt`** (OTP/schedulers are exercised when the Portal Add-On is deployed—see [Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Setup-Guide)).
 
@@ -58,7 +57,7 @@ Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** an
 | `Project_Management_Manager`     | Managers (view-all style patterns per metadata). |
 | `Project_Management_Admin`       | Administrators / full config.                    |
 
-**`Client_Project_Management_Portal_User`** and other client portal access ship with the **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)**.
+**Portal Add-On** permission sets include **`Client_Project_Management_Portal_User`**, **`Customer_Portal_Manager`** (internal users toggling portal flags on Account/Contact), and legacy **`Community_User`**—see the add-on repo and [Permission Sets](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Permission-Sets).
 
 Details: [Permission Sets](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Permission-Sets).
 

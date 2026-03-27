@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>Active esta casilla si no desea que se cree un destinatario de marcador de posición en blanco en la página del acuerdo si no se encuentran registros en función de los criterios seleccionados.</help>
-    <label></label>
-    <name>echosign_dev1__Do_Not_Create_Empty__c</name>
-</CustomFieldTranslation>

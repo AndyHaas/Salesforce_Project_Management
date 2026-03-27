@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>Cochez cette option si vous devez également signer ce document. Indiquez ensuite si la signature est effectuée en premier par vous-même ou par vos destinataires.</help>
-    <label></label>
-    <name>echosign_dev1__SenderSigns__c</name>
-</CustomFieldTranslation>

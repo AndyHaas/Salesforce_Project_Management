@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
         <members>Project_Task_Status</members>
@@ -7,8 +7,6 @@
     <types>
         <members>ChangePasswordController</members>
         <members>ChangePasswordControllerTest</members>
-        <members>CheckValidation</members>
-        <members>CheckValidationTest</members>
         <members>CommunitiesLandingController</members>
         <members>CommunitiesLandingControllerTest</members>
         <members>CommunitiesLoginController</members>
@@ -22,40 +20,22 @@
         <members>CreateReleaseNoteQAControllerTest</members>
         <members>CreateReleaseNoteQuickActionController</members>
         <members>DisplayDensityController</members>
-        <members>FlowAction_CallSubflowHandler</members>
-        <members>FlowAction_CallSubflowHandlerTest</members>
         <members>ForgotPasswordController</members>
         <members>ForgotPasswordControllerTest</members>
-        <members>HomePageController</members>
-        <members>LightningForgotPasswordController</members>
-        <members>LightningForgotPasswordControllerTest</members>
-        <members>LightningLoginFormController</members>
-        <members>LightningLoginFormControllerTest</members>
-        <members>LightningSelfRegisterController</members>
-        <members>LightningSelfRegisterControllerTest</members>
-        <members>LwcConvertCSVToRecordsHelper</members>
-        <members>LwcConvertCSVToRecordsHelper_Test</members>
-        <members>MassDeleteExtension</members>
-        <members>MassDeleteExtensionTest</members>
         <members>MessageNotificationScheduler</members>
         <members>MessageNotificationSchedulerTest</members>
-        <members>MicrobatchSelfRegController</members>
-        <members>MicrobatchSelfRegControllerTest</members>
         <members>MyProfilePageController</members>
         <members>MyProfilePageControllerTest</members>
         <members>OTPCleanupScheduler</members>
         <members>OTPCleanupSchedulerTest</members>
         <members>PasswordlessLoginController</members>
         <members>PasswordlessLoginControllerTest</members>
-        <members>PlatformCacheTest</members>
         <members>PortalLoginController</members>
         <members>PortalMessagingController</members>
         <members>PortalMessagingControllerTest</members>
         <members>PortalProjectController</members>
         <members>PortalRecordListController</members>
         <members>PortalTaskController</members>
-        <members>PostRichChatter</members>
-        <members>PostRichChatterTest</members>
         <members>ProjectTaskApprovalNotificationSender</members>
         <members>ProjectTaskApproverUserHelper</members>
         <members>ProjectTaskApproverUserHelperTest</members>
@@ -68,7 +48,6 @@
         <members>SiteRegisterController</members>
         <members>SiteRegisterControllerTest</members>
         <members>StatusColorController</members>
-        <members>SubscriptionData_MockHTTP</members>
         <members>TaskApprovalNotificationSenderTest</members>
         <members>TaskContextController</members>
         <members>TaskContextControllerTest</members>
@@ -78,28 +57,6 @@
         <members>TaskProgressCalculatorTest</members>
         <members>TaskSubtaskHelper</members>
         <members>TaskSubtaskHelperTest</members>
-        <members>mc_DeleteRecipients</members>
-        <members>mc_DeleteRecipientsTest</members>
-        <members>mc_GetRecipients</members>
-        <members>mc_GetRecipientsTest</members>
-        <members>mc_GetUserSubscriptionLimit</members>
-        <members>mc_GetUserSubscriptionLimitTest</members>
-        <members>mc_NotificationDefinition</members>
-        <members>mc_SubscriptionData</members>
-        <members>mc_SubscriptionDataTest</members>
-        <members>mc_SubscriptionLimitDefinition</members>
-        <members>mc_SubscriptionLimitDefinitionDetails</members>
-        <members>mc_SubscriptionListDef_Config</members>
-        <members>mc_SubscriptionListDefinition</members>
-        <members>mc_SubscriptionListDefinition_Actions</members>
-        <members>mc_SubscriptionListDefinition_Conditions</members>
-        <members>mc_SubscriptionListDefinition_Details</members>
-        <members>mc_SubscriptionListDefinition_Owner</members>
-        <members>mc_SubscriptionListDefinition_Recipients</members>
-        <members>mc_SubscriptionListDefinition_RunAs</members>
-        <members>mc_SubscriptionListDefinition_Schedule</members>
-        <members>mc_SubscriptionListDefinition_Thresholds</members>
-        <members>slack_tst_Project</members>
         <name>ApexClass</name>
     </types>
     <types>
@@ -128,17 +85,6 @@
         <members>ForgotPasswordConfirm</members>
         <members>IdeasHome</members>
         <members>InMaintenance</members>
-        <members>Mass_Delete_Account</members>
-        <members>Mass_Delete_Asset</members>
-        <members>Mass_Delete_Campaign</members>
-        <members>Mass_Delete_Case</members>
-        <members>Mass_Delete_Contact</members>
-        <members>Mass_Delete_Contract</members>
-        <members>Mass_Delete_Lead</members>
-        <members>Mass_Delete_Opportunity</members>
-        <members>Mass_Delete_Product2</members>
-        <members>Mass_Delete_Solution</members>
-        <members>MicrobatchSelfReg</members>
         <members>MyProfilePage</members>
         <members>PortalAutoLoginTest</members>
         <members>SiteLogin</members>
@@ -176,16 +122,7 @@
         <name>Audience</name>
     </types>
     <types>
-        <members>Web_To_Case</members>
-        <members>Web_To_Case_App</members>
-        <members>Web_To_Lead</members>
-        <members>Web_To_Lead_App</members>
         <members>createReleaseNoteQuickActionHost</members>
-        <members>forgotPassword</members>
-        <members>loginForm</members>
-        <members>selfRegister</members>
-        <members>setExpId</members>
-        <members>setStartUrl</members>
         <members>taskAnalyticsPageTemplate</members>
         <members>taskListPageTemplate</members>
         <name>AuraDefinitionBundle</name>
@@ -316,7 +253,6 @@
         <members>Account.Burn_Rate_Notification__c</members>
         <members>Account.Current_Burn_Rate__c</members>
         <members>Account.Diff_of_Revenue_From_Last_Year__c</members>
-        <members>Account.Has_Portal_Access_Enabled_Contact__c</members>
         <members>Account.Last_Year_Revenue__c</members>
         <members>Account.Notes__c</members>
         <members>Account.Payment_Method__c</members>
@@ -331,7 +267,6 @@
         <members>Client_Member__c.Bill_to__c</members>
         <members>Client_Member__c.Contact__c</members>
         <members>Client_Member__c.Project__c</members>
-        <members>Contact.Portal_Access_Enabled__c</members>
         <members>Contract_Pricing__c.Calculated_Per_Hour_Rate__c</members>
         <members>Contract_Pricing__c.Contract_Pricing_ID__c</members>
         <members>Contract_Pricing__c.Contract__c</members>
@@ -350,18 +285,14 @@
         <members>Employee_Zoom_Identity__c.Zoom_Email__c</members>
         <members>Employee_Zoom_Identity__c.Zoom_User_Id__c</members>
         <members>In_App_Checklist_Settings__c.ProfileKey__c</members>
-        <members>In_App_Checklist_Settings__c.Sales_Cloud_In_App_Page__c</members>
+        <members
+    >In_App_Checklist_Settings__c.Sales_Cloud_In_App_Page__c</members>
         <members>Invoice_Payments__c.Account__c</members>
         <members>Invoice_Payments__c.Payment_Amount__c</members>
         <members>Invoice_Payments__c.Payment_Date__c</members>
         <members>Invoice_Payments__c.Project_Cost__c</members>
         <members>Invoice_Payments__c.Project__c</members>
         <members>Lead.Web_Notes__c</members>
-        <members>Login_OTP__c.Code__c</members>
-        <members>Login_OTP__c.Email__c</members>
-        <members>Login_OTP__c.Expires_At__c</members>
-        <members>Login_OTP__c.Used__c</members>
-        <members>Login_OTP__c.User__c</members>
         <members>Message__c.Account__c</members>
         <members>Message__c.Body__c</members>
         <members>Message__c.Client_Notification_Sent_Date__c</members>
@@ -382,18 +313,13 @@
         <members>Message__c.Reply_To__c</members>
         <members>Message__c.Sender__c</members>
         <members>Message__c.Visible_To_Client__c</members>
-        <members>Milestone_Task_Notification_Settings__mdt.Community_Task_URL_Format__c</members>
+        <members
+    >Milestone_Task_Notification_Settings__mdt.Community_Task_URL_Format__c</members>
         <members>OTP_Cleanup_Config__mdt.Retention_Days__c</members>
         <members>Opportunity.Budget_Confirmed__c</members>
         <members>Opportunity.Discovery_Completed__c</members>
         <members>Opportunity.Loss_Reason__c</members>
         <members>Opportunity.ROI_Analysis_Completed__c</members>
-        <members>Opportunity__hd.Amount__c</members>
-        <members>Opportunity__hd.CloseDate__c</members>
-        <members>Opportunity__hd.ForecastCategoryName__c</members>
-        <members>Opportunity__hd.NextStep__c</members>
-        <members>Opportunity__hd.Probability__c</members>
-        <members>Opportunity__hd.StageName__c</members>
         <members>Order.Account_Name__c</members>
         <members>Portal_Config__c.Consumer_Key__c</members>
         <members>Portal_Config__c.Consumer_Secret__c</members>
@@ -553,207 +479,35 @@
     </types>
     <types>
         <members>Account</members>
-        <members>AccountBrand</members>
         <members>AccountContactRelation</members>
-        <members>AccountContactRole</members>
         <members>Activity</members>
-        <members>AiJobRun</members>
-        <members>AlternativePaymentMethod</members>
-        <members>AnalyticsUserAttrFuncTkn</members>
-        <members>ApprovalSubmission</members>
-        <members>ApprovalSubmissionDetail</members>
-        <members>ApprovalWorkItem</members>
-        <members>Asset</members>
-        <members>AssetRelationship</members>
-        <members>AssistantProgress</members>
-        <members>AssociatedLocation</members>
-        <members>AuthorizationForm</members>
-        <members>AuthorizationFormConsent</members>
-        <members>AuthorizationFormDataUse</members>
-        <members>AuthorizationFormText</members>
-        <members>BroadcastTopic</members>
-        <members>BroadcastTopicCollabRoom</members>
-        <members>BroadcastTopicUserRole</members>
-        <members>BusinessBrand</members>
-        <members>CalculatedInsightRangeBound</members>
         <members>Campaign</members>
         <members>CampaignMember</members>
-        <members>CardPaymentMethod</members>
-        <members>Case</members>
-        <members>CaseContactRole</members>
-        <members>ChannelProgram</members>
-        <members>ChannelProgramLevel</members>
-        <members>ChannelProgramMember</members>
-        <members>ChatterActivity</members>
         <members>Client_Member__c</members>
-        <members>CollaborationGroup</members>
-        <members>CollaborationGroupMember</members>
-        <members>CommSubscription</members>
-        <members>CommSubscriptionChannelType</members>
-        <members>CommSubscriptionConsent</members>
-        <members>CommSubscriptionTiming</members>
         <members>Contact</members>
-        <members>ContactPointAddress</members>
-        <members>ContactPointConsent</members>
-        <members>ContactPointEmail</members>
-        <members>ContactPointPhone</members>
-        <members>ContactPointTypeConsent</members>
-        <members>ContactRequest</members>
-        <members>ContentDocument</members>
         <members>ContentVersion</members>
-        <members>Contract</members>
-        <members>ContractContactRole</members>
         <members>Contract_Pricing__c</members>
-        <members>ConvEntryRelatedRecordCopy</members>
-        <members>ConversationApiLog</members>
-        <members>ConversationApiLogObjSum</members>
-        <members>ConversationEntryCopy</members>
-        <members>CreditMemo</members>
-        <members>CreditMemoInvApplication</members>
-        <members>CreditMemoLine</members>
-        <members>Customer</members>
-        <members>DataUseLegalBasis</members>
-        <members>DataUsePurpose</members>
-        <members>DevopsActivityLog</members>
-        <members>DevopsEnvironment</members>
-        <members>DevopsRequestInfo</members>
-        <members>DigitalWallet</members>
-        <members>DuplicateRecordItem</members>
-        <members>DuplicateRecordSet</members>
-        <members>EmailMessage</members>
         <members>Employee_Zoom_Identity__c</members>
-        <members>EngagementChannelType</members>
-        <members>Event</members>
-        <members>ExchangeUserMapping</members>
-        <members>ExpressionFilter</members>
-        <members>ExpressionFilterCriteria</members>
-        <members>ExternalEventMapping</members>
-        <members>FeedItem</members>
-        <members>FlowOrchestrationInstance</members>
-        <members>FlowOrchestrationLog</members>
-        <members>FlowOrchestrationStageInstance</members>
-        <members>FlowOrchestrationStepInstance</members>
-        <members>FlowOrchestrationVersion</members>
-        <members>FlowOrchestrationWorkItem</members>
-        <members>ForecastingAdjustment</members>
-        <members>ForecastingCategoryMapping</members>
-        <members>ForecastingCustomData</members>
-        <members>ForecastingOwnerAdjustment</members>
-        <members>ForecastingQuota</members>
-        <members>ForecastingTypeToCategory</members>
-        <members>GoalAssignment</members>
-        <members>GoalAssignmentRecommendation</members>
-        <members>GoalDefinition</members>
-        <members>Idea</members>
-        <members>Image</members>
         <members>In_App_Checklist_Settings__c</members>
-        <members>Individual</members>
-        <members>Invoice</members>
-        <members>InvoiceLine</members>
         <members>Invoice_Payments__c</members>
         <members>Lead</members>
-        <members>Location</members>
-        <members>LocationTrustMeasure</members>
-        <members>Login_OTP__c</members>
-        <members>MLModel</members>
-        <members>MLModelFactor</members>
-        <members>MLModelFactorComponent</members>
-        <members>Macro</members>
-        <members>MacroAction</members>
-        <members>MacroInstruction</members>
-        <members>MacroUsage</members>
         <members>Message__c</members>
-        <members>MessagingEndUser</members>
-        <members>MessagingSession</members>
         <members>Milestone_Task_Notification_Settings__mdt</members>
-        <members>NetworkMember</members>
-        <members>NetworkMemberChunk</members>
-        <members>OTP_Cleanup_Config__mdt</members>
         <members>Opportunity</members>
-        <members>OpportunityCompetitor</members>
-        <members>OpportunityContactRole</members>
-        <members>OpportunityLineItem</members>
-        <members>OpportunityRelatedDeleteLog</members>
         <members>Order</members>
-        <members>OrderItem</members>
-        <members>OrgMetricScanResult</members>
-        <members>OrgMetricScanSummary</members>
-        <members>PartnerRole</members>
-        <members>PartyConsent</members>
-        <members>Payment</members>
-        <members>PaymentAuthAdjustment</members>
-        <members>PaymentAuthorization</members>
-        <members>PaymentGateway</members>
-        <members>PaymentGroup</members>
-        <members>PaymentLineInvoice</members>
-        <members>PaymentMethod</members>
-        <members>Portal_Config__c</members>
-        <members>Pricebook2</members>
-        <members>PricebookEntry</members>
-        <members>ProcessException</members>
         <members>Product2</members>
-        <members>ProfileSkill</members>
-        <members>ProfileSkillEndorsement</members>
-        <members>ProfileSkillUser</members>
         <members>Project_Task_Relationship__c</members>
         <members>Project_Task__c</members>
         <members>Project_Team__c</members>
         <members>Project__c</members>
-        <members>PromptAction</members>
-        <members>PromptError</members>
-        <members>QuickText</members>
-        <members>QuickTextUsage</members>
         <members>Quickbook_Invoice_Item__c</members>
         <members>Quickbooks_Invoice__c</members>
-        <members>Quote</members>
-        <members>QuoteLineItem</members>
-        <members>Recommendation</members>
-        <members>RecordAction</members>
-        <members>RecordMergeHistory</members>
-        <members>Refund</members>
-        <members>RefundLinePayment</members>
         <members>Release_Notes__c</members>
         <members>Release_Tag__c</members>
         <members>Release_Version__c</members>
-        <members>Scorecard</members>
-        <members>ScorecardAssociation</members>
-        <members>ScorecardMetric</members>
-        <members>SecurityHealthCheckAlertRecipient</members>
-        <members>SecurityHealthCheckResult</members>
-        <members>Seller</members>
-        <members>SenderEmailAddress</members>
-        <members>SharingRecordCollection</members>
-        <members>SharingRecordCollectionItem</members>
-        <members>SharingRecordCollectionMember</members>
-        <members>Site</members>
-        <members>SocialPersona</members>
-        <members>SocialPost</members>
-        <members>Solution</members>
-        <members>StreamActivityAccess</members>
-        <members>StreamingChannel</members>
-        <members>Swarm</members>
-        <members>TableauHostMapping</members>
-        <members>Task</members>
         <members>Test_App__c</members>
         <members>Time_Sheet_Entries__c</members>
-        <members>Topic</members>
-        <members>TopicAssignment</members>
         <members>User</members>
-        <members>UserCapabilityPreference</members>
-        <members>UserDevopsPreference</members>
-        <members>UserExternalCredential</members>
-        <members>UserLocalWebServerIdentity</members>
-        <members>UserPrioritizedRecord</members>
-        <members>UserProvisioningRequest</members>
-        <members>VideoCall</members>
-        <members>VideoCallParticipant</members>
-        <members>VideoCallRecording</members>
-        <members>VoiceCall</members>
-        <members>WorkBadge</members>
-        <members>WorkBadgeDefinition</members>
-        <members>WorkOrder</members>
-        <members>WorkOrderLineItem</members>
-        <members>WorkThanks</members>
         <members>Zoom_Meeting_Map__c</members>
         <members>Zoom_Webhook_Config__mdt</members>
         <members>Zoom_Webhook_Event__c</members>
@@ -761,65 +515,12 @@
     </types>
     <types>
         <members>Client_Member__c-en_US</members>
-        <members>CodeBuilder__Workspace__c-ar</members>
-        <members>CodeBuilder__Workspace__c-bg</members>
-        <members>CodeBuilder__Workspace__c-cs</members>
-        <members>CodeBuilder__Workspace__c-da</members>
-        <members>CodeBuilder__Workspace__c-de</members>
-        <members>CodeBuilder__Workspace__c-el</members>
-        <members>CodeBuilder__Workspace__c-en_GB</members>
-        <members>CodeBuilder__Workspace__c-en_US</members>
-        <members>CodeBuilder__Workspace__c-es</members>
-        <members>CodeBuilder__Workspace__c-es_MX</members>
-        <members>CodeBuilder__Workspace__c-fi</members>
-        <members>CodeBuilder__Workspace__c-fr</members>
-        <members>CodeBuilder__Workspace__c-hr</members>
-        <members>CodeBuilder__Workspace__c-hu</members>
-        <members>CodeBuilder__Workspace__c-in</members>
-        <members>CodeBuilder__Workspace__c-it</members>
-        <members>CodeBuilder__Workspace__c-iw</members>
-        <members>CodeBuilder__Workspace__c-ja</members>
-        <members>CodeBuilder__Workspace__c-ko</members>
-        <members>CodeBuilder__Workspace__c-nl_NL</members>
-        <members>CodeBuilder__Workspace__c-no</members>
-        <members>CodeBuilder__Workspace__c-pl</members>
-        <members>CodeBuilder__Workspace__c-pt_BR</members>
-        <members>CodeBuilder__Workspace__c-pt_PT</members>
-        <members>CodeBuilder__Workspace__c-ro</members>
-        <members>CodeBuilder__Workspace__c-ru</members>
-        <members>CodeBuilder__Workspace__c-sk</members>
-        <members>CodeBuilder__Workspace__c-sl</members>
-        <members>CodeBuilder__Workspace__c-sv</members>
-        <members>CodeBuilder__Workspace__c-th</members>
-        <members>CodeBuilder__Workspace__c-tr</members>
-        <members>CodeBuilder__Workspace__c-uk</members>
-        <members>CodeBuilder__Workspace__c-vi</members>
-        <members>CodeBuilder__Workspace__c-zh_CN</members>
-        <members>CodeBuilder__Workspace__c-zh_TW</members>
         <members>Contract_Pricing__c-en_US</members>
         <members>Employee_Zoom_Identity__c-en_US</members>
-        <members>FlowPersonalConfiguration__c-en_US</members>
-        <members>FlowTableViewDefinition__c-en_US</members>
         <members>In_App_Checklist_Settings__c-en_US</members>
         <members>Invoice_Payments__c-en_US</members>
-        <members>LogEntryDataMaskRule__mdt-en_US</members>
-        <members>LogEntryEvent__e-en_US</members>
-        <members>LogEntryTagRule__mdt-en_US</members>
-        <members>LogEntryTag__c-en_US</members>
-        <members>LogEntry__c-en_US</members>
-        <members>LogStatus__mdt-en_US</members>
-        <members>Log__c-en_US</members>
-        <members>LoggerParameter__mdt-en_US</members>
-        <members>LoggerPlugin__mdt-en_US</members>
-        <members>LoggerSObjectHandler__mdt-en_US</members>
-        <members>LoggerScenarioRule__mdt-en_US</members>
-        <members>LoggerScenario__c-en_US</members>
-        <members>LoggerSettings__c-en_US</members>
-        <members>LoggerTag__c-en_US</members>
-        <members>Login_OTP__c-en_US</members>
         <members>Message__c-en_US</members>
         <members>Milestone_Task_Notification_Settings__mdt-en_US</members>
-        <members>OTP_Cleanup_Config__mdt-en_US</members>
         <members>Portal_Config__c-en_US</members>
         <members>Project_Task_Relationship__c-en_US</members>
         <members>Project_Task__c-en_US</members>
@@ -830,587 +531,11 @@
         <members>Release_Notes__c-en_US</members>
         <members>Release_Tag__c-en_US</members>
         <members>Release_Version__c-en_US</members>
-        <members>RollupControl__mdt-en_US</members>
-        <members>RollupOrderBy__mdt-en_US</members>
-        <members>RollupPluginParameter__mdt-en_US</members>
-        <members>RollupPlugin__mdt-en_US</members>
-        <members>RollupSettings__c-en_US</members>
-        <members>Rollup__mdt-en_US</members>
         <members>Test_App__c-en_US</members>
         <members>Time_Sheet_Entries__c-en_US</members>
-        <members>User-da</members>
-        <members>User-de</members>
-        <members>User-es</members>
-        <members>User-fi</members>
-        <members>User-fr</members>
-        <members>User-it</members>
-        <members>User-ja</members>
-        <members>User-ko</members>
-        <members>User-nl_NL</members>
-        <members>User-no</members>
-        <members>User-pt_BR</members>
-        <members>User-ru</members>
-        <members>User-sv</members>
-        <members>User-th</members>
-        <members>User-zh_CN</members>
-        <members>User-zh_TW</members>
         <members>Zoom_Meeting_Map__c-en_US</members>
         <members>Zoom_Webhook_Config__mdt-en_US</members>
         <members>Zoom_Webhook_Event__c-en_US</members>
-        <members>echosign_dev1__Agreement_Access__c-da</members>
-        <members>echosign_dev1__Agreement_Access__c-de</members>
-        <members>echosign_dev1__Agreement_Access__c-es</members>
-        <members>echosign_dev1__Agreement_Access__c-fi</members>
-        <members>echosign_dev1__Agreement_Access__c-fr</members>
-        <members>echosign_dev1__Agreement_Access__c-it</members>
-        <members>echosign_dev1__Agreement_Access__c-ja</members>
-        <members>echosign_dev1__Agreement_Access__c-ko</members>
-        <members>echosign_dev1__Agreement_Access__c-nl_NL</members>
-        <members>echosign_dev1__Agreement_Access__c-no</members>
-        <members>echosign_dev1__Agreement_Access__c-pt_BR</members>
-        <members>echosign_dev1__Agreement_Access__c-ru</members>
-        <members>echosign_dev1__Agreement_Access__c-sv</members>
-        <members>echosign_dev1__Agreement_Access__c-th</members>
-        <members>echosign_dev1__Agreement_Access__c-zh_CN</members>
-        <members>echosign_dev1__Agreement_Access__c-zh_TW</members>
-        <members>echosign_dev1__Agreement_Notification__c-da</members>
-        <members>echosign_dev1__Agreement_Notification__c-de</members>
-        <members>echosign_dev1__Agreement_Notification__c-es</members>
-        <members>echosign_dev1__Agreement_Notification__c-fi</members>
-        <members>echosign_dev1__Agreement_Notification__c-fr</members>
-        <members>echosign_dev1__Agreement_Notification__c-it</members>
-        <members>echosign_dev1__Agreement_Notification__c-ja</members>
-        <members>echosign_dev1__Agreement_Notification__c-ko</members>
-        <members>echosign_dev1__Agreement_Notification__c-nl_NL</members>
-        <members>echosign_dev1__Agreement_Notification__c-no</members>
-        <members>echosign_dev1__Agreement_Notification__c-pt_BR</members>
-        <members>echosign_dev1__Agreement_Notification__c-ru</members>
-        <members>echosign_dev1__Agreement_Notification__c-sv</members>
-        <members>echosign_dev1__Agreement_Notification__c-th</members>
-        <members>echosign_dev1__Agreement_Notification__c-zh_CN</members>
-        <members>echosign_dev1__Agreement_Notification__c-zh_TW</members>
-        <members>echosign_dev1__Agreement_Template__c-da</members>
-        <members>echosign_dev1__Agreement_Template__c-de</members>
-        <members>echosign_dev1__Agreement_Template__c-es</members>
-        <members>echosign_dev1__Agreement_Template__c-es_MX</members>
-        <members>echosign_dev1__Agreement_Template__c-fi</members>
-        <members>echosign_dev1__Agreement_Template__c-fr</members>
-        <members>echosign_dev1__Agreement_Template__c-it</members>
-        <members>echosign_dev1__Agreement_Template__c-ja</members>
-        <members>echosign_dev1__Agreement_Template__c-ko</members>
-        <members>echosign_dev1__Agreement_Template__c-nl_NL</members>
-        <members>echosign_dev1__Agreement_Template__c-no</members>
-        <members>echosign_dev1__Agreement_Template__c-pt_BR</members>
-        <members>echosign_dev1__Agreement_Template__c-ru</members>
-        <members>echosign_dev1__Agreement_Template__c-sv</members>
-        <members>echosign_dev1__Agreement_Template__c-th</members>
-        <members>echosign_dev1__Agreement_Template__c-zh_CN</members>
-        <members>echosign_dev1__Agreement_Template__c-zh_TW</members>
-        <members>echosign_dev1__Attachment_Template__c-da</members>
-        <members>echosign_dev1__Attachment_Template__c-de</members>
-        <members>echosign_dev1__Attachment_Template__c-es</members>
-        <members>echosign_dev1__Attachment_Template__c-es_MX</members>
-        <members>echosign_dev1__Attachment_Template__c-fi</members>
-        <members>echosign_dev1__Attachment_Template__c-fr</members>
-        <members>echosign_dev1__Attachment_Template__c-it</members>
-        <members>echosign_dev1__Attachment_Template__c-ja</members>
-        <members>echosign_dev1__Attachment_Template__c-ko</members>
-        <members>echosign_dev1__Attachment_Template__c-nl_NL</members>
-        <members>echosign_dev1__Attachment_Template__c-no</members>
-        <members>echosign_dev1__Attachment_Template__c-pt_BR</members>
-        <members>echosign_dev1__Attachment_Template__c-ru</members>
-        <members>echosign_dev1__Attachment_Template__c-sv</members>
-        <members>echosign_dev1__Attachment_Template__c-th</members>
-        <members>echosign_dev1__Attachment_Template__c-zh_CN</members>
-        <members>echosign_dev1__Attachment_Template__c-zh_TW</members>
-        <members>echosign_dev1__Field_Template__c-da</members>
-        <members>echosign_dev1__Field_Template__c-de</members>
-        <members>echosign_dev1__Field_Template__c-es</members>
-        <members>echosign_dev1__Field_Template__c-es_MX</members>
-        <members>echosign_dev1__Field_Template__c-fi</members>
-        <members>echosign_dev1__Field_Template__c-fr</members>
-        <members>echosign_dev1__Field_Template__c-it</members>
-        <members>echosign_dev1__Field_Template__c-ja</members>
-        <members>echosign_dev1__Field_Template__c-ko</members>
-        <members>echosign_dev1__Field_Template__c-nl_NL</members>
-        <members>echosign_dev1__Field_Template__c-no</members>
-        <members>echosign_dev1__Field_Template__c-pt_BR</members>
-        <members>echosign_dev1__Field_Template__c-ru</members>
-        <members>echosign_dev1__Field_Template__c-sv</members>
-        <members>echosign_dev1__Field_Template__c-th</members>
-        <members>echosign_dev1__Field_Template__c-zh_CN</members>
-        <members>echosign_dev1__Field_Template__c-zh_TW</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-da</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-de</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-es</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-es_MX</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-fi</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-fr</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-it</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-ja</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-ko</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-nl_NL</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-no</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-pt_BR</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-ru</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-sv</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-th</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-zh_CN</members>
-        <members>echosign_dev1__Form_Field_Child_Mapping__c-zh_TW</members>
-        <members>echosign_dev1__Library_Template__c-da</members>
-        <members>echosign_dev1__Library_Template__c-de</members>
-        <members>echosign_dev1__Library_Template__c-es</members>
-        <members>echosign_dev1__Library_Template__c-es_MX</members>
-        <members>echosign_dev1__Library_Template__c-fi</members>
-        <members>echosign_dev1__Library_Template__c-fr</members>
-        <members>echosign_dev1__Library_Template__c-it</members>
-        <members>echosign_dev1__Library_Template__c-ja</members>
-        <members>echosign_dev1__Library_Template__c-ko</members>
-        <members>echosign_dev1__Library_Template__c-nl_NL</members>
-        <members>echosign_dev1__Library_Template__c-no</members>
-        <members>echosign_dev1__Library_Template__c-pt_BR</members>
-        <members>echosign_dev1__Library_Template__c-ru</members>
-        <members>echosign_dev1__Library_Template__c-sv</members>
-        <members>echosign_dev1__Library_Template__c-th</members>
-        <members>echosign_dev1__Library_Template__c-zh_CN</members>
-        <members>echosign_dev1__Library_Template__c-zh_TW</members>
-        <members>echosign_dev1__PKG_Customization__c-da</members>
-        <members>echosign_dev1__PKG_Customization__c-de</members>
-        <members>echosign_dev1__PKG_Customization__c-es</members>
-        <members>echosign_dev1__PKG_Customization__c-fi</members>
-        <members>echosign_dev1__PKG_Customization__c-fr</members>
-        <members>echosign_dev1__PKG_Customization__c-it</members>
-        <members>echosign_dev1__PKG_Customization__c-ja</members>
-        <members>echosign_dev1__PKG_Customization__c-ko</members>
-        <members>echosign_dev1__PKG_Customization__c-nl_NL</members>
-        <members>echosign_dev1__PKG_Customization__c-no</members>
-        <members>echosign_dev1__PKG_Customization__c-pt_BR</members>
-        <members>echosign_dev1__PKG_Customization__c-ru</members>
-        <members>echosign_dev1__PKG_Customization__c-sv</members>
-        <members>echosign_dev1__PKG_Customization__c-th</members>
-        <members>echosign_dev1__PKG_Customization__c-zh_CN</members>
-        <members>echosign_dev1__PKG_Customization__c-zh_TW</members>
-        <members>echosign_dev1__ParticipantSet__c-da</members>
-        <members>echosign_dev1__ParticipantSet__c-de</members>
-        <members>echosign_dev1__ParticipantSet__c-es</members>
-        <members>echosign_dev1__ParticipantSet__c-fi</members>
-        <members>echosign_dev1__ParticipantSet__c-fr</members>
-        <members>echosign_dev1__ParticipantSet__c-it</members>
-        <members>echosign_dev1__ParticipantSet__c-ko</members>
-        <members>echosign_dev1__ParticipantSet__c-nl_NL</members>
-        <members>echosign_dev1__ParticipantSet__c-no</members>
-        <members>echosign_dev1__ParticipantSet__c-pt_BR</members>
-        <members>echosign_dev1__ParticipantSet__c-sv</members>
-        <members>echosign_dev1__ParticipantSet__c-th</members>
-        <members>echosign_dev1__ParticipantSet__c-zh_CN</members>
-        <members>echosign_dev1__ParticipantSet__c-zh_TW</members>
-        <members>echosign_dev1__Recipient_Template__c-da</members>
-        <members>echosign_dev1__Recipient_Template__c-de</members>
-        <members>echosign_dev1__Recipient_Template__c-es</members>
-        <members>echosign_dev1__Recipient_Template__c-es_MX</members>
-        <members>echosign_dev1__Recipient_Template__c-fi</members>
-        <members>echosign_dev1__Recipient_Template__c-fr</members>
-        <members>echosign_dev1__Recipient_Template__c-it</members>
-        <members>echosign_dev1__Recipient_Template__c-ja</members>
-        <members>echosign_dev1__Recipient_Template__c-ko</members>
-        <members>echosign_dev1__Recipient_Template__c-nl_NL</members>
-        <members>echosign_dev1__Recipient_Template__c-no</members>
-        <members>echosign_dev1__Recipient_Template__c-pt_BR</members>
-        <members>echosign_dev1__Recipient_Template__c-ru</members>
-        <members>echosign_dev1__Recipient_Template__c-sv</members>
-        <members>echosign_dev1__Recipient_Template__c-th</members>
-        <members>echosign_dev1__Recipient_Template__c-zh_CN</members>
-        <members>echosign_dev1__Recipient_Template__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-da</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-de</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-es</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-es_MX</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-fi</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-fr</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-it</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-ja</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-ko</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-no</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-ru</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-sv</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-th</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_AgreementEvent__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_Agreement__c-da</members>
-        <members>echosign_dev1__SIGN_Agreement__c-de</members>
-        <members>echosign_dev1__SIGN_Agreement__c-es</members>
-        <members>echosign_dev1__SIGN_Agreement__c-es_MX</members>
-        <members>echosign_dev1__SIGN_Agreement__c-fi</members>
-        <members>echosign_dev1__SIGN_Agreement__c-fr</members>
-        <members>echosign_dev1__SIGN_Agreement__c-it</members>
-        <members>echosign_dev1__SIGN_Agreement__c-ja</members>
-        <members>echosign_dev1__SIGN_Agreement__c-ko</members>
-        <members>echosign_dev1__SIGN_Agreement__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_Agreement__c-no</members>
-        <members>echosign_dev1__SIGN_Agreement__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_Agreement__c-ru</members>
-        <members>echosign_dev1__SIGN_Agreement__c-sv</members>
-        <members>echosign_dev1__SIGN_Agreement__c-th</members>
-        <members>echosign_dev1__SIGN_Agreement__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_Agreement__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-da</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-de</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-es</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-es_MX</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-fi</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-fr</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-it</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-ja</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-ko</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-no</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-ru</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-sv</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-th</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_Data_Mapping__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-da</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-de</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-es</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-es_MX</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-fi</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-fr</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-it</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-ja</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-ko</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-no</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-ru</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-sv</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-th</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_Field_Mapping__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-da</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-de</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-es</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-es_MX</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-fi</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-fr</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-it</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-ja</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-ko</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-no</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-ru</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-sv</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-th</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_File_Mapping__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-da</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-de</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-es</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-es_MX</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-fi</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-fr</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-it</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-ja</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-ko</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-no</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-ru</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-sv</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-th</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_Form_Field_Import__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-da</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-de</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-es</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-es_MX</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-fi</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-fr</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-it</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-ja</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-ko</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-no</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-ru</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-sv</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-th</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping_Entry__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-da</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-de</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-es</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-es_MX</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-fi</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-fr</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-it</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-ja</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-ko</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-no</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-ru</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-sv</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-th</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_Form_Field_Mapping__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-da</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-de</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-es</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-es_MX</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-fi</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-fr</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-it</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-ja</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-ko</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-no</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-ru</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-sv</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-th</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_Merge_Mapping__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-da</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-de</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-es</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-es_MX</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-fi</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-fr</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-it</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-ja</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-ko</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-no</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-ru</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-sv</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-th</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_Object_Mapping__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_Recipients__c-da</members>
-        <members>echosign_dev1__SIGN_Recipients__c-de</members>
-        <members>echosign_dev1__SIGN_Recipients__c-es</members>
-        <members>echosign_dev1__SIGN_Recipients__c-es_MX</members>
-        <members>echosign_dev1__SIGN_Recipients__c-fi</members>
-        <members>echosign_dev1__SIGN_Recipients__c-fr</members>
-        <members>echosign_dev1__SIGN_Recipients__c-it</members>
-        <members>echosign_dev1__SIGN_Recipients__c-ja</members>
-        <members>echosign_dev1__SIGN_Recipients__c-ko</members>
-        <members>echosign_dev1__SIGN_Recipients__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_Recipients__c-no</members>
-        <members>echosign_dev1__SIGN_Recipients__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_Recipients__c-ru</members>
-        <members>echosign_dev1__SIGN_Recipients__c-sv</members>
-        <members>echosign_dev1__SIGN_Recipients__c-th</members>
-        <members>echosign_dev1__SIGN_Recipients__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_Recipients__c-zh_TW</members>
-        <members>echosign_dev1__SIGN_Trigger__c-da</members>
-        <members>echosign_dev1__SIGN_Trigger__c-de</members>
-        <members>echosign_dev1__SIGN_Trigger__c-es</members>
-        <members>echosign_dev1__SIGN_Trigger__c-es_MX</members>
-        <members>echosign_dev1__SIGN_Trigger__c-fi</members>
-        <members>echosign_dev1__SIGN_Trigger__c-fr</members>
-        <members>echosign_dev1__SIGN_Trigger__c-it</members>
-        <members>echosign_dev1__SIGN_Trigger__c-ja</members>
-        <members>echosign_dev1__SIGN_Trigger__c-ko</members>
-        <members>echosign_dev1__SIGN_Trigger__c-nl_NL</members>
-        <members>echosign_dev1__SIGN_Trigger__c-no</members>
-        <members>echosign_dev1__SIGN_Trigger__c-pt_BR</members>
-        <members>echosign_dev1__SIGN_Trigger__c-ru</members>
-        <members>echosign_dev1__SIGN_Trigger__c-sv</members>
-        <members>echosign_dev1__SIGN_Trigger__c-th</members>
-        <members>echosign_dev1__SIGN_Trigger__c-zh_CN</members>
-        <members>echosign_dev1__SIGN_Trigger__c-zh_TW</members>
-        <members>echosign_dev1__Sign_Group__c-da</members>
-        <members>echosign_dev1__Sign_Group__c-de</members>
-        <members>echosign_dev1__Sign_Group__c-es</members>
-        <members>echosign_dev1__Sign_Group__c-fi</members>
-        <members>echosign_dev1__Sign_Group__c-fr</members>
-        <members>echosign_dev1__Sign_Group__c-it</members>
-        <members>echosign_dev1__Sign_Group__c-ja</members>
-        <members>echosign_dev1__Sign_Group__c-ko</members>
-        <members>echosign_dev1__Sign_Group__c-nl_NL</members>
-        <members>echosign_dev1__Sign_Group__c-no</members>
-        <members>echosign_dev1__Sign_Group__c-pt_BR</members>
-        <members>echosign_dev1__Sign_Group__c-ru</members>
-        <members>echosign_dev1__Sign_Group__c-sv</members>
-        <members>echosign_dev1__Sign_Group__c-th</members>
-        <members>echosign_dev1__Sign_Group__c-zh_CN</members>
-        <members>echosign_dev1__Sign_Group__c-zh_TW</members>
-        <members>echosign_dev1__Sign_Workflow__c-da</members>
-        <members>echosign_dev1__Sign_Workflow__c-de</members>
-        <members>echosign_dev1__Sign_Workflow__c-es</members>
-        <members>echosign_dev1__Sign_Workflow__c-fi</members>
-        <members>echosign_dev1__Sign_Workflow__c-fr</members>
-        <members>echosign_dev1__Sign_Workflow__c-it</members>
-        <members>echosign_dev1__Sign_Workflow__c-ja</members>
-        <members>echosign_dev1__Sign_Workflow__c-ko</members>
-        <members>echosign_dev1__Sign_Workflow__c-nl_NL</members>
-        <members>echosign_dev1__Sign_Workflow__c-no</members>
-        <members>echosign_dev1__Sign_Workflow__c-pt_BR</members>
-        <members>echosign_dev1__Sign_Workflow__c-ru</members>
-        <members>echosign_dev1__Sign_Workflow__c-sv</members>
-        <members>echosign_dev1__Sign_Workflow__c-th</members>
-        <members>echosign_dev1__Sign_Workflow__c-zh_CN</members>
-        <members>echosign_dev1__Sign_Workflow__c-zh_TW</members>
-        <members>ers_datatableConfig__c-en_US</members>
-        <members>sf_devops__Async_Operation_Result__c-da</members>
-        <members>sf_devops__Async_Operation_Result__c-de</members>
-        <members>sf_devops__Async_Operation_Result__c-es</members>
-        <members>sf_devops__Async_Operation_Result__c-es_MX</members>
-        <members>sf_devops__Async_Operation_Result__c-fi</members>
-        <members>sf_devops__Async_Operation_Result__c-fr</members>
-        <members>sf_devops__Async_Operation_Result__c-it</members>
-        <members>sf_devops__Async_Operation_Result__c-ja</members>
-        <members>sf_devops__Async_Operation_Result__c-ko</members>
-        <members>sf_devops__Async_Operation_Result__c-nl_NL</members>
-        <members>sf_devops__Async_Operation_Result__c-no</members>
-        <members>sf_devops__Async_Operation_Result__c-pt_BR</members>
-        <members>sf_devops__Async_Operation_Result__c-ru</members>
-        <members>sf_devops__Async_Operation_Result__c-sv</members>
-        <members>sf_devops__Async_Operation_Result__c-th</members>
-        <members>sf_devops__Async_Operation_Result__c-zh_CN</members>
-        <members>sf_devops__Async_Operation_Result__c-zh_TW</members>
-        <members>sf_devops__Branch__c-da</members>
-        <members>sf_devops__Branch__c-de</members>
-        <members>sf_devops__Branch__c-es</members>
-        <members>sf_devops__Branch__c-es_MX</members>
-        <members>sf_devops__Branch__c-fi</members>
-        <members>sf_devops__Branch__c-fr</members>
-        <members>sf_devops__Branch__c-it</members>
-        <members>sf_devops__Branch__c-ja</members>
-        <members>sf_devops__Branch__c-ko</members>
-        <members>sf_devops__Branch__c-nl_NL</members>
-        <members>sf_devops__Branch__c-no</members>
-        <members>sf_devops__Branch__c-pt_BR</members>
-        <members>sf_devops__Branch__c-ru</members>
-        <members>sf_devops__Branch__c-sv</members>
-        <members>sf_devops__Branch__c-th</members>
-        <members>sf_devops__Branch__c-zh_CN</members>
-        <members>sf_devops__Branch__c-zh_TW</members>
-        <members>sf_devops__Pipeline_Stage__c-da</members>
-        <members>sf_devops__Pipeline_Stage__c-de</members>
-        <members>sf_devops__Pipeline_Stage__c-es</members>
-        <members>sf_devops__Pipeline_Stage__c-es_MX</members>
-        <members>sf_devops__Pipeline_Stage__c-fi</members>
-        <members>sf_devops__Pipeline_Stage__c-fr</members>
-        <members>sf_devops__Pipeline_Stage__c-it</members>
-        <members>sf_devops__Pipeline_Stage__c-ja</members>
-        <members>sf_devops__Pipeline_Stage__c-ko</members>
-        <members>sf_devops__Pipeline_Stage__c-nl_NL</members>
-        <members>sf_devops__Pipeline_Stage__c-no</members>
-        <members>sf_devops__Pipeline_Stage__c-pt_BR</members>
-        <members>sf_devops__Pipeline_Stage__c-ru</members>
-        <members>sf_devops__Pipeline_Stage__c-sv</members>
-        <members>sf_devops__Pipeline_Stage__c-th</members>
-        <members>sf_devops__Pipeline_Stage__c-zh_CN</members>
-        <members>sf_devops__Pipeline_Stage__c-zh_TW</members>
-        <members>sf_devops__Project__c-da</members>
-        <members>sf_devops__Project__c-de</members>
-        <members>sf_devops__Project__c-es</members>
-        <members>sf_devops__Project__c-es_MX</members>
-        <members>sf_devops__Project__c-fi</members>
-        <members>sf_devops__Project__c-fr</members>
-        <members>sf_devops__Project__c-it</members>
-        <members>sf_devops__Project__c-ja</members>
-        <members>sf_devops__Project__c-ko</members>
-        <members>sf_devops__Project__c-nl_NL</members>
-        <members>sf_devops__Project__c-no</members>
-        <members>sf_devops__Project__c-pt_BR</members>
-        <members>sf_devops__Project__c-ru</members>
-        <members>sf_devops__Project__c-sv</members>
-        <members>sf_devops__Project__c-th</members>
-        <members>sf_devops__Project__c-zh_CN</members>
-        <members>sf_devops__Project__c-zh_TW</members>
-        <members>sf_devops__Remote_Change__c-da</members>
-        <members>sf_devops__Remote_Change__c-de</members>
-        <members>sf_devops__Remote_Change__c-es</members>
-        <members>sf_devops__Remote_Change__c-es_MX</members>
-        <members>sf_devops__Remote_Change__c-fi</members>
-        <members>sf_devops__Remote_Change__c-fr</members>
-        <members>sf_devops__Remote_Change__c-it</members>
-        <members>sf_devops__Remote_Change__c-ja</members>
-        <members>sf_devops__Remote_Change__c-ko</members>
-        <members>sf_devops__Remote_Change__c-nl_NL</members>
-        <members>sf_devops__Remote_Change__c-no</members>
-        <members>sf_devops__Remote_Change__c-pt_BR</members>
-        <members>sf_devops__Remote_Change__c-ru</members>
-        <members>sf_devops__Remote_Change__c-sv</members>
-        <members>sf_devops__Remote_Change__c-th</members>
-        <members>sf_devops__Remote_Change__c-zh_CN</members>
-        <members>sf_devops__Remote_Change__c-zh_TW</members>
-        <members>sf_devops__Service_Provider__mdt-da</members>
-        <members>sf_devops__Service_Provider__mdt-de</members>
-        <members>sf_devops__Service_Provider__mdt-es</members>
-        <members>sf_devops__Service_Provider__mdt-es_MX</members>
-        <members>sf_devops__Service_Provider__mdt-fi</members>
-        <members>sf_devops__Service_Provider__mdt-fr</members>
-        <members>sf_devops__Service_Provider__mdt-it</members>
-        <members>sf_devops__Service_Provider__mdt-ja</members>
-        <members>sf_devops__Service_Provider__mdt-ko</members>
-        <members>sf_devops__Service_Provider__mdt-nl_NL</members>
-        <members>sf_devops__Service_Provider__mdt-no</members>
-        <members>sf_devops__Service_Provider__mdt-pt_BR</members>
-        <members>sf_devops__Service_Provider__mdt-ru</members>
-        <members>sf_devops__Service_Provider__mdt-sv</members>
-        <members>sf_devops__Service_Provider__mdt-th</members>
-        <members>sf_devops__Service_Provider__mdt-zh_CN</members>
-        <members>sf_devops__Service_Provider__mdt-zh_TW</members>
-        <members>sf_devops__Vcs_Synch_State__c-da</members>
-        <members>sf_devops__Vcs_Synch_State__c-de</members>
-        <members>sf_devops__Vcs_Synch_State__c-es</members>
-        <members>sf_devops__Vcs_Synch_State__c-es_MX</members>
-        <members>sf_devops__Vcs_Synch_State__c-fi</members>
-        <members>sf_devops__Vcs_Synch_State__c-fr</members>
-        <members>sf_devops__Vcs_Synch_State__c-it</members>
-        <members>sf_devops__Vcs_Synch_State__c-ja</members>
-        <members>sf_devops__Vcs_Synch_State__c-ko</members>
-        <members>sf_devops__Vcs_Synch_State__c-nl_NL</members>
-        <members>sf_devops__Vcs_Synch_State__c-no</members>
-        <members>sf_devops__Vcs_Synch_State__c-pt_BR</members>
-        <members>sf_devops__Vcs_Synch_State__c-ru</members>
-        <members>sf_devops__Vcs_Synch_State__c-sv</members>
-        <members>sf_devops__Vcs_Synch_State__c-th</members>
-        <members>sf_devops__Vcs_Synch_State__c-zh_CN</members>
-        <members>sf_devops__Vcs_Synch_State__c-zh_TW</members>
-        <members>sf_devops__Vcs__c-da</members>
-        <members>sf_devops__Vcs__c-de</members>
-        <members>sf_devops__Vcs__c-es</members>
-        <members>sf_devops__Vcs__c-es_MX</members>
-        <members>sf_devops__Vcs__c-fi</members>
-        <members>sf_devops__Vcs__c-fr</members>
-        <members>sf_devops__Vcs__c-it</members>
-        <members>sf_devops__Vcs__c-ja</members>
-        <members>sf_devops__Vcs__c-ko</members>
-        <members>sf_devops__Vcs__c-nl_NL</members>
-        <members>sf_devops__Vcs__c-no</members>
-        <members>sf_devops__Vcs__c-pt_BR</members>
-        <members>sf_devops__Vcs__c-ru</members>
-        <members>sf_devops__Vcs__c-sv</members>
-        <members>sf_devops__Vcs__c-th</members>
-        <members>sf_devops__Vcs__c-zh_CN</members>
-        <members>sf_devops__Vcs__c-zh_TW</members>
-        <members>sf_devops__Work_Item__c-da</members>
-        <members>sf_devops__Work_Item__c-de</members>
-        <members>sf_devops__Work_Item__c-es</members>
-        <members>sf_devops__Work_Item__c-es_MX</members>
-        <members>sf_devops__Work_Item__c-fi</members>
-        <members>sf_devops__Work_Item__c-fr</members>
-        <members>sf_devops__Work_Item__c-it</members>
-        <members>sf_devops__Work_Item__c-ja</members>
-        <members>sf_devops__Work_Item__c-ko</members>
-        <members>sf_devops__Work_Item__c-nl_NL</members>
-        <members>sf_devops__Work_Item__c-no</members>
-        <members>sf_devops__Work_Item__c-pt_BR</members>
-        <members>sf_devops__Work_Item__c-ru</members>
-        <members>sf_devops__Work_Item__c-sv</members>
-        <members>sf_devops__Work_Item__c-th</members>
-        <members>sf_devops__Work_Item__c-zh_CN</members>
-        <members>sf_devops__Work_Item__c-zh_TW</members>
         <name>CustomObjectTranslation</name>
     </types>
     <types>
@@ -1426,7 +551,6 @@
     </types>
     <types>
         <members>Contract_Pricing__c</members>
-        <members>Employee_Zoom_Identity__c</members>
         <members>Invoice_Payments__c</members>
         <members>Project_Task_Analytics</members>
         <members>Project_Task_List</members>
@@ -1435,111 +559,188 @@
         <members>Release_Notes__c</members>
         <members>Release_Tag__c</members>
         <members>Release_Version__c</members>
-        <members>Test_App__c</members>
         <members>Time_Sheet_Entries__c</members>
-        <members>Zoom_Meeting_Map__c</members>
-        <members>Zoom_Webhook_Event__c</members>
-        <members>pandadoc__PandaDocDocument__c</members>
         <name>CustomTab</name>
     </types>
     <types>
         <members>Activity360</members>
         <members>Activity360/EACDashboard</members>
         <members>CRM_180925_HVS_Sample_Dashboard_Folder</members>
-        <members>CRM_180925_HVS_Sample_Dashboard_Folder/CRM_180925_HVS_Sample_Dashboard</members>
+        <members
+    >CRM_180925_HVS_Sample_Dashboard_Folder/CRM_180925_HVS_Sample_Dashboard</members>
         <members>ForContractors</members>
         <members>ForContractors/FXZKYKGwOCulGjiVLZSoBdGDuacTqC</members>
         <members>Project</members>
         <members>Project/wFWssfBCTAECPuNnYemETVJUreeMux</members>
         <members>Sales_and_Marketing_Dashboards</members>
         <members>Sales_and_Marketing_Dashboards/AdoptionDashboard</members>
-        <members>Sales_and_Marketing_Dashboards/Best_Practice_Leads_Dashboard</members>
-        <members>Sales_and_Marketing_Dashboards/Best_Practices_Dashboard6</members>
+        <members
+    >Sales_and_Marketing_Dashboards/Best_Practice_Leads_Dashboard</members>
+        <members
+    >Sales_and_Marketing_Dashboards/Best_Practices_Dashboard6</members>
         <members>prm_ch_dashboards_sub_folder</members>
         <members>prm_channel_dashboard_folder</members>
         <members>prm_spring24_dashboardsSPLIT1728715031507</members>
         <members>prm_winter24_dashboardsSPLIT1728715031507</members>
-        <members>prm_winter24_dashboardsSPLIT1728715031507/cmc_spring_24_cmc_home_dashboard</members>
-        <members>prm_winter24_dashboardsSPLIT1728715031507/prm_winter24_ch_sales_dashboardSPLIT1728715031507</members>
+        <members
+    >prm_winter24_dashboardsSPLIT1728715031507/cmc_spring_24_cmc_home_dashboard</members>
+        <members
+    >prm_winter24_dashboardsSPLIT1728715031507/prm_winter24_ch_sales_dashboardSPLIT1728715031507</members>
         <name>Dashboard</name>
     </types>
     <types>
-        <members>content/Client_Project_Mangement.sfdc_cms__languageSettings/languages</members>
-        <members>marketing/Default_Content_Workspace.sfdc_cms__languageSettings/languages</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__appPage/mainAppPage</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__brandingSet/Build_Your_Own_LWR</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__languageSettings/languages</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__mobilePublisherConfig/mobilePublisherConfig</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Account_Detail__c</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Account_List__c</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Account_Related_List__c</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Check_Password</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Error</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Forgot_Password</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Home</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Login</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/News_Detail__c</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Detail__c</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_List__c</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Related_List__c</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_Detail__c</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_List__c</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_Related_List__c</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Register</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Service_Not_Available</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Too_Many_Requests</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__site/Client_Project_Management_Portal1</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__styles/print_css</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__styles/styles_css</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__theme/Build_Your_Own_LWR</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__themeLayout/scopedHeaderAndFooter</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__themeLayout/snaThemeLayout</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Account_Detail</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Account_List</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Account_Related_List</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Detail</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_List</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Related_List</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_Detail</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_List</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_Related_List</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/checkPasswordResetEmail</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/error</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/forgotPassword</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/home</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/login</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/newsDetail</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/register</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/serviceNotAvailable</members>
-        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/tooManyRequests</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__appPage/mainAppPage</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__brandingSet/Build_Your_Own_LWR</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__languageSettings/languages</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__mobilePublisherConfig/mobilePublisherConfig</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Check_Password</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Error</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Forgot_Password</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Home</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Login</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/News_Detail__c</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Register</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Service_Not_Available</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Too_Many_Requests</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__site/Milestone_Consulting_Customer_Portal1</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__styles/print_css</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__styles/styles_css</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__theme/Build_Your_Own_LWR</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__themeLayout/scopedHeaderAndFooter</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__themeLayout/snaThemeLayout</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/checkPasswordResetEmail</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/error</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/forgotPassword</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/home</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/login</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/newsDetail</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/register</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/serviceNotAvailable</members>
-        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/tooManyRequests</members>
+        <members
+    >content/Client_Project_Mangement.sfdc_cms__languageSettings/languages</members>
+        <members
+    >marketing/Default_Content_Workspace.sfdc_cms__languageSettings/languages</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__appPage/mainAppPage</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__brandingSet/Build_Your_Own_LWR</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__languageSettings/languages</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__mobilePublisherConfig/mobilePublisherConfig</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Account_Detail__c</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Account_List__c</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Account_Related_List__c</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Check_Password</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Error</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Forgot_Password</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Home</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Login</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/News_Detail__c</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Detail__c</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_List__c</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Related_List__c</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_Detail__c</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_List__c</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_Related_List__c</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Register</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Service_Not_Available</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__route/Too_Many_Requests</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__site/Client_Project_Management_Portal1</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__styles/print_css</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__styles/styles_css</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__theme/Build_Your_Own_LWR</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__themeLayout/scopedHeaderAndFooter</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__themeLayout/snaThemeLayout</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/Account_Detail</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/Account_List</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/Account_Related_List</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Detail</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_List</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Related_List</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_Detail</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_List</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_Related_List</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/checkPasswordResetEmail</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/error</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/forgotPassword</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/home</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/login</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/newsDetail</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/register</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/serviceNotAvailable</members>
+        <members
+    >site/Client_Project_Management_Portal1.sfdc_cms__view/tooManyRequests</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__appPage/mainAppPage</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__brandingSet/Build_Your_Own_LWR</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__languageSettings/languages</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__mobilePublisherConfig/mobilePublisherConfig</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Check_Password</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Error</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Forgot_Password</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Home</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Login</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/News_Detail__c</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Register</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Service_Not_Available</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Too_Many_Requests</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__site/Milestone_Consulting_Customer_Portal1</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__styles/print_css</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__styles/styles_css</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__theme/Build_Your_Own_LWR</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__themeLayout/scopedHeaderAndFooter</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__themeLayout/snaThemeLayout</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/checkPasswordResetEmail</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/error</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/forgotPassword</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/home</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/login</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/newsDetail</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/register</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/serviceNotAvailable</members>
+        <members
+    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/tooManyRequests</members>
         <name>DigitalExperience</name>
     </types>
     <types>
@@ -1563,7 +764,8 @@
     <types>
         <members>Account.Standard_Account_Duplicate_Rule</members>
         <members>Contact.Standard_Contact_Duplicate_Rule</members>
-        <members>Contact.Standard_Rule_for_Contacts_with_Duplicate_Leads</members>
+        <members
+    >Contact.Standard_Rule_for_Contacts_with_Duplicate_Leads</members>
         <members>Lead.Standard_Lead_Duplicate_Rule</members>
         <members>Lead.Standard_Rule_for_Leads_with_Duplicate_Contacts</members>
         <name>DuplicateRule</name>
@@ -1574,52 +776,98 @@
     </types>
     <types>
         <members>CRM_180925_Email_Templates_From_Salesforce</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Confirmation_Set_Meeting_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Day_30_Follow_Up_Onboarding_Outreach_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Day_60_Follow_Up_Onboarding_Outreach_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Day_90_Follow_Up_Onboarding_Outreach_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Event_Content_Event_Folow_Up_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Fifth_Email_Month_5_Nuture_Existing_Customer_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Fifth_Follow_Up_Lost_Opportunity_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Final_Email_Account_Transition_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Final_Email_Renewal_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Final_Follow_Up_Interested_Prospects_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Final_Follow_Up_New_Prospects_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/First_Email_Account_Transition_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/First_Email_Month_1_Nuture_Existing_Customer_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/First_Email_Renewal_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/First_Touch_Intro_Interested_Prospects_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/First_Touch_Introduction_New_Prospects_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/First_Touch_Lost_Opportunity_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/First_Touch_Onboarding_Outreach_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Follow_Up_Set_Meeting_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Fourth_Email_Month_4_Nuture_Existing_Customer_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Fourth_Email_Renewal_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Fourth_Follow_Up_Lost_Opportunity_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Insert_Availability_Set_Meeting_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/More_Info_Event_Folow_Up_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Next_Event_Event_Folow_Up_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Fifth_FollowUp_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_First_Touch_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Fourth_FollowUp_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Second_FollowUp_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Third_FollowUp_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Email_Account_Transition_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Email_Month_2_Nuture_Existing_Customer_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Email_Renewal_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Interested_Prospects_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Lost_Opportunity_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_New_Prospects_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Onboarding_Outreach_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Sixth_Email_Month_6_Nuture_Existing_Customer_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Thank_You_Event_Folow_Up_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Email_Account_Transition_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Email_Month_3_Nuture_Existing_Customer_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Email_Renewal_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Interested_Prospects_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Lost_Opportunity_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_New_Prospects_OOTB_1</members>
-        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Onboarding_Outreach_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Confirmation_Set_Meeting_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Day_30_Follow_Up_Onboarding_Outreach_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Day_60_Follow_Up_Onboarding_Outreach_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Day_90_Follow_Up_Onboarding_Outreach_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Event_Content_Event_Folow_Up_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Fifth_Email_Month_5_Nuture_Existing_Customer_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Fifth_Follow_Up_Lost_Opportunity_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Final_Email_Account_Transition_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Final_Email_Renewal_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Final_Follow_Up_Interested_Prospects_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Final_Follow_Up_New_Prospects_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/First_Email_Account_Transition_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/First_Email_Month_1_Nuture_Existing_Customer_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/First_Email_Renewal_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/First_Touch_Intro_Interested_Prospects_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/First_Touch_Introduction_New_Prospects_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/First_Touch_Lost_Opportunity_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/First_Touch_Onboarding_Outreach_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Follow_Up_Set_Meeting_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Fourth_Email_Month_4_Nuture_Existing_Customer_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Fourth_Email_Renewal_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Fourth_Follow_Up_Lost_Opportunity_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Insert_Availability_Set_Meeting_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/More_Info_Event_Folow_Up_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Next_Event_Event_Folow_Up_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Fifth_FollowUp_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_First_Touch_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Fourth_FollowUp_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Second_FollowUp_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Third_FollowUp_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Second_Email_Account_Transition_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Second_Email_Month_2_Nuture_Existing_Customer_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Second_Email_Renewal_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Interested_Prospects_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Lost_Opportunity_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_New_Prospects_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Onboarding_Outreach_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Sixth_Email_Month_6_Nuture_Existing_Customer_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Thank_You_Event_Folow_Up_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Third_Email_Account_Transition_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Third_Email_Month_3_Nuture_Existing_Customer_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Third_Email_Renewal_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Interested_Prospects_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Lost_Opportunity_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_New_Prospects_OOTB_1</members>
+        <members
+    >CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Onboarding_Outreach_OOTB_1</members>
         <members>unfiled$public</members>
         <members>unfiled$public/CPasswordlessRegistrationEmailTemplate</members>
         <members>unfiled$public/CommunityChangePasswordEmailTemplate</members>
@@ -1627,23 +875,28 @@
         <members>unfiled$public/CommunityChgEmailVerOldTemplate</members>
         <members>unfiled$public/CommunityDeviceActEmailTemplate</members>
         <members>unfiled$public/CommunityForgotPasswordEmailTemplate</members>
-        <members>unfiled$public/CommunityHeadlessForgotPasswordTemplate</members>
+        <members
+    >unfiled$public/CommunityHeadlessForgotPasswordTemplate</members>
         <members>unfiled$public/CommunityHeadlessRegistrationTemplate</members>
         <members>unfiled$public/CommunityLockoutEmailTemplate</members>
         <members>unfiled$public/CommunityVerificationEmailTemplate</members>
         <members>unfiled$public/CommunityWelcomeEmailTemplate</members>
         <members>unfiled$public/ContactFollowUpSAMPLE</members>
-        <members>unfiled$public/ExperienceCloudSelfRegMicroBatchSubErrorEmailTemplate</members>
+        <members
+    >unfiled$public/ExperienceCloudSelfRegMicroBatchSubErrorEmailTemplate</members>
         <members>unfiled$public/Invoice_Template_1622754090811</members>
         <members>unfiled$public/LeadsNewassignmentnotificationSAMPLE</members>
         <members>unfiled$public/LeadsWebtoLeademailresponseSAMPLE</members>
         <members>unfiled$public/Project_Burn_Rate_80</members>
         <members>unfiled$public/SUPPORTCaseResponsewithSolutionSAMPLE</members>
-        <members>unfiled$public/SUPPORTCaseescalationnotificationSAMPLE</members>
+        <members
+    >unfiled$public/SUPPORTCaseescalationnotificationSAMPLE</members>
         <members>unfiled$public/SUPPORTNewassignmentnotificationSAMPLE</members>
-        <members>unfiled$public/SUPPORTSelfServiceNewCommentNotificationSAMPLE</members>
+        <members
+    >unfiled$public/SUPPORTSelfServiceNewCommentNotificationSAMPLE</members>
         <members>unfiled$public/SUPPORTSelfServiceNewCommentSAMPLE</members>
-        <members>unfiled$public/SUPPORTSelfServiceNewUserLoginInformationSAMPLE</members>
+        <members
+    >unfiled$public/SUPPORTSelfServiceNewUserLoginInformationSAMPLE</members>
         <members>unfiled$public/SUPPORTSelfServiceNewUserLoginSAMPLE</members>
         <members>unfiled$public/SUPPORTSelfServiceResetPasswordSAMPLE</members>
         <members>unfiled$public/SUPPORTSelfServiceResetPasswordSAMPLE2</members>
@@ -1693,8 +946,10 @@
         <name>ExtlClntAppOauthSettings</name>
     </types>
     <types>
-        <members>Rule7229988877d4b1b5748293ca9844a439ef36b778a89cb4373297c8c1858bc1a4</members>
-        <members>Ruleea937c61c692797b742e6e62b6551d7014b71bd1e961a409f1106e9fdf8bad1b</members>
+        <members
+    >Rule7229988877d4b1b5748293ca9844a439ef36b778a89cb4373297c8c1858bc1a4</members>
+        <members
+    >Ruleea937c61c692797b742e6e62b6551d7014b71bd1e961a409f1106e9fdf8bad1b</members>
         <name>FieldRestrictionRule</name>
     </types>
     <types>
@@ -1756,9 +1011,12 @@
         <name>FlexiPage</name>
     </types>
     <types>
-        <members>Approval_Process_Project_Task_Client_Completion_Approval</members>
-        <members>Approval_Process_Project_Task_PM_Code_Reviewer_Approval</members>
-        <members>Approval_Process_Project_Task_Waiting_For_Client_Approval_on_Backlog_Task</members>
+        <members
+    >Approval_Process_Project_Task_Client_Completion_Approval</members>
+        <members
+    >Approval_Process_Project_Task_PM_Code_Reviewer_Approval</members>
+        <members
+    >Approval_Process_Project_Task_Waiting_For_Client_Approval_on_Backlog_Task</members>
         <members>Autolaunch_Project_Task_Client_Approved_Backlog_Task</members>
         <members>Autolaunch_Project_Task_Client_Approved_Completion</members>
         <members>Autolaunch_Project_Task_Client_Rejected_Backlog_Task</members>
@@ -1767,39 +1025,27 @@
         <members>Autolaunch_Project_Task_PM_Code_Reviewer_Rejected</members>
         <members>Create_Quickbooks_Invoice_from_Project_Record</members>
         <members>Create_Release_Note_from_Project_Task</members>
-        <members>Datatable_Configuration_Wizard</members>
-        <members>DemoFlow_DeepClone</members>
-        <members>Dummy_Flow</members>
-        <members>Launch_Bluewave_Time_Entry_Slack_Actions</members>
-        <members>Project_Set_To_Not_Invoiced</members>
         <members>Project_Set_to_invoiced</members>
-        <members>RT_AS_ACCT</members>
         <members>RT_AS_Project</members>
         <members>RT_AS_Project_Create</members>
-        <members>RT_AS_QB_INV</members>
-        <members>RT_AS_Time_Sheet_Calculate_Cost</members>
-        <members>RT_BS_Time_Sheet</members>
         <members>Record_Project_Alert_Burn_Rate_80</members>
-        <members>Record_Trigger_Project_Set_Actual_Completion_Date</members>
         <members>Record_Trigger_Project_Task_Client_Backlog_Approval</members>
-        <members>Record_Trigger_Project_Task_Client_Completion_Approval</members>
+        <members
+    >Record_Trigger_Project_Task_Client_Completion_Approval</members>
         <members>Record_Trigger_Project_Task_PM_Code_Review_Email</members>
         <members>Record_Trigger_Time_Sheet_Block_If_Project_Closed</members>
         <members>Record_Trigger_Time_Sheet_Calculate_Cost_Rollups</members>
-        <members>Screenflow_Landing_Page</members>
-        <members>Screenflow_Web_To_Case</members>
-        <members>Screenflow_Web_To_Lead</members>
         <members>Timesheet_Entry_New_Entry</members>
-        <members>Timesheet_Entry_New_Entry_Bluewave</members>
         <members>Timesheet_Entry_Set_End_Time</members>
-        <members>Timesheet_Entry_Set_End_Time_Bluewave</members>
-        <members>soqlBuilder</members>
         <name>Flow</name>
     </types>
     <types>
-        <members>Approval_Process_Project_Task_Client_Completion_Approval</members>
-        <members>Approval_Process_Project_Task_PM_Code_Reviewer_Approval</members>
-        <members>Approval_Process_Project_Task_Waiting_For_Client_Approval_on_Backlog_Task</members>
+        <members
+    >Approval_Process_Project_Task_Client_Completion_Approval</members>
+        <members
+    >Approval_Process_Project_Task_PM_Code_Reviewer_Approval</members>
+        <members
+    >Approval_Process_Project_Task_Waiting_For_Client_Approval_on_Backlog_Task</members>
         <members>Autolaunch_Project_Task_Client_Approved_Backlog_Task</members>
         <members>Autolaunch_Project_Task_Client_Approved_Completion</members>
         <members>Autolaunch_Project_Task_Client_Rejected_Backlog_Task</members>
@@ -1808,31 +1054,18 @@
         <members>Autolaunch_Project_Task_PM_Code_Reviewer_Rejected</members>
         <members>Create_Quickbooks_Invoice_from_Project_Record</members>
         <members>Create_Release_Note_from_Project_Task</members>
-        <members>Dummy_Flow</members>
-        <members>Launch_Bluewave_Time_Entry_Slack_Actions</members>
-        <members>Project_Set_To_Not_Invoiced</members>
         <members>Project_Set_to_invoiced</members>
-        <members>RT_AS_ACCT</members>
         <members>RT_AS_Project</members>
         <members>RT_AS_Project_Create</members>
-        <members>RT_AS_QB_INV</members>
-        <members>RT_AS_Time_Sheet_Calculate_Cost</members>
-        <members>RT_BS_Time_Sheet</members>
         <members>Record_Project_Alert_Burn_Rate_80</members>
-        <members>Record_Trigger_Project_Set_Actual_Completion_Date</members>
         <members>Record_Trigger_Project_Task_Client_Backlog_Approval</members>
-        <members>Record_Trigger_Project_Task_Client_Completion_Approval</members>
+        <members
+    >Record_Trigger_Project_Task_Client_Completion_Approval</members>
         <members>Record_Trigger_Project_Task_PM_Code_Review_Email</members>
         <members>Record_Trigger_Time_Sheet_Block_If_Project_Closed</members>
         <members>Record_Trigger_Time_Sheet_Calculate_Cost_Rollups</members>
-        <members>Screenflow_Landing_Page</members>
-        <members>Screenflow_Web_To_Case</members>
-        <members>Screenflow_Web_To_Lead</members>
         <members>Timesheet_Entry_New_Entry</members>
-        <members>Timesheet_Entry_New_Entry_Bluewave</members>
         <members>Timesheet_Entry_Set_End_Time</members>
-        <members>Timesheet_Entry_Set_End_Time_Bluewave</members>
-        <members>soqlBuilder</members>
         <name>FlowDefinition</name>
     </types>
     <types>
@@ -1896,33 +1129,36 @@
         <members>Account-Account Layout</members>
         <members>Account-Starter Account Layout</members>
         <members>AccountBrand-Account Brand Layout</members>
-        <members>AccountContactRelation-Account Contact Relationship Layout</members>
-        <members>AlternativePaymentMethod-Alternative Payment Method Layout</members>
+        <members
+    >AlternativePaymentMethod-Alternative Payment Method Layout</members>
         <members>Asset-Asset Layout</members>
         <members>AssetRelationship-Asset Relationship Layout</members>
         <members>AuthorizationForm-Authorization Form Layout</members>
-        <members>AuthorizationFormConsent-Authorization Form Consent Layout</members>
-        <members>AuthorizationFormDataUse-Authorization Form Data Use Layout</members>
+        <members
+    >AuthorizationFormConsent-Authorization Form Consent Layout</members>
+        <members
+    >AuthorizationFormDataUse-Authorization Form Data Use Layout</members>
         <members>AuthorizationFormText-Authorization Form Text Layout</members>
         <members>BroadcastTopic-Broadcast Topic Layout</members>
         <members>BusinessBrand-Business Brand Layout</members>
         <members>Campaign-Campaign Layout</members>
-        <members>CampaignInfluenceModel-Campaign Influence Model Layout</members>
+        <members
+    >CampaignInfluenceModel-Campaign Influence Model Layout</members>
         <members>CampaignMember-Campaign Member Page Layout</members>
         <members>CardPaymentMethod-Card Payment Method Layout</members>
         <members>Case-Case Layout</members>
         <members>CaseClose-Close Case Layout</members>
         <members>CaseInteraction-Case Feed Layout</members>
-        <members>Client_Member__c-Client Member Layout</members>
-        <members>CodeBuilder__CodeBuilderSetting__mdt-CodeBuilderSetting Layout</members>
+        <members
+    >CodeBuilder__CodeBuilderSetting__mdt-CodeBuilderSetting Layout</members>
         <members>CollaborationGroup-Group Layout</members>
         <members>Contact-Contact Layout</members>
         <members>Contact-Starter Contact Layout</members>
         <members>ContactPointAddress-Contact Point Address Layout</members>
         <members>ContactPointEmail-Contact Point Email Layout</members>
         <members>ContactPointPhone-Contact Point Phone Layout</members>
-        <members>ContactPointTypeConsent-Contact Point Type Consent Layout</members>
-        <members>ContentVersion-Content Version</members>
+        <members
+    >ContactPointTypeConsent-Contact Point Type Consent Layout</members>
         <members>Contract-Contract Layout</members>
         <members>Contract_Pricing__c-Contract Pricing Layout</members>
         <members>CreditMemo-Credit Memo Layout</members>
@@ -1934,13 +1170,17 @@
         <members>DigitalWallet-Digital Wallet Layout</members>
         <members>DuplicateRecordSet-Duplicate Record Set Layout</members>
         <members>EmailMessage-Email Message Layout</members>
-        <members>Employee_Zoom_Identity__c-Employee Zoom Identity Layout</members>
+        <members
+    >Employee_Zoom_Identity__c-Employee Zoom Identity Layout</members>
         <members>Event-Event Layout</members>
         <members>FeedItem-Feed Item Layout</members>
-        <members>FlowOrchestrationWorkItem-Orchestration Work Item Layout</members>
-        <members>FlowPersonalConfiguration__c-Flow Personal Configuration Layout</members>
+        <members
+    >FlowOrchestrationWorkItem-Orchestration Work Item Layout</members>
+        <members
+    >FlowPersonalConfiguration__c-Flow Personal Configuration Layout</members>
         <members>FlowRecord-Flow Layout</members>
-        <members>FlowTableViewDefinition__c-FlowTableViewDefinition Layout</members>
+        <members
+    >FlowTableViewDefinition__c-FlowTableViewDefinition Layout</members>
         <members>Global-Global Layout</members>
         <members>Idea-Idea Layout</members>
         <members>Individual-Individual Layout</members>
@@ -1948,20 +1188,22 @@
         <members>InvoiceLine-Invoice Line Layout</members>
         <members>Invoice_Payments__c-Invoice Payments Layout</members>
         <members>Lead-Lead Layout</members>
-        <members>Login_OTP__c-Login OTP Layout</members>
         <members>Macro-Macro Layout</members>
         <members>ManagedContent-Managed Content Layout</members>
         <members>ManagedContentVariant-Managed Content Variant Layout</members>
         <members>Message__c-Message Layout</members>
-        <members>Milestone_Task_Notification_Settings__mdt-Milestone Task Notification Settings Layout</members>
+        <members
+    >Milestone_Task_Notification_Settings__mdt-Milestone Task Notification Settings Layout</members>
         <members>OTP_Cleanup_Config__mdt-OTP Cleanup Config Layout</members>
         <members>Opportunity-Opportunity Layout</members>
-        <members>OpportunityContactRole-Opportunity Contact Role Layout</members>
+        <members
+    >OpportunityContactRole-Opportunity Contact Role Layout</members>
         <members>OpportunityLineItem-Opportunity Product Layout</members>
         <members>Order-Order Layout</members>
         <members>OrderItem-Order Product Layout</members>
         <members>Payment-Payment Layout</members>
-        <members>PaymentAuthAdjustment-Payment Authorization Adjustment Layout</members>
+        <members
+    >PaymentAuthAdjustment-Payment Authorization Adjustment Layout</members>
         <members>PaymentAuthorization-Payment Authorization Layout</members>
         <members>PaymentGateway-Payment Gateway Layout</members>
         <members>PaymentGatewayLog-Payment Gateway Log Layout</members>
@@ -1975,12 +1217,13 @@
         <members>ProfileSkill-Skill Layout</members>
         <members>ProfileSkillEndorsement-Endorsement Layout</members>
         <members>ProfileSkillUser-Skill User Layout</members>
-        <members>Project_Task_Relationship__c-Project Task Relationship Layout</members>
+        <members
+    >Project_Task_Relationship__c-Project Task Relationship Layout</members>
         <members>Project_Task__c-Project Task Layout</members>
-        <members>Project_Team__c-Project Team Layout</members>
         <members>Project__c-Project Layout</members>
         <members>QuickText-Quick Text Layout</members>
-        <members>Quickbook_Invoice_Item__c-Quickbook Invoice Item Layout</members>
+        <members
+    >Quickbook_Invoice_Item__c-Quickbook Invoice Item Layout</members>
         <members>Quickbooks_Invoice__c-Quickbooks Invoice Layout</members>
         <members>Quote-Quote Layout</members>
         <members>QuoteLineItem-Quote Line Item Layout</members>
@@ -2005,7 +1248,8 @@
         <members>UserAppMenuItem-Application Layout</members>
         <members>UserProvAccount-User Provisioning Account Layout</members>
         <members>UserProvisioningLog-User Provisioning Log Layout</members>
-        <members>UserProvisioningRequest-User Provisioning Request Layout</members>
+        <members
+    >UserProvisioningRequest-User Provisioning Request Layout</members>
         <members>WorkAccess-Access Layout</members>
         <members>WorkBadge-Badge Layout</members>
         <members>WorkBadge-Badge Received Layout 192</members>
@@ -2018,27 +1262,36 @@
         <members>Zoom_Webhook_Config__mdt-Zoom Webhook Config Layout</members>
         <members>Zoom_Webhook_Event__c-Zoom Webhook Event Layout</members>
         <members>sf_devops__App_Config__mdt-App Config Layout</members>
-        <members>sf_devops__Async_Operation_Result__c-Async Operation Result Layout</members>
+        <members
+    >sf_devops__Async_Operation_Result__c-Async Operation Result Layout</members>
         <members>sf_devops__Back_Sync__c-Back Sync Layout</members>
         <members>sf_devops__Branch__c-Branch Layout</members>
-        <members>sf_devops__Change_Bundle_Install__c-Change Bundle Install Layout</members>
+        <members
+    >sf_devops__Change_Bundle_Install__c-Change Bundle Install Layout</members>
         <members>sf_devops__Change_Bundle__c-Change Bundle Layout</members>
-        <members>sf_devops__Change_Submission__c-Change Submission Layout</members>
-        <members>sf_devops__Deploy_Component__c-Deploy Component Layout</members>
-        <members>sf_devops__Deployment_Result__c-Deployment Result Layout</members>
+        <members
+    >sf_devops__Change_Submission__c-Change Submission Layout</members>
+        <members
+    >sf_devops__Deploy_Component__c-Deploy Component Layout</members>
+        <members
+    >sf_devops__Deployment_Result__c-Deployment Result Layout</members>
         <members>sf_devops__Environment__c-Environment Layout</members>
-        <members>sf_devops__Hidden_Remote_Change__c-Hidden Remote Change Layout</members>
+        <members
+    >sf_devops__Hidden_Remote_Change__c-Hidden Remote Change Layout</members>
         <members>sf_devops__Merge_Result__c-Merge Result Layout</members>
         <members>sf_devops__Object_Activity__c-Object Activity Layout</members>
         <members>sf_devops__Pipeline_Stage__c-Pipeline Stage Layout</members>
         <members>sf_devops__Pipeline__c-Pipeline Layout</members>
         <members>sf_devops__Remote_Change__c-Remote Change Layout</members>
         <members>sf_devops__Service__mdt-Service Layout</members>
-        <members>sf_devops__Source_Member_Reference__c-Source Member Reference Layout</members>
-        <members>sf_devops__Submit_Component__c-Submit Component Layout</members>
+        <members
+    >sf_devops__Source_Member_Reference__c-Source Member Reference Layout</members>
+        <members
+    >sf_devops__Submit_Component__c-Submit Component Layout</members>
         <members>sf_devops__Vcs_Event__c-VCS Event Layout</members>
         <members>sf_devops__Version__mdt-Version Layout</members>
-        <members>sf_devops__Work_Item_Promote__c-Work Item Promote Layout</members>
+        <members
+    >sf_devops__Work_Item_Promote__c-Work Item Promote Layout</members>
         <name>Layout</name>
     </types>
     <types>
@@ -2049,8 +1302,6 @@
         <members>groupedTaskList</members>
         <members>homePage</members>
         <members>linkTaskModal</members>
-        <members>lwcConvertCSVToRecords</members>
-        <members>lwcConvertCSVToRecordsCPE</members>
         <members>passwordlessLogin</members>
         <members>portalCommon</members>
         <members>portalFooter</members>
@@ -2077,10 +1328,6 @@
         <name>LightningComponentBundle</name>
     </types>
     <types>
-        <members>MilestoneConsulting</members>
-        <name>LightningExperienceTheme</name>
-    </types>
-    <types>
         <members>AccountFilter</members>
         <members>DashboardRefresh</members>
         <members>MessageUpdate</members>
@@ -2099,13 +1346,16 @@
         <members>ApprovalSubmission.All_ApprovalSubmissions</members>
         <members>ApprovalSubmission.My_ApprovalSubmissions</members>
         <members>ApprovalSubmission.Pending_ApprovalSubmissions</members>
-        <members>ApprovalSubmissionDetail.All_ApprovalSubmissionDetails</members>
+        <members
+    >ApprovalSubmissionDetail.All_ApprovalSubmissionDetails</members>
         <members>ApprovalWorkItem.All_ApprovalWorkItems</members>
         <members>ApprovalWorkItem.Assigned_ApprovalWorkItems</members>
         <members>Asset.AllAssets</members>
         <members>AuthorizationForm.All_AuthorizationForms</members>
-        <members>AuthorizationFormConsent.All_AuthorizationFormConsents</members>
-        <members>AuthorizationFormDataUse.All_AuthorizationFormDataUses</members>
+        <members
+    >AuthorizationFormConsent.All_AuthorizationFormConsents</members>
+        <members
+    >AuthorizationFormDataUse.All_AuthorizationFormDataUses</members>
         <members>AuthorizationFormText.All_AuthorizationFormText</members>
         <members>BusinessBrand.All_BusinessBrands</members>
         <members>Campaign.AllActiveCampaigns</members>
@@ -2122,7 +1372,8 @@
         <members>ChannelProgramLevel.My_Channel_Program_Levels</members>
         <members>CollaborationGroup.All_ChatterGroups</members>
         <members>CommSubscription.All_CommSubscriptions</members>
-        <members>CommSubscriptionChannelType.All_CommSubscriptionChannelTypes</members>
+        <members
+    >CommSubscriptionChannelType.All_CommSubscriptionChannelTypes</members>
         <members>CommSubscriptionConsent.All_CommSubscriptionConsents</members>
         <members>CommSubscriptionTiming.All_CommSubscriptionTimings</members>
         <members>Contact.AllContacts</members>
@@ -2265,16 +1516,22 @@
         <name>MatchingRules</name>
     </types>
     <types>
-        <members>Client - Project Management Portal.Block_banned_keywords</members>
+        <members
+    >Client - Project Management Portal.Block_banned_keywords</members>
         <members>Client - Project Management Portal.Flag_banned</members>
-        <members>Client - Project Management Portal.Freeze_for_frequent_posting</members>
+        <members
+    >Client - Project Management Portal.Freeze_for_frequent_posting</members>
         <members>Client - Project Management Portal.Replace_banned</members>
-        <members>Client - Project Management Portal.Review_the_first_post</members>
-        <members>Milestone Consulting Customer Portal.Block_banned_keywords</members>
+        <members
+    >Client - Project Management Portal.Review_the_first_post</members>
+        <members
+    >Milestone Consulting Customer Portal.Block_banned_keywords</members>
         <members>Milestone Consulting Customer Portal.Flag_banned</members>
-        <members>Milestone Consulting Customer Portal.Freeze_for_frequent_posting</members>
+        <members
+    >Milestone Consulting Customer Portal.Freeze_for_frequent_posting</members>
         <members>Milestone Consulting Customer Portal.Replace_banned</members>
-        <members>Milestone Consulting Customer Portal.Review_the_first_post</members>
+        <members
+    >Milestone Consulting Customer Portal.Review_the_first_post</members>
         <name>ModerationRule</name>
     </types>
     <types>
@@ -2283,8 +1540,10 @@
     </types>
     <types>
         <members>Quickbooks</members>
-        <members>a175e00000Ci7BWAAZ_Convert_CSV_To_Records_LWC_Release_001</members>
-        <members>a175e00000Ci7BWAAZ_Convert_CSV_To_Records_LWC_Staging_001</members>
+        <members
+    >a175e00000Ci7BWAAZ_Convert_CSV_To_Records_LWC_Release_001</members>
+        <members
+    >a175e00000Ci7BWAAZ_Convert_CSV_To_Records_LWC_Staging_001</members>
         <members>a175e00000Ci7uDAAR_CustomerPortal_Production_001</members>
         <members>a175e00000Ci7uDAAR_CustomerPortal_Release_001</members>
         <members>a175e00000Ci7uDAAR_Development_Customer_Portal_001</members>
@@ -2309,8 +1568,10 @@
         <name>NamedCredential</name>
     </types>
     <types>
-        <members>SFDC_Default_Navigation_Client_UU002d_Project_Management_Portal</members>
-        <members>SFDC_Default_Navigation_Milestone_Consulting_Customer_Portal</members>
+        <members
+    >SFDC_Default_Navigation_Client_UU002d_Project_Management_Portal</members>
+        <members
+    >SFDC_Default_Navigation_Milestone_Consulting_Customer_Portal</members>
         <name>NavigationMenu</name>
     </types>
     <types>
@@ -2348,19 +1609,7 @@
         <members>Project_Management_User</members>
         <members>Require_MFA</members>
         <members>Sales_User</members>
-        <members>Slack_Standard_Admin</members>
-        <members>TestSFDC</members>
-        <members>Test_App_Developer</members>
         <members>Zoom_Admin</members>
-        <members>sf_devops_InitializeEnvironments</members>
-        <members>sf_devops_NamedCredentials</members>
-        <members>sfdcInternalInt__sfdc_a360</members>
-        <members>sfdcInternalInt__sfdc_a360_sfcrm_data_extract</members>
-        <members>sfdcInternalInt__sfdc_activityplatform</members>
-        <members>sfdcInternalInt__sfdc_einsteinri</members>
-        <members>sfdcInternalInt__sfdc_nc_constraints_engine_deploy</members>
-        <members>sfdcInternalInt__sfdc_salesemailassistant</members>
-        <members>sfdcInternalInt__sfdc_scrt2</members>
         <name>PermissionSet</name>
     </types>
     <types>
@@ -2379,10 +1628,12 @@
     </types>
     <types>
         <members>ActivityEngagementVirtualChannel_ContactChangeEvent</members>
-        <members>ActivityEngagementVirtualChannel_EmailMessageChangeEvent</members>
+        <members
+    >ActivityEngagementVirtualChannel_EmailMessageChangeEvent</members>
         <members>ActivityEngagementVirtualChannel_LeadChangeEvent</members>
         <members>ActivityEngagementVirtualChannel_ListEmailChangeEvent</members>
-        <members>ActivityEngagementVirtualChannel_ListEmailSentResultChangeEvent</members>
+        <members
+    >ActivityEngagementVirtualChannel_ListEmailSentResultChangeEvent</members>
         <members>ActivityEngagementVirtualChannel_TaskChangeEvent</members>
         <members>ChangeEvents_AccountChangeEvent</members>
         <members>ChangeEvents_Project_ChangeEvent</members>
@@ -2429,38 +1680,21 @@
         <members>Executive_Sponsor_profilePasswordPolicy1565800039594</members>
         <members>PT1_profilePasswordPolicy1487029411628</members>
         <members>PT2_profilePasswordPolicy1539989544652</members>
-        <members>Platform_User_Contractor_profilePasswordPolicy1693860962193</members>
+        <members
+    >Platform_User_Contractor_profilePasswordPolicy1693860962193</members>
         <name>ProfilePasswordPolicy</name>
     </types>
     <types>
         <members>PT1_profileSessionSetting1487029411398</members>
         <members>PT2_profileSessionSetting1539989544703</members>
-        <members>Platform_User_Contractor_profileSessionSetting1693860390192</members>
+        <members
+    >Platform_User_Contractor_profileSessionSetting1693860390192</members>
         <members>null_profileSessionSetting1565800039616</members>
         <members>null_profileSessionSetting1565960334781</members>
         <name>ProfileSessionSetting</name>
     </types>
     <types>
-        <members>Account.Child_Account</members>
         <members>Account.New_Project</members>
-        <members>Campaign.Child_Campaign</members>
-        <members>Case.CloseCaseLightning</members>
-        <members>Case.NewChildCase</members>
-        <members>CollaborationGroup.NewGroupMember</members>
-        <members>CollaborationGroup.NewGroupRecord</members>
-        <members>FeedItem.NewTaskFromFeedItem</members>
-        <members>Follow_Up</members>
-        <members>GuestCommunityCase</members>
-        <members>LogACall</members>
-        <members>NewAccount</members>
-        <members>NewCase</members>
-        <members>NewCommunityCase</members>
-        <members>NewContact</members>
-        <members>NewEvent</members>
-        <members>NewGroup</members>
-        <members>NewLead</members>
-        <members>NewOpportunity</members>
-        <members>NewTask</members>
         <members>Project_Task__c.Approve_Client_Backlog_Task</members>
         <members>Project_Task__c.Approve_Client_Completion_Task</members>
         <members>Project_Task__c.Approve_PM_Code_Review_Task</members>
@@ -2475,64 +1709,6 @@
         <members>Project__c.New_Time_Entry</members>
         <members>Project__c.Send_to_Slack</members>
         <members>Project__c.Slack_Alerts</members>
-        <members>Quote.SendEmail</members>
-        <members>SendEmail</members>
-        <members>Task.Defer</members>
-        <members>Task.Defer_0</members>
-        <members>Task.Defer_1</members>
-        <members>Task.Defer_10</members>
-        <members>Task.Defer_11</members>
-        <members>Task.Defer_12</members>
-        <members>Task.Defer_2</members>
-        <members>Task.Defer_3</members>
-        <members>Task.Defer_4</members>
-        <members>Task.Defer_5</members>
-        <members>Task.Defer_6</members>
-        <members>Task.Defer_7</members>
-        <members>Task.Defer_8</members>
-        <members>Task.Defer_9</members>
-        <members>Task.EditDescription</members>
-        <members>Task.EditDescription_0</members>
-        <members>Task.EditDescription_1</members>
-        <members>Task.EditDescription_10</members>
-        <members>Task.EditDescription_11</members>
-        <members>Task.EditDescription_12</members>
-        <members>Task.EditDescription_2</members>
-        <members>Task.EditDescription_3</members>
-        <members>Task.EditDescription_4</members>
-        <members>Task.EditDescription_5</members>
-        <members>Task.EditDescription_6</members>
-        <members>Task.EditDescription_7</members>
-        <members>Task.EditDescription_8</members>
-        <members>Task.EditDescription_9</members>
-        <members>Task.UpdatePriority</members>
-        <members>Task.UpdatePriority_0</members>
-        <members>Task.UpdatePriority_1</members>
-        <members>Task.UpdatePriority_10</members>
-        <members>Task.UpdatePriority_11</members>
-        <members>Task.UpdatePriority_12</members>
-        <members>Task.UpdatePriority_2</members>
-        <members>Task.UpdatePriority_3</members>
-        <members>Task.UpdatePriority_4</members>
-        <members>Task.UpdatePriority_5</members>
-        <members>Task.UpdatePriority_6</members>
-        <members>Task.UpdatePriority_7</members>
-        <members>Task.UpdatePriority_8</members>
-        <members>Task.UpdatePriority_9</members>
-        <members>Task.UpdateStatus</members>
-        <members>Task.UpdateStatus_0</members>
-        <members>Task.UpdateStatus_1</members>
-        <members>Task.UpdateStatus_10</members>
-        <members>Task.UpdateStatus_11</members>
-        <members>Task.UpdateStatus_12</members>
-        <members>Task.UpdateStatus_2</members>
-        <members>Task.UpdateStatus_3</members>
-        <members>Task.UpdateStatus_4</members>
-        <members>Task.UpdateStatus_5</members>
-        <members>Task.UpdateStatus_6</members>
-        <members>Task.UpdateStatus_7</members>
-        <members>Task.UpdateStatus_8</members>
-        <members>Task.UpdateStatus_9</members>
         <name>QuickAction</name>
     </types>
     <types>
@@ -2557,189 +1733,21 @@
         <name>RemoteSiteSetting</name>
     </types>
     <types>
-        <members>Activity360Reports</members>
-        <members>Activity360Reports/Activities_by_Sales_Rep_on_Accounts</members>
-        <members>Activity360Reports/Activities_on_My_Teams_Opportunities</members>
-        <members>Activity360Reports/Activities_with_Insights_by_Opportunity</members>
-        <members>Activity360Reports/Opportunities</members>
-        <members>Activity360Reports/Opportunities_with_Objections</members>
-        <members>Activity360Reports/Opportunities_with_Requests_Made</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_CallScript_Monthly_Metrics_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_Complete_Sales_Candences_amp_Trackers_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_Contacts_Engagement_grouped_by_account_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_Contacts_with_Sales_Cadence_Trackers_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_EmailTemplate_Monthly_Metrics_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_Grouped_Users_Monthly_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_Lead_Cadence_Tracker_Conversion_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_Lead_Daily_Engagement_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_Leads_Converted_by_Sales_Rep_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_Leads_with_Sales_Cadence_Trackers_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_Sales_Cadence_Steps_Monthly_Metrics_Report</members>
-        <members>CRM_180925_Sample_Sales_Dashboards_Reports/CRM_180925_User_Daily_Engagement_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Cadence_Completion_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Cadence_Engagement_Monthly_Metric_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Cadence_Engagement_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Call_Activity_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Call_Template_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Contact_Daily_Metric_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Contact_Monthly_Metric_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Email_Template_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Lead_Conversion_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Lead_Daily_Metric_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_Lead_Monthly_Metric_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_User_Daily_Metric_Report</members>
-        <members>CRM_180925_Sample_Sales_Reports/CRM_180925_User_Monthly_Metric_Report</members>
-        <members>ClientSpecific</members>
-        <members>ClientSpecific/BCG_Open_Projects_with_Time_Entries_G8k</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_my_case_changed_status</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_my_lead_changed_status</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_my_newly_assigned_lead</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_my_newly_assigned_opptys</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_my_newly_converted_leads</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_my_newly_created_campaign</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_my_newly_won_opptys</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_my_open_case</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_my_resolved_cases</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_newly_added_contact</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_open_case_for_my_accounts</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_reassigned_account</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_reassigned_case</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_reassigned_lead</members>
-        <members>EasyRecentActivity_DoNotRenameThisFolder/easy_reassigned_oppty</members>
-        <members>EasyReports_DoNotRenameThisFolder</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_all_contacts</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_all_new_leads</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_all_open_leads</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_all_opptys</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_all_won_oppty</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_average_handling_time</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_contacts_new_this_week</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_my_average_handling_time</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_my_cases_mtd</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_my_contacts</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_my_leads</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_my_open_cases</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_my_opptys</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_my_unread_leads</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_my_won_oppty</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_new_cases</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_opptys_closing_next_month</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_opptys_closing_this_month</members>
-        <members>EasyReports_DoNotRenameThisFolder/easy_todays_leads</members>
-        <members>ForContractors</members>
-        <members>ForContractors/My_Timesheet_Entries_Over_Time_jmG</members>
-        <members>ForContractors/My_Timesheet_Entries_q8B</members>
         <members>Project</members>
-        <members>Project/Account_by_Project_By_Month_xgP</members>
-        <members>Project/Estimated_Income_From_Active_Projects_OJL</members>
-        <members>Project/Projected_Cost_vs_Actual_Cost_d5G</members>
-        <members>Project/Projected_Time_vs_Actual_Time_LmB</members>
-        <members>Project/Projects_Due_Next_30_Days_3gt</members>
-        <members>Project/Projects_Past_Due_Uw6</members>
-        <members>QuickbooksInvoices</members>
-        <members>QuickbooksInvoices/Paid_Invoices_s5s</members>
-        <members>QuickbooksInvoices/Pending_Payments_qTQ</members>
-        <members>Sales_Marketing_Reports</members>
-        <members>Sales_Marketing_Reports/Closed_Lost_by_Reason</members>
-        <members>Sales_Marketing_Reports/Closed_Won_80_This_Q_by_Owner</members>
-        <members>Sales_Marketing_Reports/Closed_Won_This_Q_by_Owner</members>
-        <members>Sales_Marketing_Reports/Closed_Won_This_Q_by_Type</members>
-        <members>Sales_Marketing_Reports/Closed_Won_by_Type</members>
-        <members>Sales_Marketing_Reports/Conversion_Rate</members>
-        <members>Sales_Marketing_Reports/Hot_Leads_w_o_Activity_96_Hours</members>
-        <members>Sales_Marketing_Reports/Leads_Converted_All_Time</members>
-        <members>Sales_Marketing_Reports/Leads_Converted_Current_FQ2</members>
-        <members>Sales_Marketing_Reports/Leads_Converted_by_FQ</members>
-        <members>Sales_Marketing_Reports/Leads_Created_Current_FQ</members>
-        <members>Sales_Marketing_Reports/Open_Oppties_This_Q</members>
-        <members>Sales_Marketing_Reports/Open_Oppties_This_Q_No_Acti_Last_96hrs</members>
-        <members>Sales_Marketing_Reports/Pipeline_Report_This_Q</members>
-        <members>Sales_Marketing_Reports/Win_Ratio</members>
+        <members>Project/QuickbooksInvoices</members>
+        <members>Project/QuickbooksInvoices/Paid_Invoices_s5s</members>
+        <members>Project/QuickbooksInvoices/Pending_Payments_qTQ</members>
         <members>TimeSheetEntries</members>
-        <members>TimeSheetEntries/Monthly_Summary_By_Month_Time_Sheet_Lu8</members>
-        <members>TimeSheetEntries/Summary_By_Date_of_Time_Sheet_Entries_QWN</members>
-        <members>TimeSheetEntries/Summary_By_Month_Time_Sheet_Entries_b61</members>
-        <members>TimeSheetEntries/Time_Sheet_Entry_By_Creator_sNw</members>
-        <members>prm_ch_reports_sub_folder</members>
-        <members>prm_channel_reports_folder</members>
-        <members>prm_spring24_ch_marketing_reports_folderSPLIT1728715031507</members>
-        <members>prm_spring24_pt_engagement_reports_folderSPLIT1728715031507</members>
-        <members>prm_spring24_pt_engagement_reports_folderSPLIT1728715031507/prm_total_portal_login_reportSPLIT1728715031507</members>
-        <members>prm_spring24_pt_engagement_reports_folderSPLIT1728715031507/prm_unique_portal_login_reportSPLIT1728715031507</members>
-        <members>prm_spring24_reportsSPLIT1728715031507</members>
-        <members>prm_winter24_ch_prod_reports_folderSPLIT1728715031507</members>
-        <members>prm_winter24_ch_sales_reports_folderSPLIT1728715031507</members>
-        <members>prm_winter24_ch_sales_reports_folderSPLIT1728715031507/prm_lead_conversionSPLIT1728715031507</members>
-        <members>prm_winter24_ch_sales_reports_folderSPLIT1728715031507/prm_open_opportunity_by_partnerSPLIT1728715031507</members>
-        <members>prm_winter24_ch_sales_reports_folderSPLIT1728715031507/prm_open_opportunity_by_stageSPLIT1728715031507</members>
-        <members>prm_winter24_ch_sales_reports_folderSPLIT1728715031507/prm_opportunity_by_amountSPLIT1728715031507</members>
-        <members>prm_winter24_ch_sales_reports_folderSPLIT1728715031507/prm_revenue_closedSPLIT1728715031507</members>
-        <members>prm_winter24_reportsSPLIT1728715031507</members>
+        <members>TimeSheetEntries/ClientSpecific</members>
+        <members>TimeSheetEntries/ForContractors</members>
         <members>unfiled$public</members>
         <members>unfiled$public/Account_Burn_Rate_R8h</members>
-        <members>unfiled$public/Opportunity_Amount_by_Stage_Sample</members>
-        <members>unfiled$public/SampleReportActiveUsers</members>
-        <members>unfiled$public/SampleReportCompletedActivities</members>
-        <members>unfiled$public/SampleReportCustomReportsbyUser</members>
-        <members>unfiled$public/SampleReportLastModifiedBy</members>
-        <members>unfiled$public/SampleReportLoginLeaderboard</members>
-        <members>unfiled$public/SampleReportLoginWallofShame</members>
-        <members>unfiled$public/SampleReportUsersLoggedIn</members>
-        <members>unfiled$public/SampleReportofAccounts</members>
-        <members>unfiled$public/SampleReportofCases</members>
-        <members>unfiled$public/SampleReportofContacts</members>
-        <members>unfiled$public/SampleReportofDocuments</members>
-        <members>unfiled$public/SampleReportofLeads</members>
-        <members>unfiled$public/SampleReportofOpenTasks</members>
-        <members>unfiled$public/SampleReportofOpportunities</members>
-        <members>unfiled$public/SampleReportofReports</members>
-        <members>unfiled$public/SampleReportofSolutions</members>
-        <members>unfiled$public/SampleReportofTasksandActivities</members>
-        <members>unfiled$public/flow_orchestration_log_ootb_report_two_four_eight</members>
-        <members>unfiled$public/flow_orchestration_run_ootb_report_two_four_eight</members>
-        <members>unfiled$public/flow_orchestration_stage_run_ootb_report_two_four_eight</members>
-        <members>unfiled$public/flow_orchestration_step_run_ootb_report_two_four_eight</members>
-        <members>unfiled$public/flow_orchestration_work_item_ootb_report_two_four_eight</members>
         <name>Report</name>
     </types>
     <types>
-        <members>Accounts_with_Contacts_with_Daily_Engagements</members>
         <members>Accounts_with_Projects_with_Project_Tasks</members>
         <members>Accounts_with_Projects_with_Time_Sheet_Entries</members>
-        <members>Cadences_amp_Steps</members>
-        <members>Call_Script_Monthly_Engagement</members>
-        <members>Call_Template</members>
-        <members>Contacts_and_Sales_Cadence_Trackers</members>
-        <members>Contacts_with_Daily_Engagements</members>
-        <members>Contacts_with_Monthly_Engagements</members>
-        <members>Email_Template</members>
-        <members>Email_Template_Monthly_Engagement</members>
-        <members>Leads_With_or_Without_Sales_Cadence_Trackers</members>
-        <members>Leads_and_Sales_Cadence_Trackers</members>
-        <members>Leads_with_Daily_Engagements</members>
-        <members>Leads_with_Monthly_Engagements</members>
-        <members>Opportunities_with_Activities_Unified</members>
-        <members>Opportunities_with_Emails_Unified</members>
-        <members>Opportunities_with_Historical_Trending</members>
-        <members>Opportunities_with_Unified_Activities_Insights</members>
         <members>Projects_with_Account_and_Contract</members>
-        <members>Sales_Cadences_Steps_with_Monthly_Metrics</members>
-        <members>Sales_Cadences_amp_Trackers</members>
-        <members>Sales_Cadences_and_Trackers_Inner_join</members>
-        <members>Users_with_Activities_Unified</members>
-        <members>Users_with_Daily_Metrics</members>
-        <members>Users_with_Monthly_Engagements</members>
-        <members>flow_orchestration_log_ootb_crt_two_four_eight</members>
-        <members>flow_orchestration_run_ootb_crt_two_four_eight</members>
-        <members>flow_orchestration_stage_run_ootb_crt_two_four_eight</members>
-        <members>flow_orchestration_step_run_ootb_crt_two_four_eight</members>
-        <members>flow_orchestration_work_item_ootb_crt_two_four_eight</members>
-        <members>prm_total_portal_login_crt</members>
-        <members>prm_unique_portal_crt</members>
-        <members>screen_flows_prebuilt_crt</members>
         <name>ReportType</name>
     </types>
     <types>
@@ -2753,86 +1761,40 @@
     </types>
     <types>
         <members>Account</members>
-        <members>AccountIntelligence</members>
-        <members>AccountPlan</members>
         <members>Actions</members>
         <members>Activities</members>
-        <members>Address</members>
-        <members>AgentforceForDevelopers</members>
-        <members>Ai4m</members>
         <members>Analytics</members>
         <members>Apex</members>
-        <members>AppAnalytics</members>
-        <members>AppExperience</members>
-        <members>AutomatedContacts</members>
-        <members>Blockchain</members>
-        <members>Bot</members>
         <members>BusinessHours</members>
         <members>Campaign</members>
         <members>Case</members>
         <members>Chatter</members>
         <members>ChatterEmailsMD</members>
-        <members>CodeBuilder</members>
-        <members>Commerce</members>
         <members>Communities</members>
         <members>Company</members>
         <members>ConnectedApp</members>
         <members>Content</members>
         <members>Contract</members>
-        <members>ConversationalIntelligence</members>
         <members>Currency</members>
         <members>CustomAddressField</members>
-        <members>CustomerDataPlatform</members>
-        <members>CustomizablePropensityScoring</members>
-        <members>DataImportManagement</members>
-        <members>Deployment</members>
-        <members>DevHub</members>
-        <members>Discovery</members>
-        <members>DocumentChecklist</members>
-        <members>DxGlobalTerms</members>
-        <members>DynamicForms</members>
-        <members>EAC</members>
-        <members>EinsteinAI</members>
-        <members>EinsteinDealInsights</members>
-        <members>EinsteinDocumentCapture</members>
-        <members>EinsteinGpt</members>
         <members>EmailAdministration</members>
         <members>EmailIntegration</members>
         <members>EmailTemplate</members>
-        <members>EmployeeFieldAccess</members>
-        <members>EmployeeUser</members>
         <members>EncryptionKey</members>
         <members>EnhancedNotes</members>
-        <members>Essentials</members>
         <members>Event</members>
         <members>ExperienceBundle</members>
         <members>ExternalClientApp</members>
         <members>FileUploadAndDownloadSecurity</members>
-        <members>FilesConnect</members>
         <members>Flow</members>
-        <members>Forecasting</members>
-        <members>ForecastingObjectList</members>
         <members>Formula</members>
-        <members>GRCIntelligenceUdd</members>
         <members>GoogleApps</members>
-        <members>HighVelocitySales</members>
-        <members>Ideas</members>
         <members>IdentityProvider</members>
-        <members>IncidentMgmt</members>
-        <members>Industries</members>
-        <members>IndustriesEinsteinFeature</members>
-        <members>IndustriesEnergyUtilitiesMultiSite</members>
-        <members>IndustriesUnifiedInventory</members>
-        <members>InsuranceBrokerage</members>
         <members>InvocableAction</members>
-        <members>Knowledge</members>
-        <members>KnowledgeGeneration</members>
         <members>Language</members>
         <members>LeadConfig</members>
         <members>LightningExperience</members>
         <members>Macro</members>
-        <members>MailMerge</members>
-        <members>MapsAndLocation</members>
         <members>Meetings</members>
         <members>Mobile</members>
         <members>MyDomain</members>
@@ -2840,190 +1802,25 @@
         <members>Notifications</members>
         <members>OauthOidc</members>
         <members>ObjectLinking</members>
-        <members>OmniChannel</members>
-        <members>OmniChannelPricing</members>
-        <members>OmniStudio</members>
-        <members>OnlineSales</members>
         <members>Opportunity</members>
-        <members>OpportunityScore</members>
         <members>Order</members>
         <members>Org</members>
-        <members>Pardot</members>
-        <members>PardotEinstein</members>
-        <members>PartyDataModel</members>
-        <members>PathAssistant</members>
-        <members>Payments</members>
-        <members>PaymentsManagementEnabled</members>
         <members>Picklist</members>
         <members>PlatformEncryption</members>
         <members>PlatformEvent</members>
         <members>Portals</members>
-        <members>PredictionBuilder</members>
         <members>Privacy</members>
-        <members>PrmCore</members>
-        <members>Product</members>
-        <members>ProductDiscovery</members>
-        <members>PurchaseOrderMgmt</members>
-        <members>QuickText</members>
-        <members>Quote</members>
-        <members>RealTimeEvent</members>
-        <members>RecommendationBuilder</members>
         <members>RecordPage</members>
-        <members>ReleaseMgmt</members>
-        <members>RetailExecution</members>
-        <members>RiskMgmt</members>
-        <members>Sandbox</members>
-        <members>SceGlobalModelOptOut</members>
         <members>Schema</members>
-        <members>Search</members>
         <members>Security</members>
-        <members>ServiceAIRecommendations</members>
-        <members>ServiceCloudVoice</members>
-        <members>ServiceItsmIntelligenceUdd</members>
-        <members>ServiceSetupAssistant</members>
         <members>Sharing</members>
         <members>Site</members>
-        <members>SocialCustomerService</members>
-        <members>SourceTracking</members>
-        <members>Survey</members>
         <members>SystemNotification</members>
-        <members>Trailhead</members>
-        <members>TrialOrg</members>
-        <members>UserEngagement</members>
         <members>UserInterface</members>
         <members>UserManagement</members>
-        <members>Voice</members>
         <members>WebApplication</members>
         <members>WebToX</members>
-        <members>WorkDotCom</members>
         <name>Settings</name>
-    </types>
-    <types>
-        <members>Account</members>
-        <members>AccountBrand</members>
-        <members>ActivityRecurrence2</members>
-        <members>ActivityRecurrence2Exception</members>
-        <members>AiJobRun</members>
-        <members>AlternativePaymentMethod</members>
-        <members>AnalyticsUserAttrFuncTkn</members>
-        <members>ApprovalSubmission</members>
-        <members>Asset</members>
-        <members>AssistantInteraction</members>
-        <members>AssistantProgress</members>
-        <members>AssistantRecommendation</members>
-        <members>AuthorizationForm</members>
-        <members>AuthorizationFormConsent</members>
-        <members>AuthorizationFormDataUse</members>
-        <members>BroadcastTopic</members>
-        <members>BusinessBrand</members>
-        <members>CalculatedInsightRangeBound</members>
-        <members>CalendarModel</members>
-        <members>CalendarView</members>
-        <members>Campaign</members>
-        <members>Case</members>
-        <members>ChannelProgram</members>
-        <members>CommSubscription</members>
-        <members>CommSubscriptionChannelType</members>
-        <members>CommSubscriptionConsent</members>
-        <members>ComponentResponseCache</members>
-        <members>Contact</members>
-        <members>ContactPointConsent</members>
-        <members>ContactPointTypeConsent</members>
-        <members>ContactRequest</members>
-        <members>Contract_Pricing__c</members>
-        <members>ConvCoachingRecommendation</members>
-        <members>ConversationApiLog</members>
-        <members>CreditMemo</members>
-        <members>Customer</members>
-        <members>DataUseLegalBasis</members>
-        <members>DataUsePurpose</members>
-        <members>DevopsActivityLog</members>
-        <members>DevopsEnvironment</members>
-        <members>DevopsRequestInfo</members>
-        <members>Employee_Zoom_Identity__c</members>
-        <members>EngagementChannelType</members>
-        <members>ExchangeUserMapping</members>
-        <members>ExternalEventMapping</members>
-        <members>FlowInterview</members>
-        <members>FlowInterviewLog</members>
-        <members>FlowOrchestrationInstance</members>
-        <members>FlowOrchestrationStageInstance</members>
-        <members>FlowOrchestrationStepInstance</members>
-        <members>FlowOrchestrationWorkItem</members>
-        <members>FlowRecord</members>
-        <members>FlowTestResult</members>
-        <members>GoalAssignment</members>
-        <members>GoalAssignmentRecommendation</members>
-        <members>GoalDefinition</members>
-        <members>Image</members>
-        <members>In_App_Checklist_Settings__c</members>
-        <members>Individual</members>
-        <members>Invoice</members>
-        <members>Invoice_Payments__c</members>
-        <members>Lead</members>
-        <members>ListEmail</members>
-        <members>Location</members>
-        <members>LocationTrustMeasure</members>
-        <members>Login_OTP__c</members>
-        <members>Macro</members>
-        <members>MacroUsage</members>
-        <members>Message__c</members>
-        <members>MessagingEndUser</members>
-        <members>MessagingSession</members>
-        <members>NetworkMemberChunk</members>
-        <members>NotifDeliveryUserPref</members>
-        <members>Opportunity</members>
-        <members>Order</members>
-        <members>PartyConsent</members>
-        <members>Portal_Config__c</members>
-        <members>ProcessException</members>
-        <members>Product2</members>
-        <members>ProfileSkill</members>
-        <members>Project_Task_Relationship__c</members>
-        <members>PromptAction</members>
-        <members>PromptError</members>
-        <members>QuickText</members>
-        <members>QuickTextUsage</members>
-        <members>Quickbooks_Invoice__c</members>
-        <members>RecordMergeHistory</members>
-        <members>Release_Notes__c</members>
-        <members>Release_Tag__c</members>
-        <members>Release_Version__c</members>
-        <members>ReportResultBlob</members>
-        <members>Scorecard</members>
-        <members>Seller</members>
-        <members>SenderEmailAddress</members>
-        <members>SharingRecordCollection</members>
-        <members>SiqUserBlacklist</members>
-        <members>SocialPersonaFieldBackup</members>
-        <members>SocialPost</members>
-        <members>StagedInviteeEmail</members>
-        <members>StreamActivityAccess</members>
-        <members>StreamingChannel</members>
-        <members>Swarm</members>
-        <members>TableauHostMapping</members>
-        <members>Test_App__c</members>
-        <members>TodayGoal</members>
-        <members>User</members>
-        <members>UserAppMenuCustomization</members>
-        <members>UserCapabilityPreference</members>
-        <members>UserDefinedLabel</members>
-        <members>UserDefinedLabelAssignment</members>
-        <members>UserDevopsPreference</members>
-        <members>UserEmailPreferredPerson</members>
-        <members>UserExternalCredential</members>
-        <members>UserLocalWebServerIdentity</members>
-        <members>UserPrioritizedRecord</members>
-        <members>UserProvisioningRequest</members>
-        <members>VideoCall</members>
-        <members>VoiceCall</members>
-        <members>WorkAccess</members>
-        <members>WorkBadgeDefinition</members>
-        <members>WorkOrder</members>
-        <members>WorkThanks</members>
-        <members>Zoom_Meeting_Map__c</members>
-        <members>Zoom_Webhook_Event__c</members>
-        <name>SharingRules</name>
     </types>
     <types>
         <members>Client_Project_Management_Portal1</members>
@@ -3085,12 +1882,7 @@
         <name>StandardValueSet</name>
     </types>
     <types>
-        <members>MilestoneTheme</members>
-        <members>PapaParse</members>
-        <members>SNA_2rXMx_sf_default_cdn_Milestone_Consulting_Customer_Portal1</members>
-        <members>SNA_I8LM6_sf_default_cdn_Client_Project_Management_Portal1</members>
         <members>SiteSamples</members>
-        <members>mdslds212</members>
         <name>StaticResource</name>
     </types>
     <types>
@@ -3118,7 +1910,6 @@
         <members>Log__c</members>
         <members>LoggerScenario__c</members>
         <members>LoggerTag__c</members>
-        <members>Login_OTP__c</members>
         <members>Message__c</members>
         <members>Opportunity</members>
         <members>Order</members>
@@ -3174,16 +1965,21 @@
     </types>
     <types>
         <members>Client - Project Management Portal.Customer_Members</members>
-        <members>Client - Project Management Portal.Members_without_contribution</members>
-        <members>Client - Project Management Portal.Partner_and_Customer_members</members>
+        <members
+    >Client - Project Management Portal.Members_without_contribution</members>
+        <members
+    >Client - Project Management Portal.Partner_and_Customer_members</members>
         <members>Milestone Consulting Customer Portal.Customer_Members</members>
-        <members>Milestone Consulting Customer Portal.Members_without_contribution</members>
-        <members>Milestone Consulting Customer Portal.Partner_and_Customer_members</members>
+        <members
+    >Milestone Consulting Customer Portal.Members_without_contribution</members>
+        <members
+    >Milestone Consulting Customer Portal.Partner_and_Customer_members</members>
         <name>UserCriteria</name>
     </types>
     <types>
         <members>Employee_Zoom_Identity__c.User_Validation</members>
-        <members>Project_Task_Relationship__c.Prevent_Self_Relationship</members>
+        <members
+    >Project_Task_Relationship__c.Prevent_Self_Relationship</members>
         <members>Project_Task__c.Prevent_Parent_Self_Reference</members>
         <members>Project_Task__c.Prevent_Subtask_If_Parent_Completed</members>
         <members>Project_Task__c.Validate_Client_Completion_Approval</members>
@@ -3199,26 +1995,16 @@
         <members>Account.GoogleMaps</members>
         <members>Account.GoogleNews</members>
         <members>Account.GoogleSearch</members>
-        <members>Account.Mass_Delete_Records</members>
-        <members>Asset.Mass_Delete_Records</members>
-        <members>Campaign.Mass_Delete_Records</members>
         <members>Campaign.ViewAllCampaignMembers</members>
         <members>Campaign.ViewCampaignInfluenceReport</members>
-        <members>Case.Mass_Delete_Records</members>
         <members>Contact.GoogleMaps</members>
         <members>Contact.GoogleSearch</members>
-        <members>Contact.Mass_Delete_Records</members>
-        <members>Contract.Mass_Delete_Records</members>
         <members>Lead.GoogleMaps</members>
         <members>Lead.GoogleNews</members>
         <members>Lead.GoogleSearch</members>
-        <members>Lead.Mass_Delete_Records</members>
-        <members>Opportunity.Mass_Delete_Records</members>
-        <members>Product2.Mass_Delete_Records</members>
         <members>Project__c.Invoice</members>
         <members>Project__c.Send_to_Slack</members>
         <members>Project__c.Slack_Alerts</members>
-        <members>Solution.Mass_Delete_Records</members>
         <name>WebLink</name>
     </types>
     <types>
@@ -3233,12 +2019,14 @@
     </types>
     <types>
         <members>Account.TrayOnAccountCreateUpdate_Z14hTW0</members>
-        <members>Quickbooks_Invoice__c.TrayOnQuickbooksInvoiceStat_ZFhbQ1</members>
+        <members
+    >Quickbooks_Invoice__c.TrayOnQuickbooksInvoiceStat_ZFhbQ1</members>
         <name>WorkflowOutboundMessage</name>
     </types>
     <types>
         <members>Account.TrayOnAccountCreateUpdate_Z14hTW0</members>
-        <members>Quickbooks_Invoice__c.TrayOnQuickbooksInvoiceStat_ZFhbQ1</members>
+        <members
+    >Quickbooks_Invoice__c.TrayOnQuickbooksInvoiceStat_ZFhbQ1</members>
         <name>WorkflowRule</name>
     </types>
     <version>66.0</version>

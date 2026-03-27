@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>（可选）输入逗号分隔的工作流文件索引列表。</help>
-    <label></label>
-    <name>echosign_dev1__Attachment_Workflow_Index__c</name>
-</CustomFieldTranslation>

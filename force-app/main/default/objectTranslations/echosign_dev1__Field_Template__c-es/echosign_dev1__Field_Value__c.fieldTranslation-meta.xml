@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>Seleccione un campo desde el objeto maestro para que sea el campo de origen.</help>
-    <label></label>
-    <name>echosign_dev1__Field_Value__c</name>
-</CustomFieldTranslation>

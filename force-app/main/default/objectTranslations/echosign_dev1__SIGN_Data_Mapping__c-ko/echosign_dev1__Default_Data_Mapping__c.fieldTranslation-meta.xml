@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>전송된 모든 계약에 대해 기본적으로 이 데이터 매핑을 실행하려면 이 확인란을 선택합니다. 특정 계약 또는 계약 템플릿에 다른 데이터 매핑을 지정하면 기본값을 무시할 수 있습니다.</help>
-    <label></label>
-    <name>echosign_dev1__Default_Data_Mapping__c</name>
-</CustomFieldTranslation>

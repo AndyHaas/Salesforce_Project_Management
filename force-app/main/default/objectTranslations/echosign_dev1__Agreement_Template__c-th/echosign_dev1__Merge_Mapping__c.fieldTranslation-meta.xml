@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <help>เลือกการแมปรวมเพื่อรวมฟิลด์ Salesforce ไว้ในข้อตกลง Adobe Acrobat Sign ก่อนที่จะส่งเพื่อขอลายเซ็น</help>
-    <label></label>
-    <name>echosign_dev1__Merge_Mapping__c</name>
-    <relationshipLabel></relationshipLabel>
-</CustomFieldTranslation>

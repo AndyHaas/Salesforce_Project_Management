@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>64.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -8,7 +8,8 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>recTimesheetEntry.End_Date_Time__c</assignToReference>
+            <assignToReference
+      >recTimesheetEntry.End_Date_Time__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>End_Date_Time</elementReference>
@@ -47,17 +48,11 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>recTimesheetEntry.Start_Date_Time__c</assignToReference>
+            <assignToReference
+      >recTimesheetEntry.Start_Date_Time__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Start_Date_Time</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>recTimesheetEntry.Contract_Pricing__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Get_Contract_Pricing.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -68,10 +63,12 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>recTimesheetEntry.Consultant__c</assignToReference>
+            <assignToReference
+      >recTimesheetEntry.Consultant__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Consultant_that_Did_the_Work</elementReference>
+                <elementReference
+        >Consultant_that_Did_the_Work</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -103,29 +100,8 @@
             <label>Adding End Time</label>
         </rules>
     </decisions>
-    <description>This flow will allow users to add a new entry for the project.</description>
-    <dynamicChoiceSets>
-        <name>recChoice_ContractPricing</name>
-        <dataType>String</dataType>
-        <displayField>Name</displayField>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Contract__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_Project.Contract__c</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>IsActive__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </filters>
-        <object>Contract_Pricing__c</object>
-        <valueField>Id</valueField>
-    </dynamicChoiceSets>
+    <description
+  >This flow will allow users to add a new entry for the project.</description>
     <dynamicChoiceSets>
         <description>Milestone Employee&apos;s</description>
         <name>recConsultants</name>
@@ -145,7 +121,8 @@
         <valueField>Id</valueField>
     </dynamicChoiceSets>
     <environments>Default</environments>
-    <interviewLabel>Timesheet Entry - New Entry {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Timesheet Entry - New Entry {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Timesheet Entry - New Entry</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -174,41 +151,14 @@
         <inputReference>recTimesheetEntry</inputReference>
     </recordCreates>
     <recordLookups>
-        <name>Get_Contract_Pricing</name>
-        <label>Get Contract Pricing</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>New_Timesheet_Entry</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Contract__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_Project.Contract__c</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>IsActive__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Contract_Pricing__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
         <name>Get_Project</name>
         <label>Get Project</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Contract_Pricing</targetReference>
+            <targetReference>New_Timesheet_Entry</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -244,11 +194,13 @@
                     <name>Start_Date_Time</name>
                     <dataType>DateTime</dataType>
                     <defaultValue>
-                        <elementReference>$Flow.CurrentDateTime</elementReference>
+                        <elementReference
+            >$Flow.CurrentDateTime</elementReference>
                     </defaultValue>
                     <fieldText>Start Date/Time</fieldText>
                     <fieldType>InputField</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <styleProperties>
                         <verticalAlignment>
@@ -264,7 +216,8 @@
                     <dataType>Boolean</dataType>
                     <fieldText>Add End Time?</fieldText>
                     <fieldType>InputField</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <styleProperties>
                         <verticalAlignment>
@@ -280,7 +233,8 @@
                     <dataType>DateTime</dataType>
                     <fieldText>End Date/Time</fieldText>
                     <fieldType>InputField</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <styleProperties>
                         <verticalAlignment>
@@ -293,7 +247,8 @@
                     <visibilityRule>
                         <conditionLogic>and</conditionLogic>
                         <conditions>
-                            <leftValueReference>Add_End_Time</leftValueReference>
+                            <leftValueReference
+              >Add_End_Time</leftValueReference>
                             <operator>EqualTo</operator>
                             <rightValue>
                                 <booleanValue>true</booleanValue>
@@ -307,7 +262,8 @@
                     <dataType>String</dataType>
                     <fieldText>Consultant that Did the Work</fieldText>
                     <fieldType>DropdownBox</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <styleProperties>
                         <verticalAlignment>
@@ -331,9 +287,11 @@
                 <fieldType>Region</fieldType>
                 <fields>
                     <fieldType>ObjectProvided</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>false</isRequired>
-                    <objectFieldReference>recTimesheetEntry.Billable_Hours__c</objectFieldReference>
+                    <objectFieldReference
+          >recTimesheetEntry.Billable_Hours__c</objectFieldReference>
                     <styleProperties>
                         <verticalAlignment>
                             <stringValue>top</stringValue>
@@ -345,9 +303,11 @@
                 </fields>
                 <fields>
                     <fieldType>ObjectProvided</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>false</isRequired>
-                    <objectFieldReference>recTimesheetEntry.Type__c</objectFieldReference>
+                    <objectFieldReference
+          >recTimesheetEntry.Type__c</objectFieldReference>
                     <styleProperties>
                         <verticalAlignment>
                             <stringValue>top</stringValue>
@@ -359,19 +319,23 @@
                     <visibilityRule>
                         <conditionLogic>and</conditionLogic>
                         <conditions>
-                            <leftValueReference>Get_Project.Account__r.Name</leftValueReference>
+                            <leftValueReference
+              >Get_Project.Account__r.Name</leftValueReference>
                             <operator>EqualTo</operator>
                             <rightValue>
-                                <stringValue>Bluewave Consulting Group</stringValue>
+                                <stringValue
+                >Bluewave Consulting Group</stringValue>
                             </rightValue>
                         </conditions>
                     </visibilityRule>
                 </fields>
                 <fields>
                     <fieldType>ObjectProvided</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>false</isRequired>
-                    <objectFieldReference>recTimesheetEntry.Work_Item__c</objectFieldReference>
+                    <objectFieldReference
+          >recTimesheetEntry.Work_Item__c</objectFieldReference>
                     <styleProperties>
                         <verticalAlignment>
                             <stringValue>top</stringValue>
@@ -383,19 +347,23 @@
                     <visibilityRule>
                         <conditionLogic>and</conditionLogic>
                         <conditions>
-                            <leftValueReference>Get_Project.Account__r.Name</leftValueReference>
+                            <leftValueReference
+              >Get_Project.Account__r.Name</leftValueReference>
                             <operator>EqualTo</operator>
                             <rightValue>
-                                <stringValue>Bluewave Consulting Group</stringValue>
+                                <stringValue
+                >Bluewave Consulting Group</stringValue>
                             </rightValue>
                         </conditions>
                     </visibilityRule>
                 </fields>
                 <fields>
                     <fieldType>ObjectProvided</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>false</isRequired>
-                    <objectFieldReference>recTimesheetEntry.ADO_Ticket_Number__c</objectFieldReference>
+                    <objectFieldReference
+          >recTimesheetEntry.ADO_Ticket_Number__c</objectFieldReference>
                     <styleProperties>
                         <verticalAlignment>
                             <stringValue>top</stringValue>
@@ -407,10 +375,12 @@
                     <visibilityRule>
                         <conditionLogic>and</conditionLogic>
                         <conditions>
-                            <leftValueReference>Get_Project.Account__r.Name</leftValueReference>
+                            <leftValueReference
+              >Get_Project.Account__r.Name</leftValueReference>
                             <operator>EqualTo</operator>
                             <rightValue>
-                                <stringValue>Bluewave Consulting Group</stringValue>
+                                <stringValue
+                >Bluewave Consulting Group</stringValue>
                             </rightValue>
                         </conditions>
                     </visibilityRule>
@@ -419,7 +389,8 @@
                     <name>Notes_pre</name>
                     <fieldText>Notes</fieldText>
                     <fieldType>LargeTextArea</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>false</isRequired>
                     <styleProperties>
                         <verticalAlignment>
@@ -432,7 +403,8 @@
                     <visibilityRule>
                         <conditionLogic>and</conditionLogic>
                         <conditions>
-                            <leftValueReference>Add_End_Time</leftValueReference>
+                            <leftValueReference
+              >Add_End_Time</leftValueReference>
                             <operator>EqualTo</operator>
                             <rightValue>
                                 <booleanValue>false</booleanValue>
@@ -444,7 +416,8 @@
                     <name>Notes</name>
                     <fieldText>Notes</fieldText>
                     <fieldType>LargeTextArea</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <styleProperties>
                         <verticalAlignment>
@@ -457,7 +430,8 @@
                     <visibilityRule>
                         <conditionLogic>and</conditionLogic>
                         <conditions>
-                            <leftValueReference>Add_End_Time</leftValueReference>
+                            <leftValueReference
+              >Add_End_Time</leftValueReference>
                             <operator>EqualTo</operator>
                             <rightValue>
                                 <booleanValue>true</booleanValue>
@@ -496,11 +470,6 @@
         </connector>
     </start>
     <status>Active</status>
-    <textTemplates>
-        <name>txtWherePricingLookup</name>
-        <isViewedAsPlainText>true</isViewedAsPlainText>
-        <text>Contract__c=&apos;{!Get_Project.Contract__c}&apos; AND IsActive__c=TRUE</text>
-    </textTemplates>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
