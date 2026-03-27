@@ -724,7 +724,8 @@ public without sharing class MessagingController {
 
   /**
    * @description Get latest messages across all tasks for the current user's account
-   * Returns the most recent messages from all tasks the user has access to
+   * Returns the most recent messages from all tasks the user has access to.
+   * Used by Experience Cloud (portalMessageFeed); User lookup intentionally omits WITH SECURITY_ENFORCED.
    * @param limit Number of messages to return (default 5)
    * @return List of MessageInfo objects with task information
    */
@@ -735,12 +736,12 @@ public without sharing class MessagingController {
     }
 
     try {
-      // Get current user (need Name and Email for Contact creation if needed)
+      // No WITH SECURITY_ENFORCED: portalMessageFeed (Experience Cloud) calls this method; guest/portal
+      // profiles often lack field access on User, which would make the query fail.
       User currentUser = [
         SELECT Id, ContactId, AccountId, Name, Email
         FROM User
         WHERE Id = :UserInfo.getUserId()
-        WITH SECURITY_ENFORCED
         LIMIT 1
       ];
 
