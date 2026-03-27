@@ -32,6 +32,7 @@ import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE, publish } fr
 import { CurrentPageReference, NavigationMixin } from "lightning/navigation";
 import sendMessage from "@salesforce/apex/PortalMessagingController.sendMessage";
 import getMessages from "@salesforce/apex/PortalMessagingController.getMessages";
+import getPinnedMessages from "@salesforce/apex/MessagingPinnedSupport.getPinnedMessages";
 import getContextInfo from "@salesforce/apex/PortalMessagingController.getContextInfo";
 import getMentionableContacts from "@salesforce/apex/PortalMessagingController.getMentionableContacts";
 import getCurrentUserContactId from "@salesforce/apex/PortalMessagingController.getCurrentUserContactId";
@@ -96,6 +97,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   @track currentMentionIndex = -1;
 
   _messages = [];
+  /** Pinned rows for the thread (full list from Apex), merged with paged thread for the panel. */
+  @track _pinnedMessagesRaw = [];
   _messagesError = null;
   _previousParams;
   _wiredContactsResult;
@@ -416,6 +419,38 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       this._messagesError = error;
     } finally {
       this._isLoadingMore = false;
+      if (!append) {
+        this.loadPinnedMessages();
+      }
+    }
+  }
+
+  /**
+   * Loads every pinned message for this context (not paged). Ignores message search text so pins stay discoverable.
+   */
+  async loadPinnedMessages() {
+    if (!this.recipientType) {
+      return;
+    }
+    if (!this.relatedAccountId && !this.relatedProjectId && !this.relatedTaskId) {
+      this._pinnedMessagesRaw = [];
+      return;
+    }
+    try {
+      const recipientTypeForQuery = this._isMilestoneTeamMember ? null : this.recipientType;
+      let rows =
+        (await getPinnedMessages({
+          recipientType: recipientTypeForQuery,
+          relatedAccountId: this.relatedAccountId || null,
+          relatedProjectId: this.relatedProjectId || null,
+          relatedTaskId: this.relatedTaskId || null,
+          isMilestoneTeamMember: this._isMilestoneTeamMember
+        })) || [];
+      rows = await this.attachFilesToMessages(rows);
+      this._pinnedMessagesRaw = rows;
+    } catch (error) {
+      console.error("Error loading pinned messages:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+      this._pinnedMessagesRaw = [];
     }
   }
 
@@ -846,50 +881,53 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
 
     const filteredMessages = sorted;
 
-    return filteredMessages.map((msg) => {
-      const isFromCurrentUser = this.isFromCurrentUser(msg.senderId);
-      const taskLink = this.buildLink(msg.relatedTaskId, msg.relatedTaskName, "/project-task");
-      const projectLink = this.buildLink(msg.relatedProjectId, msg.relatedProjectName, "/project");
+    return filteredMessages.map((msg) => this.mapMessageForDisplay(msg));
+  }
 
-      // Prepare navigation data for Salesforce links
-      let taskNavData = null;
-      let projectNavData = null;
+  /**
+   * View-model for one message row (thread or pinned overlay). Kept in sync with message list template expectations.
+   *
+   * @param {object} msg Raw row from Apex (getMessages / getPinnedMessages).
+   * @returns {object} Display object for templates.
+   */
+  mapMessageForDisplay(msg) {
+    const isFromCurrentUser = this.isFromCurrentUser(msg.senderId);
+    const taskLink = this.buildLink(msg.relatedTaskId, msg.relatedTaskName, "/project-task");
+    const projectLink = this.buildLink(msg.relatedProjectId, msg.relatedProjectName, "/project");
 
-      if (taskLink && taskLink.type === "standard__recordPage") {
-        taskNavData = JSON.stringify(taskLink);
-      }
-      if (projectLink && projectLink.type === "standard__recordPage") {
-        projectNavData = JSON.stringify(projectLink);
-      }
+    let taskNavData = null;
+    let projectNavData = null;
 
-      return {
-        ...msg,
-        formattedDate: this.formatMessageDate(msg.createdDate),
-        formattedEditedDate: msg.lastEditedDate ? this.formatMessageDate(msg.lastEditedDate) : "",
-        isFromCurrentUser,
-        showOverflowActions: isFromCurrentUser || this.isMilestoneTeamMember,
-        isUnread: !msg.isRead,
-        isEditing: this._editingMessageId === msg.id,
-        isReplying: this._replyingToMessageId === msg.id,
-        replyToFormattedDate: msg.replyToCreatedDate ? this.formatMessageDate(msg.replyToCreatedDate) : "",
-        replyToPreview: this.stripHtmlPreview(msg.replyToMessageBody || ""),
-        taskLink: taskLink,
-        projectLink: projectLink,
-        // Add flags to determine if link is Salesforce navigation
-        taskLinkIsSalesforce: taskLink && taskLink.type === "standard__recordPage",
-        projectLinkIsSalesforce: projectLink && projectLink.type === "standard__recordPage",
-        // JSON strings for navigation data
-        taskNavData: taskNavData,
-        projectNavData: projectNavData,
-        // Hide task footer if we're already on that task's page
-        showTaskFooter: !(this.relatedTaskId && msg.relatedTaskId && this.relatedTaskId === msg.relatedTaskId),
-        attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
-        hasAttachments: Array.isArray(msg.files) && msg.files.length > 0,
-        // Visible_To_Client__c === false — show badge only for Milestone team (template guard)
-        isInternalMessage: msg.visibleToClient === false,
-        bodyPreview: this.truncatePreview(this.stripHtmlPreview(msg.body || ""), 140)
-      };
-    });
+    if (taskLink && taskLink.type === "standard__recordPage") {
+      taskNavData = JSON.stringify(taskLink);
+    }
+    if (projectLink && projectLink.type === "standard__recordPage") {
+      projectNavData = JSON.stringify(projectLink);
+    }
+
+    return {
+      ...msg,
+      formattedDate: this.formatMessageDate(msg.createdDate),
+      formattedEditedDate: msg.lastEditedDate ? this.formatMessageDate(msg.lastEditedDate) : "",
+      isFromCurrentUser,
+      showOverflowActions: isFromCurrentUser || this.isMilestoneTeamMember,
+      isUnread: !msg.isRead,
+      isEditing: this._editingMessageId === msg.id,
+      isReplying: this._replyingToMessageId === msg.id,
+      replyToFormattedDate: msg.replyToCreatedDate ? this.formatMessageDate(msg.replyToCreatedDate) : "",
+      replyToPreview: this.stripHtmlPreview(msg.replyToMessageBody || ""),
+      taskLink: taskLink,
+      projectLink: projectLink,
+      taskLinkIsSalesforce: taskLink && taskLink.type === "standard__recordPage",
+      projectLinkIsSalesforce: projectLink && projectLink.type === "standard__recordPage",
+      taskNavData: taskNavData,
+      projectNavData: projectNavData,
+      showTaskFooter: !(this.relatedTaskId && msg.relatedTaskId && this.relatedTaskId === msg.relatedTaskId),
+      attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
+      hasAttachments: Array.isArray(msg.files) && msg.files.length > 0,
+      isInternalMessage: msg.visibleToClient === false,
+      bodyPreview: this.truncatePreview(this.stripHtmlPreview(msg.body || ""), 140)
+    };
   }
 
   truncatePreview(text, maxLen) {
@@ -904,6 +942,9 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   get hasPinnedMessages() {
+    if ((this._pinnedMessagesRaw || []).length > 0) {
+      return true;
+    }
     return (this._messages || []).some((m) => m.isPinned === true);
   }
 
@@ -916,7 +957,18 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   get pinnedMessagesCompact() {
-    return this.messages.filter((m) => m.isPinned === true);
+    const threadPinned = this.messages.filter((m) => m.isPinned === true);
+    const loadedIds = new Set((this._messages || []).map((m) => String(m.id)));
+    const extraRaw = (this._pinnedMessagesRaw || []).filter((r) => r && r.id && !loadedIds.has(String(r.id)));
+    const extraView = extraRaw.map((msg) => this.mapMessageForDisplay(msg));
+    return [...threadPinned, ...extraView].sort((a, b) => {
+      const ta = new Date(a.createdDate || 0).getTime();
+      const tb = new Date(b.createdDate || 0).getTime();
+      if (ta !== tb) {
+        return ta - tb;
+      }
+      return String(a.id || "").localeCompare(String(b.id || ""));
+    });
   }
 
   get pinnedToggleVariant() {
@@ -933,15 +985,39 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
 
   /**
    * Scroll the main thread so the full message row is visible (from pinned summary click).
+   * Loads older pages if the pin is not yet in the DOM.
    */
-  handleScrollToMessageInThread(event) {
+  async handleScrollToMessageInThread(event) {
     const id = event.currentTarget?.dataset?.messageId;
     if (!id) {
       return;
     }
-    const list = this.template.querySelector(".messages-list");
-    const row = list?.querySelector(`.message-item[data-message-id="${id}"]`);
+    const findRow = () =>
+      this.template.querySelector(".messages-list")?.querySelector(`.message-item[data-message-id="${id}"]`);
+
+    let row = findRow();
+    let iterations = 0;
+    const maxLoads = 80;
+    while (!row && this._hasMoreMessages && iterations < maxLoads) {
+      iterations += 1;
+      if (this._isLoadingMore) {
+        await new Promise((r) => setTimeout(r, 50));
+        row = findRow();
+        continue;
+      }
+      await this.loadMessages(true);
+      row = findRow();
+    }
+
     if (!row || typeof row.scrollIntoView !== "function") {
+      this.dispatchEvent(
+        new ShowToastEvent({
+          title: "Message not in thread",
+          message: "Could not load that message in the list. It may have been removed or you may lack access.",
+          variant: "warning",
+          mode: "dismissable"
+        })
+      );
       return;
     }
     row.classList.remove("message-item--highlight");
