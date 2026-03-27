@@ -1,10 +1,10 @@
 .status-group {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .status-header {
-    border-radius: 0.25rem 0.25rem 0 0;
-    font-weight: 600;
+  border-radius: 0.25rem 0.25rem 0 0;
+  font-weight: 600;
 }
 
 /* Status header text color is dynamically set via inline style based on background color */
@@ -12,364 +12,368 @@
 /* Ensure text elements inherit the dynamically calculated color */
 .status-header h3,
 .status-header span {
-    color: inherit;
+  color: inherit;
 }
 
 .status-header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .status-toggle-button {
-    color: inherit;
+  color: inherit;
+}
+
+.status-header-meta {
+  opacity: 0.9;
 }
 
 /* Table Base Styles */
 .task-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0;
-    table-layout: auto;
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: auto;
 }
 
 .task-table thead {
-    background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
+  background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
 }
 
 .task-table th,
 .task-table td {
-    vertical-align: middle;
-    border-bottom: 1px solid var(--slds-g-color-border-base-4, #e5e5e5);
-    box-sizing: border-box;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--slds-g-color-border-base-4, #e5e5e5);
+  box-sizing: border-box;
 }
 
 .task-table th {
-    font-weight: 600;
-    border-bottom: 2px solid var(--slds-g-color-border-base-4, #e5e5e5);
-    text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid var(--slds-g-color-border-base-4, #e5e5e5);
+  text-align: left;
 }
 
 /* Override text-align for summary headers to match data cells */
 .task-table th.summary-header {
-    text-align: right;
+  text-align: right;
 }
 
 /* Account for pencil icon space in data cells for summary headers - only for editable columns */
 /* Icon space: 0.25rem gap + ~0.75rem icon width = ~1rem */
 .density-comfy .task-table th.summary-header-editable {
-    padding-right: calc(var(--slds-spacing-small, 0.75rem) + 1rem);
+  padding-right: calc(var(--slds-spacing-small, 0.75rem) + 1rem);
 }
 
 .density-compact .task-table th.summary-header-editable {
-    padding-right: calc(0.625rem + 1rem);
+  padding-right: calc(0.625rem + 1rem);
 }
 
 .task-table th.menu-header {
-    text-align: center;
+  text-align: center;
 }
 
 .task-table tbody tr {
-    transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .task-table tbody tr:hover {
-    background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
+  background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
 }
 
 /* Column Widths */
 .task-name-header,
 .task-name-cell {
-    min-width: 20rem;
-    width: auto;
-    text-align: left;
+  min-width: 20rem;
+  width: auto;
+  text-align: left;
 }
 
 .summary-header,
 .summary-cell {
-    width: 7.5rem;
-    min-width: 7.5rem;
-    max-width: 7.5rem;
-    text-align: right;
+  width: 7.5rem;
+  min-width: 7.5rem;
+  max-width: 7.5rem;
+  text-align: right;
 }
 
 .menu-header,
 .menu-cell {
-    width: 3rem;
-    min-width: 3rem;
-    max-width: 3rem;
-    text-align: center;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+  width: 3rem;
+  min-width: 3rem;
+  max-width: 3rem;
+  text-align: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .task-action-menu {
-    flex-shrink: 0;
+  flex-shrink: 0;
 }
 
 /* Density mode styles */
 .density-comfy .status-header-comfy {
-    padding: var(--slds-spacing-small, 0.75rem);
+  padding: var(--slds-spacing-small, 0.75rem);
 }
 
 .density-compact .status-header-compact {
-    padding: 0.625rem; /* Between x-small (0.5rem) and small (0.75rem) for better balance */
+  padding: 0.625rem; /* Between x-small (0.5rem) and small (0.75rem) for better balance */
 }
 
 /* Table cell padding based on density */
 .density-comfy .task-table th,
 .density-comfy .task-table td {
-    padding: var(--slds-spacing-small, 0.75rem);
+  padding: var(--slds-spacing-small, 0.75rem);
 }
 
 .density-compact .task-table th,
 .density-compact .task-table td {
-    padding: 0.625rem; /* Between x-small (0.5rem) and small (0.75rem) for better balance */
+  padding: 0.625rem; /* Between x-small (0.5rem) and small (0.75rem) for better balance */
 }
 
 .density-compact .task-table tbody tr {
-    min-height: 2.375rem;
+  min-height: 2.375rem;
 }
 
 .density-comfy .task-table tbody tr {
-    min-height: 2.5rem;
+  min-height: 2.5rem;
 }
 
 /* Subtask indentation */
 .subtask-indent {
-    padding-left: 2.5rem !important; /* Indent subtasks visually */
-    position: relative;
+  padding-left: 2.5rem !important; /* Indent subtasks visually */
+  position: relative;
 }
 
 .subtask-indent::before {
-    content: '';
-    position: absolute;
-    left: 1.5rem;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background-color: var(--slds-g-color-border-base-3, #c9c9c9);
-    border-radius: 1px;
+  content: "";
+  position: absolute;
+  left: 1.5rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--slds-g-color-border-base-3, #c9c9c9);
+  border-radius: 1px;
 }
 
 .subtask-row {
-    background-color: var(--slds-g-color-neutral-base-99, #fafaf9);
-    border-left: 3px solid var(--slds-g-color-border-base-2, #b0adab);
+  background-color: var(--slds-g-color-neutral-base-99, #fafaf9);
+  border-left: 3px solid var(--slds-g-color-border-base-2, #b0adab);
 }
 
 .subtask-row:hover {
-    background-color: var(--slds-g-color-neutral-base-97, #f3f2f2);
+  background-color: var(--slds-g-color-neutral-base-97, #f3f2f2);
 }
 
 .subtask-name-link {
-    font-weight: 400;
-    color: var(--slds-g-color-neutral-base-30, #444444);
+  font-weight: 400;
+  color: var(--slds-g-color-neutral-base-30, #444444);
 }
 
 .subtask-name-link:hover {
-    color: var(--slds-g-color-brand-base-60, #0176d3);
+  color: var(--slds-g-color-brand-base-60, #0176d3);
 }
 
 .task-name-link,
 .subtask-name-link {
-    font-weight: 500;
-    text-decoration: none;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    white-space: normal;
-    cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  cursor: pointer;
 }
 
 .task-name-link:hover,
 .subtask-name-link:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* Task name cell content */
 .task-name-content {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .summary-cell {
-    text-align: right;
+  text-align: right;
 }
 
 .summary-cell .field-display {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .summary-cell .field-display-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.25rem;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  width: 100%;
 }
 
 .summary-cell .field-display {
-    flex: 1;
-    min-width: 0;
-    text-align: right;
+  flex: 1;
+  min-width: 0;
+  text-align: right;
 }
 
 .no-data-message {
-    min-height: 5rem;
+  min-height: 5rem;
 }
 
 /* Card body overflow handling - allow Y and X scrolling */
 .slds-card__body_inner {
-    overflow-y: auto;
-    overflow-x: auto;
-    max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: calc(100vh - 300px);
 }
 
 .account-filter-combobox {
-    min-width: 200px;
+  min-width: 200px;
 }
 
 .account-filter-combobox span:first-child {
-    display: none !important;
+  display: none !important;
 }
 
 .contact-filter-combobox {
-    min-width: 200px;
-    width: auto;
+  min-width: 200px;
+  width: auto;
 }
 
 .contact-filter-combobox span:first-child {
-    display: none !important;
+  display: none !important;
 }
 
 .actions-container {
-    flex-shrink: 1;
-    flex-grow: 0;
-    min-width: 0;
-    max-width: 100%;
+  flex-shrink: 1;
+  flex-grow: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .button-group-wrapper {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .task-name-wrapper,
 .subtask-name-wrapper {
-    position: relative;
-    display: inline-flex;
-    flex-direction: column;
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
 }
 
 .task-action-menu {
-    margin-left: 0.5rem;
-    flex-shrink: 0;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
 }
 
 /* Inline editing styles */
 lightning-input {
-    min-width: 200px;
+  min-width: 200px;
 }
 
 /* Field inline editing styles */
 .field-editable {
-    position: relative;
-    cursor: pointer;
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
-    transition: background-color 0.2s ease;
+  position: relative;
+  cursor: pointer;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
 }
 
 .field-editable.field-hover {
-    background-color: var(--slds-g-color-neutral-base-95, #f3f3f2);
+  background-color: var(--slds-g-color-neutral-base-95, #f3f3f2);
 }
 
 .field-editable .field-display-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    min-height: 1.5rem;
-    width: 100%;
-    gap: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 1.5rem;
+  width: 100%;
+  gap: 0.25rem;
 }
 
 .field-editable .field-display {
-    flex: 1;
-    min-width: 0;
-    text-align: right;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .field-editable .field-edit-icon {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 .field-editable:hover .field-edit-icon,
 .field-editable.field-hover .field-edit-icon {
-    opacity: 1;
+  opacity: 1;
 }
 
 .field-editable .field-input {
-    min-width: 150px;
-    max-width: 200px;
+  min-width: 150px;
+  max-width: 200px;
 }
 
 .field-editable .field-save-btn,
 .field-editable .field-cancel-btn {
-    margin-left: 0.25rem;
+  margin-left: 0.25rem;
 }
 
 .field-editable .field-save-btn:hover {
-    background-color: var(--slds-g-color-success-base-50, #2e844a);
-    color: white;
+  background-color: var(--slds-g-color-success-base-50, #2e844a);
+  color: white;
 }
 
 .field-editable .field-cancel-btn:hover {
-    background-color: var(--slds-g-color-error-base-50, #c23934);
-    color: white;
+  background-color: var(--slds-g-color-error-base-50, #c23934);
+  color: white;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .task-table {
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .task-table thead,
-    .task-table tbody,
-    .task-table tr {
-        display: block;
-    }
-    
-    .task-table th,
-    .task-table td {
-        display: block;
-        text-align: left !important;
-        border-bottom: 1px solid var(--slds-g-color-border-base-4, #e5e5e5);
-        padding: 0.5rem;
-    }
-    
-    .task-table th {
-        font-weight: 600;
-        background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
-    }
-    
-    .task-table td:before {
-        content: attr(data-label);
-        font-weight: 600;
-        display: inline-block;
-        width: 120px;
-        margin-right: 0.5rem;
-    }
+  .task-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .task-table thead,
+  .task-table tbody,
+  .task-table tr {
+    display: block;
+  }
+
+  .task-table th,
+  .task-table td {
+    display: block;
+    text-align: left !important;
+    border-bottom: 1px solid var(--slds-g-color-border-base-4, #e5e5e5);
+    padding: 0.5rem;
+  }
+
+  .task-table th {
+    font-weight: 600;
+    background-color: var(--slds-g-color-neutral-base-98, #fafaf9);
+  }
+
+  .task-table td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    display: inline-block;
+    width: 120px;
+    margin-right: 0.5rem;
+  }
 }

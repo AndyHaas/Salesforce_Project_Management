@@ -1,5 +1,5 @@
 <template>
-  <c-field-edit-modal onsave={handleFieldSaveFromModal}> </c-field-edit-modal>
+  <c-field-edit-modal onsave={handleFieldSaveFromModal}></c-field-edit-modal>
   <lightning-card title="Tasks" icon-name="utility:list" class={densityClass}>
     <div
       slot="actions"
@@ -174,8 +174,7 @@
                   <h3 class="slds-text-heading_small">
                     {statusGroup.status}
                     <span
-                      class="slds-m-left_small slds-text-body_regular"
-                      style="opacity: 0.9"
+                      class="slds-m-left_small slds-text-body_regular status-header-meta"
                     >
                       ({statusGroup.taskCount})
                     </span>
@@ -183,8 +182,7 @@
                       if:true={statusGroup.formattedTotalEstimatedHours}
                     >
                       <span
-                        class="slds-m-left_small slds-text-body_regular"
-                        style="opacity: 0.9"
+                        class="slds-m-left_small slds-text-body_regular status-header-meta"
                       >
                         • {statusGroup.formattedTotalEstimatedHours}
                       </span>
@@ -204,44 +202,38 @@
 
               <template if:false={statusGroup.isCollapsed}>
                 <!-- HTML Table Structure -->
-                <table class="task-table">
+                <table class="task-table slds-table slds-table_cell-buffer">
                   <thead>
                     <tr class="column-headers">
-                      <th class="task-name-header">
-                        <strong>Task Name</strong>
-                      </th>
+                      <th class="task-name-header" scope="col">Task Name</th>
                       <template if:true={hasSummaryFields}>
                         <template
                           for:each={summaryFieldDefinitions}
                           for:item="field"
                         >
-                          <th key={field.apiName} class={field.headerClass}>
-                            <strong>{field.label}</strong>
+                          <th
+                            key={field.apiName}
+                            class={field.headerClass}
+                            scope="col"
+                          >
+                            {field.label}
                           </th>
                         </template>
                       </template>
                       <template if:false={hasSummaryFields}>
                         <template if:false={isFilteredByAccount}>
                           <template if:false={isFilteredByProject}>
-                            <th class="summary-header">
-                              <strong>Account</strong>
-                            </th>
+                            <th class="summary-header" scope="col">Account</th>
                           </template>
                         </template>
-                        <th class="summary-header">
-                          <strong>Owner</strong>
-                        </th>
-                        <th class="summary-header">
-                          <strong>Due Date</strong>
-                        </th>
-                        <th class="summary-header">
-                          <strong>Priority</strong>
-                        </th>
-                        <th class="summary-header">
-                          <strong>Est. Hours</strong>
-                        </th>
+                        <th class="summary-header" scope="col">Owner</th>
+                        <th class="summary-header" scope="col">Due Date</th>
+                        <th class="summary-header" scope="col">Priority</th>
+                        <th class="summary-header" scope="col">Est. Hours</th>
                       </template>
-                      <th class="menu-header"></th>
+                      <th class="menu-header" scope="col">
+                        <span class="slds-assistive-text">Actions</span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
