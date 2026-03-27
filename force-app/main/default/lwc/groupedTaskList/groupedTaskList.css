@@ -1,3 +1,75 @@
+.list-filter-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  min-height: 4rem;
+}
+
+/* Sliding column only; inner uses SLDS panel surface (see list-filter-surface). */
+.list-filter-panel {
+  flex: 0 0 0;
+  width: 0;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    flex-basis 0.2s ease,
+    max-width 0.2s ease,
+    opacity 0.15s ease,
+    margin 0.2s ease;
+}
+
+/* ~320px matches SLDS builder / filter panel width guidance */
+.list-filter-panel_open {
+  flex: 0 0 20rem;
+  width: 20rem;
+  max-width: 20rem;
+  overflow: visible;
+  opacity: 1;
+  margin-right: var(--slds-spacing-small, 0.75rem);
+}
+
+/* Embedded panel (not docked/fixed): matches SLDS panel look inside the card */
+.list-filter-surface {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: min(70vh, 40rem);
+  max-height: min(70vh, 40rem);
+  background: var(--slds-g-color-neutral-base-100, #ffffff);
+  border: 1px solid var(--slds-g-color-border-base-1, #c9c9c9);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  box-shadow: var(--slds-g-shadow-overlay, 0 2px 3px 0 rgba(0, 0, 0, 0.16));
+}
+
+.list-filter-panel__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--slds-spacing-small, 0.75rem);
+}
+
+.list-filter-panel__footer {
+  flex-shrink: 0;
+  padding: var(--slds-spacing-small, 0.75rem);
+  border-top: 1px solid var(--slds-g-color-border-base-4, #e5e5e5);
+  background: var(--slds-g-color-neutral-base-98, #fafaf9);
+}
+
+.list-filter-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.list-filter-main_panel-open {
+  padding-left: var(--slds-spacing-small, 0.75rem);
+}
+
+.list-filter-empty {
+  border: 1px dashed var(--slds-g-color-border-base-4, #e5e5e5);
+  border-radius: 0.25rem;
+  background: var(--slds-g-color-neutral-base-98, #fafaf9);
+}
+
 .status-group {
   margin-bottom: 1.5rem;
 }

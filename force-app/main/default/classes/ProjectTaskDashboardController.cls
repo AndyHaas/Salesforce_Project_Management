@@ -41,6 +41,7 @@ public without sharing class ProjectTaskDashboardController {
     'Actual_Hours__c',
     'Progress_Percentage__c',
     'Project__c',
+    'Project__r.Name',
     'Project_Manager__c',
     'Project_Manager__r.Name',
     'Project_Manager__r.Id',
@@ -66,6 +67,7 @@ public without sharing class ProjectTaskDashboardController {
     'Actual_Hours__c',
     'Progress_Percentage__c',
     'Project__c',
+    'Project__r.Name',
     'Project_Manager__c',
     'Project_Manager__r.Name',
     'Project_Manager__r.Id',
@@ -93,9 +95,7 @@ public without sharing class ProjectTaskDashboardController {
     return getFieldSetMembers(TASK_SUMMARY_FIELD_SET);
   }
 
-  private static List<Schema.FieldSetMember> getFieldSetMembers(
-    String fieldSetName
-  ) {
+  private static List<Schema.FieldSetMember> getFieldSetMembers(String fieldSetName) {
     Schema.DescribeSObjectResult describe = Project_Task__c.SObjectType.getDescribe();
     Map<String, Schema.FieldSet> fieldSets = describe.fieldSets.getMap();
     if (fieldSets.containsKey(fieldSetName)) {
@@ -105,9 +105,7 @@ public without sharing class ProjectTaskDashboardController {
   }
 
   @AuraEnabled(cacheable=true)
-  public static StatusBreakdownResult getStatusBreakdown(
-    List<String> accountIds
-  ) {
+  public static StatusBreakdownResult getStatusBreakdown(List<String> accountIds) {
     // Handle null or empty list
     if (accountIds == null) {
       accountIds = new List<String>();
@@ -188,9 +186,7 @@ public without sharing class ProjectTaskDashboardController {
     for (AggregateResult ar : results) {
       Decimal estimated = (Decimal) ar.get('totalEstimated');
       Decimal actual = (Decimal) ar.get('totalActual');
-      Decimal estimatedWithSubtasks = (Decimal) ar.get(
-        'totalEstimatedWithSubtasks'
-      );
+      Decimal estimatedWithSubtasks = (Decimal) ar.get('totalEstimatedWithSubtasks');
       Decimal actualWithSubtasks = (Decimal) ar.get('totalActualWithSubtasks');
       String status = (String) ar.get('Status__c');
 
@@ -214,17 +210,14 @@ public without sharing class ProjectTaskDashboardController {
 
     metrics.variance = metrics.totalEstimated - metrics.totalActual;
     metrics.variancePercentage = metrics.totalEstimated != 0
-      ? ((metrics.totalEstimated - metrics.totalActual) /
-        metrics.totalEstimated) * 100
+      ? ((metrics.totalEstimated - metrics.totalActual) / metrics.totalEstimated) * 100
       : 0;
 
     return metrics;
   }
 
   @AuraEnabled(cacheable=true)
-  public static ReviewStatusMetricsResult getReviewStatusMetrics(
-    List<String> accountIds
-  ) {
+  public static ReviewStatusMetricsResult getReviewStatusMetrics(List<String> accountIds) {
     // Handle null or empty list
     if (accountIds == null) {
       accountIds = new List<String>();
@@ -297,9 +290,7 @@ public without sharing class ProjectTaskDashboardController {
   }
 
   @AuraEnabled(cacheable=true)
-  public static PriorityBreakdownResult getPriorityBreakdown(
-    List<String> accountIds
-  ) {
+  public static PriorityBreakdownResult getPriorityBreakdown(List<String> accountIds) {
     // Handle null or empty list
     if (accountIds == null) {
       accountIds = new List<String>();
@@ -338,9 +329,7 @@ public without sharing class ProjectTaskDashboardController {
   }
 
   @AuraEnabled(cacheable=true)
-  public static ProgressMetricsResult getProgressMetrics(
-    List<String> accountIds
-  ) {
+  public static ProgressMetricsResult getProgressMetrics(List<String> accountIds) {
     // Handle null or empty list
     if (accountIds == null) {
       accountIds = new List<String>();
@@ -400,36 +389,18 @@ public without sharing class ProjectTaskDashboardController {
 
         // Progress distribution buckets
         if (progress == 0) {
-          metrics.progressDistribution.put(
-            '0%',
-            metrics.progressDistribution.get('0%') + 1
-          );
+          metrics.progressDistribution.put('0%', metrics.progressDistribution.get('0%') + 1);
         } else if (progress > 0 && progress <= 25) {
-          metrics.progressDistribution.put(
-            '1-25%',
-            metrics.progressDistribution.get('1-25%') + 1
-          );
+          metrics.progressDistribution.put('1-25%', metrics.progressDistribution.get('1-25%') + 1);
         } else if (progress > 25 && progress <= 50) {
-          metrics.progressDistribution.put(
-            '26-50%',
-            metrics.progressDistribution.get('26-50%') + 1
-          );
+          metrics.progressDistribution.put('26-50%', metrics.progressDistribution.get('26-50%') + 1);
         } else if (progress > 50 && progress <= 75) {
-          metrics.progressDistribution.put(
-            '51-75%',
-            metrics.progressDistribution.get('51-75%') + 1
-          );
+          metrics.progressDistribution.put('51-75%', metrics.progressDistribution.get('51-75%') + 1);
         } else if (progress > 75 && progress < 100) {
-          metrics.progressDistribution.put(
-            '76-99%',
-            metrics.progressDistribution.get('76-99%') + 1
-          );
+          metrics.progressDistribution.put('76-99%', metrics.progressDistribution.get('76-99%') + 1);
           metrics.nearingCompletionCount++;
         } else if (progress == 100) {
-          metrics.progressDistribution.put(
-            '100%',
-            metrics.progressDistribution.get('100%') + 1
-          );
+          metrics.progressDistribution.put('100%', metrics.progressDistribution.get('100%') + 1);
         }
 
         // Track average progress by status
@@ -437,14 +408,8 @@ public without sharing class ProjectTaskDashboardController {
           statusProgressTotals.put(task.Status__c, 0);
           statusTaskCounts.put(task.Status__c, 0);
         }
-        statusProgressTotals.put(
-          task.Status__c,
-          statusProgressTotals.get(task.Status__c) + progress
-        );
-        statusTaskCounts.put(
-          task.Status__c,
-          statusTaskCounts.get(task.Status__c) + 1
-        );
+        statusProgressTotals.put(task.Status__c, statusProgressTotals.get(task.Status__c) + progress);
+        statusTaskCounts.put(task.Status__c, statusTaskCounts.get(task.Status__c) + 1);
       } else {
         metrics.tasksWithoutProgress++;
       }
@@ -458,23 +423,16 @@ public without sharing class ProjectTaskDashboardController {
       }
     }
 
-    metrics.avgProgress = tasksWithProgress > 0
-      ? totalProgress / tasksWithProgress
-      : 0;
+    metrics.avgProgress = tasksWithProgress > 0 ? totalProgress / tasksWithProgress : 0;
     metrics.completionRate = metrics.totalTasks > 0
-      ? ((Decimal.valueOf(metrics.completedCount) /
-          Decimal.valueOf(metrics.totalTasks)) * 100)
-          .setScale(2)
+      ? ((Decimal.valueOf(metrics.completedCount) / Decimal.valueOf(metrics.totalTasks)) * 100).setScale(2)
       : 0;
 
     // Calculate average progress by status
     for (String status : statusProgressTotals.keySet()) {
       Integer count = statusTaskCounts.get(status);
       if (count > 0) {
-        metrics.avgProgressByStatus.put(
-          status,
-          (statusProgressTotals.get(status) / count).setScale(2)
-        );
+        metrics.avgProgressByStatus.put(status, (statusProgressTotals.get(status) / count).setScale(2));
       }
     }
 
@@ -482,11 +440,7 @@ public without sharing class ProjectTaskDashboardController {
   }
 
   @AuraEnabled(cacheable=true)
-  public static TaskListResult getTaskList(
-    List<String> accountIds,
-    Integer pageSize,
-    Integer pageNumber
-  ) {
+  public static TaskListResult getTaskList(List<String> accountIds, Integer pageSize, Integer pageNumber) {
     if (accountIds == null) {
       accountIds = new List<String>();
     }
@@ -494,14 +448,8 @@ public without sharing class ProjectTaskDashboardController {
     pageNumber = (pageNumber == null || pageNumber <= 0) ? 1 : pageNumber;
 
     List<Schema.FieldSetMember> fieldSetMembers = getTaskListFieldSetMembers();
-    Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe()
-      .fields.getMap();
-    Set<String> selectFields = new Set<String>{
-      'Id',
-      'Status__c',
-      'Review_Status_Icons__c',
-      'CreatedDate'
-    };
+    Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe().fields.getMap();
+    Set<String> selectFields = new Set<String>{ 'Id', 'Status__c', 'Review_Status_Icons__c', 'CreatedDate' };
 
     for (Schema.FieldSetMember member : fieldSetMembers) {
       if (member == null || String.isBlank(member.getFieldPath())) {
@@ -510,8 +458,7 @@ public without sharing class ProjectTaskDashboardController {
       String fieldPath = member.getFieldPath();
       selectFields.add(fieldPath);
       if (describeFieldMap.containsKey(fieldPath)) {
-        Schema.DescribeFieldResult describe = describeFieldMap.get(fieldPath)
-          .getDescribe();
+        Schema.DescribeFieldResult describe = describeFieldMap.get(fieldPath).getDescribe();
         if (describe.getType() == Schema.DisplayType.Reference) {
           String relationshipName = describe.getRelationshipName();
           if (!String.isBlank(relationshipName)) {
@@ -534,13 +481,8 @@ public without sharing class ProjectTaskDashboardController {
     List<Project_Task__c> allTasks = Database.query(baseQuery);
 
     Integer totalRecords = allTasks.size();
-    Integer totalPages = pageSize > 0
-      ? (Integer) Math.ceil((Double) totalRecords / pageSize)
-      : 0;
-    Integer safePageNumber = Math.max(
-      1,
-      Math.min(pageNumber, Math.max(totalPages, 1))
-    );
+    Integer totalPages = pageSize > 0 ? (Integer) Math.ceil((Double) totalRecords / pageSize) : 0;
+    Integer safePageNumber = Math.max(1, Math.min(pageNumber, Math.max(totalPages, 1)));
     Integer offset = (safePageNumber - 1) * pageSize;
     Integer endIndex = Math.min(offset + pageSize, totalRecords);
 
@@ -561,18 +503,12 @@ public without sharing class ProjectTaskDashboardController {
   @AuraEnabled(cacheable=true)
   public static List<FieldSetFieldDefinition> getTaskListFieldSetDefinition() {
     List<Schema.FieldSetMember> members = getTaskListFieldSetMembers();
-    Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe()
-      .fields.getMap();
-    return ProjectTaskDashboardFieldSetHelper.buildFieldSetDefinitions(
-      members,
-      describeFieldMap
-    );
+    Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe().fields.getMap();
+    return ProjectTaskDashboardFieldSetHelper.buildFieldSetDefinitions(members, describeFieldMap);
   }
 
   @AuraEnabled(cacheable=true)
-  public static DueDateMetricsResult getDueDateMetrics(
-    List<String> accountIds
-  ) {
+  public static DueDateMetricsResult getDueDateMetrics(List<String> accountIds) {
     // Handle null or empty list
     if (accountIds == null) {
       accountIds = new List<String>();
@@ -595,9 +531,7 @@ public without sharing class ProjectTaskDashboardController {
         WHERE Is_Overdue__c = TRUE
       ];
     }
-    metrics.overdueCount = overdueResults.isEmpty()
-      ? 0
-      : (Integer) overdueResults[0].get('taskCount');
+    metrics.overdueCount = overdueResults.isEmpty() ? 0 : (Integer) overdueResults[0].get('taskCount');
 
     // Query for tasks due today
     List<AggregateResult> dueTodayResults;
@@ -605,25 +539,16 @@ public without sharing class ProjectTaskDashboardController {
       dueTodayResults = [
         SELECT COUNT(Id) taskCount
         FROM Project_Task__c
-        WHERE
-          Account__c IN :accountIds
-          AND Due_Date__c = TODAY
-          AND Status__c != 'Completed'
-          AND Status__c != 'Closed'
+        WHERE Account__c IN :accountIds AND Due_Date__c = TODAY AND Status__c != 'Completed' AND Status__c != 'Closed'
       ];
     } else {
       dueTodayResults = [
         SELECT COUNT(Id) taskCount
         FROM Project_Task__c
-        WHERE
-          Due_Date__c = TODAY
-          AND Status__c != 'Completed'
-          AND Status__c != 'Closed'
+        WHERE Due_Date__c = TODAY AND Status__c != 'Completed' AND Status__c != 'Closed'
       ];
     }
-    metrics.dueTodayCount = dueTodayResults.isEmpty()
-      ? 0
-      : (Integer) dueTodayResults[0].get('taskCount');
+    metrics.dueTodayCount = dueTodayResults.isEmpty() ? 0 : (Integer) dueTodayResults[0].get('taskCount');
 
     // Query for tasks due this week
     List<AggregateResult> dueThisWeekResults;
@@ -641,15 +566,10 @@ public without sharing class ProjectTaskDashboardController {
       dueThisWeekResults = [
         SELECT COUNT(Id) taskCount
         FROM Project_Task__c
-        WHERE
-          Due_Date__c = THIS_WEEK
-          AND Status__c != 'Completed'
-          AND Status__c != 'Closed'
+        WHERE Due_Date__c = THIS_WEEK AND Status__c != 'Completed' AND Status__c != 'Closed'
       ];
     }
-    metrics.dueThisWeekCount = dueThisWeekResults.isEmpty()
-      ? 0
-      : (Integer) dueThisWeekResults[0].get('taskCount');
+    metrics.dueThisWeekCount = dueThisWeekResults.isEmpty() ? 0 : (Integer) dueThisWeekResults[0].get('taskCount');
 
     // Query for tasks with due dates
     List<AggregateResult> withDueDateResults;
@@ -666,9 +586,7 @@ public without sharing class ProjectTaskDashboardController {
         WHERE Due_Date__c != NULL
       ];
     }
-    metrics.tasksWithDueDate = withDueDateResults.isEmpty()
-      ? 0
-      : (Integer) withDueDateResults[0].get('taskCount');
+    metrics.tasksWithDueDate = withDueDateResults.isEmpty() ? 0 : (Integer) withDueDateResults[0].get('taskCount');
 
     // Query for tasks without due dates
     List<AggregateResult> withoutDueDateResults;
@@ -692,8 +610,7 @@ public without sharing class ProjectTaskDashboardController {
     // Calculate overdue percentage
     if (metrics.tasksWithDueDate > 0) {
       metrics.overduePercentage =
-        (Decimal.valueOf(metrics.overdueCount) /
-        Decimal.valueOf(metrics.tasksWithDueDate)) * 100;
+        (Decimal.valueOf(metrics.overdueCount) / Decimal.valueOf(metrics.tasksWithDueDate)) * 100;
     } else {
       metrics.overduePercentage = 0;
     }
@@ -761,10 +678,7 @@ public without sharing class ProjectTaskDashboardController {
       LIMIT 1
     ];
 
-    if (
-      currentUser.ContactId != null &&
-      currentUser.Contact.AccountId != null
-    ) {
+    if (currentUser.ContactId != null && currentUser.Contact.AccountId != null) {
       return currentUser.Contact.AccountId;
     }
 
@@ -792,10 +706,7 @@ public without sharing class ProjectTaskDashboardController {
     List<Project_Task__c> tasks = [
       SELECT Project_Manager__c, Developer__c, Client_User__c
       FROM Project_Task__c
-      WHERE
-        Project_Manager__c != NULL
-        OR Developer__c != NULL
-        OR Client_User__c != NULL
+      WHERE Project_Manager__c != NULL OR Developer__c != NULL OR Client_User__c != NULL
       LIMIT 10000
     ];
 
@@ -996,9 +907,7 @@ public without sharing class ProjectTaskDashboardController {
   }
 
   @AuraEnabled(cacheable=true)
-  public static GroupedTasksResult getGroupedTasksWithSubtasks(
-    List<String> accountIds
-  ) {
+  public static GroupedTasksResult getGroupedTasksWithSubtasks(List<String> accountIds) {
     // Handle null or empty list, and filter out empty strings and null values
     List<String> validAccountIds = new List<String>();
     if (accountIds != null) {
@@ -1012,8 +921,7 @@ public without sharing class ProjectTaskDashboardController {
     List<Project_Task__c> allTasks;
     List<Schema.FieldSetMember> hoverFieldMembers = getTaskHoverFieldSetMembers();
     List<Schema.FieldSetMember> summaryFieldMembers = getTaskSummaryFieldSetMembers();
-    Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe()
-      .fields.getMap();
+    Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe().fields.getMap();
     List<FieldSetFieldDefinition> summaryFieldDefinitions = ProjectTaskDashboardFieldSetHelper.buildFieldSetDefinitions(
       summaryFieldMembers,
       describeFieldMap
@@ -1022,29 +930,13 @@ public without sharing class ProjectTaskDashboardController {
     Set<String> parentFieldSet = new Set<String>(BASE_PARENT_TASK_FIELDS);
     Set<String> subtaskFieldSet = new Set<String>(BASE_SUBTASK_FIELDS);
 
-    parentFieldSet.addAll(
-      ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers)
-    );
-    subtaskFieldSet.addAll(
-      ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers)
-    );
-    parentFieldSet.addAll(
-      ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers)
-    );
-    subtaskFieldSet.addAll(
-      ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers)
-    );
+    parentFieldSet.addAll(ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers));
+    subtaskFieldSet.addAll(ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers));
+    parentFieldSet.addAll(ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers));
+    subtaskFieldSet.addAll(ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers));
 
-    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
-      parentFieldSet,
-      hoverFieldMembers,
-      describeFieldMap
-    );
-    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
-      subtaskFieldSet,
-      hoverFieldMembers,
-      describeFieldMap
-    );
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(parentFieldSet, hoverFieldMembers, describeFieldMap);
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(subtaskFieldSet, hoverFieldMembers, describeFieldMap);
     ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
       parentFieldSet,
       summaryFieldMembers,
@@ -1073,10 +965,7 @@ public without sharing class ProjectTaskDashboardController {
     try {
       // Query parent tasks (tasks without a parent)
       if (!validAccountIds.isEmpty()) {
-        String soql =
-          baseQuery +
-          'WHERE Account__c IN :validAccountIds AND Parent_Task__c = null' +
-          orderClause;
+        String soql = baseQuery + 'WHERE Account__c IN :validAccountIds AND Parent_Task__c = null' + orderClause;
         allTasks = Database.query(soql);
       } else {
         String soql = baseQuery + 'WHERE Parent_Task__c = null' + orderClause;
@@ -1142,49 +1031,25 @@ public without sharing class ProjectTaskDashboardController {
       taskWrapper.estimatedHours = task.Estimated_Hours__c;
       taskWrapper.actualHours = task.Actual_Hours__c;
       taskWrapper.progressPercentage = task.Progress_Percentage__c;
-      taskWrapper.projectManagerId = (task.Project_Manager__c != null)
-        ? String.valueOf(task.Project_Manager__c)
-        : '';
-      taskWrapper.projectManagerName = (task.Project_Manager__r != null)
-        ? task.Project_Manager__r.Name
-        : '';
-      taskWrapper.developerName = (task.Developer__r != null)
-        ? task.Developer__r.Name
-        : '';
-      taskWrapper.developerId = (task.Developer__c != null)
-        ? String.valueOf(task.Developer__c)
-        : '';
-      taskWrapper.clientUserName = (task.Client_User__r != null)
-        ? task.Client_User__r.Name
-        : '';
-      taskWrapper.clientUserId = (task.Client_User__c != null)
-        ? String.valueOf(task.Client_User__c)
-        : '';
-      taskWrapper.accountId = (task.Account__c != null)
-        ? String.valueOf(task.Account__c)
-        : '';
-      taskWrapper.accountName = (task.Account__r != null)
-        ? task.Account__r.Name
-        : '';
+      taskWrapper.projectManagerId = (task.Project_Manager__c != null) ? String.valueOf(task.Project_Manager__c) : '';
+      taskWrapper.projectManagerName = (task.Project_Manager__r != null) ? task.Project_Manager__r.Name : '';
+      taskWrapper.developerName = (task.Developer__r != null) ? task.Developer__r.Name : '';
+      taskWrapper.developerId = (task.Developer__c != null) ? String.valueOf(task.Developer__c) : '';
+      taskWrapper.clientUserName = (task.Client_User__r != null) ? task.Client_User__r.Name : '';
+      taskWrapper.clientUserId = (task.Client_User__c != null) ? String.valueOf(task.Client_User__c) : '';
+      taskWrapper.accountId = (task.Account__c != null) ? String.valueOf(task.Account__c) : '';
+      taskWrapper.accountName = (task.Account__r != null) ? task.Account__r.Name : '';
+      taskWrapper.projectName = (task.Project__r != null) ? task.Project__r.Name : '';
       taskWrapper.createdDate = task.CreatedDate;
-      taskWrapper.description = task.Description__c != null
-        ? task.Description__c
-        : '';
-      taskWrapper.hasSubtasks =
-        task.Subtasks__r != null && !task.Subtasks__r.isEmpty();
-      taskWrapper.subtaskCount = task.Subtasks__r != null
-        ? task.Subtasks__r.size()
-        : 0;
+      taskWrapper.description = task.Description__c != null ? task.Description__c : '';
+      taskWrapper.hasSubtasks = task.Subtasks__r != null && !task.Subtasks__r.isEmpty();
+      taskWrapper.subtaskCount = task.Subtasks__r != null ? task.Subtasks__r.size() : 0;
 
       // Get latest Chatter comment for this task
       if (latestFeedItems.containsKey(task.Id)) {
         FeedItem latestComment = latestFeedItems.get(task.Id);
-        taskWrapper.latestComment = latestComment.Body != null
-          ? latestComment.Body
-          : '';
-        taskWrapper.latestCommentAuthor = latestComment.CreatedBy != null
-          ? latestComment.CreatedBy.Name
-          : '';
+        taskWrapper.latestComment = latestComment.Body != null ? latestComment.Body : '';
+        taskWrapper.latestCommentAuthor = latestComment.CreatedBy != null ? latestComment.CreatedBy.Name : '';
         taskWrapper.latestCommentDate = latestComment.CreatedDate;
       } else {
         taskWrapper.latestComment = '';
@@ -1219,41 +1084,22 @@ public without sharing class ProjectTaskDashboardController {
           subtaskInfo.projectManagerId = (subtask.Project_Manager__c != null)
             ? String.valueOf(subtask.Project_Manager__c)
             : '';
-          subtaskInfo.projectManagerName = (subtask.Project_Manager__r != null)
-            ? subtask.Project_Manager__r.Name
-            : '';
-          subtaskInfo.developerName = (subtask.Developer__r != null)
-            ? subtask.Developer__r.Name
-            : '';
-          subtaskInfo.developerId = (subtask.Developer__c != null)
-            ? String.valueOf(subtask.Developer__c)
-            : '';
-          subtaskInfo.clientUserName = (subtask.Client_User__r != null)
-            ? subtask.Client_User__r.Name
-            : '';
-          subtaskInfo.clientUserId = (subtask.Client_User__c != null)
-            ? String.valueOf(subtask.Client_User__c)
-            : '';
-          subtaskInfo.accountId = (subtask.Account__c != null)
-            ? String.valueOf(subtask.Account__c)
-            : '';
-          subtaskInfo.accountName = (subtask.Account__r != null)
-            ? subtask.Account__r.Name
-            : '';
+          subtaskInfo.projectManagerName = (subtask.Project_Manager__r != null) ? subtask.Project_Manager__r.Name : '';
+          subtaskInfo.developerName = (subtask.Developer__r != null) ? subtask.Developer__r.Name : '';
+          subtaskInfo.developerId = (subtask.Developer__c != null) ? String.valueOf(subtask.Developer__c) : '';
+          subtaskInfo.clientUserName = (subtask.Client_User__r != null) ? subtask.Client_User__r.Name : '';
+          subtaskInfo.clientUserId = (subtask.Client_User__c != null) ? String.valueOf(subtask.Client_User__c) : '';
+          subtaskInfo.accountId = (subtask.Account__c != null) ? String.valueOf(subtask.Account__c) : '';
+          subtaskInfo.accountName = (subtask.Account__r != null) ? subtask.Account__r.Name : '';
+          subtaskInfo.projectName = (subtask.Project__r != null) ? subtask.Project__r.Name : '';
           subtaskInfo.createdDate = subtask.CreatedDate;
-          subtaskInfo.description = subtask.Description__c != null
-            ? subtask.Description__c
-            : '';
+          subtaskInfo.description = subtask.Description__c != null ? subtask.Description__c : '';
 
           // Get latest Chatter comment for this subtask
           if (latestFeedItems.containsKey(subtask.Id)) {
             FeedItem latestComment = latestFeedItems.get(subtask.Id);
-            subtaskInfo.latestComment = latestComment.Body != null
-              ? latestComment.Body
-              : '';
-            subtaskInfo.latestCommentAuthor = latestComment.CreatedBy != null
-              ? latestComment.CreatedBy.Name
-              : '';
+            subtaskInfo.latestComment = latestComment.Body != null ? latestComment.Body : '';
+            subtaskInfo.latestCommentAuthor = latestComment.CreatedBy != null ? latestComment.CreatedBy.Name : '';
             subtaskInfo.latestCommentDate = latestComment.CreatedDate;
           } else {
             subtaskInfo.latestComment = '';
@@ -1334,23 +1180,18 @@ public without sharing class ProjectTaskDashboardController {
    * @return GroupedTasksResult with status groups and subtasks
    */
   @AuraEnabled(cacheable=true)
-  public static GroupedTasksResult getGroupedTasksWithSubtasksByProject(
-    Id projectId
-  ) {
+  public static GroupedTasksResult getGroupedTasksWithSubtasksByProject(Id projectId) {
     if (projectId == null) {
       throw new AuraHandledException('Project Id is required');
     }
 
     // DEBUG: Log the project ID being used
-    System.debug(
-      'getGroupedTasksWithSubtasksByProject - Project ID: ' + projectId
-    );
+    System.debug('getGroupedTasksWithSubtasksByProject - Project ID: ' + projectId);
 
     List<Project_Task__c> allTasks;
     List<Schema.FieldSetMember> hoverFieldMembers = getTaskHoverFieldSetMembers();
     List<Schema.FieldSetMember> summaryFieldMembers = getTaskSummaryFieldSetMembers();
-    Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe()
-      .fields.getMap();
+    Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe().fields.getMap();
     List<FieldSetFieldDefinition> summaryFieldDefinitions = ProjectTaskDashboardFieldSetHelper.buildFieldSetDefinitions(
       summaryFieldMembers,
       describeFieldMap
@@ -1359,29 +1200,13 @@ public without sharing class ProjectTaskDashboardController {
     Set<String> parentFieldSet = new Set<String>(BASE_PARENT_TASK_FIELDS);
     Set<String> subtaskFieldSet = new Set<String>(BASE_SUBTASK_FIELDS);
 
-    parentFieldSet.addAll(
-      ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers)
-    );
-    subtaskFieldSet.addAll(
-      ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers)
-    );
-    parentFieldSet.addAll(
-      ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers)
-    );
-    subtaskFieldSet.addAll(
-      ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers)
-    );
+    parentFieldSet.addAll(ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers));
+    subtaskFieldSet.addAll(ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers));
+    parentFieldSet.addAll(ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers));
+    subtaskFieldSet.addAll(ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers));
 
-    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
-      parentFieldSet,
-      hoverFieldMembers,
-      describeFieldMap
-    );
-    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
-      subtaskFieldSet,
-      hoverFieldMembers,
-      describeFieldMap
-    );
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(parentFieldSet, hoverFieldMembers, describeFieldMap);
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(subtaskFieldSet, hoverFieldMembers, describeFieldMap);
     ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
       parentFieldSet,
       summaryFieldMembers,
@@ -1408,18 +1233,10 @@ public without sharing class ProjectTaskDashboardController {
     String orderClause = ' ORDER BY Status__c, CreatedDate DESC';
 
     try {
-      String soql =
-        baseQuery +
-        'WHERE Project__c = :projectId AND Parent_Task__c = null' +
-        orderClause;
-      System.debug(
-        'getGroupedTasksWithSubtasksByProject - SOQL Query: ' + soql
-      );
+      String soql = baseQuery + 'WHERE Project__c = :projectId AND Parent_Task__c = null' + orderClause;
+      System.debug('getGroupedTasksWithSubtasksByProject - SOQL Query: ' + soql);
       allTasks = Database.query(soql);
-      System.debug(
-        'getGroupedTasksWithSubtasksByProject - Tasks returned: ' +
-        allTasks.size()
-      );
+      System.debug('getGroupedTasksWithSubtasksByProject - Tasks returned: ' + allTasks.size());
       // DEBUG: Log first few task names and their Project__c to verify filtering
       if (!allTasks.isEmpty()) {
         for (Integer i = 0; i < Math.min(5, allTasks.size()); i++) {
@@ -1435,9 +1252,7 @@ public without sharing class ProjectTaskDashboardController {
         }
       }
     } catch (Exception e) {
-      System.debug(
-        'Error querying Project_Task__c by project: ' + e.getMessage()
-      );
+      System.debug('Error querying Project_Task__c by project: ' + e.getMessage());
       System.debug('Stack trace: ' + e.getStackTraceString());
       throw new AuraHandledException('Error loading tasks: ' + e.getMessage());
     }
@@ -1494,49 +1309,25 @@ public without sharing class ProjectTaskDashboardController {
       taskWrapper.estimatedHours = task.Estimated_Hours__c;
       taskWrapper.actualHours = task.Actual_Hours__c;
       taskWrapper.progressPercentage = task.Progress_Percentage__c;
-      taskWrapper.projectManagerId = (task.Project_Manager__c != null)
-        ? String.valueOf(task.Project_Manager__c)
-        : '';
-      taskWrapper.projectManagerName = (task.Project_Manager__r != null)
-        ? task.Project_Manager__r.Name
-        : '';
-      taskWrapper.developerName = (task.Developer__r != null)
-        ? task.Developer__r.Name
-        : '';
-      taskWrapper.developerId = (task.Developer__c != null)
-        ? String.valueOf(task.Developer__c)
-        : '';
-      taskWrapper.clientUserName = (task.Client_User__r != null)
-        ? task.Client_User__r.Name
-        : '';
-      taskWrapper.clientUserId = (task.Client_User__c != null)
-        ? String.valueOf(task.Client_User__c)
-        : '';
-      taskWrapper.accountId = (task.Account__c != null)
-        ? String.valueOf(task.Account__c)
-        : '';
-      taskWrapper.accountName = (task.Account__r != null)
-        ? task.Account__r.Name
-        : '';
+      taskWrapper.projectManagerId = (task.Project_Manager__c != null) ? String.valueOf(task.Project_Manager__c) : '';
+      taskWrapper.projectManagerName = (task.Project_Manager__r != null) ? task.Project_Manager__r.Name : '';
+      taskWrapper.developerName = (task.Developer__r != null) ? task.Developer__r.Name : '';
+      taskWrapper.developerId = (task.Developer__c != null) ? String.valueOf(task.Developer__c) : '';
+      taskWrapper.clientUserName = (task.Client_User__r != null) ? task.Client_User__r.Name : '';
+      taskWrapper.clientUserId = (task.Client_User__c != null) ? String.valueOf(task.Client_User__c) : '';
+      taskWrapper.accountId = (task.Account__c != null) ? String.valueOf(task.Account__c) : '';
+      taskWrapper.accountName = (task.Account__r != null) ? task.Account__r.Name : '';
+      taskWrapper.projectName = (task.Project__r != null) ? task.Project__r.Name : '';
       taskWrapper.createdDate = task.CreatedDate;
-      taskWrapper.description = task.Description__c != null
-        ? task.Description__c
-        : '';
-      taskWrapper.hasSubtasks =
-        task.Subtasks__r != null && !task.Subtasks__r.isEmpty();
-      taskWrapper.subtaskCount = task.Subtasks__r != null
-        ? task.Subtasks__r.size()
-        : 0;
+      taskWrapper.description = task.Description__c != null ? task.Description__c : '';
+      taskWrapper.hasSubtasks = task.Subtasks__r != null && !task.Subtasks__r.isEmpty();
+      taskWrapper.subtaskCount = task.Subtasks__r != null ? task.Subtasks__r.size() : 0;
 
       // Get latest Chatter comment for this task
       if (latestFeedItems.containsKey(task.Id)) {
         FeedItem latestComment = latestFeedItems.get(task.Id);
-        taskWrapper.latestComment = latestComment.Body != null
-          ? latestComment.Body
-          : '';
-        taskWrapper.latestCommentAuthor = latestComment.CreatedBy != null
-          ? latestComment.CreatedBy.Name
-          : '';
+        taskWrapper.latestComment = latestComment.Body != null ? latestComment.Body : '';
+        taskWrapper.latestCommentAuthor = latestComment.CreatedBy != null ? latestComment.CreatedBy.Name : '';
         taskWrapper.latestCommentDate = latestComment.CreatedDate;
       } else {
         taskWrapper.latestComment = '';
@@ -1571,31 +1362,16 @@ public without sharing class ProjectTaskDashboardController {
           subtaskInfo.projectManagerId = (subtask.Project_Manager__c != null)
             ? String.valueOf(subtask.Project_Manager__c)
             : '';
-          subtaskInfo.projectManagerName = (subtask.Project_Manager__r != null)
-            ? subtask.Project_Manager__r.Name
-            : '';
-          subtaskInfo.developerName = (subtask.Developer__r != null)
-            ? subtask.Developer__r.Name
-            : '';
-          subtaskInfo.developerId = (subtask.Developer__c != null)
-            ? String.valueOf(subtask.Developer__c)
-            : '';
-          subtaskInfo.clientUserName = (subtask.Client_User__r != null)
-            ? subtask.Client_User__r.Name
-            : '';
-          subtaskInfo.clientUserId = (subtask.Client_User__c != null)
-            ? String.valueOf(subtask.Client_User__c)
-            : '';
-          subtaskInfo.accountId = (subtask.Account__c != null)
-            ? String.valueOf(subtask.Account__c)
-            : '';
-          subtaskInfo.accountName = (subtask.Account__r != null)
-            ? subtask.Account__r.Name
-            : '';
+          subtaskInfo.projectManagerName = (subtask.Project_Manager__r != null) ? subtask.Project_Manager__r.Name : '';
+          subtaskInfo.developerName = (subtask.Developer__r != null) ? subtask.Developer__r.Name : '';
+          subtaskInfo.developerId = (subtask.Developer__c != null) ? String.valueOf(subtask.Developer__c) : '';
+          subtaskInfo.clientUserName = (subtask.Client_User__r != null) ? subtask.Client_User__r.Name : '';
+          subtaskInfo.clientUserId = (subtask.Client_User__c != null) ? String.valueOf(subtask.Client_User__c) : '';
+          subtaskInfo.accountId = (subtask.Account__c != null) ? String.valueOf(subtask.Account__c) : '';
+          subtaskInfo.accountName = (subtask.Account__r != null) ? subtask.Account__r.Name : '';
+          subtaskInfo.projectName = (subtask.Project__r != null) ? subtask.Project__r.Name : '';
           subtaskInfo.createdDate = subtask.CreatedDate;
-          subtaskInfo.description = subtask.Description__c != null
-            ? subtask.Description__c
-            : '';
+          subtaskInfo.description = subtask.Description__c != null ? subtask.Description__c : '';
           subtaskInfo.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
             subtask,
             hoverFieldMembers,
@@ -1678,6 +1454,8 @@ public without sharing class ProjectTaskDashboardController {
     @AuraEnabled
     public String accountName;
     @AuraEnabled
+    public String projectName;
+    @AuraEnabled
     public DateTime createdDate;
     @AuraEnabled
     public String description;
@@ -1732,6 +1510,8 @@ public without sharing class ProjectTaskDashboardController {
     public String accountId;
     @AuraEnabled
     public String accountName;
+    @AuraEnabled
+    public String projectName;
     @AuraEnabled
     public DateTime createdDate;
     @AuraEnabled

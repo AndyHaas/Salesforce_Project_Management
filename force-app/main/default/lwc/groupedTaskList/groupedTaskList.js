@@ -10,12 +10,7 @@
  */
 import { LightningElement, api, wire, track } from "lwc";
 import { NavigationMixin, CurrentPageReference } from "lightning/navigation";
-import {
-  subscribe,
-  MessageContext,
-  unsubscribe,
-  APPLICATION_SCOPE
-} from "lightning/messageService";
+import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE } from "lightning/messageService";
 import { deleteRecord } from "lightning/uiRecordApi";
 import { getObjectInfo } from "lightning/uiObjectInfoApi";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
@@ -56,6 +51,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   @api useCurrentUserAccount = false; // When true, default to current user's account if none supplied (for portal use)
   @api context = "portal"; // DEPRECATED: Use isSalesforceContext instead. Kept for backward compatibility.
   @api isSalesforceContext = false; // When true, uses Salesforce navigation and shows account filter; when false (default), uses portal navigation
+  /** When true, hides the list-view filter panel and toolbar control. */
+  @api hideListViewFilterPanel = false;
 
   @wire(MessageContext)
   messageContext;
@@ -80,19 +77,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
      * Never assign generic recordId to projectId — on Account pages that value is the Account Id and would
      * incorrectly drive getGroupedTasksWithSubtasksByProject.
      */
-    if (
-      !this.recordId &&
-      recordIdFromRef &&
-      typeof recordIdFromRef === "string"
-    ) {
+    if (!this.recordId && recordIdFromRef && typeof recordIdFromRef === "string") {
       const pre = recordIdFromRef.substring(0, 3);
-      const matchesProjectPrefix =
-        this._projectKeyPrefix && pre === this._projectKeyPrefix;
+      const matchesProjectPrefix = this._projectKeyPrefix && pre === this._projectKeyPrefix;
       const matchesAccountPrefix =
-        pre === STANDARD_ACCOUNT_KEY_PREFIX ||
-        (this._accountKeyPrefix && pre === this._accountKeyPrefix);
-      const isProjectObject =
-        objectApiName && objectApiName.endsWith("Project__c");
+        pre === STANDARD_ACCOUNT_KEY_PREFIX || (this._accountKeyPrefix && pre === this._accountKeyPrefix);
+      const isProjectObject = objectApiName && objectApiName.endsWith("Project__c");
       const isAccountObject = objectApiName === "Account";
 
       if (isProjectObject || (matchesProjectPrefix && !matchesAccountPrefix)) {
@@ -129,18 +119,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
 
     if (projectId && projectId !== this._projectId) {
-      console.log(
-        "[DEBUG] resolvePageReference - projectId from URL:",
-        projectId
-      );
+      console.log("[DEBUG] resolvePageReference - projectId from URL:", projectId);
       this._projectId = projectId;
     }
 
-    if (
-      !this.recordId &&
-      !this._resolvedHostRecordIdFromPage &&
-      typeof window !== "undefined"
-    ) {
+    if (!this.recordId && !this._resolvedHostRecordIdFromPage && typeof window !== "undefined") {
       let pathname = window.location.pathname || "";
       pathname = pathname.replace(/^\/s/, "");
       const parts = pathname.split("/").filter(Boolean);
@@ -174,6 +157,21 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   currentUserContactId = null; // Current user's Contact ID (for portal)
   selectedContactId = null; // Selected Contact ID for filtering (for Salesforce)
   assignedContacts = []; // List of Contacts assigned to tasks (for Salesforce dropdown)
+  @track _listFilterPanelOpen = false;
+  @track _lvProject = "";
+  @track _lvAccount = "";
+  @track _lvPm = "";
+  @track _lvDeveloper = "";
+  @track _lvStatus = "";
+  @track _lvPriority = "";
+  @track _listFilterOptionsBundle = {
+    project: [{ label: "All projects", value: "" }],
+    account: [{ label: "All accounts", value: "" }],
+    status: [{ label: "All statuses", value: "" }],
+    priority: [{ label: "All priorities", value: "" }],
+    pm: [{ label: "All project managers", value: "" }],
+    developer: [{ label: "All developers", value: "" }]
+  };
   error;
   summaryFieldDefinitions = [];
   summaryFieldDefinitionMap = {};
@@ -221,10 +219,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       return false;
     }
     const pre = rid.substring(0, 3);
-    return (
-      pre === STANDARD_ACCOUNT_KEY_PREFIX ||
-      (this._accountKeyPrefix && pre === this._accountKeyPrefix)
-    );
+    return pre === STANDARD_ACCOUNT_KEY_PREFIX || (this._accountKeyPrefix && pre === this._accountKeyPrefix);
   }
 
   /** True when flexipage host record is a Project__c */
@@ -233,9 +228,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     if (!rid || typeof rid !== "string" || rid.length < 3) {
       return false;
     }
-    return (
-      this._projectKeyPrefix && rid.substring(0, 3) === this._projectKeyPrefix
-    );
+    return this._projectKeyPrefix && rid.substring(0, 3) === this._projectKeyPrefix;
   }
 
   /** Load tasks via getGroupedTasksWithSubtasksByProject (not account/global wire) */
@@ -340,16 +333,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     // Use setTimeout to ensure DOM is updated
     setTimeout(() => {
       const combobox = this.template.querySelector(".contact-filter-combobox");
-      if (
-        combobox &&
-        this.assignedContacts &&
-        this.assignedContacts.length > 0
-      ) {
+      if (combobox && this.assignedContacts && this.assignedContacts.length > 0) {
         // Find the longest label
         const longestLabel = this.assignedContacts.reduce((longest, option) => {
-          return option.label && option.label.length > longest.length
-            ? option.label
-            : longest;
+          return option.label && option.label.length > longest.length ? option.label : longest;
         }, "");
 
         // Create a temporary element to measure text width
@@ -358,8 +345,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         tempElement.style.position = "absolute";
         tempElement.style.whiteSpace = "nowrap";
         tempElement.style.fontSize = window.getComputedStyle(combobox).fontSize;
-        tempElement.style.fontFamily =
-          window.getComputedStyle(combobox).fontFamily;
+        tempElement.style.fontFamily = window.getComputedStyle(combobox).fontFamily;
         tempElement.textContent = longestLabel || "Filter by Contact";
         document.body.appendChild(tempElement);
 
@@ -406,13 +392,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       }
     } else if (this.effectiveRecordId) {
       const rid = this.effectiveRecordId;
-      const pre =
-        typeof rid === "string" && rid.length >= 3 ? rid.substring(0, 3) : "";
-      const matchesProject =
-        this._projectKeyPrefix && pre === this._projectKeyPrefix;
+      const pre = typeof rid === "string" && rid.length >= 3 ? rid.substring(0, 3) : "";
+      const matchesProject = this._projectKeyPrefix && pre === this._projectKeyPrefix;
       const matchesAccount =
-        pre === STANDARD_ACCOUNT_KEY_PREFIX ||
-        (this._accountKeyPrefix && pre === this._accountKeyPrefix);
+        pre === STANDARD_ACCOUNT_KEY_PREFIX || (this._accountKeyPrefix && pre === this._accountKeyPrefix);
 
       if (matchesProject) {
         accountIds = [];
@@ -429,10 +412,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       accountIds = [this.currentUserAccountId];
     }
 
-    const result = accountIds.filter(
-      (id) =>
-        id != null && (typeof id === "string" ? id.trim().length > 0 : true)
-    );
+    const result = accountIds.filter((id) => id != null && (typeof id === "string" ? id.trim().length > 0 : true));
 
     if (result.length === 0 && this.isExperienceSite) {
       if (this.isAccountRecordPage || this.isProjectRecordPage) {
@@ -488,6 +468,266 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     return this.showAccountFilter !== false;
   }
 
+  get showListViewFilterUi() {
+    return this.hideListViewFilterPanel !== true;
+  }
+
+  get listFilterPanelClass() {
+    return this._listFilterPanelOpen ? "list-filter-panel list-filter-panel_open" : "list-filter-panel";
+  }
+
+  get listFilterMainClass() {
+    return this._listFilterPanelOpen && this.showListViewFilterUi
+      ? "list-filter-main list-filter-main_panel-open"
+      : "list-filter-main";
+  }
+
+  get listFilterPanelHidden() {
+    return !this._listFilterPanelOpen;
+  }
+
+  get hasActiveListFilters() {
+    return !!(
+      this._lvProject ||
+      this._lvAccount ||
+      this._lvPm ||
+      this._lvDeveloper ||
+      this._lvStatus ||
+      this._lvPriority
+    );
+  }
+
+  get listViewFilterOptionsProject() {
+    return this._listFilterOptionsBundle.project;
+  }
+
+  get listViewFilterOptionsAccount() {
+    return this._listFilterOptionsBundle.account;
+  }
+
+  get listViewFilterOptionsStatus() {
+    return this._listFilterOptionsBundle.status;
+  }
+
+  get listViewFilterOptionsPriority() {
+    return this._listFilterOptionsBundle.priority;
+  }
+
+  get listViewFilterOptionsPm() {
+    return this._listFilterOptionsBundle.pm;
+  }
+
+  get listViewFilterOptionsDeveloper() {
+    return this._listFilterOptionsBundle.developer;
+  }
+
+  toggleListFilterPanel() {
+    this._listFilterPanelOpen = !this._listFilterPanelOpen;
+  }
+
+  handleListFilterProjectChange(event) {
+    this._lvProject = event?.detail?.value ?? "";
+    this.refreshFilteredStatusGroups();
+  }
+
+  handleListFilterAccountChange(event) {
+    this._lvAccount = event?.detail?.value ?? "";
+    this.refreshFilteredStatusGroups();
+  }
+
+  handleListFilterPmChange(event) {
+    this._lvPm = event?.detail?.value ?? "";
+    this.refreshFilteredStatusGroups();
+  }
+
+  handleListFilterDeveloperChange(event) {
+    this._lvDeveloper = event?.detail?.value ?? "";
+    this.refreshFilteredStatusGroups();
+  }
+
+  handleListFilterStatusChange(event) {
+    this._lvStatus = event?.detail?.value ?? "";
+    this.refreshFilteredStatusGroups();
+  }
+
+  handleListFilterPriorityChange(event) {
+    this._lvPriority = event?.detail?.value ?? "";
+    this.refreshFilteredStatusGroups();
+  }
+
+  handleListFilterReset() {
+    this._lvProject = "";
+    this._lvAccount = "";
+    this._lvPm = "";
+    this._lvDeveloper = "";
+    this._lvStatus = "";
+    this._lvPriority = "";
+    this.refreshFilteredStatusGroups();
+  }
+
+  /**
+   * Builds combobox options from loaded task rows (parents + subtasks).
+   */
+  rebuildListViewFilterOptions() {
+    const projects = new Set();
+    const accounts = new Set();
+    const statuses = new Set();
+    const priorities = new Set();
+    const pmById = new Map();
+    const devById = new Map();
+
+    const consider = (t) => {
+      if (!t) {
+        return;
+      }
+      const pn = (t.projectName || "").trim();
+      if (pn) {
+        projects.add(pn);
+      }
+      const an = (t.accountName || "").trim();
+      if (an) {
+        accounts.add(an);
+      }
+      const st = (t.status || "").trim();
+      if (st) {
+        statuses.add(st);
+      }
+      const pr = (t.priority || "").trim();
+      if (pr) {
+        priorities.add(pr);
+      }
+      const pmId = t.projectManagerId;
+      const pmName = (t.projectManagerName || "").trim();
+      if (pmId && pmName) {
+        pmById.set(pmId, pmName);
+      }
+      const dId = t.developerId;
+      const dName = (t.developerName || "").trim();
+      if (dId && dName) {
+        devById.set(dId, dName);
+      }
+    };
+
+    (this.statusGroups || []).forEach((g) => {
+      (g.tasks || []).forEach((task) => {
+        consider(task);
+        (task.subtasks || []).forEach((st) => consider(st));
+      });
+    });
+
+    const toOpts = (labelAll, values, useIdMap) => {
+      const base = [{ label: labelAll, value: "" }];
+      if (useIdMap) {
+        return base.concat(
+          [...useIdMap.entries()]
+            .sort((a, b) => a[1].localeCompare(b[1], undefined, { sensitivity: "base" }))
+            .map(([id, name]) => ({ label: name, value: id }))
+        );
+      }
+      return base.concat(
+        [...values]
+          .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+          .map((v) => ({ label: v, value: v }))
+      );
+    };
+
+    this._listFilterOptionsBundle = {
+      project: toOpts("All projects", projects, null),
+      account: toOpts("All accounts", accounts, null),
+      status: toOpts("All statuses", statuses, null),
+      priority: toOpts("All priorities", priorities, null),
+      pm: toOpts("All project managers", null, pmById),
+      developer: toOpts("All developers", null, devById)
+    };
+  }
+
+  taskMatchesListFilters(task) {
+    if (!task) {
+      return false;
+    }
+    if (this._lvProject) {
+      const pn = (task.projectName || "").trim();
+      if (pn !== this._lvProject) {
+        return false;
+      }
+    }
+    if (this._lvAccount) {
+      const an = (task.accountName || "").trim();
+      if (an !== this._lvAccount) {
+        return false;
+      }
+    }
+    if (this._lvPm && task.projectManagerId !== this._lvPm) {
+      return false;
+    }
+    if (this._lvDeveloper && task.developerId !== this._lvDeveloper) {
+      return false;
+    }
+    if (this._lvStatus) {
+      const st = (task.status || "").trim();
+      if (st !== this._lvStatus) {
+        return false;
+      }
+    }
+    if (this._lvPriority) {
+      const pr = (task.priority || "").trim();
+      if (pr !== this._lvPriority) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  filterTaskForListView(task) {
+    if (!this.hasActiveListFilters) {
+      return task;
+    }
+    const parentOk = this.taskMatchesListFilters(task);
+    const subtasks = (task.subtasks || []).filter((st) => this.taskMatchesListFilters(st));
+    if (!parentOk && subtasks.length === 0) {
+      return null;
+    }
+    if (!parentOk) {
+      return { ...task, subtasks };
+    }
+    if (subtasks.length !== (task.subtasks || []).length) {
+      return { ...task, subtasks };
+    }
+    return task;
+  }
+
+  filterGroupsForListView(groups) {
+    if (!this.hasActiveListFilters) {
+      return groups;
+    }
+    return (groups || [])
+      .map((g) => {
+        const tasks = (g.tasks || []).map((t) => this.filterTaskForListView(t)).filter(Boolean);
+        if (tasks.length === 0) {
+          return null;
+        }
+        let totalEstimatedHours = 0;
+        tasks.forEach((task) => {
+          if (task.estimatedHours) {
+            totalEstimatedHours += task.estimatedHours;
+          }
+          (task.subtasks || []).forEach((subtask) => {
+            if (subtask.estimatedHours) {
+              totalEstimatedHours += subtask.estimatedHours;
+            }
+          });
+        });
+        return {
+          ...g,
+          tasks,
+          taskCount: tasks.length,
+          totalEstimatedHours,
+          formattedTotalEstimatedHours: this.formatHours(totalEstimatedHours)
+        };
+      })
+      .filter((g) => g !== null);
+  }
+
   connectedCallback() {
     // Status colors will be loaded via wire service
     // Initialize with empty object - will be populated by getStatusColors wire
@@ -513,13 +753,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         (message) => {
           if (message) {
             if (message.accountIds !== undefined) {
-              this._filteredAccountIds = Array.isArray(message.accountIds)
-                ? message.accountIds
-                : [];
+              this._filteredAccountIds = Array.isArray(message.accountIds) ? message.accountIds : [];
             } else if (message.accountId !== undefined) {
-              this._filteredAccountIds = message.accountId
-                ? [message.accountId]
-                : [];
+              this._filteredAccountIds = message.accountId ? [message.accountId] : [];
             }
           }
         },
@@ -582,9 +818,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     );
 
     if (this.useProjectScopedWire) {
-      console.log(
-        "[DEBUG] wiredGroupedTasks - project-scoped wire active, skipping account-based query"
-      );
+      console.log("[DEBUG] wiredGroupedTasks - project-scoped wire active, skipping account-based query");
       return;
     }
     this.wiredGroupedTasksResult = result;
@@ -592,14 +826,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     this.isLoading = !data && !error;
     if (data) {
       try {
-        const statusGroupsData = Array.isArray(data.statusGroups)
-          ? data.statusGroups
-          : [];
-        this.summaryFieldDefinitions = Array.isArray(
-          data.summaryFieldDefinitions
-        )
-          ? data.summaryFieldDefinitions
-          : [];
+        const statusGroupsData = Array.isArray(data.statusGroups) ? data.statusGroups : [];
+        this.summaryFieldDefinitions = Array.isArray(data.summaryFieldDefinitions) ? data.summaryFieldDefinitions : [];
         this.updateSummaryFieldDefinitionMap();
         // Update header classes after definitions are loaded
         this.updateSummaryFieldHeaderClasses();
@@ -625,16 +853,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
               const subtaskHours = subtask.estimatedHours || 0;
               totalEstimatedHours += subtaskHours;
               const subtaskPermissions = this.getTaskPermissions();
-              const subtaskHasMenu =
-                subtaskPermissions.canEdit || subtaskPermissions.canDelete;
+              const subtaskHasMenu = subtaskPermissions.canEdit || subtaskPermissions.canDelete;
               const decoratedSubtask = this.decorateTaskRecord({
                 ...subtask,
-                formattedDueDate: subtask.dueDate
-                  ? this.formatDate(subtask.dueDate)
-                  : "",
-                formattedEstimatedHours: subtask.estimatedHours
-                  ? this.formatHours(subtask.estimatedHours)
-                  : "",
+                formattedDueDate: subtask.dueDate ? this.formatDate(subtask.dueDate) : "",
+                formattedEstimatedHours: subtask.estimatedHours ? this.formatHours(subtask.estimatedHours) : "",
                 isEditing: this.editingTaskId === subtask.id,
                 canEdit: subtaskPermissions.canEdit,
                 canDelete: subtaskPermissions.canDelete,
@@ -642,102 +865,16 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
               });
               // Update field editing state and computed properties
               if (decoratedSubtask.summaryFields) {
-                decoratedSubtask.summaryFields =
-                  decoratedSubtask.summaryFields.map((field) => {
-                    const dataTypeUpper = (field.dataType || "").toUpperCase();
-                    const isEditing = this.isFieldEditing(
-                      subtask.id,
-                      field.apiName
-                    );
-                    const isEditable =
-                      subtaskPermissions.canEdit && !field.isReference; // Editable if user can edit and field is not a reference
-                    let inputValue = "";
-                    let inputType = "text";
-
-                    if (isEditing && this.editingField) {
-                      if (dataTypeUpper === "BOOLEAN") {
-                        inputValue =
-                          this.editingField.fieldValue === "true" ||
-                          this.editingField.fieldValue === true;
-                      } else {
-                        inputValue = this.editingField.fieldValue || "";
-                      }
-
-                      if (dataTypeUpper === "DATE") {
-                        inputType = "date";
-                      } else if (dataTypeUpper === "DATETIME") {
-                        inputType = "datetime-local";
-                      } else if (
-                        dataTypeUpper === "DOUBLE" ||
-                        dataTypeUpper === "CURRENCY" ||
-                        dataTypeUpper === "PERCENT" ||
-                        dataTypeUpper === "INTEGER"
-                      ) {
-                        inputType = "number";
-                      } else if (dataTypeUpper === "BOOLEAN") {
-                        inputType = "checkbox";
-                      }
-                    } else {
-                      // Use raw value when not editing
-                      if (dataTypeUpper === "BOOLEAN") {
-                        inputValue =
-                          field.rawValue === "true" || field.rawValue === true;
-                      } else {
-                        inputValue = field.rawValue || "";
-                      }
-                    }
-
-                    return {
-                      ...field,
-                      isEditing: isEditing,
-                      hasDataType: !!field.dataType,
-                      isBoolean: dataTypeUpper === "BOOLEAN",
-                      inputValue: inputValue,
-                      inputType: inputType,
-                      isEditable: isEditable
-                    };
-                  });
-              }
-              return decoratedSubtask;
-            });
-
-            const permissions = this.getTaskPermissions();
-            const hasMenu = permissions.canEdit || permissions.canDelete;
-            const decoratedTask = this.decorateTaskRecord({
-              ...task,
-              isExpanded: isExpanded,
-              iconName: isExpanded
-                ? "utility:chevrondown"
-                : "utility:chevronright",
-              iconAltText: isExpanded ? "Collapse" : "Expand",
-              subtaskLabel: task.subtaskCount === 1 ? "subtask" : "subtasks",
-              formattedDueDate: task.dueDate
-                ? this.formatDate(task.dueDate)
-                : "",
-              formattedEstimatedHours: task.estimatedHours
-                ? this.formatHours(task.estimatedHours)
-                : "",
-              subtasks: subtasks,
-              isEditing: this.editingTaskId === task.id,
-              canEdit: permissions.canEdit,
-              canDelete: permissions.canDelete,
-              showMenu: hasMenu
-            });
-            // Update field editing state and computed properties
-            if (decoratedTask.summaryFields) {
-              decoratedTask.summaryFields = decoratedTask.summaryFields.map(
-                (field) => {
+                decoratedSubtask.summaryFields = decoratedSubtask.summaryFields.map((field) => {
                   const dataTypeUpper = (field.dataType || "").toUpperCase();
-                  const isEditing = this.isFieldEditing(task.id, field.apiName);
-                  const isEditable = permissions.canEdit && !field.isReference; // Editable if user can edit and field is not a reference
+                  const isEditing = this.isFieldEditing(subtask.id, field.apiName);
+                  const isEditable = subtaskPermissions.canEdit && !field.isReference; // Editable if user can edit and field is not a reference
                   let inputValue = "";
                   let inputType = "text";
 
                   if (isEditing && this.editingField) {
                     if (dataTypeUpper === "BOOLEAN") {
-                      inputValue =
-                        this.editingField.fieldValue === "true" ||
-                        this.editingField.fieldValue === true;
+                      inputValue = this.editingField.fieldValue === "true" || this.editingField.fieldValue === true;
                     } else {
                       inputValue = this.editingField.fieldValue || "";
                     }
@@ -759,8 +896,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                   } else {
                     // Use raw value when not editing
                     if (dataTypeUpper === "BOOLEAN") {
-                      inputValue =
-                        field.rawValue === "true" || field.rawValue === true;
+                      inputValue = field.rawValue === "true" || field.rawValue === true;
                     } else {
                       inputValue = field.rawValue || "";
                     }
@@ -775,8 +911,76 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                     inputType: inputType,
                     isEditable: isEditable
                   };
+                });
+              }
+              return decoratedSubtask;
+            });
+
+            const permissions = this.getTaskPermissions();
+            const hasMenu = permissions.canEdit || permissions.canDelete;
+            const decoratedTask = this.decorateTaskRecord({
+              ...task,
+              isExpanded: isExpanded,
+              iconName: isExpanded ? "utility:chevrondown" : "utility:chevronright",
+              iconAltText: isExpanded ? "Collapse" : "Expand",
+              subtaskLabel: task.subtaskCount === 1 ? "subtask" : "subtasks",
+              formattedDueDate: task.dueDate ? this.formatDate(task.dueDate) : "",
+              formattedEstimatedHours: task.estimatedHours ? this.formatHours(task.estimatedHours) : "",
+              subtasks: subtasks,
+              isEditing: this.editingTaskId === task.id,
+              canEdit: permissions.canEdit,
+              canDelete: permissions.canDelete,
+              showMenu: hasMenu
+            });
+            // Update field editing state and computed properties
+            if (decoratedTask.summaryFields) {
+              decoratedTask.summaryFields = decoratedTask.summaryFields.map((field) => {
+                const dataTypeUpper = (field.dataType || "").toUpperCase();
+                const isEditing = this.isFieldEditing(task.id, field.apiName);
+                const isEditable = permissions.canEdit && !field.isReference; // Editable if user can edit and field is not a reference
+                let inputValue = "";
+                let inputType = "text";
+
+                if (isEditing && this.editingField) {
+                  if (dataTypeUpper === "BOOLEAN") {
+                    inputValue = this.editingField.fieldValue === "true" || this.editingField.fieldValue === true;
+                  } else {
+                    inputValue = this.editingField.fieldValue || "";
+                  }
+
+                  if (dataTypeUpper === "DATE") {
+                    inputType = "date";
+                  } else if (dataTypeUpper === "DATETIME") {
+                    inputType = "datetime-local";
+                  } else if (
+                    dataTypeUpper === "DOUBLE" ||
+                    dataTypeUpper === "CURRENCY" ||
+                    dataTypeUpper === "PERCENT" ||
+                    dataTypeUpper === "INTEGER"
+                  ) {
+                    inputType = "number";
+                  } else if (dataTypeUpper === "BOOLEAN") {
+                    inputType = "checkbox";
+                  }
+                } else {
+                  // Use raw value when not editing
+                  if (dataTypeUpper === "BOOLEAN") {
+                    inputValue = field.rawValue === "true" || field.rawValue === true;
+                  } else {
+                    inputValue = field.rawValue || "";
+                  }
                 }
-              );
+
+                return {
+                  ...field,
+                  isEditing: isEditing,
+                  hasDataType: !!field.dataType,
+                  isBoolean: dataTypeUpper === "BOOLEAN",
+                  inputValue: inputValue,
+                  inputType: inputType,
+                  isEditable: isEditable
+                };
+              });
             }
             return decoratedTask;
           });
@@ -792,6 +996,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             tasks: tasks
           };
         });
+        this.rebuildListViewFilterOptions();
         this.refreshFilteredStatusGroups();
         this.error = undefined;
         this.isLoading = false;
@@ -830,19 +1035,14 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     );
 
     if (!this.projectIdForWire) {
-      console.log(
-        "[DEBUG] wiredGroupedTasksByProject - No projectIdForWire; leaving list to account/global wire"
-      );
+      console.log("[DEBUG] wiredGroupedTasksByProject - No projectIdForWire; leaving list to account/global wire");
       return;
     }
 
     // Validate projectId format (should be 15 or 18 character Salesforce ID)
     const pid = this.projectIdForWire;
     if (typeof pid !== "string" || (pid.length !== 15 && pid.length !== 18)) {
-      console.error(
-        "[DEBUG] wiredGroupedTasksByProject - Invalid projectId format:",
-        pid
-      );
+      console.error("[DEBUG] wiredGroupedTasksByProject - Invalid projectId format:", pid);
       this.error = { message: "Invalid project ID format" };
       return;
     }
@@ -853,14 +1053,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     if (data) {
       try {
         // DEBUG: Log project ID and data received
-        console.log(
-          "[DEBUG] wiredGroupedTasksByProject - Project ID:",
-          this.projectIdForWire
-        );
-        console.log(
-          "[DEBUG] wiredGroupedTasksByProject - Status groups count:",
-          data.statusGroups?.length || 0
-        );
+        console.log("[DEBUG] wiredGroupedTasksByProject - Project ID:", this.projectIdForWire);
+        console.log("[DEBUG] wiredGroupedTasksByProject - Status groups count:", data.statusGroups?.length || 0);
 
         // Clear any existing statusGroups first to prevent data mixing
         // This ensures we only use project-specific data
@@ -869,9 +1063,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         // Reset toggle states to default when loading new project data
         this.showCompletedTasks = false;
         this.showRemovedTasks = false;
-        const statusGroupsData = Array.isArray(data.statusGroups)
-          ? data.statusGroups
-          : [];
+        const statusGroupsData = Array.isArray(data.statusGroups) ? data.statusGroups : [];
 
         // DEBUG: Log status groups and their tasks
         console.log(
@@ -883,11 +1075,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             hasTasks: !!(sg.tasks && sg.tasks.length > 0)
           }))
         );
-        this.summaryFieldDefinitions = Array.isArray(
-          data.summaryFieldDefinitions
-        )
-          ? data.summaryFieldDefinitions
-          : [];
+        this.summaryFieldDefinitions = Array.isArray(data.summaryFieldDefinitions) ? data.summaryFieldDefinitions : [];
         this.updateSummaryFieldDefinitionMap();
         this.updateSummaryFieldHeaderClasses();
 
@@ -907,16 +1095,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
               const subtaskHours = subtask.estimatedHours || 0;
               totalEstimatedHours += subtaskHours;
               const subtaskPermissions = this.getTaskPermissions();
-              const subtaskHasMenu =
-                subtaskPermissions.canEdit || subtaskPermissions.canDelete;
+              const subtaskHasMenu = subtaskPermissions.canEdit || subtaskPermissions.canDelete;
               const decoratedSubtask = this.decorateTaskRecord({
                 ...subtask,
-                formattedDueDate: subtask.dueDate
-                  ? this.formatDate(subtask.dueDate)
-                  : "",
-                formattedEstimatedHours: subtask.estimatedHours
-                  ? this.formatHours(subtask.estimatedHours)
-                  : "",
+                formattedDueDate: subtask.dueDate ? this.formatDate(subtask.dueDate) : "",
+                formattedEstimatedHours: subtask.estimatedHours ? this.formatHours(subtask.estimatedHours) : "",
                 isEditing: this.editingTaskId === subtask.id,
                 canEdit: subtaskPermissions.canEdit,
                 canDelete: subtaskPermissions.canDelete,
@@ -924,102 +1107,16 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
               });
               // Update field editing state and computed properties
               if (decoratedSubtask.summaryFields) {
-                decoratedSubtask.summaryFields =
-                  decoratedSubtask.summaryFields.map((field) => {
-                    const dataTypeUpper = (field.dataType || "").toUpperCase();
-                    const isEditing = this.isFieldEditing(
-                      subtask.id,
-                      field.apiName
-                    );
-                    const isEditable =
-                      subtaskPermissions.canEdit && !field.isReference;
-                    let inputValue = "";
-                    let inputType = "text";
-
-                    if (isEditing && this.editingField) {
-                      if (dataTypeUpper === "BOOLEAN") {
-                        inputValue =
-                          this.editingField.fieldValue === "true" ||
-                          this.editingField.fieldValue === true;
-                      } else {
-                        inputValue = this.editingField.fieldValue || "";
-                      }
-
-                      if (dataTypeUpper === "DATE") {
-                        inputType = "date";
-                      } else if (dataTypeUpper === "DATETIME") {
-                        inputType = "datetime-local";
-                      } else if (
-                        dataTypeUpper === "DOUBLE" ||
-                        dataTypeUpper === "CURRENCY" ||
-                        dataTypeUpper === "PERCENT" ||
-                        dataTypeUpper === "INTEGER"
-                      ) {
-                        inputType = "number";
-                      } else if (dataTypeUpper === "BOOLEAN") {
-                        inputType = "checkbox";
-                      }
-                    } else {
-                      // Use raw value when not editing
-                      if (dataTypeUpper === "BOOLEAN") {
-                        inputValue =
-                          field.rawValue === "true" || field.rawValue === true;
-                      } else {
-                        inputValue = field.rawValue || "";
-                      }
-                    }
-
-                    return {
-                      ...field,
-                      isEditing: isEditing,
-                      hasDataType: !!field.dataType,
-                      isBoolean: dataTypeUpper === "BOOLEAN",
-                      inputValue: inputValue,
-                      inputType: inputType,
-                      isEditable: isEditable
-                    };
-                  });
-              }
-              return decoratedSubtask;
-            });
-
-            const permissions = this.getTaskPermissions();
-            const hasMenu = permissions.canEdit || permissions.canDelete;
-            const decoratedTask = this.decorateTaskRecord({
-              ...task,
-              isExpanded: isExpanded,
-              iconName: isExpanded
-                ? "utility:chevrondown"
-                : "utility:chevronright",
-              iconAltText: isExpanded ? "Collapse" : "Expand",
-              subtaskLabel: task.subtaskCount === 1 ? "subtask" : "subtasks",
-              formattedDueDate: task.dueDate
-                ? this.formatDate(task.dueDate)
-                : "",
-              formattedEstimatedHours: task.estimatedHours
-                ? this.formatHours(task.estimatedHours)
-                : "",
-              subtasks: subtasks,
-              isEditing: this.editingTaskId === task.id,
-              canEdit: permissions.canEdit,
-              canDelete: permissions.canDelete,
-              showMenu: hasMenu
-            });
-            // Update field editing state and computed properties
-            if (decoratedTask.summaryFields) {
-              decoratedTask.summaryFields = decoratedTask.summaryFields.map(
-                (field) => {
+                decoratedSubtask.summaryFields = decoratedSubtask.summaryFields.map((field) => {
                   const dataTypeUpper = (field.dataType || "").toUpperCase();
-                  const isEditing = this.isFieldEditing(task.id, field.apiName);
-                  const isEditable = permissions.canEdit && !field.isReference;
+                  const isEditing = this.isFieldEditing(subtask.id, field.apiName);
+                  const isEditable = subtaskPermissions.canEdit && !field.isReference;
                   let inputValue = "";
                   let inputType = "text";
 
                   if (isEditing && this.editingField) {
                     if (dataTypeUpper === "BOOLEAN") {
-                      inputValue =
-                        this.editingField.fieldValue === "true" ||
-                        this.editingField.fieldValue === true;
+                      inputValue = this.editingField.fieldValue === "true" || this.editingField.fieldValue === true;
                     } else {
                       inputValue = this.editingField.fieldValue || "";
                     }
@@ -1041,8 +1138,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                   } else {
                     // Use raw value when not editing
                     if (dataTypeUpper === "BOOLEAN") {
-                      inputValue =
-                        field.rawValue === "true" || field.rawValue === true;
+                      inputValue = field.rawValue === "true" || field.rawValue === true;
                     } else {
                       inputValue = field.rawValue || "";
                     }
@@ -1057,8 +1153,76 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                     inputType: inputType,
                     isEditable: isEditable
                   };
+                });
+              }
+              return decoratedSubtask;
+            });
+
+            const permissions = this.getTaskPermissions();
+            const hasMenu = permissions.canEdit || permissions.canDelete;
+            const decoratedTask = this.decorateTaskRecord({
+              ...task,
+              isExpanded: isExpanded,
+              iconName: isExpanded ? "utility:chevrondown" : "utility:chevronright",
+              iconAltText: isExpanded ? "Collapse" : "Expand",
+              subtaskLabel: task.subtaskCount === 1 ? "subtask" : "subtasks",
+              formattedDueDate: task.dueDate ? this.formatDate(task.dueDate) : "",
+              formattedEstimatedHours: task.estimatedHours ? this.formatHours(task.estimatedHours) : "",
+              subtasks: subtasks,
+              isEditing: this.editingTaskId === task.id,
+              canEdit: permissions.canEdit,
+              canDelete: permissions.canDelete,
+              showMenu: hasMenu
+            });
+            // Update field editing state and computed properties
+            if (decoratedTask.summaryFields) {
+              decoratedTask.summaryFields = decoratedTask.summaryFields.map((field) => {
+                const dataTypeUpper = (field.dataType || "").toUpperCase();
+                const isEditing = this.isFieldEditing(task.id, field.apiName);
+                const isEditable = permissions.canEdit && !field.isReference;
+                let inputValue = "";
+                let inputType = "text";
+
+                if (isEditing && this.editingField) {
+                  if (dataTypeUpper === "BOOLEAN") {
+                    inputValue = this.editingField.fieldValue === "true" || this.editingField.fieldValue === true;
+                  } else {
+                    inputValue = this.editingField.fieldValue || "";
+                  }
+
+                  if (dataTypeUpper === "DATE") {
+                    inputType = "date";
+                  } else if (dataTypeUpper === "DATETIME") {
+                    inputType = "datetime-local";
+                  } else if (
+                    dataTypeUpper === "DOUBLE" ||
+                    dataTypeUpper === "CURRENCY" ||
+                    dataTypeUpper === "PERCENT" ||
+                    dataTypeUpper === "INTEGER"
+                  ) {
+                    inputType = "number";
+                  } else if (dataTypeUpper === "BOOLEAN") {
+                    inputType = "checkbox";
+                  }
+                } else {
+                  // Use raw value when not editing
+                  if (dataTypeUpper === "BOOLEAN") {
+                    inputValue = field.rawValue === "true" || field.rawValue === true;
+                  } else {
+                    inputValue = field.rawValue || "";
+                  }
                 }
-              );
+
+                return {
+                  ...field,
+                  isEditing: isEditing,
+                  hasDataType: !!field.dataType,
+                  isBoolean: dataTypeUpper === "BOOLEAN",
+                  inputValue: inputValue,
+                  inputType: inputType,
+                  isEditable: isEditable
+                };
+              });
             }
             return decoratedTask;
           });
@@ -1089,6 +1253,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
         // Apply filtering for completed and removed tasks based on toggle states
         // This ensures only tasks for the specified project are shown, respecting showCompletedTasks and showRemovedTasks toggles
+        this.rebuildListViewFilterOptions();
         this.refreshFilteredStatusGroups();
         this.error = undefined;
         this.isLoading = false;
@@ -1149,15 +1314,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   }
 
   getTaskToggleTitle(taskId) {
-    return this.isTaskExpanded(taskId)
-      ? "Collapse subtasks"
-      : "Expand subtasks";
+    return this.isTaskExpanded(taskId) ? "Collapse subtasks" : "Expand subtasks";
   }
 
   getTaskIconName(taskId) {
-    return this.isTaskExpanded(taskId)
-      ? "utility:chevrondown"
-      : "utility:chevronright";
+    return this.isTaskExpanded(taskId) ? "utility:chevrondown" : "utility:chevronright";
   }
 
   getTaskIconAltText(taskId) {
@@ -1197,10 +1358,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   getStatusHeaderStyle(status) {
     // Use colors from Apex (which reads from field metadata)
     // If not loaded yet, use default colors
-    const backgroundColor =
-      this.statusColors[status] ||
-      this.getDefaultStatusColors()[status] ||
-      "#F3F3F3";
+    const backgroundColor = this.statusColors[status] || this.getDefaultStatusColors()[status] || "#F3F3F3";
 
     // Determine text color based on background brightness
     const textColor = this.getContrastTextColor(backgroundColor);
@@ -1254,9 +1412,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   }
 
   isTaskAssignedToMe(task) {
-    const projectManagerId = task.projectManagerId
-      ? String(task.projectManagerId)
-      : "";
+    const projectManagerId = task.projectManagerId ? String(task.projectManagerId) : "";
     const developerId = task.developerId ? String(task.developerId) : "";
     const clientUserId = task.clientUserId ? String(task.clientUserId) : "";
 
@@ -1268,9 +1424,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     // Portal "My tasks": match PM, Developer, or Client User to the logged-in Contact
     if (this.isPortalMode && this.showMyTasksOnly) {
-      const uid = this.currentUserContactId
-        ? String(this.currentUserContactId)
-        : null;
+      const uid = this.currentUserContactId ? String(this.currentUserContactId) : null;
       if (!uid) {
         return false;
       }
@@ -1352,9 +1506,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   }
 
   updateSummaryFieldDefinitionMap() {
-    this.summaryFieldDefinitionMap = (
-      this.summaryFieldDefinitions || []
-    ).reduce((acc, definition) => {
+    this.summaryFieldDefinitionMap = (this.summaryFieldDefinitions || []).reduce((acc, definition) => {
       if (definition && definition.apiName) {
         acc[definition.apiName] = definition;
       }
@@ -1366,10 +1518,31 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     return this.filteredStatusGroups && this.filteredStatusGroups.length > 0;
   }
 
+  /** True when the wire payload still has at least one task (before list-view filters). */
+  get hasRawTasks() {
+    return (this.statusGroups || []).some((g) => (g.tasks || []).length > 0);
+  }
+
+  /** Show filter shell + empty state when list filters hide every row. */
+  get showListFilterEmptyState() {
+    return !this.hasData && this.hasRawTasks && this.hasActiveListFilters;
+  }
+
+  /** Main list area (table + optional left filter panel) when the wire returned tasks. */
+  get showGroupedListShell() {
+    return this.hasRawTasks;
+  }
+
+  get listFilterResetDisabled() {
+    return !this.hasActiveListFilters;
+  }
+
+  get listFilterToggleVariant() {
+    return this._listFilterPanelOpen || this.hasActiveListFilters ? "brand" : "border-filled";
+  }
+
   get hasSummaryFields() {
-    return (
-      this.summaryFieldDefinitions && this.summaryFieldDefinitions.length > 0
-    );
+    return this.summaryFieldDefinitions && this.summaryFieldDefinitions.length > 0;
   }
 
   get displayStatusGroups() {
@@ -1463,21 +1636,15 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   }
 
   get expandCollapseAllLabel() {
-    return this.areAllStatusesCollapsed
-      ? "Expand All Statuses"
-      : "Collapse All Statuses";
+    return this.areAllStatusesCollapsed ? "Expand All Statuses" : "Collapse All Statuses";
   }
 
   get expandCollapseAllTitle() {
-    return this.areAllStatusesCollapsed
-      ? "Expand all visible status groups"
-      : "Collapse all visible status groups";
+    return this.areAllStatusesCollapsed ? "Expand all visible status groups" : "Collapse all visible status groups";
   }
 
   get expandCollapseAllIcon() {
-    return this.areAllStatusesCollapsed
-      ? "utility:chevrondown"
-      : "utility:chevronup";
+    return this.areAllStatusesCollapsed ? "utility:chevrondown" : "utility:chevronup";
   }
 
   get expandCollapseAllDisabled() {
@@ -1488,9 +1655,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     if (!this.filteredStatusGroups || this.filteredStatusGroups.length === 0) {
       return false;
     }
-    return this.filteredStatusGroups.every((group) =>
-      this.isStatusCollapsed(group.status)
-    );
+    return this.filteredStatusGroups.every((group) => this.isStatusCollapsed(group.status));
   }
 
   get areAllSubtasksExpanded() {
@@ -1516,21 +1681,15 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   }
 
   get expandCollapseAllSubtasksLabel() {
-    return this.areAllSubtasksExpanded
-      ? "Collapse All Subtasks"
-      : "Expand All Subtasks";
+    return this.areAllSubtasksExpanded ? "Collapse All Subtasks" : "Expand All Subtasks";
   }
 
   get expandCollapseAllSubtasksTitle() {
-    return this.areAllSubtasksExpanded
-      ? "Collapse all subtasks"
-      : "Expand all subtasks";
+    return this.areAllSubtasksExpanded ? "Collapse all subtasks" : "Expand all subtasks";
   }
 
   get expandCollapseAllSubtasksIcon() {
-    return this.areAllSubtasksExpanded
-      ? "utility:chevronup"
-      : "utility:chevrondown";
+    return this.areAllSubtasksExpanded ? "utility:chevronup" : "utility:chevrondown";
   }
 
   get expandCollapseAllSubtasksDisabled() {
@@ -1616,9 +1775,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
   handleExpandCollapseAll() {
     const shouldCollapse = !this.areAllStatusesCollapsed;
-    const visibleStatuses = (this.filteredStatusGroups || []).map(
-      (group) => group.status
-    );
+    const visibleStatuses = (this.filteredStatusGroups || []).map((group) => group.status);
     const updatedSet = new Set(this.collapsedStatuses);
 
     if (shouldCollapse) {
@@ -1660,11 +1817,9 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   handleAccountChange(event) {
     const v = event.detail.value;
     if (this.isAccountRecordPage) {
-      this._recordPageAccountSelection =
-        v === undefined || v === null ? ACCOUNT_SEL_THIS : v;
+      this._recordPageAccountSelection = v === undefined || v === null ? ACCOUNT_SEL_THIS : v;
     } else {
-      this.selectedAccountId =
-        v === undefined || v === null || v === "" ? "" : v;
+      this.selectedAccountId = v === undefined || v === null || v === "" ? "" : v;
     }
     if (this.statusGroups && this.statusGroups.length > 0) {
       this.refreshFilteredStatusGroups();
@@ -1681,10 +1836,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     // DEBUG: Log initial state
     if (this.resolvedProjectId) {
-      console.log(
-        "[DEBUG] refreshFilteredStatusGroups - Project ID:",
-        this.resolvedProjectId
-      );
+      console.log("[DEBUG] refreshFilteredStatusGroups - Project ID:", this.resolvedProjectId);
       console.log(
         "[DEBUG] refreshFilteredStatusGroups - Initial groups:",
         groups.map((sg) => ({
@@ -1742,19 +1894,16 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       groups = this.filterGroupsForCurrentUser(groups);
     }
 
+    groups = this.filterGroupsForListView(groups);
+
     this.filteredStatusGroups = this.decorateStatusGroupsForDisplay(groups);
 
     // DEBUG: Log filtered status groups after decoration
     if (this.resolvedProjectId) {
       console.log("[DEBUG] refreshFilteredStatusGroups - After decoration:", {
         filteredGroupsCount: this.filteredStatusGroups.length,
-        groupsWithTasks: this.filteredStatusGroups.filter(
-          (g) => g.tasks && g.tasks.length > 0
-        ).length,
-        totalTasks: this.filteredStatusGroups.reduce(
-          (sum, g) => sum + (g.tasks?.length || 0),
-          0
-        ),
+        groupsWithTasks: this.filteredStatusGroups.filter((g) => g.tasks && g.tasks.length > 0).length,
+        totalTasks: this.filteredStatusGroups.reduce((sum, g) => sum + (g.tasks?.length || 0), 0),
         hasData: this.hasData,
         groups: this.filteredStatusGroups.map((g) => ({
           status: g.status,
@@ -1773,9 +1922,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             const isMyTask = this.isTaskAssignedToMe(task);
 
             if (isMyTask) {
-              const mySubtasks = (task.subtasks || []).filter((subtask) =>
-                this.isTaskAssignedToMe(subtask)
-              );
+              const mySubtasks = (task.subtasks || []).filter((subtask) => this.isTaskAssignedToMe(subtask));
               return {
                 ...task,
                 subtasks: mySubtasks,
@@ -1785,9 +1932,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             }
 
             if (task.subtasks && task.subtasks.length > 0) {
-              const mySubtasks = task.subtasks.filter((subtask) =>
-                this.isTaskAssignedToMe(subtask)
-              );
+              const mySubtasks = task.subtasks.filter((subtask) => this.isTaskAssignedToMe(subtask));
               if (mySubtasks.length > 0) {
                 return {
                   ...task,
@@ -1805,9 +1950,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             return {
               ...task,
               isExpanded: isExpanded,
-              iconName: isExpanded
-                ? "utility:chevrondown"
-                : "utility:chevronright",
+              iconName: isExpanded ? "utility:chevrondown" : "utility:chevronright",
               iconAltText: isExpanded ? "Collapse" : "Expand",
               subtaskLabel: task.subtaskCount === 1 ? "subtask" : "subtasks"
             };
@@ -1859,9 +2002,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
             if (isEditing && this.editingField) {
               if (dataTypeUpper === "BOOLEAN") {
-                inputValue =
-                  this.editingField.fieldValue === "true" ||
-                  this.editingField.fieldValue === true;
+                inputValue = this.editingField.fieldValue === "true" || this.editingField.fieldValue === true;
               } else {
                 inputValue = this.editingField.fieldValue || "";
               }
@@ -1883,8 +2024,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             } else {
               // Use raw value when not editing
               if (dataTypeUpper === "BOOLEAN") {
-                inputValue =
-                  field.rawValue === "true" || field.rawValue === true;
+                inputValue = field.rawValue === "true" || field.rawValue === true;
               } else {
                 inputValue = field.rawValue || "";
               }
@@ -1907,62 +2047,53 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             const updatedSubtask = { ...subtask };
             const subtaskPermissions = this.getTaskPermissions();
             if (updatedSubtask.summaryFields) {
-              updatedSubtask.summaryFields = updatedSubtask.summaryFields.map(
-                (field) => {
-                  const dataTypeUpper = (field.dataType || "").toUpperCase();
-                  const isEditing = this.isFieldEditing(
-                    subtask.id,
-                    field.apiName
-                  );
-                  const isEditable =
-                    subtaskPermissions.canEdit && !field.isReference; // Editable if user can edit and field is not a reference
-                  let inputValue = "";
-                  let inputType = "text";
+              updatedSubtask.summaryFields = updatedSubtask.summaryFields.map((field) => {
+                const dataTypeUpper = (field.dataType || "").toUpperCase();
+                const isEditing = this.isFieldEditing(subtask.id, field.apiName);
+                const isEditable = subtaskPermissions.canEdit && !field.isReference; // Editable if user can edit and field is not a reference
+                let inputValue = "";
+                let inputType = "text";
 
-                  if (isEditing && this.editingField) {
-                    if (dataTypeUpper === "BOOLEAN") {
-                      inputValue =
-                        this.editingField.fieldValue === "true" ||
-                        this.editingField.fieldValue === true;
-                    } else {
-                      inputValue = this.editingField.fieldValue || "";
-                    }
-
-                    if (dataTypeUpper === "DATE") {
-                      inputType = "date";
-                    } else if (dataTypeUpper === "DATETIME") {
-                      inputType = "datetime-local";
-                    } else if (
-                      dataTypeUpper === "DOUBLE" ||
-                      dataTypeUpper === "CURRENCY" ||
-                      dataTypeUpper === "PERCENT" ||
-                      dataTypeUpper === "INTEGER"
-                    ) {
-                      inputType = "number";
-                    } else if (dataTypeUpper === "BOOLEAN") {
-                      inputType = "checkbox";
-                    }
+                if (isEditing && this.editingField) {
+                  if (dataTypeUpper === "BOOLEAN") {
+                    inputValue = this.editingField.fieldValue === "true" || this.editingField.fieldValue === true;
                   } else {
-                    // Use raw value when not editing
-                    if (dataTypeUpper === "BOOLEAN") {
-                      inputValue =
-                        field.rawValue === "true" || field.rawValue === true;
-                    } else {
-                      inputValue = field.rawValue || "";
-                    }
+                    inputValue = this.editingField.fieldValue || "";
                   }
 
-                  return {
-                    ...field,
-                    isEditing: isEditing,
-                    hasDataType: !!field.dataType,
-                    isBoolean: dataTypeUpper === "BOOLEAN",
-                    inputValue: inputValue,
-                    inputType: inputType,
-                    isEditable: isEditable
-                  };
+                  if (dataTypeUpper === "DATE") {
+                    inputType = "date";
+                  } else if (dataTypeUpper === "DATETIME") {
+                    inputType = "datetime-local";
+                  } else if (
+                    dataTypeUpper === "DOUBLE" ||
+                    dataTypeUpper === "CURRENCY" ||
+                    dataTypeUpper === "PERCENT" ||
+                    dataTypeUpper === "INTEGER"
+                  ) {
+                    inputType = "number";
+                  } else if (dataTypeUpper === "BOOLEAN") {
+                    inputType = "checkbox";
+                  }
+                } else {
+                  // Use raw value when not editing
+                  if (dataTypeUpper === "BOOLEAN") {
+                    inputValue = field.rawValue === "true" || field.rawValue === true;
+                  } else {
+                    inputValue = field.rawValue || "";
+                  }
                 }
-              );
+
+                return {
+                  ...field,
+                  isEditing: isEditing,
+                  hasDataType: !!field.dataType,
+                  isBoolean: dataTypeUpper === "BOOLEAN",
+                  inputValue: inputValue,
+                  inputType: inputType,
+                  isEditable: isEditable
+                };
+              });
             }
             return updatedSubtask;
           });
@@ -1973,12 +2104,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         ...group,
         tasks: tasks,
         isCollapsed,
-        statusToggleIconName: isCollapsed
-          ? "utility:chevronright"
-          : "utility:chevrondown",
-        statusToggleAltText: isCollapsed
-          ? "Expand status group"
-          : "Collapse status group"
+        statusToggleIconName: isCollapsed ? "utility:chevronright" : "utility:chevrondown",
+        statusToggleAltText: isCollapsed ? "Expand status group" : "Collapse status group"
       };
     });
   }
@@ -2055,20 +2182,14 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
   updateSummaryFieldHeaderClasses() {
     // Update header classes for summary field definitions based on editability
-    if (
-      this.summaryFieldDefinitions &&
-      this.summaryFieldDefinitions.length > 0
-    ) {
-      this.summaryFieldDefinitions = this.summaryFieldDefinitions.map(
-        (field) => {
-          const isEditable =
-            !this.isPortalMode && this.isFieldEditable(field.apiName);
-          return {
-            ...field,
-            headerClass: `summary-header${isEditable ? " summary-header-editable" : ""}`
-          };
-        }
-      );
+    if (this.summaryFieldDefinitions && this.summaryFieldDefinitions.length > 0) {
+      this.summaryFieldDefinitions = this.summaryFieldDefinitions.map((field) => {
+        const isEditable = !this.isPortalMode && this.isFieldEditable(field.apiName);
+        return {
+          ...field,
+          headerClass: `summary-header${isEditable ? " summary-header-editable" : ""}`
+        };
+      });
     }
   }
 
@@ -2118,11 +2239,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
   async handleTaskNameSave() {
     const taskId = this.editingTaskId;
-    if (
-      !taskId ||
-      !this.editingTaskName ||
-      this.editingTaskName.trim() === ""
-    ) {
+    if (!taskId || !this.editingTaskName || this.editingTaskName.trim() === "") {
       this.cancelEdit();
       return;
     }
@@ -2166,11 +2283,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
   // Inline field editing handlers
   isFieldEditing(taskId, fieldApiName) {
-    return (
-      this.editingField &&
-      this.editingField.taskId === taskId &&
-      this.editingField.fieldApiName === fieldApiName
-    );
+    return this.editingField && this.editingField.taskId === taskId && this.editingField.fieldApiName === fieldApiName;
   }
 
   handleFieldHover(event) {
@@ -2189,9 +2302,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     // Find the field to check if it's a reference field
     const task = this.findTaskById(taskId);
     if (task) {
-      const field = (task.summaryFields || []).find(
-        (f) => f.apiName === fieldApiName
-      );
+      const field = (task.summaryFields || []).find((f) => f.apiName === fieldApiName);
       if (field && field.isReference) {
         return; // Don't show edit on hover for reference fields
       }
@@ -2206,8 +2317,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     if (
       !this.editingField ||
       this.editingField.taskId !== event.currentTarget.dataset.taskId ||
-      this.editingField.fieldApiName !==
-        event.currentTarget.dataset.fieldApiName
+      this.editingField.fieldApiName !== event.currentTarget.dataset.fieldApiName
     ) {
       event.currentTarget.classList.remove("field-hover");
     }
@@ -2246,9 +2356,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       return;
     }
 
-    const field = (task.summaryFields || []).find(
-      (f) => f.apiName === fieldApiName
-    );
+    const field = (task.summaryFields || []).find((f) => f.apiName === fieldApiName);
     if (!field) {
       return;
     }
@@ -2279,12 +2387,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     const { recordId, fieldApiName, newValue } = event.detail;
 
     // Update the local data immediately for responsive UI
-    this.updateFieldValue(
-      recordId,
-      fieldApiName,
-      newValue,
-      this.getFieldDataType(fieldApiName)
-    );
+    this.updateFieldValue(recordId, fieldApiName, newValue, this.getFieldDataType(fieldApiName));
 
     // Refresh the wire to get latest data from server
     try {
@@ -2337,11 +2440,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       } else if (dataTypeUpper === "DATETIME") {
         // For datetime fields, ensure proper format
         fields[fieldApiName] = fieldValue || null;
-      } else if (
-        dataTypeUpper === "DOUBLE" ||
-        dataTypeUpper === "CURRENCY" ||
-        dataTypeUpper === "PERCENT"
-      ) {
+      } else if (dataTypeUpper === "DOUBLE" || dataTypeUpper === "CURRENCY" || dataTypeUpper === "PERCENT") {
         const numValue = fieldValue ? parseFloat(fieldValue) : null;
         fields[fieldApiName] = isNaN(numValue) ? null : numValue;
       } else if (dataTypeUpper === "INTEGER") {
@@ -2349,11 +2448,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         fields[fieldApiName] = isNaN(intValue) ? null : intValue;
       } else if (dataTypeUpper === "BOOLEAN") {
         // Handle boolean values - can be true, false, 'true', 'false', or null
-        if (
-          fieldValue === null ||
-          fieldValue === undefined ||
-          fieldValue === ""
-        ) {
+        if (fieldValue === null || fieldValue === undefined || fieldValue === "") {
           fields[fieldApiName] = false;
         } else {
           fields[fieldApiName] = fieldValue === "true" || fieldValue === true;
@@ -2417,10 +2512,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     const dataType = (field.dataType || "").toUpperCase();
     if (dataType === "BOOLEAN") {
-      return (
-        this.editingField.fieldValue === "true" ||
-        this.editingField.fieldValue === true
-      );
+      return this.editingField.fieldValue === "true" || this.editingField.fieldValue === true;
     }
 
     return this.editingField.fieldValue || "";
@@ -2460,18 +2552,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     for (const statusGroup of this.statusGroups) {
       for (const task of statusGroup.tasks) {
         if (task.id === taskId) {
-          const field = (task.summaryFields || []).find(
-            (f) => f.apiName === fieldApiName
-          );
+          const field = (task.summaryFields || []).find((f) => f.apiName === fieldApiName);
           if (field) {
             // Update rawValue
             field.rawValue = newValue;
             // Format displayValue based on data type
-            field.displayValue = this.formatFieldDisplayValue(
-              fieldApiName,
-              newValue,
-              dataType
-            );
+            field.displayValue = this.formatFieldDisplayValue(fieldApiName, newValue, dataType);
             // Re-decorate the entire task to ensure all computed properties are updated
             const decorated = this.decorateTaskRecord(task);
             // Update the task with decorated properties
@@ -2485,18 +2571,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (task.subtasks) {
           for (const subtask of task.subtasks) {
             if (subtask.id === taskId) {
-              const field = (subtask.summaryFields || []).find(
-                (f) => f.apiName === fieldApiName
-              );
+              const field = (subtask.summaryFields || []).find((f) => f.apiName === fieldApiName);
               if (field) {
                 // Update rawValue
                 field.rawValue = newValue;
                 // Format displayValue based on data type
-                field.displayValue = this.formatFieldDisplayValue(
-                  fieldApiName,
-                  newValue,
-                  dataType
-                );
+                field.displayValue = this.formatFieldDisplayValue(fieldApiName, newValue, dataType);
                 // Re-decorate the entire subtask to ensure all computed properties are updated
                 const decorated = this.decorateTaskRecord(subtask);
                 // Update the subtask with decorated properties
@@ -2569,8 +2649,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
                   isEditing: false,
                   canEdit: subtaskPermissions.canEdit,
                   canDelete: subtaskPermissions.canDelete,
-                  showMenu:
-                    subtaskPermissions.canEdit || subtaskPermissions.canDelete
+                  showMenu: subtaskPermissions.canEdit || subtaskPermissions.canDelete
                 };
               }
               return subtask;
@@ -2673,16 +2752,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   removeTaskFromData(taskId) {
     this.statusGroups = this.statusGroups
       .map((statusGroup) => {
-        const filteredTasks = statusGroup.tasks.filter(
-          (task) => task.id !== taskId
-        );
+        const filteredTasks = statusGroup.tasks.filter((task) => task.id !== taskId);
 
         // Also check subtasks
         const tasksWithFilteredSubtasks = filteredTasks.map((task) => {
           if (task.subtasks) {
-            const filteredSubtasks = task.subtasks.filter(
-              (subtask) => subtask.id !== taskId
-            );
+            const filteredSubtasks = task.subtasks.filter((subtask) => subtask.id !== taskId);
             return {
               ...task,
               subtasks: filteredSubtasks,
@@ -2706,6 +2781,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       })
       .filter((group) => group !== null);
 
+    this.rebuildListViewFilterOptions();
     this.refreshFilteredStatusGroups();
   }
 
