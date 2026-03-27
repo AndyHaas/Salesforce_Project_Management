@@ -191,6 +191,60 @@
   font-weight: 700;
 }
 
+.pinned-messages-panel {
+  border-left: 3px solid #2e844a;
+}
+
+.pinned-messages-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pinned-messages-list__item + .pinned-messages-list__item {
+  border-top: 1px solid #e5e5e5;
+}
+
+.pinned-compact-row {
+  padding: 0.35rem 0.25rem;
+  cursor: pointer;
+  border-radius: 0.25rem;
+}
+
+.pinned-compact-row:hover {
+  background-color: rgba(46, 132, 74, 0.08);
+}
+
+.pinned-compact-row__main {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.pinned-compact-row__sender {
+  font-weight: 600;
+}
+
+.pinned-compact-row__preview {
+  margin-top: 0.125rem;
+}
+
+.message-item--highlight {
+  animation: portal-messaging-highlight-fade 2s ease forwards;
+}
+
+@keyframes portal-messaging-highlight-fade {
+  0% {
+    background-color: #fff5c2;
+  }
+  40% {
+    background-color: #fff5c2;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
 .reply-indicator {
   padding: 0.5rem;
   background-color: #e8f4f8;

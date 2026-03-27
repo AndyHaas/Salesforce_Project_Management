@@ -34,6 +34,17 @@
           >
             {messageCount} {messageCountText}
           </span>
+          <template if:true={showPinnedPanelChrome}>
+            <lightning-button-icon
+              icon-name="utility:preview"
+              variant={pinnedToggleVariant}
+              alternative-text="Toggle pinned messages panel"
+              title={pinnedToggleTitle}
+              onclick={handleTogglePinnedSection}
+              class="slds-m-right_x-small pinned-preview-toggle"
+            >
+            </lightning-button-icon>
+          </template>
           <lightning-button-icon
             icon-name="utility:search"
             variant="border-filled"
@@ -66,6 +77,56 @@
                 {contextDisplayText}
               </div>
             </div>
+          </div>
+        </template>
+
+        <template if:true={showPinnedSectionBody}>
+          <div
+            class="pinned-messages-panel slds-box slds-box_x-small slds-theme_shade slds-m-bottom_small"
+          >
+            <div
+              class="slds-grid slds-grid_vertical-align-center slds-m-bottom_x-small"
+            >
+              <lightning-icon
+                icon-name="utility:pinned"
+                size="x-small"
+                class="slds-m-right_x-small pinned-icon"
+              >
+              </lightning-icon>
+              <span class="slds-text-heading_small">Pinned messages</span>
+              <span
+                class="slds-text-body_small slds-text-color_weak slds-m-left_x-small"
+              >
+                Click a row to scroll to it in the thread
+              </span>
+            </div>
+            <ul class="pinned-messages-list">
+              <template for:each={pinnedMessagesCompact} for:item="message">
+                <li key={message.id} class="pinned-messages-list__item">
+                  <div
+                    class="pinned-compact-row"
+                    data-message-id={message.id}
+                    onclick={handleScrollToMessageInThread}
+                  >
+                    <div class="pinned-compact-row__main">
+                      <span class="pinned-compact-row__sender">
+                        {message.senderName}
+                      </span>
+                      <span
+                        class="slds-text-body_small slds-text-color_weak slds-m-left_x-small"
+                      >
+                        {message.formattedDate}
+                      </span>
+                    </div>
+                    <div
+                      class="slds-text-body_small slds-text-color_weak slds-truncate pinned-compact-row__preview"
+                    >
+                      {message.bodyPreview}
+                    </div>
+                  </div>
+                </li>
+              </template>
+            </ul>
           </div>
         </template>
 

@@ -83,6 +83,11 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     this._relatedTaskId = value;
   }
 
+  /** When true, hide the pinned summary panel and preview toggle (thread still sorts chronologically). */
+  @api hidePinnedMessagesSection = false;
+  /** When true, the pinned summary starts collapsed (user opens it with utility:preview). */
+  @api pinnedSectionCollapsedByDefault = false;
+
   @track messageBody = "";
   @track recipientType = null; // Will be set based on user type
   @track searchTerm = "";
@@ -115,6 +120,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   _hasMoreMessages = true;
   _messagesPerPage = 50;
   _searchTimeout = null;
+  /** User-controlled visibility of the pinned summary strip (initialized from pinnedSectionExpandedByDefault). */
+  @track _pinnedSectionExpanded = true;
 
   get showHeaderEnabled() {
     return true;
@@ -741,6 +748,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    * @description Lifecycle hook - component is inserted into the DOM
    */
   connectedCallback() {
+    this._pinnedSectionExpanded = this.pinnedSectionCollapsedByDefault !== true;
+
     this._previousParams = {
       recipientType: this.recipientType,
       relatedAccountId: this.relatedAccountId,
@@ -838,9 +847,17 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       return [];
     }
 
-    // Search is now handled server-side in Apex
-    // No client-side filtering needed
-    let filteredMessages = this._messages;
+    // Chronological order (oldest first) so pinned rows are not hoisted to the top by the server
+    const sorted = [...this._messages].sort((a, b) => {
+      const ta = new Date(a.createdDate || 0).getTime();
+      const tb = new Date(b.createdDate || 0).getTime();
+      if (ta !== tb) {
+        return ta - tb;
+      }
+      return String(a.id || "").localeCompare(String(b.id || ""));
+    });
+
+    const filteredMessages = sorted;
 
     return filteredMessages.map((msg) => {
       const taskLink = this.buildLink(
@@ -898,9 +915,79 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
         hasAttachments: Array.isArray(msg.files) && msg.files.length > 0,
         // Visible_To_Client__c === false — show badge only for Milestone team (template guard)
-        isInternalMessage: msg.visibleToClient === false
+        isInternalMessage: msg.visibleToClient === false,
+        bodyPreview: this.truncatePreview(
+          this.stripHtmlPreview(msg.body || ""),
+          140
+        )
       };
     });
+  }
+
+  truncatePreview(text, maxLen) {
+    if (!text || !maxLen) {
+      return "";
+    }
+    const t = text.trim();
+    if (t.length <= maxLen) {
+      return t;
+    }
+    return `${t.slice(0, maxLen).trim()}…`;
+  }
+
+  get hasPinnedMessages() {
+    return (this._messages || []).some((m) => m.isPinned === true);
+  }
+
+  get showPinnedPanelChrome() {
+    return this.hidePinnedMessagesSection !== true && this.hasPinnedMessages;
+  }
+
+  get showPinnedSectionBody() {
+    return (
+      this.hidePinnedMessagesSection !== true &&
+      this._pinnedSectionExpanded === true &&
+      this.hasPinnedMessages
+    );
+  }
+
+  get pinnedMessagesCompact() {
+    return this.messages.filter((m) => m.isPinned === true);
+  }
+
+  get pinnedToggleVariant() {
+    return this._pinnedSectionExpanded ? "brand" : "border-filled";
+  }
+
+  get pinnedToggleTitle() {
+    return this._pinnedSectionExpanded
+      ? "Hide pinned messages panel"
+      : "Show pinned messages panel";
+  }
+
+  handleTogglePinnedSection() {
+    this._pinnedSectionExpanded = !this._pinnedSectionExpanded;
+  }
+
+  /**
+   * Scroll the main thread so the full message row is visible (from pinned summary click).
+   */
+  handleScrollToMessageInThread(event) {
+    const id = event.currentTarget?.dataset?.messageId;
+    if (!id) {
+      return;
+    }
+    const list = this.template.querySelector(".messages-list");
+    const row = list?.querySelector(`.message-item[data-message-id="${id}"]`);
+    if (!row || typeof row.scrollIntoView !== "function") {
+      return;
+    }
+    row.classList.remove("message-item--highlight");
+    row.classList.add("message-item--highlight");
+    row.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => {
+      row.classList.remove("message-item--highlight");
+    }, 2200);
   }
 
   /**
