@@ -45,6 +45,7 @@ import updateMessage from "@salesforce/apex/PortalMessagingController.updateMess
 import deleteMessage from "@salesforce/apex/PortalMessagingController.deleteMessage";
 import pinMessage from "@salesforce/apex/PortalMessagingController.pinMessage";
 import linkFilesToMessage from "@salesforce/apex/PortalMessagingController.linkFilesToMessage";
+import getFilesForMessages from "@salesforce/apex/MessageFilesSupport.getFilesForMessages";
 import { ensureSitePath, formatDateTime } from "c/portalCommon";
 import MESSAGE_UPDATE_CHANNEL from "@salesforce/messageChannel/MessageUpdate__c";
 
@@ -108,6 +109,9 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   @track messageSearchTerm = "";
   @track showMessageSearch = false;
   _uploadedFileIds = [];
+  /** @type {Array<{contentDocumentId: string, contentVersionId: string, title: string, fileExtension: string}>} */
+  @track _pendingComposerFiles = [];
+  @track _renderFileUpload = true;
   _currentOffset = 0;
   _isLoadingMore = false;
   _hasMoreMessages = true;
@@ -315,7 +319,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         searchTerm: this.messageSearchTerm || null
       });
 
-      const newMessages = data || [];
+      let newMessages = data || [];
+      newMessages = await this.attachFilesToMessages(newMessages);
 
       if (append) {
         // Prepend older messages to the beginning (for reverse chronological)
@@ -405,6 +410,63 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       this._messagesError = error;
     } finally {
       this._isLoadingMore = false;
+    }
+  }
+
+  /**
+   * @description True when message DTO already includes file rows (e.g. from getMessages).
+   */
+  messageHasInlineFiles(msg) {
+    if (!msg) {
+      return false;
+    }
+    const f = msg.files || msg.attachments;
+    return Array.isArray(f) && f.length > 0;
+  }
+
+  /**
+   * @description Merge ContentDocument rows from MessageFilesSupport for messages missing inline files.
+   */
+  async attachFilesToMessages(messageRows) {
+    if (!messageRows || messageRows.length === 0) {
+      return messageRows || [];
+    }
+    const idsToFetch = messageRows
+      .filter((m) => !this.messageHasInlineFiles(m))
+      .map((m) => m.id)
+      .filter(Boolean);
+    if (idsToFetch.length === 0) {
+      return messageRows.map((m) => ({
+        ...m,
+        files: m.files || m.attachments || []
+      }));
+    }
+    try {
+      const bundles = await getFilesForMessages({
+        messageIds: idsToFetch
+      });
+      const map = new Map(
+        (bundles || []).map((b) => [b.messageId, b.files || []])
+      );
+      return messageRows.map((m) => {
+        const queried = m.id ? map.get(m.id) : null;
+        if (queried && queried.length > 0) {
+          return { ...m, files: queried };
+        }
+        return {
+          ...m,
+          files: m.files || m.attachments || []
+        };
+      });
+    } catch (error) {
+      console.error(
+        "Error loading message attachments:",
+        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
+      );
+      return messageRows.map((m) => ({
+        ...m,
+        files: m.files || m.attachments || []
+      }));
     }
   }
 
@@ -858,7 +920,9 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
           this.relatedTaskId &&
           msg.relatedTaskId &&
           this.relatedTaskId === msg.relatedTaskId
-        )
+        ),
+        attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
+        hasAttachments: Array.isArray(msg.files) && msg.files.length > 0
       };
     });
   }
@@ -1213,10 +1277,110 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       return;
     }
 
-    // Store uploaded file IDs for linking after message is sent
-    this._uploadedFileIds = uploadedFiles
+    const newIds = uploadedFiles
       .map((file) => file.contentVersionId)
       .filter((id) => id);
+    this._uploadedFileIds = [...this._uploadedFileIds, ...newIds];
+
+    const newRows = uploadedFiles.map((file) => ({
+      contentDocumentId: file.documentId,
+      contentVersionId: file.contentVersionId,
+      title: file.name || "Attachment",
+      fileExtension: this.extensionFromFileName(file.name)
+    }));
+    this._pendingComposerFiles = [...this._pendingComposerFiles, ...newRows];
+  }
+
+  extensionFromFileName(name) {
+    if (!name || !String(name).includes(".")) {
+      return "";
+    }
+    const parts = String(name).split(".");
+    return parts[parts.length - 1].toLowerCase();
+  }
+
+  get pendingComposerFiles() {
+    return this._pendingComposerFiles;
+  }
+
+  get hasPendingComposerFiles() {
+    return (
+      Array.isArray(this._pendingComposerFiles) &&
+      this._pendingComposerFiles.length > 0
+    );
+  }
+
+  get renderFileUpload() {
+    return this._renderFileUpload;
+  }
+
+  /** LEX: standard file preview; portal: open download (handled in child). */
+  get messageAttachmentShowPreview() {
+    return true;
+  }
+
+  get messageAttachmentShowDownload() {
+    return true;
+  }
+
+  get messageAttachmentShowDelete() {
+    return false;
+  }
+
+  get composerAttachmentShowPreview() {
+    return true;
+  }
+
+  get composerAttachmentShowDownload() {
+    return true;
+  }
+
+  get composerAttachmentShowDelete() {
+    return true;
+  }
+
+  resetComposerFilesState() {
+    const remountUpload =
+      this._pendingComposerFiles.length > 0 || this._uploadedFileIds.length > 0;
+    this._uploadedFileIds = [];
+    this._pendingComposerFiles = [];
+    if (remountUpload) {
+      this._renderFileUpload = false;
+      Promise.resolve().then(() => {
+        this._renderFileUpload = true;
+      });
+    }
+  }
+
+  handlePendingFileRemove(event) {
+    const { contentVersionId, contentDocumentId } = event.detail || {};
+    this._pendingComposerFiles = this._pendingComposerFiles.filter((f) => {
+      if (contentVersionId && f.contentVersionId === contentVersionId) {
+        return false;
+      }
+      if (
+        contentDocumentId &&
+        f.contentDocumentId === contentDocumentId &&
+        !contentVersionId
+      ) {
+        return false;
+      }
+      return true;
+    });
+    if (contentVersionId) {
+      this._uploadedFileIds = this._uploadedFileIds.filter(
+        (id) => id !== contentVersionId
+      );
+    }
+    if (
+      this._pendingComposerFiles.length === 0 &&
+      this._uploadedFileIds.length === 0
+    ) {
+      this._renderFileUpload = false;
+      Promise.resolve().then(() => {
+        this._renderFileUpload = true;
+      });
+    }
   }
 
   /**
@@ -1298,7 +1462,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       this.messageBody = "";
       this.selectedMentions = [];
       this.isVisibleToClient = true; // Reset to default
-      this._uploadedFileIds = [];
+      this.resetComposerFilesState();
       this._replyingToMessageId = null;
       this._replyingToMessage = null;
 
@@ -1507,6 +1671,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     this._replyingToMessageId = messageId;
     this._replyingToMessage = message;
 
+    this.resetComposerFilesState();
     // Open modal for replying
     this._isModalOpen = true;
   }
@@ -1544,6 +1709,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    * @description Open message composition modal
    */
   handleOpenModal() {
+    this.resetComposerFilesState();
     this._isModalOpen = true;
   }
 
@@ -1552,6 +1718,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    */
   handleCloseModal() {
     this._isModalOpen = false;
+    this.resetComposerFilesState();
     // Cancel reply if modal is closed
     if (this._replyingToMessageId) {
       this.handleCancelReply();

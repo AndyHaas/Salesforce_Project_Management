@@ -22,6 +22,8 @@
         <members>DisplayDensityController</members>
         <members>ForgotPasswordController</members>
         <members>ForgotPasswordControllerTest</members>
+        <members>MessageFilesSupport</members>
+        <members>MessageFilesSupportTest</members>
         <members>MessageNotificationScheduler</members>
         <members>MessageNotificationSchedulerTest</members>
         <members>MyProfilePageController</members>
@@ -1304,6 +1306,7 @@
         <members>linkTaskModal</members>
         <members>passwordlessLogin</members>
         <members>portalCommon</members>
+        <members>portalFileAttachments</members>
         <members>portalFooter</members>
         <members>portalHeader</members>
         <members>portalLogin</members>
@@ -1311,7 +1314,6 @@
         <members>portalMessaging</members>
         <members>portalRecordList</members>
         <members>portalTaskDetail</members>
-        <members>portalTaskFiles</members>
         <members>projectDetail</members>
         <members>projectTaskDashboard</members>
         <members>salesforceMessaging</members>

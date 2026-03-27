@@ -296,6 +296,17 @@
                       <lightning-formatted-rich-text value={message.body}>
                       </lightning-formatted-rich-text>
                     </div>
+                    <template if:true={message.hasAttachments}>
+                      <div class="message-attachments slds-m-top_small">
+                        <c-portal-file-attachments
+                          files={message.attachmentFiles}
+                          show-preview={messageAttachmentShowPreview}
+                          show-download={messageAttachmentShowDownload}
+                          show-delete={messageAttachmentShowDelete}
+                        >
+                        </c-portal-file-attachments>
+                      </div>
+                    </template>
                   </template>
 
                   <template if:true={message.isEditing}>
@@ -628,14 +639,33 @@
 
                 <!-- File Upload -->
                 <div class="slds-form-element slds-m-bottom_medium">
-                  <lightning-file-upload
-                    label="Attach Files"
-                    name="fileUpload"
-                    accept={acceptedFormats}
-                    onuploadfinished={handleUploadFinished}
-                    multiple
-                  >
-                  </lightning-file-upload>
+                  <template if:true={renderFileUpload}>
+                    <lightning-file-upload
+                      label="Attach Files"
+                      name="fileUpload"
+                      accept={acceptedFormats}
+                      onuploadfinished={handleUploadFinished}
+                      multiple
+                    >
+                    </lightning-file-upload>
+                  </template>
+                  <template if:true={hasPendingComposerFiles}>
+                    <div class="slds-m-top_small">
+                      <div
+                        class="slds-text-body_small slds-text-color_weak slds-m-bottom_xx-small"
+                      >
+                        Files to send
+                      </div>
+                      <c-portal-file-attachments
+                        files={pendingComposerFiles}
+                        show-preview={composerAttachmentShowPreview}
+                        show-download={composerAttachmentShowDownload}
+                        show-delete={composerAttachmentShowDelete}
+                        onfileremove={handlePendingFileRemove}
+                      >
+                      </c-portal-file-attachments>
+                    </div>
+                  </template>
                 </div>
               </div>
 

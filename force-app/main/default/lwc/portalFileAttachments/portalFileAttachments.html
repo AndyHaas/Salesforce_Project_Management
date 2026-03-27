@@ -1,0 +1,75 @@
+<template>
+  <template if:true={hasFiles}>
+    <ul
+      class="portal-file-list slds-list_vertical slds-has-dividers_bottom-space"
+    >
+      <template for:each={displayFiles} for:item="file">
+        <li key={file.rowKey} class="portal-file-row slds-item">
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-box slds-box_x-small slds-theme_shade"
+          >
+            <div
+              class="slds-col slds-grow slds-grid slds-grid_vertical-align-center"
+            >
+              <lightning-icon
+                icon-name={file.iconName}
+                size="small"
+                class="slds-m-right_small"
+              ></lightning-icon>
+              <div class="slds-truncate" title={file.title}>
+                <template if:true={showPreview}>
+                  <a
+                    href="javascript:void(0);"
+                    class="slds-text-link"
+                    data-document-id={file.contentDocumentId}
+                    onclick={handlePreviewClick}
+                  >
+                    {file.title}
+                  </a>
+                </template>
+                <template if:false={showPreview}>
+                  <span class="slds-text-body_small">{file.title}</span>
+                </template>
+                <template if:true={file.fileExtension}>
+                  <span
+                    class="slds-text-body_small slds-text-color_weak slds-m-left_xx-small"
+                    >.{file.fileExtension}</span
+                  >
+                </template>
+              </div>
+            </div>
+            <div
+              class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center"
+            >
+              <template if:true={showDownload}>
+                <lightning-button-icon
+                  icon-name="utility:download"
+                  variant="border-filled"
+                  alternative-text="Download"
+                  title="Download"
+                  data-document-id={file.contentDocumentId}
+                  onclick={handleDownloadClick}
+                  class="slds-m-left_xx-small"
+                >
+                </lightning-button-icon>
+              </template>
+              <template if:true={file.showDeleteRow}>
+                <lightning-button-icon
+                  icon-name="utility:delete"
+                  variant="border-filled"
+                  alternative-text="Remove"
+                  title="Remove"
+                  data-document-id={file.contentDocumentId}
+                  data-version-id={file.contentVersionId}
+                  onclick={handleRemoveClick}
+                  class="slds-m-left_xx-small"
+                >
+                </lightning-button-icon>
+              </template>
+            </div>
+          </div>
+        </li>
+      </template>
+    </ul>
+  </template>
+</template>
