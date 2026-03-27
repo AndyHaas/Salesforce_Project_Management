@@ -24,7 +24,6 @@ import ACCOUNT_OBJECT from "@salesforce/schema/Account";
 import PROJECT_OBJECT from "@salesforce/schema/Project__c";
 import getGroupedTasksWithSubtasks from "@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasks";
 import getGroupedTasksWithSubtasksByProject from "@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasksByProject";
-import getProjectManagerContacts from "@salesforce/apex/ProjectTaskDashboardController.getProjectManagerContacts";
 import getStatusColors from "@salesforce/apex/StatusColorController.getStatusColors";
 import getCurrentUserAccountId from "@salesforce/apex/ProjectTaskDashboardController.getCurrentUserAccountId";
 import getCurrentUserContactId from "@salesforce/apex/ProjectTaskDashboardController.getCurrentUserContactId";
@@ -190,8 +189,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   showMyTasksOnly = false; // "Me" mode toggle
   currentUserId = USER_ID; // Current user ID
   currentUserContactId = null; // Current user's Contact ID (for portal)
-  selectedContactId = null; // Selected Contact ID for filtering (for Salesforce)
-  assignedContacts = []; // List of Contacts assigned to tasks (for Salesforce dropdown)
   @track _listFilterPanelOpen = false;
   @track _lvProject = "";
   @track _lvAccount = "";
@@ -314,54 +311,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     } else if (error) {
       console.warn("Error loading user contact:", error);
     }
-  }
-
-  wiredAssignedContactsResult;
-
-  @wire(getProjectManagerContacts)
-  wiredAssignedContacts(result) {
-    this.wiredAssignedContactsResult = result;
-    const { error, data } = result;
-    if (data) {
-      // PM-only filter; empty value = no contact filter
-      this.assignedContacts = [{ label: "All Contacts", value: "" }, ...data];
-      // Calculate and set dynamic width after rendering
-      this.updateContactFilterWidth();
-    } else if (error) {
-      console.warn("Error loading assigned contacts:", error);
-      this.assignedContacts = [{ label: "All Contacts", value: "" }];
-    }
-  }
-
-  updateContactFilterWidth() {
-    // Use setTimeout to ensure DOM is updated
-    setTimeout(() => {
-      const combobox = this.template.querySelector(".contact-filter-combobox");
-      if (combobox && this.assignedContacts && this.assignedContacts.length > 0) {
-        // Find the longest label
-        const longestLabel = this.assignedContacts.reduce((longest, option) => {
-          return option.label && option.label.length > longest.length ? option.label : longest;
-        }, "");
-
-        // Create a temporary element to measure text width
-        const tempElement = document.createElement("span");
-        tempElement.style.visibility = "hidden";
-        tempElement.style.position = "absolute";
-        tempElement.style.whiteSpace = "nowrap";
-        tempElement.style.fontSize = window.getComputedStyle(combobox).fontSize;
-        tempElement.style.fontFamily = window.getComputedStyle(combobox).fontFamily;
-        tempElement.textContent = longestLabel || "Filter by Contact";
-        document.body.appendChild(tempElement);
-
-        const textWidth = tempElement.offsetWidth;
-        document.body.removeChild(tempElement);
-
-        // Set width with some padding (add ~60px for dropdown arrow and padding)
-        const minWidth = Math.max(200, textWidth + 60);
-        combobox.style.minWidth = minWidth + "px";
-        combobox.style.width = "auto";
-      }
-    }, 0);
   }
 
   @wire(getDisplayDensity)
@@ -1489,12 +1438,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     const developerId = task.developerId ? String(task.developerId) : "";
     const clientUserId = task.clientUserId ? String(task.clientUserId) : "";
 
-    // Salesforce contact combobox: Project Manager only
-    if (this.selectedContactId) {
-      const sel = String(this.selectedContactId);
-      return salesforceIdsEqual(projectManagerId, sel);
-    }
-
     // Portal "My tasks": match PM, Developer, or Client User to the logged-in Contact
     if (this.isPortalMode && this.showMyTasksOnly) {
       const uid = this.currentUserContactId ? String(this.currentUserContactId) : null;
@@ -1629,7 +1572,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   }
 
   get meModeButtonLabel() {
-    // In Salesforce, don't show this button (use dropdown instead)
+    // In Salesforce LEX, don't show this button (use List filters > Project manager)
     if (!this.isPortalMode) {
       return null;
     }
@@ -1728,21 +1671,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       this.showMyTasksOnly = !this.showMyTasksOnly;
       this.refreshFilteredStatusGroups();
     }
-    // Salesforce: handled by Contact dropdown change event
-  }
-
-  handleContactSelected(event) {
-    // lightning-combobox provides value in event.detail.value
-    const contactId = event.detail.value;
-    if (contactId && contactId.trim() !== "") {
-      this.selectedContactId = contactId;
-      // Don't set showMyTasksOnly - Contact filter works independently and additively with Account filter
-      this.refreshFilteredStatusGroups();
-    } else {
-      // Clear filter if "All Contacts" selected
-      this.selectedContactId = null;
-      this.refreshFilteredStatusGroups();
-    }
   }
 
   handleStatusToggle(event) {
@@ -1821,9 +1749,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       );
     }
 
-    // Apply Contact filter if selected (works additively with Account filter)
-    // This applies to both Portal (currentUserContactId) and Salesforce (selectedContactId)
-    if (this.showMyTasksOnly || this.selectedContactId) {
+    // Portal "My tasks": restrict to tasks involving the logged-in contact
+    if (this.showMyTasksOnly) {
       groups = this.filterGroupsForCurrentUser(groups);
     }
 
@@ -2775,12 +2702,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     if (this.wiredGroupedTasksResult) {
       try {
         await refreshApex(this.wiredGroupedTasksResult);
-        // Also refresh the assigned contacts list
-        if (this.wiredAssignedContactsResult) {
-          await refreshApex(this.wiredAssignedContactsResult);
-          // Recalculate width after refresh
-          this.updateContactFilterWidth();
-        }
         this.showToast("Success", "Task list refreshed", "success");
       } catch (error) {
         console.error("Error refreshing task list:", error);

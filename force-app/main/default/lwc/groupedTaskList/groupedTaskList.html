@@ -1,25 +1,7 @@
 <template>
   <c-field-edit-modal onsave={handleFieldSaveFromModal}></c-field-edit-modal>
   <lightning-card title="Tasks" icon-name="utility:list" class={densityClass}>
-    <div slot="actions" class="slds-p-around_small slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-      <div class="slds-col slds-grow slds-m-right_medium">
-        <div class="slds-grid slds-grid_vertical-align-center slds-gutters_x-small">
-          <template if:false={isExperienceSite}>
-            <div class="slds-col">
-              <lightning-combobox
-                label=""
-                label-hidden
-                placeholder="Filter by project manager"
-                value={selectedContactId}
-                options={assignedContacts}
-                onchange={handleContactSelected}
-                class="contact-filter-combobox"
-              >
-              </lightning-combobox>
-            </div>
-          </template>
-        </div>
-      </div>
+    <div slot="actions" class="slds-p-around_small slds-grid slds-grid_align-end slds-grid_vertical-align-center">
       <div class="slds-col actions-container slds-grid slds-grid_vertical-align-center">
         <template if:true={showProjectScopeFilterBadge}>
           <lightning-badge
