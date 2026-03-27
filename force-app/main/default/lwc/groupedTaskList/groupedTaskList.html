@@ -4,21 +4,6 @@
     <div slot="actions" class="slds-p-around_small slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
       <div class="slds-col slds-grow slds-m-right_medium">
         <div class="slds-grid slds-grid_vertical-align-center slds-gutters_x-small">
-          <template if:true={shouldShowAccountFilter}>
-            <div class="slds-col">
-              <lightning-combobox
-                label=""
-                label-hidden
-                placeholder="Filter by Account"
-                value={accountFilterComboboxValue}
-                options={accountFilterOptions}
-                onchange={handleAccountChange}
-                class="account-filter-combobox"
-              >
-              </lightning-combobox>
-            </div>
-          </template>
-
           <template if:false={isExperienceSite}>
             <div class="slds-col">
               <lightning-combobox

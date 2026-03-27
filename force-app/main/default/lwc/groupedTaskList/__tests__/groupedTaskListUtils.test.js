@@ -2,7 +2,9 @@ import {
   STANDARD_ACCOUNT_KEY_PREFIX,
   ACCOUNT_SEL_THIS,
   ACCOUNT_SEL_ALL,
-  salesforceIdsEqual
+  salesforceIdsEqual,
+  inferExperienceCloudFromBrowserLocation,
+  isExperienceCloudPageReferenceType
 } from "../groupedTaskListUtils";
 
 describe("groupedTaskListUtils", () => {
@@ -14,9 +16,44 @@ describe("groupedTaskListUtils", () => {
 
   test("salesforceIdsEqual", () => {
     expect(salesforceIdsEqual(null, "001xx")).toBe(false);
-    expect(salesforceIdsEqual("001000000000000AAA", "001000000000000")).toBe(
-      true
-    );
+    expect(salesforceIdsEqual("001000000000000AAA", "001000000000000")).toBe(true);
     expect(salesforceIdsEqual("abc", "def")).toBe(false);
+  });
+
+  test("isExperienceCloudPageReferenceType", () => {
+    expect(isExperienceCloudPageReferenceType(null)).toBe(false);
+    expect(isExperienceCloudPageReferenceType("comm__namedPage")).toBe(true);
+    expect(isExperienceCloudPageReferenceType("comm_lwr__home")).toBe(true);
+    expect(isExperienceCloudPageReferenceType("lightning__AppPage")).toBe(false);
+  });
+
+  test("inferExperienceCloudFromBrowserLocation", () => {
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "na142.lightning.force.com",
+        pathname: "/lightning/page/home"
+      })
+    ).toBe(false);
+
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "acme.my.site.com",
+        pathname: "/s/"
+      })
+    ).toBe(true);
+
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "custom.example.com",
+        pathname: "/s/project/abc"
+      })
+    ).toBe(true);
+
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "custom.example.com",
+        pathname: "/home"
+      })
+    ).toBe(false);
   });
 });

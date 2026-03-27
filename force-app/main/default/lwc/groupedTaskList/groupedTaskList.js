@@ -6,7 +6,11 @@
  *
  * USAGE:
  * - Used in: Standalone component, can be placed on any Lightning page
- * - Apex Controller: ProjectTaskDashboardController.getGroupedTasksWithSubtasks(), getAccounts()
+ * - Apex Controller: ProjectTaskDashboardController.getGroupedTasksWithSubtasks()
+ *
+ * Experience Cloud: host context uses CurrentPageReference (comm__ / comm_lwr__) plus browser hints.
+ * Set @api portalExperienceMode to "experience" when auto-detect fails (e.g. fully custom domains).
+ * Experience Builder reads properties from js-meta targetConfig lightningCommunity__Default (not lightningCommunity__Page).
  */
 import { LightningElement, api, wire, track } from "lwc";
 import { NavigationMixin, CurrentPageReference } from "lightning/navigation";
@@ -20,7 +24,6 @@ import ACCOUNT_OBJECT from "@salesforce/schema/Account";
 import PROJECT_OBJECT from "@salesforce/schema/Project__c";
 import getGroupedTasksWithSubtasks from "@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasks";
 import getGroupedTasksWithSubtasksByProject from "@salesforce/apex/ProjectTaskDashboardController.getGroupedTasksWithSubtasksByProject";
-import getAccounts from "@salesforce/apex/ProjectTaskDashboardController.getAccounts";
 import getProjectManagerContacts from "@salesforce/apex/ProjectTaskDashboardController.getProjectManagerContacts";
 import getStatusColors from "@salesforce/apex/StatusColorController.getStatusColors";
 import getCurrentUserAccountId from "@salesforce/apex/ProjectTaskDashboardController.getCurrentUserAccountId";
@@ -32,9 +35,9 @@ import ACCOUNT_FILTER_MESSAGE_CHANNEL from "@salesforce/messageChannel/AccountFi
 import USER_ID from "@salesforce/user/Id";
 import {
   STANDARD_ACCOUNT_KEY_PREFIX,
-  ACCOUNT_SEL_THIS,
-  ACCOUNT_SEL_ALL,
-  salesforceIdsEqual
+  salesforceIdsEqual,
+  inferExperienceCloudFromBrowserLocation,
+  isExperienceCloudPageReferenceType
 } from "./groupedTaskListUtils";
 
 /** Status picklist values hidden by default in list filters (users can enable via checkboxes). */
@@ -51,10 +54,22 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   set projectId(value) {
     this._projectId = value;
   }
-  @api showAccountFilter; // Show/hide the account filter dropdown
+  /**
+   * @deprecated Ignored. Use list filters (Account) or @api accountId / AccountFilter message channel.
+   * Property remains in js-meta.xml because Salesforce blocks removing in-use properties from deployed pages.
+   */
+  @api showAccountFilter;
   @api useCurrentUserAccount = false; // When true, default to current user's account if none supplied (for portal use)
-  @api context = "portal"; // DEPRECATED: Use isSalesforceContext instead. Kept for backward compatibility.
-  @api isSalesforceContext = false; // When true, uses Salesforce navigation and shows account filter; when false (default), uses portal navigation
+  @api context = "portal"; // DEPRECATED. Kept for backward compatibility.
+  /** When true, internal Salesforce UX (LEX). On Experience sites use portalExperienceMode=salesforce instead when possible. */
+  @api isSalesforceContext = false;
+  /**
+   * How to treat host UX when auto-detection is wrong (e.g. custom portal domains).
+   * auto — use page reference + browser heuristics.
+   * experience — always use portal navigation, My Tasks, hide org account combobox.
+   * salesforce — never treat as Experience Cloud for chrome (rare on member sites).
+   */
+  @api portalExperienceMode = "auto";
   /** When true, hides the list-view filter panel and toolbar control. */
   @api hideListViewFilterPanel = false;
 
@@ -67,9 +82,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       return;
     }
 
-    // Experience Cloud record and community pages use comm__* page types
-    if (pageRef.type && String(pageRef.type).startsWith("comm__")) {
-      this.isExperienceSite = true;
+    if (isExperienceCloudPageReferenceType(pageRef.type)) {
+      this._runtimeDetectedExperienceCloud = true;
     }
 
     const { attributes = {}, state = {} } = pageRef;
@@ -145,7 +159,26 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   get effectiveRecordId() {
     return this.recordId || this._resolvedHostRecordIdFromPage || undefined;
   }
-  isExperienceSite = false; // Detect Experience Cloud context to adjust defaults (fallback if context not set)
+
+  /** Set true when page ref or browser location indicates Experience Cloud (before portalExperienceMode override). */
+  _runtimeDetectedExperienceCloud = false;
+
+  /**
+   * Effective Experience Cloud (member site) context for navigation and chrome.
+   * Uses portalExperienceMode when not "auto"; otherwise runtime detection.
+   */
+  get isExperienceSite() {
+    const mode = String(this.portalExperienceMode || "auto")
+      .trim()
+      .toLowerCase();
+    if (mode === "experience" || mode === "portal" || mode === "community") {
+      return true;
+    }
+    if (mode === "salesforce" || mode === "internal" || mode === "lex") {
+      return false;
+    }
+    return this._runtimeDetectedExperienceCloud;
+  }
   statusGroups = [];
   filteredStatusGroups = []; // Filtered tasks based on "Me" mode and other toggles
   isLoading = true; // Show spinner while fetching tasks
@@ -188,11 +221,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   recordTypes = []; // Available record types for Project_Task__c
   defaultRecordTypeId = null; // Default record type ID
 
-  // Account filter dropdown (App pages use selectedAccountId; Account record pages use _recordPageAccountSelection)
-  _accountRecords = [];
-  selectedAccountId = null; // App/Home: '' = All Accounts, else Account Id
   currentUserAccountId = null; // Account associated to the logged-in user (Experience Cloud)
-  @track _recordPageAccountSelection = ACCOUNT_SEL_THIS;
   @track _resolvedHostRecordIdFromPage;
 
   /** Key prefixes from getObjectInfo - used to treat recordId as Account vs Project__c */
@@ -264,36 +293,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
   // Density mode: 'comfy' (default) or 'compact' - loaded from user's Salesforce preference
   @track density = "comfy";
-
-  @wire(getAccounts)
-  wiredAccounts({ error, data }) {
-    if (data) {
-      this._accountRecords = data;
-    } else if (error) {
-      console.error("Error loading accounts:", error);
-      this._accountRecords = [];
-    }
-  }
-
-  get accountFilterOptions() {
-    const rows = this._accountRecords || [];
-    const mapped = rows.map((acc) => ({ label: acc.Name, value: acc.Id }));
-    if (this.isAccountRecordPage) {
-      return [
-        { label: "This Account", value: ACCOUNT_SEL_THIS },
-        { label: "All Accounts", value: ACCOUNT_SEL_ALL },
-        ...mapped
-      ];
-    }
-    return [{ label: "All Accounts", value: "" }, ...mapped];
-  }
-
-  get accountFilterComboboxValue() {
-    if (this.isAccountRecordPage) {
-      return this._recordPageAccountSelection || ACCOUNT_SEL_THIS;
-    }
-    return this.selectedAccountId != null ? this.selectedAccountId : "";
-  }
 
   @wire(getCurrentUserAccountId)
   wiredUserAccount({ error, data }) {
@@ -409,8 +408,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       } else if (!this._accountKeyPrefix && !this._projectKeyPrefix) {
         accountIds = [rid];
       }
-    } else if (this.selectedAccountId) {
-      accountIds = [this.selectedAccountId];
     } else if (this.accountId) {
       accountIds = [this.accountId];
     } else if (this.useCurrentUserAccount && this.currentUserAccountId) {
@@ -442,39 +439,28 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     return this.isFilteredByProject && !this.isProjectRecordPage;
   }
 
-  get isPortalMode() {
-    // Explicit internal Salesforce builder flag (App/Home/Record) — not portal UX
+  /** Internal LEX chrome: isSalesforceContext or portalExperienceMode salesforce/internal/lex (single knob on portals: portalExperienceMode). */
+  get prefersInternalSalesforceUx() {
     if (this.isSalesforceContext === true) {
+      return true;
+    }
+    const mode = String(this.portalExperienceMode || "auto")
+      .trim()
+      .toLowerCase();
+    return mode === "salesforce" || mode === "internal" || mode === "lex";
+  }
+
+  get isPortalMode() {
+    if (this.prefersInternalSalesforceUx) {
       return false;
     }
     if (this.context === "salesforce") {
       return false;
     }
-    // Experience Cloud — including Account/Project record pages (effectiveRecordId must NOT force non-portal)
     if (this.isExperienceSite === true) {
       return true;
     }
     return false;
-  }
-
-  get shouldShowAccountFilter() {
-    // Experience Cloud: never show org-style account picker (even if "Is Salesforce Context" is on)
-    if (this.isExperienceSite) {
-      return false;
-    }
-    if (this.isPortalMode) {
-      return false;
-    }
-    if (this.isProjectRecordPage) {
-      return false;
-    }
-    if (this.isAccountRecordPage) {
-      return false;
-    }
-    if (this.effectiveRecordId) {
-      return false;
-    }
-    return this.showAccountFilter !== false;
   }
 
   get showListViewFilterUi() {
@@ -811,20 +797,19 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
   connectedCallback() {
     // Status colors will be loaded via wire service
-    // Initialize with empty object - will be populated by getStatusColors wire
-    // Detect Experience Cloud / community context (hostname, /s/ path, or comm__ page ref wire)
+    // Supplement CurrentPageReference with browser hints (does not override comm__ / comm_lwr__ wire).
     try {
-      const host = window?.location?.hostname || "";
-      const path = window?.location?.pathname || "";
-      if (/force\.com|live-preview|site\.com/i.test(host)) {
-        this.isExperienceSite = true;
-      }
-      // Typical Experience Cloud site URL prefix (works with custom domains)
-      if (path === "/s" || path.startsWith("/s/")) {
-        this.isExperienceSite = true;
+      if (typeof window !== "undefined") {
+        const fromBrowser = inferExperienceCloudFromBrowserLocation({
+          hostname: window.location.hostname,
+          pathname: window.location.pathname
+        });
+        if (fromBrowser) {
+          this._runtimeDetectedExperienceCloud = true;
+        }
       }
     } catch {
-      this.isExperienceSite = false;
+      /* preserve wire-based _runtimeDetectedExperienceCloud */
     }
 
     if (this.messageContext) {
@@ -1814,18 +1799,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     this.expandedTasks = new Set(updatedSet);
     this.updateTaskIcons();
-  }
-
-  handleAccountChange(event) {
-    const v = event.detail.value;
-    if (this.isAccountRecordPage) {
-      this._recordPageAccountSelection = v === undefined || v === null ? ACCOUNT_SEL_THIS : v;
-    } else {
-      this.selectedAccountId = v === undefined || v === null || v === "" ? "" : v;
-    }
-    if (this.statusGroups && this.statusGroups.length > 0) {
-      this.refreshFilteredStatusGroups();
-    }
   }
 
   refreshFilteredStatusGroups() {

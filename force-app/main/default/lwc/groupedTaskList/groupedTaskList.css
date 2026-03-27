@@ -317,14 +317,6 @@
   max-height: calc(100vh - 300px);
 }
 
-.account-filter-combobox {
-  min-width: 200px;
-}
-
-.account-filter-combobox span:first-child {
-  display: none !important;
-}
-
 .contact-filter-combobox {
   min-width: 200px;
   width: auto;

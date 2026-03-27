@@ -23,7 +23,7 @@
  *   - taskProgressMetrics: getProgressMetrics()
  *   - taskDueDateMetrics: getDueDateMetrics()
  *   - taskListComponent: getTaskList(), getTaskListFieldSetDefinition()
- *   - groupedTaskList: getGroupedTasksWithSubtasks(), getAccounts(), getProjectManagerContacts()
+ *   - groupedTaskList: getGroupedTasksWithSubtasks(), getProjectManagerContacts()
  *
  * NOTE: Task context panel functionality has been moved to TaskContextController
  */
