@@ -31,6 +31,24 @@ public without sharing class ProjectTaskDashboardController {
   private static final String TASK_HOVER_FIELD_SET = 'Task_Hover_Fields';
   private static final String TASK_LIST_FIELD_SET = 'Project_Task_Dashboard_Table';
   private static final String TASK_SUMMARY_FIELD_SET = 'Task_Fields';
+
+  /**
+   * @description Digital Experience SEO URL segment when the org has UrlName on Project_Task__c.
+   */
+  private static Boolean projectTaskDescribeHasUrlName(Map<String, Schema.SObjectField> describeFieldMap) {
+    return describeFieldMap != null && describeFieldMap.containsKey('urlname');
+  }
+
+  private static void addProjectTaskUrlNameToSelectSets(
+    Set<String> parentFieldSet,
+    Set<String> subtaskFieldSet,
+    Map<String, Schema.SObjectField> describeFieldMap
+  ) {
+    if (projectTaskDescribeHasUrlName(describeFieldMap)) {
+      parentFieldSet.add('UrlName');
+      subtaskFieldSet.add('UrlName');
+    }
+  }
   private static final List<String> BASE_PARENT_TASK_FIELDS = new List<String>{
     'Id',
     'Name',
@@ -948,6 +966,9 @@ public without sharing class ProjectTaskDashboardController {
       describeFieldMap
     );
 
+    addProjectTaskUrlNameToSelectSets(parentFieldSet, subtaskFieldSet, describeFieldMap);
+    Boolean includePortalUrlName = projectTaskDescribeHasUrlName(describeFieldMap);
+
     List<String> parentFieldList = new List<String>(parentFieldSet);
     parentFieldList.sort();
     List<String> subtaskFieldList = new List<String>(subtaskFieldSet);
@@ -1040,6 +1061,9 @@ public without sharing class ProjectTaskDashboardController {
       taskWrapper.accountId = (task.Account__c != null) ? String.valueOf(task.Account__c) : '';
       taskWrapper.accountName = (task.Account__r != null) ? task.Account__r.Name : '';
       taskWrapper.projectName = (task.Project__r != null) ? task.Project__r.Name : '';
+      if (includePortalUrlName) {
+        taskWrapper.portalUrlName = (String) task.get('UrlName');
+      }
       taskWrapper.createdDate = task.CreatedDate;
       taskWrapper.description = task.Description__c != null ? task.Description__c : '';
       taskWrapper.hasSubtasks = task.Subtasks__r != null && !task.Subtasks__r.isEmpty();
@@ -1092,6 +1116,9 @@ public without sharing class ProjectTaskDashboardController {
           subtaskInfo.accountId = (subtask.Account__c != null) ? String.valueOf(subtask.Account__c) : '';
           subtaskInfo.accountName = (subtask.Account__r != null) ? subtask.Account__r.Name : '';
           subtaskInfo.projectName = (subtask.Project__r != null) ? subtask.Project__r.Name : '';
+          if (includePortalUrlName) {
+            subtaskInfo.portalUrlName = (String) subtask.get('UrlName');
+          }
           subtaskInfo.createdDate = subtask.CreatedDate;
           subtaskInfo.description = subtask.Description__c != null ? subtask.Description__c : '';
 
@@ -1218,6 +1245,9 @@ public without sharing class ProjectTaskDashboardController {
       describeFieldMap
     );
 
+    addProjectTaskUrlNameToSelectSets(parentFieldSet, subtaskFieldSet, describeFieldMap);
+    Boolean includePortalUrlNameByProject = projectTaskDescribeHasUrlName(describeFieldMap);
+
     List<String> parentFieldList = new List<String>(parentFieldSet);
     parentFieldList.sort();
     List<String> subtaskFieldList = new List<String>(subtaskFieldSet);
@@ -1318,6 +1348,9 @@ public without sharing class ProjectTaskDashboardController {
       taskWrapper.accountId = (task.Account__c != null) ? String.valueOf(task.Account__c) : '';
       taskWrapper.accountName = (task.Account__r != null) ? task.Account__r.Name : '';
       taskWrapper.projectName = (task.Project__r != null) ? task.Project__r.Name : '';
+      if (includePortalUrlNameByProject) {
+        taskWrapper.portalUrlName = (String) task.get('UrlName');
+      }
       taskWrapper.createdDate = task.CreatedDate;
       taskWrapper.description = task.Description__c != null ? task.Description__c : '';
       taskWrapper.hasSubtasks = task.Subtasks__r != null && !task.Subtasks__r.isEmpty();
@@ -1370,6 +1403,9 @@ public without sharing class ProjectTaskDashboardController {
           subtaskInfo.accountId = (subtask.Account__c != null) ? String.valueOf(subtask.Account__c) : '';
           subtaskInfo.accountName = (subtask.Account__r != null) ? subtask.Account__r.Name : '';
           subtaskInfo.projectName = (subtask.Project__r != null) ? subtask.Project__r.Name : '';
+          if (includePortalUrlNameByProject) {
+            subtaskInfo.portalUrlName = (String) subtask.get('UrlName');
+          }
           subtaskInfo.createdDate = subtask.CreatedDate;
           subtaskInfo.description = subtask.Description__c != null ? subtask.Description__c : '';
           subtaskInfo.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
@@ -1455,6 +1491,9 @@ public without sharing class ProjectTaskDashboardController {
     public String accountName;
     @AuraEnabled
     public String projectName;
+    /** Experience Cloud SEO path segment when UrlName exists on Project_Task__c */
+    @AuraEnabled
+    public String portalUrlName;
     @AuraEnabled
     public DateTime createdDate;
     @AuraEnabled
@@ -1512,6 +1551,9 @@ public without sharing class ProjectTaskDashboardController {
     public String accountName;
     @AuraEnabled
     public String projectName;
+    /** Experience Cloud SEO path segment when UrlName exists on Project_Task__c */
+    @AuraEnabled
+    public String portalUrlName;
     @AuraEnabled
     public DateTime createdDate;
     @AuraEnabled
