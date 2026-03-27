@@ -897,9 +897,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         ),
         attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
         hasAttachments: Array.isArray(msg.files) && msg.files.length > 0,
-        // Team-only (not on client portal): Milestone Team recipient and not visible to client
-        isTeamOnlyRecipient:
-          msg.visibleToClient === false && msg.recipientType !== "Client"
+        // Visible_To_Client__c === false — show badge only for Milestone team (template guard)
+        isInternalMessage: msg.visibleToClient === false
       };
     });
   }

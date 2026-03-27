@@ -138,11 +138,12 @@
                       </template>
 
                       <template if:true={isMilestoneTeamMember}>
-                        <template if:true={message.isTeamOnlyRecipient}>
+                        <template if:true={message.isInternalMessage}>
                           <lightning-badge
-                            label="Team only"
+                            label="Internal"
                             variant="warning"
                             class="slds-m-left_x-small"
+                            title="Not visible to clients"
                           >
                           </lightning-badge>
                         </template>
