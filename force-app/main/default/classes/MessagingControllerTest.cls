@@ -2,13 +2,25 @@
  * Test class for MessagingController
  * Covers all methods including recent changes:
  * - Auto-creation of Contacts for Milestone team members
- * - Server-side search with wildcards
+ * - Server-side body search via SOSL + SOQL Id IN (long text not filterable in SOQL)
  * - Pagination with offset
  * - Message CRUD operations
  * - Separate read tracking for clients (Is_Read_By_Client__c) and Milestone team (Is_Read_By_Milestone_Team__c)
  */
 @isTest
 private class MessagingControllerTest {
+  private static Id findMessageIdByBodyContains(String needle) {
+    if (String.isBlank(needle)) {
+      return null;
+    }
+    for (Message__c m : [SELECT Id, Body__c FROM Message__c]) {
+      if (m.Body__c != null && m.Body__c.containsIgnoreCase(needle)) {
+        return m.Id;
+      }
+    }
+    return null;
+  }
+
   /**
    * @future method to assign permission sets (avoids MIXED_DML_OPERATION)
    */
@@ -198,9 +210,11 @@ private class MessagingControllerTest {
 
   @isTest
   static void testGetMessages_WithSearch() {
+    Id searchableMsgId = findMessageIdByBodyContains('searchable');
+    System.assertNotEquals(null, searchableMsgId, 'Setup should include a message containing searchable');
+    Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
     Test.startTest();
     {
-      // Test search without wildcards
       List<MessagingController.MessageInfo> results = MessagingController.getMessages(
         null, // recipientType
         null, // relatedAccountId
@@ -210,7 +224,8 @@ private class MessagingControllerTest {
         0, // offset
         null, // orderByField
         null, // orderDirection
-        'searchable' // searchTerm
+        'searchable', // searchTerm
+        null // contextRecordId
       );
 
       System.assertEquals(1, results.size(), 'Should find 1 message with "searchable"');
@@ -221,9 +236,11 @@ private class MessagingControllerTest {
 
   @isTest
   static void testGetMessages_WithWildcardSearch() {
+    Id searchableMsgId = findMessageIdByBodyContains('searchable');
+    System.assertNotEquals(null, searchableMsgId);
+    Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
     Test.startTest();
     {
-      // Test search with * wildcard (should convert to %)
       List<MessagingController.MessageInfo> results = MessagingController.getMessages(
         null, // recipientType
         null, // relatedAccountId
@@ -233,19 +250,22 @@ private class MessagingControllerTest {
         0, // offset
         null, // orderByField
         null, // orderDirection
-        'search*' // searchTerm with * wildcard
+        'search*', // * stripped; SOSL uses substring on normalized term
+        null // contextRecordId
       );
 
-      System.assert(results.size() >= 1, 'Should find messages matching "search*" pattern');
+      System.assert(results.size() >= 1, 'Should find messages matching normalized search term');
     }
     Test.stopTest();
   }
 
   @isTest
   static void testGetMessages_WithPercentWildcard() {
+    Id searchableMsgId = findMessageIdByBodyContains('searchable');
+    System.assertNotEquals(null, searchableMsgId);
+    Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
     Test.startTest();
     {
-      // Test search with % wildcard (should be allowed)
       List<MessagingController.MessageInfo> results = MessagingController.getMessages(
         null, // recipientType
         null, // relatedAccountId
@@ -255,7 +275,8 @@ private class MessagingControllerTest {
         0, // offset
         null, // orderByField
         null, // orderDirection
-        '%searchable%' // searchTerm with % wildcard
+        '%searchable%', // % stripped; term becomes searchable
+        null // contextRecordId
       );
 
       System.assert(results.size() >= 1, 'Should find messages with % wildcard');
@@ -310,9 +331,9 @@ private class MessagingControllerTest {
     );
     insert msgWithUnderscore;
 
+    Test.setFixedSearchResults(new List<Id>{ msgWithUnderscore.Id });
     Test.startTest();
     {
-      // Test search with _ (should be treated as literal, not wildcard)
       List<MessagingController.MessageInfo> results = MessagingController.getMessages(
         null, // recipientType
         null, // relatedAccountId
@@ -322,7 +343,8 @@ private class MessagingControllerTest {
         0, // offset
         null, // orderByField
         null, // orderDirection
-        'Test_message' // searchTerm with _ (literal)
+        'Test_message', // searchTerm with _ (literal)
+        null // contextRecordId
       );
 
       System.assert(results.size() >= 1, 'Should find message with literal underscore');
@@ -344,7 +366,8 @@ private class MessagingControllerTest {
         0, // offset
         null, // orderByField
         null, // orderDirection
-        null // searchTerm
+        null, // searchTerm
+        null // contextRecordId
       );
 
       // Get second page
@@ -357,7 +380,8 @@ private class MessagingControllerTest {
         2, // offset
         null, // orderByField
         null, // orderDirection
-        null // searchTerm
+        null, // searchTerm
+        null // contextRecordId
       );
 
       System.assert(page1.size() <= 2, 'First page should have at most 2 messages');
@@ -457,7 +481,8 @@ private class MessagingControllerTest {
         0, // offset
         null, // orderByField
         null, // orderDirection
-        null // searchTerm
+        null, // searchTerm
+        null // contextRecordId
       );
 
       System.assert(results.size() > 0, 'Should return messages without search');
@@ -478,13 +503,33 @@ private class MessagingControllerTest {
         0, // offset
         null, // orderByField
         null, // orderDirection
-        '' // searchTerm (empty)
+        '', // searchTerm (empty)
+        null // contextRecordId
       );
 
       // Empty search should return all messages (no filter applied)
       System.assert(results.size() > 0, 'Should return messages with empty search');
     }
     Test.stopTest();
+  }
+
+  @isTest
+  static void testGetMessages_SearchTermTooShort_ReturnsEmpty() {
+    Test.startTest();
+    List<MessagingController.MessageInfo> results = MessagingController.getMessages(
+      null,
+      null,
+      null,
+      null,
+      50,
+      0,
+      null,
+      null,
+      'z',
+      null
+    );
+    Test.stopTest();
+    System.assertEquals(0, results.size(), 'Terms shorter than SOSL minimum should return no rows');
   }
 
   @isTest
@@ -812,7 +857,8 @@ private class MessagingControllerTest {
         0, // offset
         null, // orderByField
         null, // orderDirection
-        null // searchTerm
+        null, // searchTerm
+        null // contextRecordId
       );
 
       System.assert(clientResults != null, 'Should return messages for Client recipient type');
@@ -827,7 +873,8 @@ private class MessagingControllerTest {
         0, // offset
         null, // orderByField
         null, // orderDirection
-        null // searchTerm
+        null, // searchTerm
+        null // contextRecordId
       );
 
       System.assert(teamResults != null, 'Should return messages for Milestone Team recipient type');
@@ -850,12 +897,85 @@ private class MessagingControllerTest {
         0, // offset
         null, // orderByField
         null, // orderDirection
-        null // searchTerm
+        null, // searchTerm
+        null // contextRecordId
       );
 
       System.assert(results != null, 'Should return messages for related task');
     }
     Test.stopTest();
+  }
+
+  @isTest
+  static void testGetMessages_ContextRecordIdProjectMatchesExplicitProjectFilter() {
+    Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+    Test.startTest();
+    List<MessagingController.MessageInfo> byContext = MessagingController.getMessages(
+      null,
+      null,
+      null,
+      null,
+      50,
+      0,
+      null,
+      null,
+      null,
+      testProject.Id
+    );
+    List<MessagingController.MessageInfo> byExplicit = MessagingController.getMessages(
+      null,
+      null,
+      testProject.Id,
+      null,
+      50,
+      0,
+      null,
+      null,
+      null,
+      null
+    );
+    Test.stopTest();
+    System.assertEquals(
+      byExplicit.size(),
+      byContext.size(),
+      'contextRecordId project Id should match explicit relatedProjectId filter'
+    );
+  }
+
+  @isTest
+  static void testGetMessages_ContextRecordIdTaskMatchesExplicitTaskFilter() {
+    Project_Task__c testTask = [SELECT Id FROM Project_Task__c LIMIT 1];
+    Test.startTest();
+    List<MessagingController.MessageInfo> byContext = MessagingController.getMessages(
+      null,
+      null,
+      null,
+      null,
+      50,
+      0,
+      null,
+      null,
+      null,
+      testTask.Id
+    );
+    List<MessagingController.MessageInfo> byExplicit = MessagingController.getMessages(
+      null,
+      null,
+      null,
+      testTask.Id,
+      50,
+      0,
+      null,
+      null,
+      null,
+      null
+    );
+    Test.stopTest();
+    System.assertEquals(
+      byExplicit.size(),
+      byContext.size(),
+      'contextRecordId task Id should match explicit relatedTaskId filter'
+    );
   }
 
   @isTest

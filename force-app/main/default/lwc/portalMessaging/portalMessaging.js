@@ -329,7 +329,10 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         relatedTaskId: this.relatedTaskId,
         limitCount: this._messagesPerPage,
         offset: this._currentOffset,
-        searchTerm: this.messageSearchTerm || null
+        orderByField: null,
+        orderDirection: null,
+        searchTerm: this.messageSearchTerm || null,
+        contextRecordId: this.recordId || null
       });
 
       let newMessages = data || [];

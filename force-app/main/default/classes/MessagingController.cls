@@ -19,6 +19,20 @@ public without sharing class MessagingController {
   private static final Integer MAX_MESSAGE_LIMIT = 200;
   private static final Integer DEFAULT_MESSAGE_LIMIT = 50;
   private static final Integer MAX_CONTACT_SEARCH_LIMIT = 20;
+  /** SOSL RETURNING row cap — keeps Id IN (:bind) within platform limits without batching. */
+  private static final Integer SOSL_MESSAGE_ID_LIMIT = 2000;
+  /** Minimum characters for SOSL body search; shorter terms return no rows. */
+  private static final Integer SOSL_MIN_TERM_LENGTH = 2;
+
+  private static final String GET_MESSAGES_SELECT_LIST =
+    'SELECT Id, Name, CreatedById, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
+    'Recipient_Type__c, Related_Project__c, Related_Project__r.Name, ' +
+    'Related_Task__c, Related_Task__r.Name, Related_Task__r.Project__c, ' +
+    'Mentioned_Contacts__c, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c, Deleted__c, Visible_To_Client__c, ' +
+    'Is_Edited__c, Last_Edited_Date__c, CreatedDate, CreatedBy.Name, ' +
+    'Account__c, Account__r.Name, Reply_To__c, Reply_To__r.Id, Reply_To__r.Body__c, ' +
+    'Reply_To__r.Sender__r.Name, Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, ' +
+    'Is_Pinned__c ';
 
   // Normalize potentially undefined/blank strings coming from JS
   private static String normalizeOptional(String value) {
@@ -31,6 +45,47 @@ public without sharing class MessagingController {
       trimmed.equalsIgnoreCase('null'))
       ? null
       : trimmed;
+  }
+
+  /**
+   * Strips * and % so substring SOSL uses our own leading/trailing wildcards only.
+   */
+  private static String normalizeTermForSosl(String term) {
+    if (String.isBlank(term)) {
+      return null;
+    }
+    String t = term.trim().replace('*', ' ').replace('%', ' ');
+    t = t.replaceAll('\\s+', ' ').trim();
+    return String.isBlank(t) ? null : t;
+  }
+
+  /**
+   * Single SOSL call; materializes Message__c Ids into a Set (no SOQL in this method).
+   */
+  private static Set<Id> searchMessageIdsBySosl(String term) {
+    Set<Id> searchCandidateIds = new Set<Id>();
+    if (String.isBlank(term) || term.length() < SOSL_MIN_TERM_LENGTH) {
+      return searchCandidateIds;
+    }
+    String escapedForSosl = String.escapeSingleQuotes(term);
+    String sosl =
+      'FIND \'*' +
+      escapedForSosl +
+      '*\' IN ALL FIELDS RETURNING Message__c(Id) LIMIT ' +
+      SOSL_MESSAGE_ID_LIMIT;
+    try {
+      List<List<SObject>> searchResults = Search.query(sosl);
+      if (searchResults != null && !searchResults.isEmpty()) {
+        for (SObject row : searchResults[0]) {
+          if (row != null && row.get(FIELD_ID) != null) {
+            searchCandidateIds.add((Id) row.get(FIELD_ID));
+          }
+        }
+      }
+    } catch (Exception e) {
+      System.debug(LoggingLevel.WARN, 'SOSL search failed: ' + e.getMessage());
+    }
+    return searchCandidateIds;
   }
 
   /**
@@ -354,6 +409,8 @@ public without sharing class MessagingController {
    * @param relatedAccountId Filter by account (optional) - rolls up all projects and tasks
    * @param relatedProjectId Filter by project (optional)
    * @param relatedTaskId Filter by task (optional)
+   * @param searchTerm When set, body text is resolved via SOSL (not SOQL LIKE on long text)
+   * @param contextRecordId Optional host record Id when explicit related* ids are blank (Account, Project__c, or Project_Task__c)
    * @return List of MessageInfo objects
    */
   @AuraEnabled(cacheable=false)
@@ -366,7 +423,8 @@ public without sharing class MessagingController {
     Integer offset,
     String orderByField,
     String orderDirection,
-    String searchTerm
+    String searchTerm,
+    String contextRecordId
   ) {
     try {
       // Normalize incoming params up front
@@ -374,6 +432,28 @@ public without sharing class MessagingController {
       relatedAccountId = normalizeOptional(relatedAccountId);
       relatedProjectId = normalizeOptional(relatedProjectId);
       relatedTaskId = normalizeOptional(relatedTaskId);
+      contextRecordId = normalizeOptional(contextRecordId);
+
+      if (
+        String.isBlank(relatedTaskId) &&
+        String.isBlank(relatedProjectId) &&
+        String.isBlank(relatedAccountId) &&
+        String.isNotBlank(contextRecordId)
+      ) {
+        try {
+          Id ctxId = (Id) contextRecordId;
+          Schema.SObjectType ctxType = ctxId.getSObjectType();
+          if (ctxType == Project_Task__c.SObjectType) {
+            relatedTaskId = contextRecordId;
+          } else if (ctxType == Project__c.SObjectType) {
+            relatedProjectId = contextRecordId;
+          } else if (ctxType == Account.SObjectType) {
+            relatedAccountId = contextRecordId;
+          }
+        } catch (Exception ignore) {
+          // Invalid Id — leave related* filters unset
+        }
+      }
 
       // Get current user (need Name and Email for Contact creation if needed)
       User currentUser = getCurrentUserWithContactFields();
@@ -446,35 +526,18 @@ public without sharing class MessagingController {
         baseFilters.add(FIELD_VISIBLE_TO_CLIENT + ' = true');
       }
 
-      // Prepare search pattern for bind variable (if search term provided)
-      // Must be defined before query execution for bind variable to work
-      String searchPattern = null;
-      List<String> searchFilters = new List<String>();
+      // Body search: SOSL (long text cannot appear in SOQL WHERE), then materialize Ids for SOQL Id IN
+      Set<Id> searchCandidateIds = null;
       if (String.isNotBlank(searchTerm)) {
         String normalizedSearchTerm = normalizeOptional(searchTerm);
         if (String.isNotBlank(normalizedSearchTerm)) {
-          // Convert * to % (wildcard support)
-          String processedSearch = normalizedSearchTerm.replace('*', '%');
-
-          // Escape _ and \ (but NOT % - we allow % as wildcard)
-          // _ is treated as literal character
-          // Note: Bind variables provide SQL injection protection, so escapeSingleQuotes not needed
-          // We only escape LIKE special characters (_ and \) to treat them as literals
-          String escapedSearch = processedSearch.replaceAll('([_\\\\])', '\\\\$1');
-
-          // Build search pattern - only wrap with % if not already present at start/end
-          if (!escapedSearch.startsWith('%')) {
-            escapedSearch = '%' + escapedSearch;
+          String soslTerm = normalizeTermForSosl(normalizedSearchTerm);
+          if (String.isBlank(soslTerm) || soslTerm.length() < SOSL_MIN_TERM_LENGTH) {
+            return new List<MessageInfo>();
           }
-          if (!escapedSearch.endsWith('%')) {
-            escapedSearch = escapedSearch + '%';
-          }
-
-          searchPattern = escapedSearch;
-          // Search in Body__c and Sender__r.Name
-          // Use bind variable for security
-          if (searchPattern != null) {
-            searchFilters.add('(Body__c LIKE :searchPattern OR Sender__r.Name LIKE :searchPattern)');
+          searchCandidateIds = searchMessageIdsBySosl(soslTerm);
+          if (searchCandidateIds.isEmpty()) {
+            return new List<MessageInfo>();
           }
         }
       }
@@ -502,11 +565,9 @@ public without sharing class MessagingController {
         whereParts.add(contextFilter);
       }
 
-      // Add search filters if present
-      for (String search : searchFilters) {
-        if (String.isNotBlank(search)) {
-          whereParts.add(search);
-        }
+      // SOSL-derived candidates (bind :searchCandidateIds — populated Set only, never inline SOSL results)
+      if (searchCandidateIds != null) {
+        whereParts.add('Id IN :searchCandidateIds');
       }
 
       // Add base filters
@@ -562,20 +623,13 @@ public without sharing class MessagingController {
       System.debug(LoggingLevel.DEBUG, 'relatedProjectId: ' + relatedProjectId);
       System.debug(LoggingLevel.DEBUG, 'relatedAccountId: ' + relatedAccountId);
 
-      // Dynamic SOQL without WITH SECURITY_ENFORCED (portal/internal UX; class is without sharing).
-      // Declare query variable outside try block so it's accessible in catch block
+      // SOQL: when searchCandidateIds is set, whereClause includes Id IN (SOSL materialized Set)
       String query =
-        'SELECT Id, Name, CreatedById, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
-        'Recipient_Type__c, Related_Project__c, Related_Project__r.Name, ' +
-        'Related_Task__c, Related_Task__r.Name, Related_Task__r.Project__c, ' +
-        'Mentioned_Contacts__c, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c, Deleted__c, Visible_To_Client__c, ' +
-        'Is_Edited__c, Last_Edited_Date__c, CreatedDate, CreatedBy.Name, ' +
-        'Account__c, Account__r.Name, Reply_To__c, Reply_To__r.Id, Reply_To__r.Body__c, ' +
-        'Reply_To__r.Sender__r.Name, Reply_To__r.CreatedDate, Reply_To__r.Related_Task__c, ' +
-        'Is_Pinned__c ' +
+        GET_MESSAGES_SELECT_LIST +
         'FROM Message__c ' +
         whereClause +
-        ' ORDER BY Is_Pinned__c DESC, ' +
+        ' WITH SECURITY_ENFORCED ' +
+        'ORDER BY Is_Pinned__c DESC, ' +
         normalizedOrderField +
         ' ' +
         normalizedOrderDirection +
@@ -583,7 +637,10 @@ public without sharing class MessagingController {
         'LIMIT :normalizedLimit OFFSET :normalizedOffset';
 
       System.debug(LoggingLevel.DEBUG, 'Full query: ' + query);
-      System.debug(LoggingLevel.DEBUG, 'searchPattern: ' + searchPattern);
+      System.debug(
+        LoggingLevel.DEBUG,
+        'searchCandidateIds size: ' + (searchCandidateIds != null ? searchCandidateIds.size() : 0)
+      );
       System.debug(LoggingLevel.DEBUG, 'normalizedLimit: ' + normalizedLimit);
       System.debug(LoggingLevel.DEBUG, 'normalizedOffset: ' + normalizedOffset);
 
@@ -597,19 +654,35 @@ public without sharing class MessagingController {
         System.debug(LoggingLevel.DEBUG, 'getMessages currentUserAccountId: ' + currentUserAccountId);
       }
 
-      // Use standard Database.query - bind variables work with local variables in scope
-      // The bind variables like :currentUserContactId, :searchPattern, :recipientClientValue, etc. will work
-      // as long as the variables are in scope when Database.query is called
+      // Use standard Database.query - bind variables (e.g. :searchCandidateIds) must be in scope
       List<Message__c> messages;
       try {
         messages = Database.query(query);
       } catch (QueryException qe) {
-        System.debug(LoggingLevel.ERROR, 'QueryException in getMessages: ' + qe.getMessage());
+        String qeMsg = qe.getMessage();
+        System.debug(LoggingLevel.ERROR, 'QueryException in getMessages: ' + qeMsg);
         System.debug(LoggingLevel.ERROR, 'Query that failed: ' + query);
-        System.debug(LoggingLevel.ERROR, 'searchPattern value: ' + searchPattern);
         System.debug(LoggingLevel.ERROR, 'searchTerm input: ' + searchTerm);
+        System.debug(
+          LoggingLevel.ERROR,
+          'searchCandidateIds size: ' + (searchCandidateIds != null ? searchCandidateIds.size() : 0)
+        );
         System.debug(LoggingLevel.ERROR, 'User: ' + UserInfo.getUserId() + ', Profile: ' + UserInfo.getProfileId());
-        throw qe;
+
+        if (qeMsg.contains('inaccessible field') || qeMsg.contains('secure query')) {
+          String flsError = 'Field-level security error: ' + qeMsg;
+          flsError += ' The portal user may not have read access to one or more Message__c fields. ';
+          flsError += 'Check the Portal_Messaging permission set field permissions for: ';
+          flsError += 'Body__c, Sender__c, Sender__r.Name, Sender__r.Email, Recipient_Type__c, ';
+          flsError += 'Related_Project__c, Related_Project__r.Name, Related_Task__c, Related_Task__r.Name, ';
+          flsError += 'Mentioned_Contacts__c, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c, Deleted__c, Visible_To_Client__c, Is_Edited__c, ';
+          flsError += 'Last_Edited_Date__c, CreatedDate, CreatedById, CreatedBy.Name, Account__c, Account__r.Name, ';
+          flsError += 'Reply_To__c, Reply_To__r fields, Is_Pinned__c.';
+          throw new QueryException(flsError);
+        }
+        throw new QueryException(
+          'Query error: ' + qeMsg + ' | Query: ' + query + ' | searchTerm: ' + searchTerm
+        );
       }
 
       if (Test.isRunningTest() || LoggingLevel.DEBUG == LoggingLevel.DEBUG) {
@@ -618,19 +691,27 @@ public without sharing class MessagingController {
 
       // Convert to MessageInfo
       List<MessageInfo> messageInfos = new List<MessageInfo>();
+      String currentUserContactIdStr = currentUserContactId == null
+        ? null
+        : String.valueOf(currentUserContactId);
       for (Message__c msg : messages) {
         MessageInfo info = new MessageInfo();
-        info.id = msg.Id;
+        info.id = msg.Id == null ? null : String.valueOf(msg.Id);
         info.name = msg.Name;
         info.body = msg.Body__c;
-        info.senderId = msg.Sender__c;
-        info.senderName = msg.Sender__r?.Name;
-        info.senderEmail = msg.Sender__r?.Email;
+        info.senderId = msg.Sender__c == null ? null : String.valueOf(msg.Sender__c);
+        Contact senderRel = msg.Sender__r;
+        info.senderName = senderRel == null ? null : senderRel.Name;
+        info.senderEmail = senderRel == null ? null : senderRel.Email;
         info.recipientType = msg.Recipient_Type__c;
-        info.relatedProjectId = msg.Related_Project__c;
-        info.relatedProjectName = msg.Related_Project__r?.Name;
-        info.relatedTaskId = msg.Related_Task__c;
-        info.relatedTaskName = msg.Related_Task__r?.Name;
+        info.relatedProjectId = msg.Related_Project__c == null
+          ? null
+          : String.valueOf(msg.Related_Project__c);
+        Project__c projRel = msg.Related_Project__r;
+        info.relatedProjectName = projRel == null ? null : projRel.Name;
+        info.relatedTaskId = msg.Related_Task__c == null ? null : String.valueOf(msg.Related_Task__c);
+        Project_Task__c taskRel = msg.Related_Task__r;
+        info.relatedTaskName = taskRel == null ? null : taskRel.Name;
         info.mentionedContacts = msg.Mentioned_Contacts__c;
         // Set isRead based on user type: clients use Is_Read_By_Client__c, Milestone team uses Is_Read_By_Milestone_Team__c
         if (currentUserAccountId != null) {
@@ -642,36 +723,40 @@ public without sharing class MessagingController {
         }
         info.createdDate = msg.CreatedDate;
         info.createdById = msg.CreatedById != null ? String.valueOf(msg.CreatedById) : null;
-        info.createdByName = msg.CreatedBy?.Name;
-        info.createdBy = msg.CreatedBy?.Name;
-        info.accountId = msg.Account__c;
-        info.accountName = msg.Account__r?.Name;
+        User createdByUser = msg.CreatedBy;
+        info.createdByName = createdByUser == null ? null : createdByUser.Name;
+        info.createdBy = createdByUser == null ? null : createdByUser.Name;
+        info.accountId = msg.Account__c == null ? null : String.valueOf(msg.Account__c);
+        Account accountRel = msg.Account__r;
+        info.accountName = accountRel == null ? null : accountRel.Name;
         info.visibleToClient = msg.Visible_To_Client__c != null ? msg.Visible_To_Client__c : true;
         info.isEdited = msg.Is_Edited__c != null ? msg.Is_Edited__c : false;
         info.lastEditedDate = msg.Last_Edited_Date__c;
         info.isPinned = msg.Is_Pinned__c != null ? msg.Is_Pinned__c : false;
 
         // Set reply information
-        info.replyToMessageId = msg.Reply_To__c;
+        info.replyToMessageId = msg.Reply_To__c == null ? null : String.valueOf(msg.Reply_To__c);
         if (msg.Reply_To__r != null) {
-          info.replyToMessageBody = msg.Reply_To__r.Body__c;
-          info.replyToSenderName = msg.Reply_To__r.Sender__r?.Name;
-          info.replyToCreatedDate = msg.Reply_To__r.CreatedDate;
-          info.replyToTaskId = msg.Reply_To__r.Related_Task__c;
+          Message__c replyTo = msg.Reply_To__r;
+          info.replyToMessageBody = replyTo.Body__c;
+          Contact replySender = replyTo.Sender__r;
+          info.replyToSenderName = replySender == null ? null : replySender.Name;
+          info.replyToCreatedDate = replyTo.CreatedDate;
+          info.replyToTaskId = replyTo.Related_Task__c == null
+            ? null
+            : String.valueOf(replyTo.Related_Task__c);
         }
 
         // Check if current user is mentioned
         // Note: Mentioned_Contacts__c stores Contact IDs, so we need to check if current user's ContactId is mentioned
         // For Milestone team members without ContactId, they won't be mentioned via this field
         info.isMentioned = false;
-        if (String.isNotBlank(msg.Mentioned_Contacts__c)) {
+        if (String.isNotBlank(msg.Mentioned_Contacts__c) && currentUserContactIdStr != null) {
           List<String> mentionedIds = msg.Mentioned_Contacts__c.split(',');
-          // For portal users, check their ContactId
-          // For Milestone team members, they can't be mentioned via Contact mentions
-          // Use the ContactId we already have (from getOrCreateContactForUser)
-          if (currentUserContactId != null) {
-            info.isMentioned = mentionedIds.contains(currentUserContactId);
+          for (Integer mi = 0; mi < mentionedIds.size(); mi++) {
+            mentionedIds[mi] = mentionedIds[mi].trim();
           }
+          info.isMentioned = mentionedIds.contains(currentUserContactIdStr);
         }
 
         messageInfos.add(info);
@@ -697,8 +782,8 @@ public without sharing class MessagingController {
 
       System.debug(LoggingLevel.ERROR, 'Stack trace: ' + e.getStackTraceString());
 
-      // Include exception type in error message
-      errorMsg = 'Error retrieving messages (' + errorType + '): ' + errorMsg;
+      String detail = String.isNotBlank(errorMsg) ? errorMsg : '(no message)';
+      errorMsg = 'Error retrieving messages (' + errorType + '): ' + detail;
       throw new AuraHandledException(errorMsg);
     }
   }
