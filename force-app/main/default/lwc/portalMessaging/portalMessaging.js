@@ -414,59 +414,33 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
-   * @description True when message DTO already includes file rows (e.g. from getMessages).
-   */
-  messageHasInlineFiles(msg) {
-    if (!msg) {
-      return false;
-    }
-    const f = msg.files || msg.attachments;
-    return Array.isArray(f) && f.length > 0;
-  }
-
-  /**
-   * @description Merge ContentDocument rows from MessageFilesSupport for messages missing inline files.
+   * @description Merge ContentDocument rows from MessageFilesSupport (single source for message files).
    */
   async attachFilesToMessages(messageRows) {
     if (!messageRows || messageRows.length === 0) {
       return messageRows || [];
     }
-    const idsToFetch = messageRows
-      .filter((m) => !this.messageHasInlineFiles(m))
-      .map((m) => m.id)
-      .filter(Boolean);
+    const idsToFetch = messageRows.map((m) => m.id).filter(Boolean);
     if (idsToFetch.length === 0) {
-      return messageRows.map((m) => ({
-        ...m,
-        files: m.files || m.attachments || []
-      }));
+      return messageRows.map((m) => ({ ...m, files: [] }));
     }
     try {
       const bundles = await getFilesForMessages({
         messageIds: idsToFetch
       });
       const map = new Map(
-        (bundles || []).map((b) => [b.messageId, b.files || []])
+        (bundles || []).map((b) => [String(b.messageId), b.files || []])
       );
-      return messageRows.map((m) => {
-        const queried = m.id ? map.get(m.id) : null;
-        if (queried && queried.length > 0) {
-          return { ...m, files: queried };
-        }
-        return {
-          ...m,
-          files: m.files || m.attachments || []
-        };
-      });
+      return messageRows.map((m) => ({
+        ...m,
+        files: m.id != null ? map.get(String(m.id)) || [] : []
+      }));
     } catch (error) {
       console.error(
         "Error loading message attachments:",
         JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
       );
-      return messageRows.map((m) => ({
-        ...m,
-        files: m.files || m.attachments || []
-      }));
+      return messageRows.map((m) => ({ ...m, files: [] }));
     }
   }
 

@@ -1,7 +1,8 @@
 /**
- * Supplies ContentDocument metadata for Message__c records so portal and internal UIs
- * can render attachment lists without duplicating SOQL in each controller.
- * Uses with sharing so file visibility follows the running user.
+ * Single integration point for Message__c file attachments (ContentDocumentLink).
+ * Portal and internal UIs should use {@link #getFilesForMessages} instead of duplicating
+ * ContentDocument SOQL on Message__c or embedding file payloads in message DTOs.
+ * Uses with sharing so visibility follows the running user.
  */
 public with sharing class MessageFilesSupport {
   /**
@@ -29,10 +30,11 @@ public with sharing class MessageFilesSupport {
   }
 
   /**
-   * Returns attachment rows grouped by message Id. Messages with no files are omitted.
+   * Returns attachment rows for messages that have at least one linked ContentDocument.
+   * Messages with no links do not appear in the result; callers merge by message Id.
    *
-   * @param messageIds Message__c Ids as strings (from LWC).
-   * @return One entry per message that has at least one ContentDocumentLink.
+   * @param messageIds Message__c Ids as strings (from LWC). Blank or non-Id strings are ignored.
+   * @return One entry per message Id that has at least one ContentDocumentLink.
    */
   @AuraEnabled(cacheable=false)
   public static List<MessageFilesResult> getFilesForMessages(
@@ -50,8 +52,8 @@ public with sharing class MessageFilesSupport {
       }
       try {
         idSet.add((Id) s);
-      } catch (Exception e) {
-        // skip invalid ids
+      } catch (StringException invalidMessageId) {
+        // Ignore values that are not valid Salesforce Ids.
       }
     }
     if (idSet.isEmpty()) {
