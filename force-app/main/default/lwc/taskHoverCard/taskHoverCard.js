@@ -231,9 +231,8 @@ export default class TaskHoverCard extends LightningElement {
 
     if (this.badgeStyle === "slds") {
       return this.getSLDSBadgeClass(status);
-    } else {
-      return this.getCustomBadgeClass(status);
     }
+    return this.getCustomBadgeClass(status);
   }
 
   /**

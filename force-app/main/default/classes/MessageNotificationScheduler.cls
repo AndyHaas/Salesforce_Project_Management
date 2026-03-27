@@ -2,7 +2,8 @@
  * @description Scheduled job to check for unread messages and send email notifications:
  * - Messages from clients to Milestone Team: notify project managers after 5 minutes if unread
  * - Messages from Milestone Team to Client: notify client users after 5 minutes if unread
- * Uses without sharing to allow updates to Message__c records
+ * Uses without sharing so the scheduler can query/update Message__c for portal and internal
+ * recipients regardless of the automated user's sharing to the related Account/Project.
  */
 public without sharing class MessageNotificationScheduler implements Schedulable {
   // 5 minutes in milliseconds

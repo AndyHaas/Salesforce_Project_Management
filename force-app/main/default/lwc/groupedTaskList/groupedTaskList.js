@@ -34,34 +34,24 @@ import getDisplayDensity from "@salesforce/apex/DisplayDensityController.getDisp
 import { refreshApex } from "@salesforce/apex";
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from "@salesforce/messageChannel/AccountFilter__c";
 import USER_ID from "@salesforce/user/Id";
-
-/** Standard Account record Id prefix (same in all orgs). Avoids empty task list when getObjectInfo is slow or errors. */
-const STANDARD_ACCOUNT_KEY_PREFIX = "001";
-
-const ACCOUNT_SEL_THIS = "__THIS_ACCOUNT__";
-const ACCOUNT_SEL_ALL = "__ALL_ACCOUNTS__";
-/** Compare Salesforce Ids allowing 15- vs 18-char forms */
-function salesforceIdsEqual(a, b) {
-  if (a == null || b == null) {
-    return false;
-  }
-  const sa = String(a).trim();
-  const sb = String(b).trim();
-  if (sa === sb) {
-    return true;
-  }
-  if (sa.length >= 15 && sb.length >= 15) {
-    return (
-      sa.substring(0, 15).toLowerCase() === sb.substring(0, 15).toLowerCase()
-    );
-  }
-  return false;
-}
+import {
+  STANDARD_ACCOUNT_KEY_PREFIX,
+  ACCOUNT_SEL_THIS,
+  ACCOUNT_SEL_ALL,
+  salesforceIdsEqual
+} from "./groupedTaskListUtils";
 
 export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   @api recordId; // Account or Project Id on record pages (see resolvedProjectId)
   @api accountId; // Can be set manually for App/Home pages
-  @api projectId; // Optional project filter
+  _projectId;
+  @api
+  get projectId() {
+    return this._projectId;
+  }
+  set projectId(value) {
+    this._projectId = value;
+  }
   @api showAccountFilter; // Show/hide the account filter dropdown
   @api useCurrentUserAccount = false; // When true, default to current user's account if none supplied (for portal use)
   @api context = "portal"; // DEPRECATED: Use isSalesforceContext instead. Kept for backward compatibility.
@@ -102,8 +92,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
       if (isProjectObject || (matchesProjectPrefix && !matchesAccountPrefix)) {
         this._resolvedHostRecordIdFromPage = recordIdFromRef;
-        if (!this.projectId) {
-          this.projectId = recordIdFromRef;
+        if (!this._projectId) {
+          this._projectId = recordIdFromRef;
         }
         return;
       }
@@ -133,12 +123,12 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       }
     }
 
-    if (projectId && projectId !== this.projectId) {
+    if (projectId && projectId !== this._projectId) {
       console.log(
         "[DEBUG] resolvePageReference - projectId from URL:",
         projectId
       );
-      this.projectId = projectId;
+      this._projectId = projectId;
     }
 
     if (
@@ -502,7 +492,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     try {
       const host = window?.location?.hostname || "";
       this.isExperienceSite = /force\.com|live-preview|site\.com/i.test(host);
-    } catch (e) {
+    } catch {
       this.isExperienceSite = false;
     }
 
@@ -552,6 +542,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         break;
       case "expandCollapseAllSubtasks":
         this.handleExpandCollapseAllSubtasks();
+        break;
+      default:
         break;
     }
   }
@@ -622,7 +614,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             const subtasks = (task.subtasks || []).map((subtask) => {
               const subtaskHours = subtask.estimatedHours || 0;
               totalEstimatedHours += subtaskHours;
-              const subtaskPermissions = this.getTaskPermissions(subtask.id);
+              const subtaskPermissions = this.getTaskPermissions();
               const subtaskHasMenu =
                 subtaskPermissions.canEdit || subtaskPermissions.canDelete;
               const decoratedSubtask = this.decorateTaskRecord({
@@ -699,7 +691,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
               return decoratedSubtask;
             });
 
-            const permissions = this.getTaskPermissions(task.id);
+            const permissions = this.getTaskPermissions();
             const hasMenu = permissions.canEdit || permissions.canDelete;
             const decoratedTask = this.decorateTaskRecord({
               ...task,
@@ -781,7 +773,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
           return {
             ...statusGroup,
-            statusClass: this.getStatusClass(statusGroup.status),
+            statusClass: this.getStatusClass(),
             headerStyle: this.getStatusHeaderStyle(statusGroup.status),
             headerClass:
               `status-header slds-border_bottom ${this.density === "comfy" ? "status-header-comfy" : ""} ${this.density === "compact" ? "status-header-compact" : ""}`.trim(),
@@ -904,7 +896,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             const subtasks = (task.subtasks || []).map((subtask) => {
               const subtaskHours = subtask.estimatedHours || 0;
               totalEstimatedHours += subtaskHours;
-              const subtaskPermissions = this.getTaskPermissions(subtask.id);
+              const subtaskPermissions = this.getTaskPermissions();
               const subtaskHasMenu =
                 subtaskPermissions.canEdit || subtaskPermissions.canDelete;
               const decoratedSubtask = this.decorateTaskRecord({
@@ -981,7 +973,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
               return decoratedSubtask;
             });
 
-            const permissions = this.getTaskPermissions(task.id);
+            const permissions = this.getTaskPermissions();
             const hasMenu = permissions.canEdit || permissions.canDelete;
             const decoratedTask = this.decorateTaskRecord({
               ...task,
@@ -1063,7 +1055,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
           return {
             ...statusGroup,
-            statusClass: this.getStatusClass(statusGroup.status),
+            statusClass: this.getStatusClass(),
             headerStyle: this.getStatusHeaderStyle(statusGroup.status),
             headerClass:
               `status-header slds-border_bottom ${this.density === "comfy" ? "status-header-comfy" : ""} ${this.density === "compact" ? "status-header-compact" : ""}`.trim(),
@@ -1100,7 +1092,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         this.isLoading = false;
       }
     } else if (error) {
-      // eslint-disable-next-line no-console
       console.error("Error loading grouped tasks by project:", error);
       this.error = { message: this.getErrorMessage(error) };
     }
@@ -1125,7 +1116,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       ...statusGroup,
       tasks: statusGroup.tasks.map((task) => {
         const isExpanded = this.isTaskExpanded(task.id);
-        const permissions = this.getTaskPermissions(task.id);
+        const permissions = this.getTaskPermissions();
         return {
           ...task,
           isExpanded: isExpanded,
@@ -1188,7 +1179,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     this.navigateToTask(taskId);
   }
 
-  getStatusClass(status) {
+  getStatusClass() {
     // Keep for backward compatibility if needed
     return "";
   }
@@ -1846,7 +1837,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       // Update field editing state for all tasks and subtasks
       const tasks = (group.tasks || []).map((task) => {
         const updatedTask = { ...task };
-        const taskPermissions = this.getTaskPermissions(task.id);
+        const taskPermissions = this.getTaskPermissions();
         // Update field editing state for task fields
         if (updatedTask.summaryFields) {
           updatedTask.summaryFields = updatedTask.summaryFields.map((field) => {
@@ -1904,7 +1895,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         if (updatedTask.subtasks) {
           updatedTask.subtasks = updatedTask.subtasks.map((subtask) => {
             const updatedSubtask = { ...subtask };
-            const subtaskPermissions = this.getTaskPermissions(subtask.id);
+            const subtaskPermissions = this.getTaskPermissions();
             if (updatedSubtask.summaryFields) {
               updatedSubtask.summaryFields = updatedSubtask.summaryFields.map(
                 (field) => {
@@ -2012,7 +2003,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       if (data.recordTypeInfos) {
         const recordTypeEntries = Object.entries(data.recordTypeInfos);
         this.recordTypes = recordTypeEntries
-          .filter(([key, value]) => !value.master) // Exclude master record type
+          .filter(([, value]) => !value.master) // Exclude master record type
           .map(([key, value]) => ({
             label: value.name,
             value: key
@@ -2071,7 +2062,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
   }
 
-  getTaskPermissions(taskId) {
+  getTaskPermissions() {
     // In portal mode, disable edit/delete
     if (this.isPortalMode) {
       return { canEdit: false, canDelete: false };
@@ -2081,8 +2072,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     return this.objectPermissions;
   }
 
-  hasAnyPermission(taskId) {
-    const perms = this.getTaskPermissions(taskId);
+  hasAnyPermission() {
+    const perms = this.getTaskPermissions();
     return perms.canEdit || perms.canDelete;
   }
 
@@ -2115,7 +2106,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     this.editingTaskName = event.target.value;
   }
 
-  async handleTaskNameSave(event) {
+  async handleTaskNameSave() {
     const taskId = this.editingTaskId;
     if (
       !taskId ||
@@ -2180,7 +2171,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       return;
     }
 
-    const permissions = this.getTaskPermissions(taskId);
+    const permissions = this.getTaskPermissions();
     if (!permissions.canEdit) {
       return; // Don't show edit on hover if user can't edit
     }
@@ -2234,7 +2225,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       return;
     }
 
-    const permissions = this.getTaskPermissions(taskId);
+    const permissions = this.getTaskPermissions();
     if (!permissions.canEdit) {
       return; // Don't allow editing if user can't edit
     }
@@ -2305,11 +2296,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       if (event.target.type === "checkbox") {
         this.editingField.fieldValue = event.target.checked;
         // Auto-save boolean fields on change
-        this.handleFieldSave(event);
+        this.handleFieldSave();
         return;
-      } else {
-        this.editingField.fieldValue = event.target.value;
       }
+      this.editingField.fieldValue = event.target.value;
       // Create a new object to trigger reactivity
       this.editingField = { ...this.editingField };
       // Trigger reactive update
@@ -2317,7 +2307,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
   }
 
-  async handleFieldSave(event) {
+  async handleFieldSave() {
     if (!this.editingField) {
       return;
     }
@@ -2379,7 +2369,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   handleFieldKeyDown(event) {
     if (event.key === "Enter") {
       event.preventDefault();
-      this.handleFieldSave(event);
+      this.handleFieldSave();
     } else if (event.key === "Escape") {
       event.preventDefault();
       this.cancelEdit();
@@ -2393,21 +2383,20 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     const dataType = field.dataType.toUpperCase();
 
-    if (dataType === "DATE") {
-      return "date";
-    } else if (dataType === "DATETIME") {
-      return "datetime-local";
-    } else if (
-      dataType === "DOUBLE" ||
-      dataType === "CURRENCY" ||
-      dataType === "PERCENT" ||
-      dataType === "INTEGER"
-    ) {
-      return "number";
-    } else if (dataType === "BOOLEAN") {
-      return "checkbox";
-    } else {
-      return "text";
+    switch (dataType) {
+      case "DATE":
+        return "date";
+      case "DATETIME":
+        return "datetime-local";
+      case "DOUBLE":
+      case "CURRENCY":
+      case "PERCENT":
+      case "INTEGER":
+        return "number";
+      case "BOOLEAN":
+        return "checkbox";
+      default:
+        return "text";
     }
   }
 
@@ -2548,7 +2537,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       ...statusGroup,
       tasks: statusGroup.tasks.map((task) => {
         if (task.id === taskId) {
-          const permissions = this.getTaskPermissions(taskId);
+          const permissions = this.getTaskPermissions();
           return {
             ...task,
             name: newName,
@@ -2563,7 +2552,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             ...task,
             subtasks: task.subtasks.map((subtask) => {
               if (subtask.id === taskId) {
-                const subtaskPermissions = this.getTaskPermissions(taskId);
+                const subtaskPermissions = this.getTaskPermissions();
                 return {
                   ...subtask,
                   name: newName,

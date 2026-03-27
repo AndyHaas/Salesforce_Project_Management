@@ -119,7 +119,7 @@ public with sharing class ProjectTaskContextController {
         Total_Estimated_Hours__c = currentTask.Parent_Task__r.Total_Estimated_Hours__c,
         Description__c = currentTask.Parent_Task__r.Description__c
       );
-      result.parentTask.hoverFields = ProjectTaskDashboardController.buildHoverFieldValues(
+      result.parentTask.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
         parentTaskRecord,
         hoverFieldMembers,
         describeFieldMap
@@ -154,7 +154,7 @@ public with sharing class ProjectTaskContextController {
         Total_Estimated_Hours__c = rel.Task_B__r.Total_Estimated_Hours__c,
         Description__c = rel.Task_B__r.Description__c
       );
-      dep.hoverFields = ProjectTaskDashboardController.buildHoverFieldValues(
+      dep.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
         depTaskRecord,
         hoverFieldMembers,
         describeFieldMap
@@ -196,7 +196,7 @@ public with sharing class ProjectTaskContextController {
         Total_Estimated_Hours__c = rel.Task_A__r.Total_Estimated_Hours__c,
         Description__c = rel.Task_A__r.Description__c
       );
-      dt.hoverFields = ProjectTaskDashboardController.buildHoverFieldValues(
+      dt.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
         dtTaskRecord,
         hoverFieldMembers,
         describeFieldMap
@@ -227,7 +227,7 @@ public with sharing class ProjectTaskContextController {
           subtask.At_Risk_Due_to_Dependencies__c != null &&
           subtask.At_Risk_Due_to_Dependencies__c == true;
         // Build hover fields for subtask
-        st.hoverFields = ProjectTaskDashboardController.buildHoverFieldValues(
+        st.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
           subtask,
           hoverFieldMembers,
           describeFieldMap

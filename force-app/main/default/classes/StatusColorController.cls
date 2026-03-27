@@ -2,6 +2,8 @@
  * @description Shared controller for status color utilities
  * Used by both portal and main Salesforce components
  * Returns status colors that match the values defined in Status__c.field-meta.xml
+ *
+ * SHARING (without sharing): Cacheable dashboard/LWC reads; same metadata for portal and internal.
  */
 public without sharing class StatusColorController {
   /**

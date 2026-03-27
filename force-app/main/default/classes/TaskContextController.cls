@@ -9,6 +9,10 @@
  *   - taskContextPanel: getDependencyData()
  *   - linkTaskModal: createTaskRelationship(), updateTaskRelationship(), getRelationshipDetails()
  *   - taskContextPanel: deleteTaskRelationship()
+ *
+ * SHARING (without sharing): Supports task relationship UI in Experience Cloud and internal apps;
+ * callers need dependency graph data even when sharing would hide related tasks. Validate portal
+ * profiles before switching to with sharing.
  */
 public without sharing class TaskContextController {
   private static final String TASK_HOVER_FIELD_SET = 'Task_Hover_Fields';
@@ -125,7 +129,7 @@ public without sharing class TaskContextController {
         Total_Estimated_Hours__c = currentTask.Parent_Task__r.Total_Estimated_Hours__c,
         Description__c = currentTask.Parent_Task__r.Description__c
       );
-      result.parentTask.hoverFields = ProjectTaskDashboardController.buildHoverFieldValues(
+      result.parentTask.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
         parentTaskRecord,
         hoverFieldMembers,
         describeFieldMap
@@ -160,7 +164,7 @@ public without sharing class TaskContextController {
         Total_Estimated_Hours__c = rel.Task_B__r.Total_Estimated_Hours__c,
         Description__c = rel.Task_B__r.Description__c
       );
-      dep.hoverFields = ProjectTaskDashboardController.buildHoverFieldValues(
+      dep.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
         depTaskRecord,
         hoverFieldMembers,
         describeFieldMap
@@ -202,7 +206,7 @@ public without sharing class TaskContextController {
         Total_Estimated_Hours__c = rel.Task_A__r.Total_Estimated_Hours__c,
         Description__c = rel.Task_A__r.Description__c
       );
-      dt.hoverFields = ProjectTaskDashboardController.buildHoverFieldValues(
+      dt.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
         dtTaskRecord,
         hoverFieldMembers,
         describeFieldMap
@@ -233,7 +237,7 @@ public without sharing class TaskContextController {
           subtask.At_Risk_Due_to_Dependencies__c != null &&
           subtask.At_Risk_Due_to_Dependencies__c == true;
         // Build hover fields for subtask
-        st.hoverFields = ProjectTaskDashboardController.buildHoverFieldValues(
+        st.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
           subtask,
           hoverFieldMembers,
           describeFieldMap

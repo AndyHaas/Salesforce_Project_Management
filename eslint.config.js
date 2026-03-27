@@ -15,7 +15,14 @@ module.exports = defineConfig([
   // LWC configuration
   {
     files: ["**/lwc/**/*.js"],
-    extends: [lwcConfig]
+    extends: [lwcConfig],
+    rules: {
+      // Chart.js / DOM timing and debounce patterns; refactor incrementally
+      "@lwc/lwc/no-async-operation": "warn",
+      "@lwc/lwc/no-inner-html": "warn",
+      "no-await-in-loop": "warn",
+      "no-alert": "warn"
+    }
   },
 
   // LWC configuration with override for LWC test files

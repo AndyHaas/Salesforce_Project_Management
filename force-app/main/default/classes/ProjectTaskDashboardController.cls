@@ -4,6 +4,15 @@
  * Provides @AuraEnabled methods for retrieving task metrics, breakdowns, lists,
  * and related data for the Project Task Dashboard LWC components.
  *
+ * SHARING (without sharing):
+ * Runs without implicit sharing so Experience Cloud (portal) users and internal users receive
+ * consistent task data for dashboard widgets and the grouped list, subject to explicit
+ * WHERE clauses and org security (FLS still applies for field visibility). Do not switch to
+ * with sharing without validating every portal page and guest/community profile that uses
+ * these @AuraEnabled entry points.
+ *
+ * Field-set / hover / summary shaping lives in ProjectTaskDashboardFieldSetHelper.
+ *
  * USAGE:
  * - Used by LWC components:
  *   - accountFilter: getAccounts(), getCurrentUserAccountId()
@@ -93,244 +102,6 @@ public without sharing class ProjectTaskDashboardController {
       return fieldSets.get(fieldSetName).getFields();
     }
     return new List<Schema.FieldSetMember>();
-  }
-
-  private static List<String> getFieldPaths(
-    List<Schema.FieldSetMember> members
-  ) {
-    List<String> paths = new List<String>();
-    if (members == null) {
-      return paths;
-    }
-    for (Schema.FieldSetMember member : members) {
-      if (member != null && String.isNotBlank(member.getFieldPath())) {
-        paths.add(member.getFieldPath());
-      }
-    }
-    return paths;
-  }
-
-  /**
-   * @description Build hover field values from a record and field set members
-   * @param record The SObject record to extract field values from
-   * @param members The field set members to include
-   * @param fieldDescribeMap Map of field API names to field describe objects
-   * @return List of HoverFieldValue objects
-   * @note Made public so TaskContextController can use it
-   */
-  public static List<HoverFieldValue> buildHoverFieldValues(
-    SObject record,
-    List<Schema.FieldSetMember> members,
-    Map<String, Schema.SObjectField> fieldDescribeMap
-  ) {
-    List<HoverFieldValue> values = new List<HoverFieldValue>();
-    if (record == null || members == null || members.isEmpty()) {
-      return values;
-    }
-
-    for (Schema.FieldSetMember member : members) {
-      if (member == null) {
-        continue;
-      }
-      String apiName = member.getFieldPath();
-      HoverFieldValue hoverField = new HoverFieldValue();
-      hoverField.apiName = apiName;
-      hoverField.label = member.getLabel();
-
-      Schema.DescribeFieldResult describe = null;
-      if (fieldDescribeMap != null && fieldDescribeMap.containsKey(apiName)) {
-        describe = fieldDescribeMap.get(apiName).getDescribe();
-      }
-
-      Object rawValue = record.get(apiName);
-      hoverField.value = formatHoverFieldValue(rawValue, describe);
-      hoverField.isLongText =
-        describe != null &&
-        describe.getType() == Schema.DisplayType.TextArea;
-      hoverField.isRichText =
-        describe != null &&
-        describe.getType().name() == 'HTML';
-      values.add(hoverField);
-    }
-    return values;
-  }
-
-  private static String formatHoverFieldValue(
-    Object rawValue,
-    Schema.DescribeFieldResult describe
-  ) {
-    if (rawValue == null) {
-      return '';
-    }
-    if (rawValue instanceof Date) {
-      return ((Date) rawValue).format();
-    }
-    if (rawValue instanceof Datetime) {
-      return ((Datetime) rawValue).format();
-    }
-    if (
-      rawValue instanceof Decimal &&
-      describe != null &&
-      describe.getType() == Schema.DisplayType.Percent
-    ) {
-      return String.valueOf(((Decimal) rawValue).setScale(2)) + '%';
-    }
-    return String.valueOf(rawValue);
-  }
-
-  private static void addFieldSetMembersToSelect(
-    Set<String> targetFields,
-    List<Schema.FieldSetMember> members,
-    Map<String, Schema.SObjectField> describeFieldMap
-  ) {
-    if (targetFields == null || members == null || members.isEmpty()) {
-      return;
-    }
-
-    for (Schema.FieldSetMember member : members) {
-      if (member == null || String.isBlank(member.getFieldPath())) {
-        continue;
-      }
-      String fieldPath = member.getFieldPath();
-      targetFields.add(fieldPath);
-
-      if (describeFieldMap != null && describeFieldMap.containsKey(fieldPath)) {
-        Schema.DescribeFieldResult describe = describeFieldMap.get(fieldPath)
-          .getDescribe();
-        if (
-          describe != null &&
-          describe.getType() == Schema.DisplayType.Reference
-        ) {
-          String relationshipName = describe.getRelationshipName();
-          if (!String.isBlank(relationshipName)) {
-            targetFields.add(relationshipName + '.Name');
-          }
-        }
-      }
-    }
-  }
-
-  private static List<FieldSetFieldDefinition> buildFieldSetDefinitions(
-    List<Schema.FieldSetMember> members,
-    Map<String, Schema.SObjectField> describeFieldMap
-  ) {
-    List<FieldSetFieldDefinition> definitions = new List<FieldSetFieldDefinition>();
-    if (members == null) {
-      return definitions;
-    }
-
-    for (Schema.FieldSetMember member : members) {
-      if (member == null || String.isBlank(member.getFieldPath())) {
-        continue;
-      }
-      FieldSetFieldDefinition definition = new FieldSetFieldDefinition();
-      definition.apiName = member.getFieldPath();
-      definition.isNameField = definition.apiName == 'Name';
-
-      // Use DescribeFieldResult label if available (more accurate for special fields like OwnerId)
-      // Otherwise fall back to FieldSetMember label
-      if (
-        describeFieldMap != null &&
-        describeFieldMap.containsKey(definition.apiName)
-      ) {
-        Schema.DescribeFieldResult describe = describeFieldMap.get(
-            definition.apiName
-          )
-          .getDescribe();
-        definition.label = describe.getLabel(); // Use actual field label instead of FieldSetMember label
-        definition.dataType = describe.getType().name();
-        definition.isReference =
-          describe.getType() == Schema.DisplayType.Reference;
-        if (definition.isReference) {
-          definition.referenceRelationshipName = describe.getRelationshipName();
-        }
-
-        // Add picklist values if this is a picklist field
-        if (
-          describe.getType() == Schema.DisplayType.Picklist ||
-          describe.getType() == Schema.DisplayType.MultiPicklist
-        ) {
-          List<Schema.PicklistEntry> picklistEntries = describe.getPicklistValues();
-          if (picklistEntries != null && !picklistEntries.isEmpty()) {
-            definition.picklistValues = new List<PicklistOption>();
-            for (Schema.PicklistEntry entry : picklistEntries) {
-              if (entry.isActive()) {
-                PicklistOption option = new PicklistOption();
-                option.label = entry.getLabel();
-                option.value = entry.getValue();
-                definition.picklistValues.add(option);
-              }
-            }
-          }
-        }
-      } else {
-        definition.label = member.getLabel(); // Fallback to FieldSetMember label
-        definition.dataType = 'STRING';
-        definition.isReference = false;
-      }
-
-      definitions.add(definition);
-    }
-
-    return definitions;
-  }
-
-  private static List<SummaryFieldValue> buildSummaryFieldValues(
-    SObject record,
-    List<Schema.FieldSetMember> members,
-    Map<String, Schema.SObjectField> describeFieldMap
-  ) {
-    List<SummaryFieldValue> values = new List<SummaryFieldValue>();
-    if (record == null || members == null || members.isEmpty()) {
-      return values;
-    }
-
-    for (Schema.FieldSetMember member : members) {
-      if (member == null || String.isBlank(member.getFieldPath())) {
-        continue;
-      }
-
-      SummaryFieldValue summaryValue = new SummaryFieldValue();
-      summaryValue.apiName = member.getFieldPath();
-
-      Schema.DescribeFieldResult describe = null;
-      if (
-        describeFieldMap != null &&
-        describeFieldMap.containsKey(summaryValue.apiName)
-      ) {
-        describe = describeFieldMap.get(summaryValue.apiName).getDescribe();
-        // Use DescribeFieldResult label if available (more accurate for special fields like OwnerId)
-        summaryValue.label = describe.getLabel();
-      } else {
-        // Fallback to FieldSetMember label
-        summaryValue.label = member.getLabel();
-      }
-
-      Object rawValue = record.get(summaryValue.apiName);
-      if (
-        describe != null &&
-        describe.getType() == Schema.DisplayType.Reference
-      ) {
-        String relationshipName = describe.getRelationshipName();
-        if (!String.isBlank(relationshipName)) {
-          SObject relatedRecord = record.getSObject(relationshipName);
-          if (relatedRecord != null && relatedRecord.get('Name') != null) {
-            rawValue = relatedRecord.get('Name');
-          }
-        }
-      }
-
-      summaryValue.rawValue = rawValue != null
-        ? String.valueOf(rawValue)
-        : null;
-      summaryValue.displayValue = formatHoverFieldValue(rawValue, describe);
-      summaryValue.isRichText =
-        describe != null &&
-        describe.getType().name() == 'HTML';
-      values.add(summaryValue);
-    }
-
-    return values;
   }
 
   @AuraEnabled(cacheable=true)
@@ -792,7 +563,10 @@ public without sharing class ProjectTaskDashboardController {
     List<Schema.FieldSetMember> members = getTaskListFieldSetMembers();
     Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe()
       .fields.getMap();
-    return buildFieldSetDefinitions(members, describeFieldMap);
+    return ProjectTaskDashboardFieldSetHelper.buildFieldSetDefinitions(
+      members,
+      describeFieldMap
+    );
   }
 
   @AuraEnabled(cacheable=true)
@@ -1240,7 +1014,7 @@ public without sharing class ProjectTaskDashboardController {
     List<Schema.FieldSetMember> summaryFieldMembers = getTaskSummaryFieldSetMembers();
     Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe()
       .fields.getMap();
-    List<FieldSetFieldDefinition> summaryFieldDefinitions = buildFieldSetDefinitions(
+    List<FieldSetFieldDefinition> summaryFieldDefinitions = ProjectTaskDashboardFieldSetHelper.buildFieldSetDefinitions(
       summaryFieldMembers,
       describeFieldMap
     );
@@ -1248,27 +1022,35 @@ public without sharing class ProjectTaskDashboardController {
     Set<String> parentFieldSet = new Set<String>(BASE_PARENT_TASK_FIELDS);
     Set<String> subtaskFieldSet = new Set<String>(BASE_SUBTASK_FIELDS);
 
-    parentFieldSet.addAll(getFieldPaths(hoverFieldMembers));
-    subtaskFieldSet.addAll(getFieldPaths(hoverFieldMembers));
-    parentFieldSet.addAll(getFieldPaths(summaryFieldMembers));
-    subtaskFieldSet.addAll(getFieldPaths(summaryFieldMembers));
+    parentFieldSet.addAll(
+      ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers)
+    );
+    subtaskFieldSet.addAll(
+      ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers)
+    );
+    parentFieldSet.addAll(
+      ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers)
+    );
+    subtaskFieldSet.addAll(
+      ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers)
+    );
 
-    addFieldSetMembersToSelect(
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
       parentFieldSet,
       hoverFieldMembers,
       describeFieldMap
     );
-    addFieldSetMembersToSelect(
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
       subtaskFieldSet,
       hoverFieldMembers,
       describeFieldMap
     );
-    addFieldSetMembersToSelect(
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
       parentFieldSet,
       summaryFieldMembers,
       describeFieldMap
     );
-    addFieldSetMembersToSelect(
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
       subtaskFieldSet,
       summaryFieldMembers,
       describeFieldMap
@@ -1410,12 +1192,12 @@ public without sharing class ProjectTaskDashboardController {
         taskWrapper.latestCommentDate = null;
       }
 
-      taskWrapper.hoverFields = buildHoverFieldValues(
+      taskWrapper.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
         task,
         hoverFieldMembers,
         describeFieldMap
       );
-      taskWrapper.summaryFields = buildSummaryFieldValues(
+      taskWrapper.summaryFields = ProjectTaskDashboardFieldSetHelper.buildSummaryFieldValues(
         task,
         summaryFieldMembers,
         describeFieldMap
@@ -1479,12 +1261,12 @@ public without sharing class ProjectTaskDashboardController {
             subtaskInfo.latestCommentDate = null;
           }
 
-          subtaskInfo.hoverFields = buildHoverFieldValues(
+          subtaskInfo.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
             subtask,
             hoverFieldMembers,
             describeFieldMap
           );
-          subtaskInfo.summaryFields = buildSummaryFieldValues(
+          subtaskInfo.summaryFields = ProjectTaskDashboardFieldSetHelper.buildSummaryFieldValues(
             subtask,
             summaryFieldMembers,
             describeFieldMap
@@ -1569,7 +1351,7 @@ public without sharing class ProjectTaskDashboardController {
     List<Schema.FieldSetMember> summaryFieldMembers = getTaskSummaryFieldSetMembers();
     Map<String, Schema.SObjectField> describeFieldMap = Project_Task__c.SObjectType.getDescribe()
       .fields.getMap();
-    List<FieldSetFieldDefinition> summaryFieldDefinitions = buildFieldSetDefinitions(
+    List<FieldSetFieldDefinition> summaryFieldDefinitions = ProjectTaskDashboardFieldSetHelper.buildFieldSetDefinitions(
       summaryFieldMembers,
       describeFieldMap
     );
@@ -1577,27 +1359,35 @@ public without sharing class ProjectTaskDashboardController {
     Set<String> parentFieldSet = new Set<String>(BASE_PARENT_TASK_FIELDS);
     Set<String> subtaskFieldSet = new Set<String>(BASE_SUBTASK_FIELDS);
 
-    parentFieldSet.addAll(getFieldPaths(hoverFieldMembers));
-    subtaskFieldSet.addAll(getFieldPaths(hoverFieldMembers));
-    parentFieldSet.addAll(getFieldPaths(summaryFieldMembers));
-    subtaskFieldSet.addAll(getFieldPaths(summaryFieldMembers));
+    parentFieldSet.addAll(
+      ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers)
+    );
+    subtaskFieldSet.addAll(
+      ProjectTaskDashboardFieldSetHelper.getFieldPaths(hoverFieldMembers)
+    );
+    parentFieldSet.addAll(
+      ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers)
+    );
+    subtaskFieldSet.addAll(
+      ProjectTaskDashboardFieldSetHelper.getFieldPaths(summaryFieldMembers)
+    );
 
-    addFieldSetMembersToSelect(
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
       parentFieldSet,
       hoverFieldMembers,
       describeFieldMap
     );
-    addFieldSetMembersToSelect(
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
       subtaskFieldSet,
       hoverFieldMembers,
       describeFieldMap
     );
-    addFieldSetMembersToSelect(
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
       parentFieldSet,
       summaryFieldMembers,
       describeFieldMap
     );
-    addFieldSetMembersToSelect(
+    ProjectTaskDashboardFieldSetHelper.addFieldSetMembersToSelect(
       subtaskFieldSet,
       summaryFieldMembers,
       describeFieldMap
@@ -1754,12 +1544,12 @@ public without sharing class ProjectTaskDashboardController {
         taskWrapper.latestCommentDate = null;
       }
 
-      taskWrapper.hoverFields = buildHoverFieldValues(
+      taskWrapper.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
         task,
         hoverFieldMembers,
         describeFieldMap
       );
-      taskWrapper.summaryFields = buildSummaryFieldValues(
+      taskWrapper.summaryFields = ProjectTaskDashboardFieldSetHelper.buildSummaryFieldValues(
         task,
         summaryFieldMembers,
         describeFieldMap
@@ -1806,12 +1596,12 @@ public without sharing class ProjectTaskDashboardController {
           subtaskInfo.description = subtask.Description__c != null
             ? subtask.Description__c
             : '';
-          subtaskInfo.hoverFields = buildHoverFieldValues(
+          subtaskInfo.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
             subtask,
             hoverFieldMembers,
             describeFieldMap
           );
-          subtaskInfo.summaryFields = buildSummaryFieldValues(
+          subtaskInfo.summaryFields = ProjectTaskDashboardFieldSetHelper.buildSummaryFieldValues(
             subtask,
             summaryFieldMembers,
             describeFieldMap

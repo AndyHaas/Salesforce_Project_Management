@@ -7,6 +7,9 @@
  * USAGE:
  * - Used in: ProjectTaskTrigger (after insert, after update, after delete)
  * - Called by: TaskProgressCalculator.calculateProgress()
+ *
+ * SHARING (without sharing): Trigger context must update parent task rollups even when the
+ * running user cannot read the parent row via sharing alone.
  */
 public without sharing class TaskProgressCalculator {
   public static void calculateProgress(List<Project_Task__c> tasks) {

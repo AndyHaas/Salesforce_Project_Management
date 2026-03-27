@@ -88,62 +88,66 @@ export function getFieldType(displayType, options = {}) {
 
   const typeUpper = String(displayType).toUpperCase();
 
-  // Map Salesforce DisplayType to normalized type strings
   if (typeUpper === "PERCENT") {
     return "percent";
-  } else if (typeUpper === "CURRENCY") {
+  }
+  if (typeUpper === "CURRENCY") {
     return "currency";
-  } else if (
+  }
+  if (
     typeUpper === "DOUBLE" ||
     typeUpper === "INTEGER" ||
     typeUpper === "LONG"
   ) {
     return "number";
-  } else if (typeUpper === "DATE") {
+  }
+  if (typeUpper === "DATE") {
     return "date";
-  } else if (typeUpper === "DATETIME") {
+  }
+  if (typeUpper === "DATETIME") {
     return "datetime";
-  } else if (typeUpper === "TIME") {
+  }
+  if (typeUpper === "TIME") {
     return "time";
-  } else if (typeUpper === "BOOLEAN") {
+  }
+  if (typeUpper === "BOOLEAN") {
     return "boolean";
-  } else if (typeUpper === "EMAIL") {
+  }
+  if (typeUpper === "EMAIL") {
     return "email";
-  } else if (typeUpper === "PHONE") {
+  }
+  if (typeUpper === "PHONE") {
     return "phone";
-  } else if (typeUpper === "URL") {
+  }
+  if (typeUpper === "URL") {
     return "url";
-  } else if (typeUpper === "TEXTAREA") {
-    // Differentiate between TextArea variants
+  }
+  if (typeUpper === "TEXTAREA") {
     if (options.isHtmlFormatted === true) {
       return "richtext";
-    } else if (options.length && options.length > 255) {
-      return "textarea";
-    } else {
-      return "textarea";
     }
-  } else {
-    // If already a normalized type, return as-is; otherwise default to 'text'
-    const normalizedTypes = [
-      "percent",
-      "currency",
-      "number",
-      "date",
-      "datetime",
-      "time",
-      "boolean",
-      "email",
-      "phone",
-      "url",
-      "richtext",
-      "textarea",
-      "text"
-    ];
-    if (normalizedTypes.includes(displayType.toLowerCase())) {
-      return displayType.toLowerCase();
-    }
-    return "text";
+    return "textarea";
   }
+
+  const normalizedTypes = [
+    "percent",
+    "currency",
+    "number",
+    "date",
+    "datetime",
+    "time",
+    "boolean",
+    "email",
+    "phone",
+    "url",
+    "richtext",
+    "textarea",
+    "text"
+  ];
+  if (normalizedTypes.includes(displayType.toLowerCase())) {
+    return displayType.toLowerCase();
+  }
+  return "text";
 }
 
 /**

@@ -21,7 +21,6 @@
 import { LightningElement, api, wire } from "lwc";
 import { getRecord } from "lightning/uiRecordApi";
 import { publish, MessageContext } from "lightning/messageService";
-import { getObjectInfo } from "lightning/uiObjectInfoApi";
 import getAccounts from "@salesforce/apex/ProjectTaskDashboardController.getAccounts";
 import getCurrentUserAccountId from "@salesforce/apex/ProjectTaskDashboardController.getCurrentUserAccountId";
 import ACCOUNT_OBJECT from "@salesforce/schema/Account";
@@ -77,7 +76,7 @@ export default class AccountFilter extends LightningElement {
    * @description Wire service to detect Experience Cloud context
    */
   @wire(getCurrentUserAccountId)
-  wiredUserAccount({ error, data }) {
+  wiredUserAccount({ data }) {
     if (data && !this.recordId) {
       // We're in Experience Cloud and have a user account
       this.selectedAccountIds = [data];

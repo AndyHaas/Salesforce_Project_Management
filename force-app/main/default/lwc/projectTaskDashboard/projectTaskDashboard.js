@@ -239,7 +239,7 @@ export default class ProjectTaskDashboard extends NavigationMixin(
   wiredMessageContext(result) {
     // Handle wire result - it might be undefined initially or have error/data
     if (result) {
-      const { data, error } = result;
+      const { data } = result;
 
       // Store the message context for later use
       this._messageContext = data;

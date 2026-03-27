@@ -79,12 +79,20 @@ Edit under `.wiki`, commit and push **from `.wiki`** to update the published wik
 
 1. Clone this repository (with submodules if you edit docs).
 2. Authorize your org: `sf org login web --alias yourOrg`
-3. Deploy: `sf project deploy start --source-dir force-app`
+3. Deploy: `sf project deploy start --source-dir force-app` (optional: `--test-level RunRelevantTests` for [Run Relevant Tests](https://help.salesforce.com/s/articleView?id=release-notes.rn_apex_run_relevant_tests.htm&release=260&type=5); see wiki **Deployment Overview**).
 4. Assign **core** permission sets to pilot users.
 5. Complete **[Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Setup-Guide)**.
 6. If you use Experience Cloud, deploy the **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** and complete its setup (cache, email, site, schedulers).
 
 > Avoid repeatedly deploying **only** individual Apex files from the IDE if you rely on **`TaskProjectTests`** in Setup—keep **`force-app/main/default/testSuites/TaskProjectTests.testSuite-meta.xml`** in sync with a **full** `force-app` deploy when possible.
+
+**Check-only deploy (recommended before production):** from the repo root, with your default org set (`sf config get target-org`) or add `--target-org <alias>`:
+
+```bash
+npm run deploy:validate
+```
+
+That runs `sf project deploy start --dry-run --test-level RunRelevantTests` against `force-app`, matching Salesforce’s **Run Relevant Tests** behavior for the components in that deploy. For a **full regression** pass (every core test class in source), still run the **`TaskProjectTests`** suite (`sf apex run test --test-suite TaskProjectTests` — see [Setup Guide](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Setup-Guide)).
 
 ### Install unlocked package (released version)
 

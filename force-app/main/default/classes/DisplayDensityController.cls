@@ -1,6 +1,9 @@
 /**
  * @description Controller to retrieve user's Display Density preference from Salesforce
  * Uses the User Interface API to get the active theme's display density setting
+ *
+ * SHARING (without sharing): Calls UI API as the current user context; without sharing avoids
+ * surprising omissions when packaging with mixed internal/portal callers (density is user-specific).
  */
 public without sharing class DisplayDensityController {
   /**

@@ -4,15 +4,14 @@
 import { LightningElement, api } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { updateRecord } from "lightning/uiRecordApi";
-import PROJECT_TASK_OBJECT from "@salesforce/schema/Project_Task__c";
 
 export default class FieldEditModal extends LightningElement {
-  @api recordId; // Task ID
-  @api fieldApiName; // Field API name to edit
-  @api fieldLabel; // Field label for display
-  @api fieldValue; // Current field value
-  @api fieldDataType; // Field data type (STRING, NUMBER, DATE, etc.)
-  @api picklistOptions; // Picklist options for PICKLIST fields
+  _recordId;
+  _fieldApiName;
+  _fieldLabel;
+  _fieldValue;
+  _fieldDataType = "STRING";
+  _picklistOptions = [];
 
   _isOpen = false;
   _isSaving = false;
@@ -30,18 +29,30 @@ export default class FieldEditModal extends LightningElement {
     fieldDataType,
     picklistOptions
   ) {
-    this.recordId = recordId;
-    this.fieldApiName = fieldApiName;
-    this.fieldLabel = fieldLabel;
-    this.fieldValue = fieldValue;
-    this.fieldDataType = fieldDataType || "STRING";
-    this.picklistOptions = picklistOptions || [];
+    this._recordId = recordId;
+    this._fieldApiName = fieldApiName;
+    this._fieldLabel = fieldLabel;
+    this._fieldValue = fieldValue;
+    this._fieldDataType = fieldDataType || "STRING";
+    this._picklistOptions = picklistOptions || [];
     this.currentValue = fieldValue || "";
     this._isOpen = true;
   }
 
+  get fieldLabel() {
+    return this._fieldLabel;
+  }
+
+  get fieldDataType() {
+    return this._fieldDataType;
+  }
+
+  get picklistOptions() {
+    return this._picklistOptions;
+  }
+
   get computedLabel() {
-    return this.fieldLabel || "Field";
+    return this._fieldLabel || "Field";
   }
 
   /**
@@ -100,17 +111,17 @@ export default class FieldEditModal extends LightningElement {
 
     try {
       const fields = {
-        Id: this.recordId
+        Id: this._recordId
       };
 
       // Convert value based on field type
-      const dataTypeUpper = (this.fieldDataType || "").toUpperCase();
+      const dataTypeUpper = (this._fieldDataType || "").toUpperCase();
       let convertedValue = this.currentValue;
 
       if (dataTypeUpper === "DATE") {
-        fields[this.fieldApiName] = convertedValue || null;
+        fields[this._fieldApiName] = convertedValue || null;
       } else if (dataTypeUpper === "DATETIME") {
-        fields[this.fieldApiName] = convertedValue || null;
+        fields[this._fieldApiName] = convertedValue || null;
       } else if (
         dataTypeUpper === "DOUBLE" ||
         dataTypeUpper === "CURRENCY" ||
@@ -122,20 +133,20 @@ export default class FieldEditModal extends LightningElement {
           convertedValue === null ||
           convertedValue === undefined
         ) {
-          fields[this.fieldApiName] = null;
+          fields[this._fieldApiName] = null;
         } else {
           const numValue = parseFloat(convertedValue);
           if (isNaN(numValue)) {
             throw new Error("Invalid number format");
           }
-          fields[this.fieldApiName] = numValue;
+          fields[this._fieldApiName] = numValue;
         }
       } else if (dataTypeUpper === "BOOLEAN") {
-        fields[this.fieldApiName] =
+        fields[this._fieldApiName] =
           convertedValue === true || convertedValue === "true";
       } else {
         // STRING and other types
-        fields[this.fieldApiName] = convertedValue || null;
+        fields[this._fieldApiName] = convertedValue || null;
       }
 
       const recordInput = {
@@ -148,8 +159,8 @@ export default class FieldEditModal extends LightningElement {
       this.dispatchEvent(
         new CustomEvent("save", {
           detail: {
-            recordId: this.recordId,
-            fieldApiName: this.fieldApiName,
+            recordId: this._recordId,
+            fieldApiName: this._fieldApiName,
             newValue: this.currentValue
           }
         })
@@ -157,7 +168,7 @@ export default class FieldEditModal extends LightningElement {
 
       this.showToast(
         "Success",
-        `${this.fieldLabel} updated successfully`,
+        `${this._fieldLabel} updated successfully`,
         "success"
       );
       this.close();

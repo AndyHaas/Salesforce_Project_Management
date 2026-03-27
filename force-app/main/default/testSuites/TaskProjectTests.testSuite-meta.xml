@@ -5,6 +5,7 @@
     <testClassName>ProjectTaskApproverUserHelperTest</testClassName>
     <testClassName>ProjectTaskContextControllerTest</testClassName>
     <testClassName>ProjectTaskDashboardControllerTest</testClassName>
+    <testClassName>ProjectTaskDashboardFieldSetHelperTest</testClassName>
     <testClassName>TaskApprovalNotificationSenderTest</testClassName>
     <testClassName>TaskContextControllerTest</testClassName>
     <testClassName>TaskDependencyHelperTest</testClassName>

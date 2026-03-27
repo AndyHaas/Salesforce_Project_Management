@@ -68,7 +68,6 @@ export default class TaskReviewStatusMetrics extends NavigationMixin(
         { scope: APPLICATION_SCOPE }
       );
 
-      // Subscribe to refresh messages
       this.refreshSubscription = subscribe(
         this.messageContext,
         DASHBOARD_REFRESH_MESSAGE_CHANNEL,
@@ -76,6 +75,13 @@ export default class TaskReviewStatusMetrics extends NavigationMixin(
         { scope: APPLICATION_SCOPE }
       );
     }
+
+    this.resizeHandler = () => {
+      if (this.pmChart) this.pmChart.resize();
+      if (this.clientChart) this.clientChart.resize();
+      if (this.clientDevChart) this.clientDevChart.resize();
+    };
+    window.addEventListener("resize", this.resizeHandler);
   }
 
   disconnectedCallback() {
@@ -87,6 +93,13 @@ export default class TaskReviewStatusMetrics extends NavigationMixin(
     if (this.refreshSubscription) {
       unsubscribe(this.refreshSubscription);
       this.refreshSubscription = null;
+    }
+
+    if (this.resizeHandler) {
+      window.removeEventListener("resize", this.resizeHandler);
+    }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
     }
   }
 
@@ -159,24 +172,6 @@ export default class TaskReviewStatusMetrics extends NavigationMixin(
       .catch((error) => {
         console.error("Error loading Chart.js:", error);
       });
-  }
-
-  connectedCallback() {
-    this.resizeHandler = () => {
-      if (this.pmChart) this.pmChart.resize();
-      if (this.clientChart) this.clientChart.resize();
-      if (this.clientDevChart) this.clientDevChart.resize();
-    };
-    window.addEventListener("resize", this.resizeHandler);
-  }
-
-  disconnectedCallback() {
-    if (this.resizeHandler) {
-      window.removeEventListener("resize", this.resizeHandler);
-    }
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
   }
 
   setupResizeObserver() {

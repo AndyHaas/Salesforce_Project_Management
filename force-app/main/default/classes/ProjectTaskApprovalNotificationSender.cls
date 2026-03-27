@@ -2,6 +2,9 @@
  * @description Sends approval-request emails to Contacts (not Salesforce Users). Used with record-triggered
  * flows instead of standard Flow Approvals. Messages include an internal Lightning URL and, when configured in
  * custom metadata, an Experience Cloud task link.
+ *
+ * SHARING (without sharing): Invoked from automation to email contacts; needs stable access to
+ * task and project context for template merge fields across profiles.
  */
 public without sharing class ProjectTaskApprovalNotificationSender {
   public static final String TYPE_BACKLOG_CLIENT = 'BACKLOG_CLIENT';

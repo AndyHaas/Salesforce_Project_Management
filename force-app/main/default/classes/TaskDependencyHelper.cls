@@ -7,6 +7,9 @@
  * USAGE:
  * - Used in: ProjectTaskTrigger (after insert, after update)
  * - Called by: TaskDependencyHelper.assessDependencyRisk()
+ *
+ * SHARING (without sharing): Dependency queries and updates span related tasks; trigger must
+ * not fail when sharing hides peer tasks from the current user.
  */
 public without sharing class TaskDependencyHelper {
   public static void assessDependencyRisk(List<Project_Task__c> tasks) {

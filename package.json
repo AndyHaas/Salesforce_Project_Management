@@ -14,6 +14,7 @@
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "prepare": "husky || true",
     "precommit": "lint-staged",
+    "deploy:validate": "sf project deploy start --source-dir force-app --dry-run --test-level RunRelevantTests --wait 90",
     "release:package:status": "bash scripts/package-version-release.sh status",
     "release:package:create": "bash scripts/package-version-release.sh create",
     "release:package:promote": "bash scripts/package-version-release.sh promote"

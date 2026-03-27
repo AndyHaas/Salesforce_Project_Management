@@ -11,6 +11,9 @@
  * - Called by: TaskSubtaskHelper.populateSubtaskUsers()
  *              TaskSubtaskHelper.updateParentTaskStatus()
  *              TaskSubtaskHelper.validateParentCanBeClosed()
+ *
+ * SHARING (without sharing): Runs from Project_Task__c trigger to read/update parent and subtask
+ * rows in the same transaction; sharing would block cascade updates when the user cannot see the parent.
  */
 public without sharing class TaskSubtaskHelper {
   /**

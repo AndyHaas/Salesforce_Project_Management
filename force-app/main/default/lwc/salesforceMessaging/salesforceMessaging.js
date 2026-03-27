@@ -9,10 +9,39 @@ import { LightningElement, api, wire } from "lwc";
 import { CurrentPageReference } from "lightning/navigation";
 
 export default class SalesforceMessaging extends LightningElement {
-  @api recordId;
-  @api relatedAccountId;
-  @api relatedProjectId;
-  @api relatedTaskId;
+  _recordId;
+  _relatedAccountId;
+  _relatedProjectId;
+  _relatedTaskId;
+
+  @api
+  get recordId() {
+    return this._recordId;
+  }
+  set recordId(value) {
+    this._recordId = value;
+  }
+  @api
+  get relatedAccountId() {
+    return this._relatedAccountId;
+  }
+  set relatedAccountId(value) {
+    this._relatedAccountId = value;
+  }
+  @api
+  get relatedProjectId() {
+    return this._relatedProjectId;
+  }
+  set relatedProjectId(value) {
+    this._relatedProjectId = value;
+  }
+  @api
+  get relatedTaskId() {
+    return this._relatedTaskId;
+  }
+  set relatedTaskId(value) {
+    this._relatedTaskId = value;
+  }
 
   _coreComponent;
   _isInitialized = false;
@@ -28,20 +57,20 @@ export default class SalesforceMessaging extends LightningElement {
     }
 
     // Extract recordId from page reference if not provided via @api
-    if (!this.recordId) {
+    if (!this._recordId) {
       const { attributes = {}, state = {} } = pageRef;
-      this.recordId = state.recordId || attributes.recordId;
+      this._recordId = state.recordId || attributes.recordId;
     }
 
     // Auto-populate context based on object type
-    if (this.recordId && pageRef.attributes?.objectApiName) {
+    if (this._recordId && pageRef.attributes?.objectApiName) {
       const objectApiName = pageRef.attributes.objectApiName;
-      if (objectApiName === "Account" && !this.relatedAccountId) {
-        this.relatedAccountId = this.recordId;
-      } else if (objectApiName === "Project__c" && !this.relatedProjectId) {
-        this.relatedProjectId = this.recordId;
-      } else if (objectApiName === "Project_Task__c" && !this.relatedTaskId) {
-        this.relatedTaskId = this.recordId;
+      if (objectApiName === "Account" && !this._relatedAccountId) {
+        this._relatedAccountId = this._recordId;
+      } else if (objectApiName === "Project__c" && !this._relatedProjectId) {
+        this._relatedProjectId = this._recordId;
+      } else if (objectApiName === "Project_Task__c" && !this._relatedTaskId) {
+        this._relatedTaskId = this._recordId;
       }
     }
 

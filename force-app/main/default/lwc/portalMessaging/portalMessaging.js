@@ -25,7 +25,6 @@
  */
 
 import { LightningElement, api, wire, track } from "lwc";
-import { refreshApex } from "@salesforce/apex";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import {
   subscribe,
@@ -46,15 +45,43 @@ import updateMessage from "@salesforce/apex/PortalMessagingController.updateMess
 import deleteMessage from "@salesforce/apex/PortalMessagingController.deleteMessage";
 import pinMessage from "@salesforce/apex/PortalMessagingController.pinMessage";
 import linkFilesToMessage from "@salesforce/apex/PortalMessagingController.linkFilesToMessage";
-import getMessageFiles from "@salesforce/apex/PortalMessagingController.getMessageFiles";
-import { ensureSitePath, formatDate, formatDateTime } from "c/portalCommon";
+import { ensureSitePath, formatDateTime } from "c/portalCommon";
 import MESSAGE_UPDATE_CHANNEL from "@salesforce/messageChannel/MessageUpdate__c";
 
 export default class PortalMessaging extends NavigationMixin(LightningElement) {
-  @api recordId; // Automatically populated when on a Lightning Record Page
-  @api relatedAccountId;
-  @api relatedProjectId;
-  @api relatedTaskId;
+  _recordId;
+  _relatedAccountId;
+  _relatedProjectId;
+  _relatedTaskId;
+
+  @api
+  get recordId() {
+    return this._recordId;
+  }
+  set recordId(value) {
+    this._recordId = value;
+  }
+  @api
+  get relatedAccountId() {
+    return this._relatedAccountId;
+  }
+  set relatedAccountId(value) {
+    this._relatedAccountId = value;
+  }
+  @api
+  get relatedProjectId() {
+    return this._relatedProjectId;
+  }
+  set relatedProjectId(value) {
+    this._relatedProjectId = value;
+  }
+  @api
+  get relatedTaskId() {
+    return this._relatedTaskId;
+  }
+  set relatedTaskId(value) {
+    this._relatedTaskId = value;
+  }
 
   @track messageBody = "";
   @track recipientType = null; // Will be set based on user type
@@ -187,17 +214,17 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     // On Lightning Record Pages, recordId is available via @api
     // On Community pages, we need to extract from pageRef
     const { attributes = {}, state = {} } = pageRef;
-    const recordId = this.recordId || state.recordId || attributes.recordId;
+    const recordId = this._recordId || state.recordId || attributes.recordId;
     const objectApiName = pageRef.attributes?.objectApiName;
 
     // Auto-populate context based on object type
     if (recordId && objectApiName) {
-      if (objectApiName === "Account" && !this.relatedAccountId) {
-        this.relatedAccountId = recordId;
-      } else if (objectApiName === "Project__c" && !this.relatedProjectId) {
-        this.relatedProjectId = recordId;
-      } else if (objectApiName === "Project_Task__c" && !this.relatedTaskId) {
-        this.relatedTaskId = recordId;
+      if (objectApiName === "Account" && !this._relatedAccountId) {
+        this._relatedAccountId = recordId;
+      } else if (objectApiName === "Project__c" && !this._relatedProjectId) {
+        this._relatedProjectId = recordId;
+      } else if (objectApiName === "Project_Task__c" && !this._relatedTaskId) {
+        this._relatedTaskId = recordId;
       }
 
       // Trigger message load attempt after context is set
@@ -447,24 +474,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
-   * @description Component lifecycle hook - called when component is inserted into DOM
-   * Handles initialization differently for Lightning Record Pages vs Community pages
-   */
-  connectedCallback() {
-    // Initialize previous params to track changes
-    this._previousParams = {
-      recipientType: this.recipientType,
-      relatedAccountId: this.relatedAccountId,
-      relatedProjectId: this.relatedProjectId,
-      relatedTaskId: this.relatedTaskId
-    };
-
-    // On Lightning Record Pages, recordId is available immediately via @api
-    // On Community pages, it might come from URL or page reference
-    // We'll wait for wire services to resolve before loading
-  }
-
-  /**
    * @description Check if we have all required data to load messages
    * Works differently for Lightning Record Pages vs Community pages
    */
@@ -696,10 +705,15 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    * @description Lifecycle hook - component is inserted into the DOM
    */
   connectedCallback() {
-    // Load messages on initialization
+    this._previousParams = {
+      recipientType: this.recipientType,
+      relatedAccountId: this.relatedAccountId,
+      relatedProjectId: this.relatedProjectId,
+      relatedTaskId: this.relatedTaskId
+    };
+
     this.loadMessages();
 
-    // Subscribe to message updates
     if (this._messageContext) {
       this.subscribeToMessageUpdates();
     }
@@ -912,17 +926,16 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
           label: name && name.length > 0 ? name : "View",
           recordId: id // Store for click handler
         };
-      } else {
-        // Portal/Experience Cloud context - use ensureSitePath
-        const href = ensureSitePath(`${basePath}/${id}`, {
-          currentPathname:
-            typeof window !== "undefined" ? window.location.pathname : ""
-        });
-        return {
-          href,
-          label: name && name.length > 0 ? name : "View"
-        };
       }
+      // Portal/Experience Cloud context - use ensureSitePath
+      const href = ensureSitePath(`${basePath}/${id}`, {
+        currentPathname:
+          typeof window !== "undefined" ? window.location.pathname : ""
+      });
+      return {
+        href,
+        label: name && name.length > 0 ? name : "View"
+      };
     } catch (e) {
       console.error(
         "Error building link:",
@@ -1094,16 +1107,18 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
 
     if (diffMins < 1) {
       return `Just now (${timeStr})`;
-    } else if (diffMins < 60) {
-      return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago (${timeStr})`;
-    } else if (diffHours < 24) {
-      return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago (${timeStr})`;
-    } else if (diffDays < 7) {
-      return `${diffDays} day${diffDays > 1 ? "s" : ""} ago (${timeStr})`;
-    } else {
-      // For older messages, show full date and time in user's timezone
-      return formatDateTime(dateValue, "—");
     }
+    if (diffMins < 60) {
+      return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago (${timeStr})`;
+    }
+    if (diffHours < 24) {
+      return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago (${timeStr})`;
+    }
+    if (diffDays < 7) {
+      return `${diffDays} day${diffDays > 1 ? "s" : ""} ago (${timeStr})`;
+    }
+    // For older messages, show full date and time in user's timezone
+    return formatDateTime(dateValue, "—");
   }
 
   /**
@@ -1174,7 +1189,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     }
 
     // Extract @mentions using regex - format: @[Name](Id)
-    const mentionRegex = /@\[([^\]]+)\]\(([^\)]+)\)/g;
+    const mentionRegex = /@\[([^\]]+)\]\(([^)]+)\)/g;
     const mentions = [];
     let match;
 
@@ -1656,9 +1671,10 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       return;
     }
 
-    // Confirm deletion
+    // Confirm deletion (replace with lightning-modal when UX allows)
     if (
-      !confirm(
+      typeof window !== "undefined" &&
+      !window.confirm(
         "Are you sure you want to delete this message? This action cannot be undone."
       )
     ) {

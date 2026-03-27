@@ -9,6 +9,9 @@
  * cleared when the contact field changes.
  *
  * @author Milestone Consulting
+ *
+ * SHARING (without sharing): Resolves Contact-to-User for approver fields during trigger DML;
+ * must see User rows that the submitting user might not have in their sharing set.
  */
 public without sharing class ProjectTaskApproverUserHelper {
   /**
