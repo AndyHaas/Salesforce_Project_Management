@@ -28,10 +28,7 @@
         </template>
 
         <template if:false={showMessageSearch}>
-          <span
-            class="slds-text-body_small slds-text-color_weak slds-m-right_small"
-            title="Message count"
-          >
+          <span class="slds-text-body_small slds-text-color_weak slds-m-right_small" title="Message count">
             {messageCount} {messageCountText}
           </span>
           <template if:true={showPinnedPanelChrome}>
@@ -61,66 +58,42 @@
         <!-- Context Display -->
         <template if:true={contextInfo}>
           <div class="context-display slds-m-bottom_medium">
-            <lightning-icon
-              icon-name={contextIcon}
-              size="small"
-              class="slds-m-right_x-small"
-            >
-            </lightning-icon>
+            <lightning-icon icon-name={contextIcon} size="small" class="slds-m-right_x-small"> </lightning-icon>
             <div class="context-text">
               <div class="slds-text-heading_small slds-text-color_weak">
                 Viewing: <strong>{contextType} Messages</strong>
               </div>
-              <div
-                class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small"
-              >
-                {contextDisplayText}
-              </div>
+              <div class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">{contextDisplayText}</div>
             </div>
           </div>
         </template>
 
         <template if:true={showPinnedSectionBody}>
-          <div
-            class="pinned-messages-panel slds-box slds-box_x-small slds-theme_shade slds-m-bottom_small"
-          >
-            <div
-              class="slds-grid slds-grid_vertical-align-center slds-m-bottom_x-small"
-            >
-              <lightning-icon
-                icon-name="utility:pinned"
-                size="x-small"
-                class="slds-m-right_x-small pinned-icon"
-              >
-              </lightning-icon>
-              <span class="slds-text-heading_small">Pinned messages</span>
-              <span
-                class="slds-text-body_small slds-text-color_weak slds-m-left_x-small"
-              >
-                Click a row to scroll to it in the thread
-              </span>
+          <div class="pinned-messages-panel slds-box slds-box_x-small slds-theme_shade slds-m-bottom_small">
+            <div class="slds-media slds-m-bottom_small pinned-messages-panel__header">
+              <div class="slds-media__figure">
+                <lightning-icon icon-name="utility:pinned" size="x-small" class="pinned-icon"> </lightning-icon>
+              </div>
+              <div class="slds-media__body">
+                <span class="slds-text-heading_small">Pinned Messages</span>
+                <p
+                  class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small pinned-messages-panel__subtitle"
+                >
+                  Click a row to scroll to it in the thread
+                </p>
+              </div>
             </div>
             <ul class="pinned-messages-list">
               <template for:each={pinnedMessagesCompact} for:item="message">
                 <li key={message.id} class="pinned-messages-list__item">
-                  <div
-                    class="pinned-compact-row"
-                    data-message-id={message.id}
-                    onclick={handleScrollToMessageInThread}
-                  >
+                  <div class="pinned-compact-row" data-message-id={message.id} onclick={handleScrollToMessageInThread}>
                     <div class="pinned-compact-row__main">
-                      <span class="pinned-compact-row__sender">
-                        {message.senderName}
-                      </span>
-                      <span
-                        class="slds-text-body_small slds-text-color_weak slds-m-left_x-small"
-                      >
+                      <span class="pinned-compact-row__sender"> {message.senderName} </span>
+                      <span class="slds-text-body_small slds-text-color_weak slds-m-left_x-small">
                         {message.formattedDate}
                       </span>
                     </div>
-                    <div
-                      class="slds-text-body_small slds-text-color_weak slds-truncate pinned-compact-row__preview"
-                    >
+                    <div class="slds-text-body_small slds-text-color_weak slds-truncate pinned-compact-row__preview">
                       {message.bodyPreview}
                     </div>
                   </div>
@@ -137,12 +110,8 @@
               <!-- Loading indicator for infinite scroll (at top for reverse chronological) -->
               <template if:true={isLoadingMore}>
                 <div class="slds-align_absolute-center slds-p-around_medium">
-                  <lightning-spinner
-                    alternative-text="Loading older messages"
-                    size="small"
-                  ></lightning-spinner>
-                  <span
-                    class="slds-m-left_small slds-text-body_small slds-text-color_weak"
+                  <lightning-spinner alternative-text="Loading older messages" size="small"></lightning-spinner>
+                  <span class="slds-m-left_small slds-text-body_small slds-text-color_weak"
                     >Loading older messages...</span
                   >
                 </div>
@@ -151,9 +120,7 @@
               <!-- End of messages indicator (at top for reverse chronological) -->
               <template if:false={hasMoreMessages}>
                 <div class="slds-align_absolute-center slds-p-around_medium">
-                  <span class="slds-text-body_small slds-text-color_weak"
-                    >No older messages to load</span
-                  >
+                  <span class="slds-text-body_small slds-text-color_weak">No older messages to load</span>
                 </div>
               </template>
 
@@ -181,11 +148,7 @@
                       <strong>{message.senderName}</strong>
 
                       <template if:true={message.isMentioned}>
-                        <lightning-badge
-                          label="Mentioned"
-                          variant="warning"
-                          class="slds-m-left_x-small"
-                        >
+                        <lightning-badge label="Mentioned" variant="warning" class="slds-m-left_x-small">
                         </lightning-badge>
                       </template>
 
@@ -204,15 +167,9 @@
 
                     <div class="message-meta">
                       <div class="message-meta__time">
-                        <span class="slds-text-body_small">
-                          {message.formattedDate}
-                        </span>
+                        <span class="slds-text-body_small"> {message.formattedDate} </span>
                         <template if:false={message.isRead}>
-                          <lightning-badge
-                            label="New"
-                            variant="inverse"
-                            class="slds-m-left_x-small badge-new"
-                          >
+                          <lightning-badge label="New" variant="inverse" class="slds-m-left_x-small badge-new">
                           </lightning-badge>
                         </template>
                       </div>
@@ -302,27 +259,17 @@
                   <template if:true={message.replyToMessageId}>
                     <div class="reply-to-indicator slds-m-bottom_x-small">
                       <div class="slds-box slds-box_x-small slds-theme_shade">
-                        <div
-                          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
-                        >
+                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
                           <div class="slds-col">
-                            <lightning-icon
-                              icon-name="utility:reply"
-                              size="xx-small"
-                              class="slds-m-right_xx-small"
-                            >
+                            <lightning-icon icon-name="utility:reply" size="xx-small" class="slds-m-right_xx-small">
                             </lightning-icon>
                             <span class="slds-text-body_small">
                               In reply to
                               <strong>{message.replyToSenderName}</strong>
                               <template if:true={message.replyToPreview}>
-                                <span class="slds-text-color_weak">
-                                  : {message.replyToPreview}
-                                </span>
+                                <span class="slds-text-color_weak"> : {message.replyToPreview} </span>
                               </template>
-                              <span
-                                class="slds-text-color_weak slds-m-left_xx-small"
-                              >
+                              <span class="slds-text-color_weak slds-m-left_xx-small">
                                 ({message.replyToFormattedDate})
                               </span>
                             </span>
@@ -346,8 +293,7 @@
                   <!-- Message Body / Edit Mode -->
                   <template if:false={message.isEditing}>
                     <div class="message-body">
-                      <lightning-formatted-rich-text value={message.body}>
-                      </lightning-formatted-rich-text>
+                      <lightning-formatted-rich-text value={message.body}> </lightning-formatted-rich-text>
                     </div>
                     <template if:true={message.hasAttachments}>
                       <div class="message-attachments slds-m-top_small">
@@ -372,17 +318,8 @@
                       </lightning-input-rich-text>
                       <div class="slds-m-top_small">
                         <lightning-button-group>
-                          <lightning-button
-                            variant="brand"
-                            label="Save"
-                            onclick={handleSaveEdit}
-                          >
-                          </lightning-button>
-                          <lightning-button
-                            variant="neutral"
-                            label="Cancel"
-                            onclick={handleCancelEdit}
-                          >
+                          <lightning-button variant="brand" label="Save" onclick={handleSaveEdit}> </lightning-button>
+                          <lightning-button variant="neutral" label="Cancel" onclick={handleCancelEdit}>
                           </lightning-button>
                         </lightning-button-group>
                       </div>
@@ -395,14 +332,8 @@
                   <template if:true={message.accountName}>
                     <template if:true={showAccountContext}>
                       <div class="message-related">
-                        <lightning-icon
-                          icon-name="utility:account"
-                          size="xx-small"
-                        >
-                        </lightning-icon>
-                        <span class="slds-text-body_small">
-                          Account: {message.accountName}
-                        </span>
+                        <lightning-icon icon-name="utility:account" size="xx-small"> </lightning-icon>
+                        <span class="slds-text-body_small"> Account: {message.accountName} </span>
                       </div>
                     </template>
                   </template>
@@ -410,11 +341,7 @@
                   <template if:true={message.relatedProjectName}>
                     <template if:true={showProjectContext}>
                       <div class="message-related">
-                        <lightning-icon
-                          icon-name="utility:record"
-                          size="xx-small"
-                        >
-                        </lightning-icon>
+                        <lightning-icon icon-name="utility:record" size="xx-small"> </lightning-icon>
                         <template if:true={message.projectLink}>
                           <template if:true={message.projectLinkIsSalesforce}>
                             <span class="slds-text-body_small">
@@ -430,19 +357,14 @@
                           </template>
                           <template if:false={message.projectLinkIsSalesforce}>
                             <span class="slds-text-body_small">
-                              <a
-                                href={message.projectLink.href}
-                                class="slds-text-link"
-                              >
+                              <a href={message.projectLink.href} class="slds-text-link">
                                 Project: {message.relatedProjectName}
                               </a>
                             </span>
                           </template>
                         </template>
                         <template if:false={message.projectLink}>
-                          <span class="slds-text-body_small">
-                            Project: {message.relatedProjectName}
-                          </span>
+                          <span class="slds-text-body_small"> Project: {message.relatedProjectName} </span>
                         </template>
                       </div>
                     </template>
@@ -452,11 +374,7 @@
                     <template if:true={showTaskContext}>
                       <template if:true={message.showTaskFooter}>
                         <div class="message-related">
-                          <lightning-icon
-                            icon-name="utility:task"
-                            size="xx-small"
-                          >
-                          </lightning-icon>
+                          <lightning-icon icon-name="utility:task" size="xx-small"> </lightning-icon>
                           <template if:true={message.taskLink}>
                             <template if:true={message.taskLinkIsSalesforce}>
                               <span class="slds-text-body_small">
@@ -472,19 +390,14 @@
                             </template>
                             <template if:false={message.taskLinkIsSalesforce}>
                               <span class="slds-text-body_small">
-                                <a
-                                  href={message.taskLink.href}
-                                  class="slds-text-link"
-                                >
+                                <a href={message.taskLink.href} class="slds-text-link">
                                   Task: {message.relatedTaskName}
                                 </a>
                               </span>
                             </template>
                           </template>
                           <template if:false={message.taskLink}>
-                            <span class="slds-text-body_small">
-                              Task: {message.relatedTaskName}
-                            </span>
+                            <span class="slds-text-body_small"> Task: {message.relatedTaskName} </span>
                           </template>
                         </div>
                       </template>
@@ -496,12 +409,7 @@
 
             <template if:false={hasFilteredMessages}>
               <div class="slds-text-align_center slds-p-around_medium">
-                <lightning-icon
-                  icon-name="utility:search"
-                  size="small"
-                  class="slds-m-bottom_x-small"
-                >
-                </lightning-icon>
+                <lightning-icon icon-name="utility:search" size="small" class="slds-m-bottom_x-small"> </lightning-icon>
                 <p class="slds-text-body_small slds-text-color_weak">
                   No messages found matching "{messageSearchTerm}"
                 </p>
@@ -511,15 +419,8 @@
 
           <template if:false={hasMessages}>
             <div class="slds-text-align_center slds-p-around_medium">
-              <lightning-icon
-                icon-name="utility:message"
-                size="small"
-                class="slds-m-bottom_x-small"
-              >
-              </lightning-icon>
-              <p class="slds-text-body_small slds-text-color_weak">
-                No messages yet
-              </p>
+              <lightning-icon icon-name="utility:message" size="small" class="slds-m-bottom_x-small"> </lightning-icon>
+              <p class="slds-text-body_small slds-text-color_weak">No messages yet</p>
             </div>
           </template>
         </div>
@@ -553,50 +454,29 @@
                   title="Close"
                   onclick={handleCloseModal}
                 >
-                  <lightning-icon
-                    icon-name="utility:close"
-                    alternative-text="close"
-                    size="small"
-                  >
-                  </lightning-icon>
+                  <lightning-icon icon-name="utility:close" alternative-text="close" size="small"> </lightning-icon>
                   <span class="slds-assistive-text">Close</span>
                 </button>
-                <h2
-                  id="message-modal-heading"
-                  class="slds-modal__title slds-hyphenate"
-                >
+                <h2 id="message-modal-heading" class="slds-modal__title slds-hyphenate">
                   <template if:true={isReplying}> Reply to Message </template>
                   <template if:false={isReplying}> New Message </template>
                 </h2>
               </header>
 
-              <div
-                class="slds-modal__content slds-p-around_medium"
-                id="message-modal-content"
-              >
+              <div class="slds-modal__content slds-p-around_medium" id="message-modal-content">
                 <!-- Reply Indicator -->
                 <template if:true={isReplying}>
                   <div class="reply-indicator slds-m-bottom_medium">
                     <div class="slds-box slds-box_x-small slds-theme_info">
-                      <div
-                        class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
-                      >
+                      <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
                         <div class="slds-col">
-                          <lightning-icon
-                            icon-name="utility:reply"
-                            size="x-small"
-                            class="slds-m-right_x-small"
-                          >
+                          <lightning-icon icon-name="utility:reply" size="x-small" class="slds-m-right_x-small">
                           </lightning-icon>
                           <span class="slds-text-body_small">
                             Replying to
                             <strong>{replyingToMessage.senderName}</strong>
-                            <template
-                              if:true={replyingToMessage.replyToPreview}
-                            >
-                              <span class="slds-text-color_weak">
-                                : {replyingToMessage.replyToPreview}
-                              </span>
+                            <template if:true={replyingToMessage.replyToPreview}>
+                              <span class="slds-text-color_weak"> : {replyingToMessage.replyToPreview} </span>
                             </template>
                           </span>
                         </div>
@@ -616,10 +496,7 @@
 
                 <!-- Message Body -->
                 <div class="slds-form-element slds-m-bottom_medium">
-                  <label
-                    class="slds-form-element__label"
-                    for="message-body-modal"
-                  >
+                  <label class="slds-form-element__label" for="message-body-modal">
                     <abbr class="slds-required" title="required">*</abbr>
                     Message
                   </label>
@@ -667,11 +544,7 @@
                   </template>
                   <template if:true={hasPendingComposerFiles}>
                     <div class="slds-m-top_small">
-                      <div
-                        class="slds-text-body_small slds-text-color_weak slds-m-bottom_xx-small"
-                      >
-                        Files to send
-                      </div>
+                      <div class="slds-text-body_small slds-text-color_weak slds-m-bottom_xx-small">Files to send</div>
                       <c-portal-file-attachments
                         files={pendingComposerFiles}
                         show-preview={composerAttachmentShowPreview}
@@ -687,17 +560,8 @@
 
               <footer class="slds-modal__footer">
                 <lightning-button-group>
-                  <lightning-button
-                    variant="neutral"
-                    label="Cancel"
-                    onclick={handleCloseModal}
-                  >
-                  </lightning-button>
-                  <lightning-button
-                    variant="brand"
-                    label="Send Message"
-                    onclick={handleSendMessage}
-                  >
+                  <lightning-button variant="neutral" label="Cancel" onclick={handleCloseModal}> </lightning-button>
+                  <lightning-button variant="brand" label="Send Message" onclick={handleSendMessage}>
                   </lightning-button>
                 </lightning-button-group>
               </footer>

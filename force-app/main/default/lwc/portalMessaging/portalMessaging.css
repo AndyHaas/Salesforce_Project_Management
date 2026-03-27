@@ -195,6 +195,11 @@
   border-left: 3px solid #2e844a;
 }
 
+.pinned-messages-panel__subtitle {
+  margin-bottom: 0;
+  line-height: 1.35;
+}
+
 .pinned-messages-list {
   list-style: none;
   margin: 0;
