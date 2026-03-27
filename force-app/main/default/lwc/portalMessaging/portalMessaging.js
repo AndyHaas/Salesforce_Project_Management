@@ -30,21 +30,22 @@ import { LightningElement, api, wire, track } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE, publish } from "lightning/messageService";
 import { CurrentPageReference, NavigationMixin } from "lightning/navigation";
-import sendMessage from "@salesforce/apex/PortalMessagingController.sendMessage";
-import getMessages from "@salesforce/apex/PortalMessagingController.getMessages";
+import sendMessage from "@salesforce/apex/MessagingController.sendMessage";
+import getMessages from "@salesforce/apex/MessagingController.getMessages";
 import getPinnedMessages from "@salesforce/apex/MessagingPinnedSupport.getPinnedMessages";
-import getContextInfo from "@salesforce/apex/PortalMessagingController.getContextInfo";
-import getMentionableContacts from "@salesforce/apex/PortalMessagingController.getMentionableContacts";
-import getCurrentUserContactId from "@salesforce/apex/PortalMessagingController.getCurrentUserContactId";
-import isMilestoneTeamMember from "@salesforce/apex/PortalMessagingController.isMilestoneTeamMember";
-import markAsRead from "@salesforce/apex/PortalMessagingController.markAsRead";
-import updateMessage from "@salesforce/apex/PortalMessagingController.updateMessage";
+import getContextInfo from "@salesforce/apex/MessagingController.getContextInfo";
+import getMentionableContacts from "@salesforce/apex/MessagingController.getMentionableContacts";
+import getCurrentUserContactId from "@salesforce/apex/MessagingController.getCurrentUserContactId";
+import isMilestoneTeamMember from "@salesforce/apex/MessagingController.isMilestoneTeamMember";
+import markAsRead from "@salesforce/apex/MessagingController.markAsRead";
+import updateMessage from "@salesforce/apex/MessagingController.updateMessage";
 import deleteMessageAndAttachments from "@salesforce/apex/MessageFilesSupport.deleteMessageAndAttachments";
-import pinMessage from "@salesforce/apex/PortalMessagingController.pinMessage";
+import pinMessage from "@salesforce/apex/MessagingController.pinMessage";
 import linkFilesToMessageAndContext from "@salesforce/apex/MessageFilesSupport.linkFilesToMessageAndContext";
 import getFilesForMessages from "@salesforce/apex/MessageFilesSupport.getFilesForMessages";
 import { ensureSitePath, formatDateTime } from "c/portalCommon";
 import MESSAGE_UPDATE_CHANNEL from "@salesforce/messageChannel/MessageUpdate__c";
+import userId from "@salesforce/user/Id";
 
 export default class PortalMessaging extends NavigationMixin(LightningElement) {
   _recordId;
@@ -890,8 +891,23 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    * @param {object} msg Raw row from Apex (getMessages / getPinnedMessages).
    * @returns {object} Display object for templates.
    */
+  /**
+   * Milestone team: show Salesforce author (CreatedBy); portal clients keep Contact sender (Sender__c).
+   *
+   * @param {object} msg Raw row; optional createdByName from Apex (MessagingController.getMessages).
+   */
+  computeDisplaySenderName(msg) {
+    if (!msg) {
+      return "";
+    }
+    if (this.isMilestoneTeamMember === true && msg.createdByName) {
+      return msg.createdByName;
+    }
+    return msg.senderName || "";
+  }
+
   mapMessageForDisplay(msg) {
-    const isFromCurrentUser = this.isFromCurrentUser(msg.senderId);
+    const isFromCurrentUser = this.isActingUserMessageAuthor(msg);
     const taskLink = this.buildLink(msg.relatedTaskId, msg.relatedTaskName, "/project-task");
     const projectLink = this.buildLink(msg.relatedProjectId, msg.relatedProjectName, "/project");
 
@@ -926,7 +942,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
       hasAttachments: Array.isArray(msg.files) && msg.files.length > 0,
       isInternalMessage: msg.visibleToClient === false,
-      bodyPreview: this.truncatePreview(this.stripHtmlPreview(msg.body || ""), 140)
+      bodyPreview: this.truncatePreview(this.stripHtmlPreview(msg.body || ""), 140),
+      displaySenderName: this.computeDisplaySenderName(msg)
     };
   }
 
@@ -1041,11 +1058,38 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
-   * @description Check if message is from current user
+   * Mirrors MessageFilesSupport.deleteMessageAndAttachments: sender Contact matches running user, or
+   * CreatedById matches running User (internal users often have no ContactId, so sender-only check hid Delete).
+   * MessagingController.getMessages includes createdById on each row for LEX authors.
+   *
+   * @param {object} msg Raw or view message row; may include senderId, createdById from Apex.
+   * @returns {boolean} True if edit/delete menu should treat this row as the current user's message.
    */
-  isFromCurrentUser(senderId) {
-    // Will be set after we get current user contact ID
-    return this._currentUserContactId && senderId === this._currentUserContactId;
+  isActingUserMessageAuthor(msg) {
+    if (!msg) {
+      return false;
+    }
+    const senderId = msg.senderId != null ? String(msg.senderId) : "";
+    const contactId = this._currentUserContactId != null ? String(this._currentUserContactId) : "";
+    if (contactId && senderId && senderId === contactId) {
+      return true;
+    }
+    const createdBy = msg.createdById != null ? String(msg.createdById) : "";
+    const uid = userId != null ? String(userId) : "";
+    if (uid && createdBy && this.salesforceIdsEqual(createdBy, uid)) {
+      return true;
+    }
+    return false;
+  }
+
+  /** Compare Ids allowing 15- and 18-character forms. */
+  salesforceIdsEqual(a, b) {
+    if (!a || !b) {
+      return false;
+    }
+    const na = String(a);
+    const nb = String(b);
+    return na === nb || na.substring(0, 15) === nb.substring(0, 15);
   }
 
   /**
@@ -1757,7 +1801,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    */
   handleReplyToMessage(event) {
     const messageId = event.currentTarget.dataset.messageId;
-    const message = this._messages.find((m) => m.id === messageId);
+    const message = this.messages.find((m) => m.id === messageId);
 
     if (!message) {
       return;

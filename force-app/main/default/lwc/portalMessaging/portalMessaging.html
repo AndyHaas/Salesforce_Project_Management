@@ -88,7 +88,7 @@
                 <li key={message.id} class="pinned-messages-list__item">
                   <div class="pinned-compact-row" data-message-id={message.id} onclick={handleScrollToMessageInThread}>
                     <div class="pinned-compact-row__main">
-                      <span class="pinned-compact-row__sender"> {message.senderName} </span>
+                      <span class="pinned-compact-row__sender"> {message.displaySenderName} </span>
                       <span class="slds-text-body_small slds-text-color_weak slds-m-left_x-small">
                         {message.formattedDate}
                       </span>
@@ -145,7 +145,7 @@
                         </lightning-icon>
                       </template>
 
-                      <strong>{message.senderName}</strong>
+                      <strong>{message.displaySenderName}</strong>
 
                       <template if:true={message.isMentioned}>
                         <lightning-badge label="Mentioned" variant="warning" class="slds-m-left_x-small">
@@ -472,7 +472,7 @@
                           </lightning-icon>
                           <span class="slds-text-body_small">
                             Replying to
-                            <strong>{replyingToMessage.senderName}</strong>
+                            <strong>{replyingToMessage.displaySenderName}</strong>
                             <template if:true={replyingToMessage.replyToPreview}>
                               <span class="slds-text-color_weak"> : {replyingToMessage.replyToPreview} </span>
                             </template>
