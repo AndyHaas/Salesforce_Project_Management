@@ -35,8 +35,8 @@
         <members>PasswordlessLoginController</members>
         <members>PasswordlessLoginControllerTest</members>
         <members>PortalLoginController</members>
-        <members>PortalMessagingController</members>
-        <members>PortalMessagingControllerTest</members>
+        <members>MessagingController</members>
+        <members>MessagingControllerTest</members>
         <members>PortalProjectController</members>
         <members>PortalRecordListController</members>
         <members>PortalTaskController</members>
@@ -289,8 +289,7 @@
         <members>Employee_Zoom_Identity__c.Zoom_Email__c</members>
         <members>Employee_Zoom_Identity__c.Zoom_User_Id__c</members>
         <members>In_App_Checklist_Settings__c.ProfileKey__c</members>
-        <members
-    >In_App_Checklist_Settings__c.Sales_Cloud_In_App_Page__c</members>
+        <members>In_App_Checklist_Settings__c.Sales_Cloud_In_App_Page__c</members>
         <members>Invoice_Payments__c.Account__c</members>
         <members>Invoice_Payments__c.Payment_Amount__c</members>
         <members>Invoice_Payments__c.Payment_Date__c</members>
@@ -317,8 +316,7 @@
         <members>Message__c.Reply_To__c</members>
         <members>Message__c.Sender__c</members>
         <members>Message__c.Visible_To_Client__c</members>
-        <members
-    >Milestone_Task_Notification_Settings__mdt.Community_Task_URL_Format__c</members>
+        <members>Milestone_Task_Notification_Settings__mdt.Community_Task_URL_Format__c</members>
         <members>OTP_Cleanup_Config__mdt.Retention_Days__c</members>
         <members>Opportunity.Budget_Confirmed__c</members>
         <members>Opportunity.Discovery_Completed__c</members>
@@ -570,181 +568,100 @@
         <members>Activity360</members>
         <members>Activity360/EACDashboard</members>
         <members>CRM_180925_HVS_Sample_Dashboard_Folder</members>
-        <members
-    >CRM_180925_HVS_Sample_Dashboard_Folder/CRM_180925_HVS_Sample_Dashboard</members>
+        <members>CRM_180925_HVS_Sample_Dashboard_Folder/CRM_180925_HVS_Sample_Dashboard</members>
         <members>ForContractors</members>
         <members>ForContractors/FXZKYKGwOCulGjiVLZSoBdGDuacTqC</members>
         <members>Project</members>
         <members>Project/wFWssfBCTAECPuNnYemETVJUreeMux</members>
         <members>Sales_and_Marketing_Dashboards</members>
         <members>Sales_and_Marketing_Dashboards/AdoptionDashboard</members>
-        <members
-    >Sales_and_Marketing_Dashboards/Best_Practice_Leads_Dashboard</members>
-        <members
-    >Sales_and_Marketing_Dashboards/Best_Practices_Dashboard6</members>
+        <members>Sales_and_Marketing_Dashboards/Best_Practice_Leads_Dashboard</members>
+        <members>Sales_and_Marketing_Dashboards/Best_Practices_Dashboard6</members>
         <members>prm_ch_dashboards_sub_folder</members>
         <members>prm_channel_dashboard_folder</members>
         <members>prm_spring24_dashboardsSPLIT1728715031507</members>
         <members>prm_winter24_dashboardsSPLIT1728715031507</members>
-        <members
-    >prm_winter24_dashboardsSPLIT1728715031507/cmc_spring_24_cmc_home_dashboard</members>
-        <members
-    >prm_winter24_dashboardsSPLIT1728715031507/prm_winter24_ch_sales_dashboardSPLIT1728715031507</members>
+        <members>prm_winter24_dashboardsSPLIT1728715031507/cmc_spring_24_cmc_home_dashboard</members>
+        <members>prm_winter24_dashboardsSPLIT1728715031507/prm_winter24_ch_sales_dashboardSPLIT1728715031507</members>
         <name>Dashboard</name>
     </types>
     <types>
-        <members
-    >content/Client_Project_Mangement.sfdc_cms__languageSettings/languages</members>
-        <members
-    >marketing/Default_Content_Workspace.sfdc_cms__languageSettings/languages</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__appPage/mainAppPage</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__brandingSet/Build_Your_Own_LWR</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__languageSettings/languages</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__mobilePublisherConfig/mobilePublisherConfig</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Account_Detail__c</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Account_List__c</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Account_Related_List__c</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Check_Password</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Error</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Forgot_Password</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Home</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Login</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/News_Detail__c</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Detail__c</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_List__c</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Related_List__c</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_Detail__c</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_List__c</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_Related_List__c</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Register</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Service_Not_Available</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__route/Too_Many_Requests</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__site/Client_Project_Management_Portal1</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__styles/print_css</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__styles/styles_css</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__theme/Build_Your_Own_LWR</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__themeLayout/scopedHeaderAndFooter</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__themeLayout/snaThemeLayout</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/Account_Detail</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/Account_List</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/Account_Related_List</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Detail</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_List</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Related_List</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_Detail</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_List</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_Related_List</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/checkPasswordResetEmail</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/error</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/forgotPassword</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/home</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/login</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/newsDetail</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/register</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/serviceNotAvailable</members>
-        <members
-    >site/Client_Project_Management_Portal1.sfdc_cms__view/tooManyRequests</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__appPage/mainAppPage</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__brandingSet/Build_Your_Own_LWR</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__languageSettings/languages</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__mobilePublisherConfig/mobilePublisherConfig</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Check_Password</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Error</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Forgot_Password</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Home</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Login</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/News_Detail__c</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Register</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Service_Not_Available</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Too_Many_Requests</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__site/Milestone_Consulting_Customer_Portal1</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__styles/print_css</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__styles/styles_css</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__theme/Build_Your_Own_LWR</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__themeLayout/scopedHeaderAndFooter</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__themeLayout/snaThemeLayout</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/checkPasswordResetEmail</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/error</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/forgotPassword</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/home</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/login</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/newsDetail</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/register</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/serviceNotAvailable</members>
-        <members
-    >site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/tooManyRequests</members>
+        <members>content/Client_Project_Mangement.sfdc_cms__languageSettings/languages</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__languageSettings/languages</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__appPage/mainAppPage</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__brandingSet/Build_Your_Own_LWR</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__languageSettings/languages</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__mobilePublisherConfig/mobilePublisherConfig</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Account_Detail__c</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Account_List__c</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Account_Related_List__c</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Check_Password</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Error</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Forgot_Password</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Home</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Login</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/News_Detail__c</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Detail__c</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_List__c</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Related_List__c</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_Detail__c</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_List__c</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Project_Task_Related_List__c</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Register</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Service_Not_Available</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__route/Too_Many_Requests</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__site/Client_Project_Management_Portal1</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__styles/print_css</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__styles/styles_css</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__theme/Build_Your_Own_LWR</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__themeLayout/scopedHeaderAndFooter</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__themeLayout/snaThemeLayout</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Account_Detail</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Account_List</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Account_Related_List</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Detail</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_List</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Related_List</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_Detail</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_List</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/Project_Task_Related_List</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/checkPasswordResetEmail</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/error</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/forgotPassword</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/home</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/login</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/newsDetail</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/register</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/serviceNotAvailable</members>
+        <members>site/Client_Project_Management_Portal1.sfdc_cms__view/tooManyRequests</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__appPage/mainAppPage</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__brandingSet/Build_Your_Own_LWR</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__languageSettings/languages</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__mobilePublisherConfig/mobilePublisherConfig</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Check_Password</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Error</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Forgot_Password</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Home</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Login</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/News_Detail__c</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Register</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Service_Not_Available</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__route/Too_Many_Requests</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__site/Milestone_Consulting_Customer_Portal1</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__styles/print_css</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__styles/styles_css</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__theme/Build_Your_Own_LWR</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__themeLayout/scopedHeaderAndFooter</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__themeLayout/snaThemeLayout</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/checkPasswordResetEmail</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/error</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/forgotPassword</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/home</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/login</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/newsDetail</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/register</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/serviceNotAvailable</members>
+        <members>site/Milestone_Consulting_Customer_Portal1.sfdc_cms__view/tooManyRequests</members>
         <name>DigitalExperience</name>
     </types>
     <types>
@@ -768,8 +685,7 @@
     <types>
         <members>Account.Standard_Account_Duplicate_Rule</members>
         <members>Contact.Standard_Contact_Duplicate_Rule</members>
-        <members
-    >Contact.Standard_Rule_for_Contacts_with_Duplicate_Leads</members>
+        <members>Contact.Standard_Rule_for_Contacts_with_Duplicate_Leads</members>
         <members>Lead.Standard_Lead_Duplicate_Rule</members>
         <members>Lead.Standard_Rule_for_Leads_with_Duplicate_Contacts</members>
         <name>DuplicateRule</name>
@@ -780,98 +696,52 @@
     </types>
     <types>
         <members>CRM_180925_Email_Templates_From_Salesforce</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Confirmation_Set_Meeting_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Day_30_Follow_Up_Onboarding_Outreach_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Day_60_Follow_Up_Onboarding_Outreach_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Day_90_Follow_Up_Onboarding_Outreach_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Event_Content_Event_Folow_Up_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Fifth_Email_Month_5_Nuture_Existing_Customer_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Fifth_Follow_Up_Lost_Opportunity_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Final_Email_Account_Transition_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Final_Email_Renewal_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Final_Follow_Up_Interested_Prospects_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Final_Follow_Up_New_Prospects_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/First_Email_Account_Transition_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/First_Email_Month_1_Nuture_Existing_Customer_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/First_Email_Renewal_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/First_Touch_Intro_Interested_Prospects_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/First_Touch_Introduction_New_Prospects_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/First_Touch_Lost_Opportunity_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/First_Touch_Onboarding_Outreach_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Follow_Up_Set_Meeting_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Fourth_Email_Month_4_Nuture_Existing_Customer_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Fourth_Email_Renewal_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Fourth_Follow_Up_Lost_Opportunity_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Insert_Availability_Set_Meeting_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/More_Info_Event_Folow_Up_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Next_Event_Event_Folow_Up_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Fifth_FollowUp_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_First_Touch_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Fourth_FollowUp_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Second_FollowUp_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Third_FollowUp_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Second_Email_Account_Transition_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Second_Email_Month_2_Nuture_Existing_Customer_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Second_Email_Renewal_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Interested_Prospects_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Lost_Opportunity_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_New_Prospects_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Onboarding_Outreach_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Sixth_Email_Month_6_Nuture_Existing_Customer_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Thank_You_Event_Folow_Up_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Third_Email_Account_Transition_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Third_Email_Month_3_Nuture_Existing_Customer_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Third_Email_Renewal_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Interested_Prospects_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Lost_Opportunity_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_New_Prospects_OOTB_1</members>
-        <members
-    >CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Onboarding_Outreach_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Confirmation_Set_Meeting_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Day_30_Follow_Up_Onboarding_Outreach_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Day_60_Follow_Up_Onboarding_Outreach_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Day_90_Follow_Up_Onboarding_Outreach_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Event_Content_Event_Folow_Up_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Fifth_Email_Month_5_Nuture_Existing_Customer_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Fifth_Follow_Up_Lost_Opportunity_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Final_Email_Account_Transition_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Final_Email_Renewal_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Final_Follow_Up_Interested_Prospects_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Final_Follow_Up_New_Prospects_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/First_Email_Account_Transition_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/First_Email_Month_1_Nuture_Existing_Customer_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/First_Email_Renewal_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/First_Touch_Intro_Interested_Prospects_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/First_Touch_Introduction_New_Prospects_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/First_Touch_Lost_Opportunity_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/First_Touch_Onboarding_Outreach_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Follow_Up_Set_Meeting_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Fourth_Email_Month_4_Nuture_Existing_Customer_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Fourth_Email_Renewal_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Fourth_Follow_Up_Lost_Opportunity_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Insert_Availability_Set_Meeting_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/More_Info_Event_Folow_Up_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Next_Event_Event_Folow_Up_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Fifth_FollowUp_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_First_Touch_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Fourth_FollowUp_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Second_FollowUp_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Reengage_Prospects_Third_FollowUp_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Email_Account_Transition_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Email_Month_2_Nuture_Existing_Customer_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Email_Renewal_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Interested_Prospects_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Lost_Opportunity_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_New_Prospects_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Second_Follow_Up_Onboarding_Outreach_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Sixth_Email_Month_6_Nuture_Existing_Customer_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Thank_You_Event_Folow_Up_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Email_Account_Transition_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Email_Month_3_Nuture_Existing_Customer_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Email_Renewal_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Interested_Prospects_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Lost_Opportunity_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_New_Prospects_OOTB_1</members>
+        <members>CRM_180925_Email_Templates_From_Salesforce/Third_Follow_Up_Onboarding_Outreach_OOTB_1</members>
         <members>unfiled$public</members>
         <members>unfiled$public/CPasswordlessRegistrationEmailTemplate</members>
         <members>unfiled$public/CommunityChangePasswordEmailTemplate</members>
@@ -879,28 +749,23 @@
         <members>unfiled$public/CommunityChgEmailVerOldTemplate</members>
         <members>unfiled$public/CommunityDeviceActEmailTemplate</members>
         <members>unfiled$public/CommunityForgotPasswordEmailTemplate</members>
-        <members
-    >unfiled$public/CommunityHeadlessForgotPasswordTemplate</members>
+        <members>unfiled$public/CommunityHeadlessForgotPasswordTemplate</members>
         <members>unfiled$public/CommunityHeadlessRegistrationTemplate</members>
         <members>unfiled$public/CommunityLockoutEmailTemplate</members>
         <members>unfiled$public/CommunityVerificationEmailTemplate</members>
         <members>unfiled$public/CommunityWelcomeEmailTemplate</members>
         <members>unfiled$public/ContactFollowUpSAMPLE</members>
-        <members
-    >unfiled$public/ExperienceCloudSelfRegMicroBatchSubErrorEmailTemplate</members>
+        <members>unfiled$public/ExperienceCloudSelfRegMicroBatchSubErrorEmailTemplate</members>
         <members>unfiled$public/Invoice_Template_1622754090811</members>
         <members>unfiled$public/LeadsNewassignmentnotificationSAMPLE</members>
         <members>unfiled$public/LeadsWebtoLeademailresponseSAMPLE</members>
         <members>unfiled$public/Project_Burn_Rate_80</members>
         <members>unfiled$public/SUPPORTCaseResponsewithSolutionSAMPLE</members>
-        <members
-    >unfiled$public/SUPPORTCaseescalationnotificationSAMPLE</members>
+        <members>unfiled$public/SUPPORTCaseescalationnotificationSAMPLE</members>
         <members>unfiled$public/SUPPORTNewassignmentnotificationSAMPLE</members>
-        <members
-    >unfiled$public/SUPPORTSelfServiceNewCommentNotificationSAMPLE</members>
+        <members>unfiled$public/SUPPORTSelfServiceNewCommentNotificationSAMPLE</members>
         <members>unfiled$public/SUPPORTSelfServiceNewCommentSAMPLE</members>
-        <members
-    >unfiled$public/SUPPORTSelfServiceNewUserLoginInformationSAMPLE</members>
+        <members>unfiled$public/SUPPORTSelfServiceNewUserLoginInformationSAMPLE</members>
         <members>unfiled$public/SUPPORTSelfServiceNewUserLoginSAMPLE</members>
         <members>unfiled$public/SUPPORTSelfServiceResetPasswordSAMPLE</members>
         <members>unfiled$public/SUPPORTSelfServiceResetPasswordSAMPLE2</members>
@@ -950,10 +815,8 @@
         <name>ExtlClntAppOauthSettings</name>
     </types>
     <types>
-        <members
-    >Rule7229988877d4b1b5748293ca9844a439ef36b778a89cb4373297c8c1858bc1a4</members>
-        <members
-    >Ruleea937c61c692797b742e6e62b6551d7014b71bd1e961a409f1106e9fdf8bad1b</members>
+        <members>Rule7229988877d4b1b5748293ca9844a439ef36b778a89cb4373297c8c1858bc1a4</members>
+        <members>Ruleea937c61c692797b742e6e62b6551d7014b71bd1e961a409f1106e9fdf8bad1b</members>
         <name>FieldRestrictionRule</name>
     </types>
     <types>
@@ -1015,12 +878,9 @@
         <name>FlexiPage</name>
     </types>
     <types>
-        <members
-    >Approval_Process_Project_Task_Client_Completion_Approval</members>
-        <members
-    >Approval_Process_Project_Task_PM_Code_Reviewer_Approval</members>
-        <members
-    >Approval_Process_Project_Task_Waiting_For_Client_Approval_on_Backlog_Task</members>
+        <members>Approval_Process_Project_Task_Client_Completion_Approval</members>
+        <members>Approval_Process_Project_Task_PM_Code_Reviewer_Approval</members>
+        <members>Approval_Process_Project_Task_Waiting_For_Client_Approval_on_Backlog_Task</members>
         <members>Autolaunch_Project_Task_Client_Approved_Backlog_Task</members>
         <members>Autolaunch_Project_Task_Client_Approved_Completion</members>
         <members>Autolaunch_Project_Task_Client_Rejected_Backlog_Task</members>
@@ -1034,8 +894,7 @@
         <members>RT_AS_Project_Create</members>
         <members>Record_Project_Alert_Burn_Rate_80</members>
         <members>Record_Trigger_Project_Task_Client_Backlog_Approval</members>
-        <members
-    >Record_Trigger_Project_Task_Client_Completion_Approval</members>
+        <members>Record_Trigger_Project_Task_Client_Completion_Approval</members>
         <members>Record_Trigger_Project_Task_PM_Code_Review_Email</members>
         <members>Record_Trigger_Time_Sheet_Block_If_Project_Closed</members>
         <members>Record_Trigger_Time_Sheet_Calculate_Cost_Rollups</members>
@@ -1044,12 +903,9 @@
         <name>Flow</name>
     </types>
     <types>
-        <members
-    >Approval_Process_Project_Task_Client_Completion_Approval</members>
-        <members
-    >Approval_Process_Project_Task_PM_Code_Reviewer_Approval</members>
-        <members
-    >Approval_Process_Project_Task_Waiting_For_Client_Approval_on_Backlog_Task</members>
+        <members>Approval_Process_Project_Task_Client_Completion_Approval</members>
+        <members>Approval_Process_Project_Task_PM_Code_Reviewer_Approval</members>
+        <members>Approval_Process_Project_Task_Waiting_For_Client_Approval_on_Backlog_Task</members>
         <members>Autolaunch_Project_Task_Client_Approved_Backlog_Task</members>
         <members>Autolaunch_Project_Task_Client_Approved_Completion</members>
         <members>Autolaunch_Project_Task_Client_Rejected_Backlog_Task</members>
@@ -1063,8 +919,7 @@
         <members>RT_AS_Project_Create</members>
         <members>Record_Project_Alert_Burn_Rate_80</members>
         <members>Record_Trigger_Project_Task_Client_Backlog_Approval</members>
-        <members
-    >Record_Trigger_Project_Task_Client_Completion_Approval</members>
+        <members>Record_Trigger_Project_Task_Client_Completion_Approval</members>
         <members>Record_Trigger_Project_Task_PM_Code_Review_Email</members>
         <members>Record_Trigger_Time_Sheet_Block_If_Project_Closed</members>
         <members>Record_Trigger_Time_Sheet_Calculate_Cost_Rollups</members>
@@ -1133,36 +988,30 @@
         <members>Account-Account Layout</members>
         <members>Account-Starter Account Layout</members>
         <members>AccountBrand-Account Brand Layout</members>
-        <members
-    >AlternativePaymentMethod-Alternative Payment Method Layout</members>
+        <members>AlternativePaymentMethod-Alternative Payment Method Layout</members>
         <members>Asset-Asset Layout</members>
         <members>AssetRelationship-Asset Relationship Layout</members>
         <members>AuthorizationForm-Authorization Form Layout</members>
-        <members
-    >AuthorizationFormConsent-Authorization Form Consent Layout</members>
-        <members
-    >AuthorizationFormDataUse-Authorization Form Data Use Layout</members>
+        <members>AuthorizationFormConsent-Authorization Form Consent Layout</members>
+        <members>AuthorizationFormDataUse-Authorization Form Data Use Layout</members>
         <members>AuthorizationFormText-Authorization Form Text Layout</members>
         <members>BroadcastTopic-Broadcast Topic Layout</members>
         <members>BusinessBrand-Business Brand Layout</members>
         <members>Campaign-Campaign Layout</members>
-        <members
-    >CampaignInfluenceModel-Campaign Influence Model Layout</members>
+        <members>CampaignInfluenceModel-Campaign Influence Model Layout</members>
         <members>CampaignMember-Campaign Member Page Layout</members>
         <members>CardPaymentMethod-Card Payment Method Layout</members>
         <members>Case-Case Layout</members>
         <members>CaseClose-Close Case Layout</members>
         <members>CaseInteraction-Case Feed Layout</members>
-        <members
-    >CodeBuilder__CodeBuilderSetting__mdt-CodeBuilderSetting Layout</members>
+        <members>CodeBuilder__CodeBuilderSetting__mdt-CodeBuilderSetting Layout</members>
         <members>CollaborationGroup-Group Layout</members>
         <members>Contact-Contact Layout</members>
         <members>Contact-Starter Contact Layout</members>
         <members>ContactPointAddress-Contact Point Address Layout</members>
         <members>ContactPointEmail-Contact Point Email Layout</members>
         <members>ContactPointPhone-Contact Point Phone Layout</members>
-        <members
-    >ContactPointTypeConsent-Contact Point Type Consent Layout</members>
+        <members>ContactPointTypeConsent-Contact Point Type Consent Layout</members>
         <members>Contract-Contract Layout</members>
         <members>Contract_Pricing__c-Contract Pricing Layout</members>
         <members>CreditMemo-Credit Memo Layout</members>
@@ -1174,17 +1023,13 @@
         <members>DigitalWallet-Digital Wallet Layout</members>
         <members>DuplicateRecordSet-Duplicate Record Set Layout</members>
         <members>EmailMessage-Email Message Layout</members>
-        <members
-    >Employee_Zoom_Identity__c-Employee Zoom Identity Layout</members>
+        <members>Employee_Zoom_Identity__c-Employee Zoom Identity Layout</members>
         <members>Event-Event Layout</members>
         <members>FeedItem-Feed Item Layout</members>
-        <members
-    >FlowOrchestrationWorkItem-Orchestration Work Item Layout</members>
-        <members
-    >FlowPersonalConfiguration__c-Flow Personal Configuration Layout</members>
+        <members>FlowOrchestrationWorkItem-Orchestration Work Item Layout</members>
+        <members>FlowPersonalConfiguration__c-Flow Personal Configuration Layout</members>
         <members>FlowRecord-Flow Layout</members>
-        <members
-    >FlowTableViewDefinition__c-FlowTableViewDefinition Layout</members>
+        <members>FlowTableViewDefinition__c-FlowTableViewDefinition Layout</members>
         <members>Global-Global Layout</members>
         <members>Idea-Idea Layout</members>
         <members>Individual-Individual Layout</members>
@@ -1196,18 +1041,15 @@
         <members>ManagedContent-Managed Content Layout</members>
         <members>ManagedContentVariant-Managed Content Variant Layout</members>
         <members>Message__c-Message Layout</members>
-        <members
-    >Milestone_Task_Notification_Settings__mdt-Milestone Task Notification Settings Layout</members>
+        <members>Milestone_Task_Notification_Settings__mdt-Milestone Task Notification Settings Layout</members>
         <members>OTP_Cleanup_Config__mdt-OTP Cleanup Config Layout</members>
         <members>Opportunity-Opportunity Layout</members>
-        <members
-    >OpportunityContactRole-Opportunity Contact Role Layout</members>
+        <members>OpportunityContactRole-Opportunity Contact Role Layout</members>
         <members>OpportunityLineItem-Opportunity Product Layout</members>
         <members>Order-Order Layout</members>
         <members>OrderItem-Order Product Layout</members>
         <members>Payment-Payment Layout</members>
-        <members
-    >PaymentAuthAdjustment-Payment Authorization Adjustment Layout</members>
+        <members>PaymentAuthAdjustment-Payment Authorization Adjustment Layout</members>
         <members>PaymentAuthorization-Payment Authorization Layout</members>
         <members>PaymentGateway-Payment Gateway Layout</members>
         <members>PaymentGatewayLog-Payment Gateway Log Layout</members>
@@ -1221,13 +1063,11 @@
         <members>ProfileSkill-Skill Layout</members>
         <members>ProfileSkillEndorsement-Endorsement Layout</members>
         <members>ProfileSkillUser-Skill User Layout</members>
-        <members
-    >Project_Task_Relationship__c-Project Task Relationship Layout</members>
+        <members>Project_Task_Relationship__c-Project Task Relationship Layout</members>
         <members>Project_Task__c-Project Task Layout</members>
         <members>Project__c-Project Layout</members>
         <members>QuickText-Quick Text Layout</members>
-        <members
-    >Quickbook_Invoice_Item__c-Quickbook Invoice Item Layout</members>
+        <members>Quickbook_Invoice_Item__c-Quickbook Invoice Item Layout</members>
         <members>Quickbooks_Invoice__c-Quickbooks Invoice Layout</members>
         <members>Quote-Quote Layout</members>
         <members>QuoteLineItem-Quote Line Item Layout</members>
@@ -1252,8 +1092,7 @@
         <members>UserAppMenuItem-Application Layout</members>
         <members>UserProvAccount-User Provisioning Account Layout</members>
         <members>UserProvisioningLog-User Provisioning Log Layout</members>
-        <members
-    >UserProvisioningRequest-User Provisioning Request Layout</members>
+        <members>UserProvisioningRequest-User Provisioning Request Layout</members>
         <members>WorkAccess-Access Layout</members>
         <members>WorkBadge-Badge Layout</members>
         <members>WorkBadge-Badge Received Layout 192</members>
@@ -1266,36 +1105,27 @@
         <members>Zoom_Webhook_Config__mdt-Zoom Webhook Config Layout</members>
         <members>Zoom_Webhook_Event__c-Zoom Webhook Event Layout</members>
         <members>sf_devops__App_Config__mdt-App Config Layout</members>
-        <members
-    >sf_devops__Async_Operation_Result__c-Async Operation Result Layout</members>
+        <members>sf_devops__Async_Operation_Result__c-Async Operation Result Layout</members>
         <members>sf_devops__Back_Sync__c-Back Sync Layout</members>
         <members>sf_devops__Branch__c-Branch Layout</members>
-        <members
-    >sf_devops__Change_Bundle_Install__c-Change Bundle Install Layout</members>
+        <members>sf_devops__Change_Bundle_Install__c-Change Bundle Install Layout</members>
         <members>sf_devops__Change_Bundle__c-Change Bundle Layout</members>
-        <members
-    >sf_devops__Change_Submission__c-Change Submission Layout</members>
-        <members
-    >sf_devops__Deploy_Component__c-Deploy Component Layout</members>
-        <members
-    >sf_devops__Deployment_Result__c-Deployment Result Layout</members>
+        <members>sf_devops__Change_Submission__c-Change Submission Layout</members>
+        <members>sf_devops__Deploy_Component__c-Deploy Component Layout</members>
+        <members>sf_devops__Deployment_Result__c-Deployment Result Layout</members>
         <members>sf_devops__Environment__c-Environment Layout</members>
-        <members
-    >sf_devops__Hidden_Remote_Change__c-Hidden Remote Change Layout</members>
+        <members>sf_devops__Hidden_Remote_Change__c-Hidden Remote Change Layout</members>
         <members>sf_devops__Merge_Result__c-Merge Result Layout</members>
         <members>sf_devops__Object_Activity__c-Object Activity Layout</members>
         <members>sf_devops__Pipeline_Stage__c-Pipeline Stage Layout</members>
         <members>sf_devops__Pipeline__c-Pipeline Layout</members>
         <members>sf_devops__Remote_Change__c-Remote Change Layout</members>
         <members>sf_devops__Service__mdt-Service Layout</members>
-        <members
-    >sf_devops__Source_Member_Reference__c-Source Member Reference Layout</members>
-        <members
-    >sf_devops__Submit_Component__c-Submit Component Layout</members>
+        <members>sf_devops__Source_Member_Reference__c-Source Member Reference Layout</members>
+        <members>sf_devops__Submit_Component__c-Submit Component Layout</members>
         <members>sf_devops__Vcs_Event__c-VCS Event Layout</members>
         <members>sf_devops__Version__mdt-Version Layout</members>
-        <members
-    >sf_devops__Work_Item_Promote__c-Work Item Promote Layout</members>
+        <members>sf_devops__Work_Item_Promote__c-Work Item Promote Layout</members>
         <name>Layout</name>
     </types>
     <types>
@@ -1350,16 +1180,13 @@
         <members>ApprovalSubmission.All_ApprovalSubmissions</members>
         <members>ApprovalSubmission.My_ApprovalSubmissions</members>
         <members>ApprovalSubmission.Pending_ApprovalSubmissions</members>
-        <members
-    >ApprovalSubmissionDetail.All_ApprovalSubmissionDetails</members>
+        <members>ApprovalSubmissionDetail.All_ApprovalSubmissionDetails</members>
         <members>ApprovalWorkItem.All_ApprovalWorkItems</members>
         <members>ApprovalWorkItem.Assigned_ApprovalWorkItems</members>
         <members>Asset.AllAssets</members>
         <members>AuthorizationForm.All_AuthorizationForms</members>
-        <members
-    >AuthorizationFormConsent.All_AuthorizationFormConsents</members>
-        <members
-    >AuthorizationFormDataUse.All_AuthorizationFormDataUses</members>
+        <members>AuthorizationFormConsent.All_AuthorizationFormConsents</members>
+        <members>AuthorizationFormDataUse.All_AuthorizationFormDataUses</members>
         <members>AuthorizationFormText.All_AuthorizationFormText</members>
         <members>BusinessBrand.All_BusinessBrands</members>
         <members>Campaign.AllActiveCampaigns</members>
@@ -1376,8 +1203,7 @@
         <members>ChannelProgramLevel.My_Channel_Program_Levels</members>
         <members>CollaborationGroup.All_ChatterGroups</members>
         <members>CommSubscription.All_CommSubscriptions</members>
-        <members
-    >CommSubscriptionChannelType.All_CommSubscriptionChannelTypes</members>
+        <members>CommSubscriptionChannelType.All_CommSubscriptionChannelTypes</members>
         <members>CommSubscriptionConsent.All_CommSubscriptionConsents</members>
         <members>CommSubscriptionTiming.All_CommSubscriptionTimings</members>
         <members>Contact.AllContacts</members>
@@ -1520,22 +1346,16 @@
         <name>MatchingRules</name>
     </types>
     <types>
-        <members
-    >Client - Project Management Portal.Block_banned_keywords</members>
+        <members>Client - Project Management Portal.Block_banned_keywords</members>
         <members>Client - Project Management Portal.Flag_banned</members>
-        <members
-    >Client - Project Management Portal.Freeze_for_frequent_posting</members>
+        <members>Client - Project Management Portal.Freeze_for_frequent_posting</members>
         <members>Client - Project Management Portal.Replace_banned</members>
-        <members
-    >Client - Project Management Portal.Review_the_first_post</members>
-        <members
-    >Milestone Consulting Customer Portal.Block_banned_keywords</members>
+        <members>Client - Project Management Portal.Review_the_first_post</members>
+        <members>Milestone Consulting Customer Portal.Block_banned_keywords</members>
         <members>Milestone Consulting Customer Portal.Flag_banned</members>
-        <members
-    >Milestone Consulting Customer Portal.Freeze_for_frequent_posting</members>
+        <members>Milestone Consulting Customer Portal.Freeze_for_frequent_posting</members>
         <members>Milestone Consulting Customer Portal.Replace_banned</members>
-        <members
-    >Milestone Consulting Customer Portal.Review_the_first_post</members>
+        <members>Milestone Consulting Customer Portal.Review_the_first_post</members>
         <name>ModerationRule</name>
     </types>
     <types>
@@ -1544,10 +1364,8 @@
     </types>
     <types>
         <members>Quickbooks</members>
-        <members
-    >a175e00000Ci7BWAAZ_Convert_CSV_To_Records_LWC_Release_001</members>
-        <members
-    >a175e00000Ci7BWAAZ_Convert_CSV_To_Records_LWC_Staging_001</members>
+        <members>a175e00000Ci7BWAAZ_Convert_CSV_To_Records_LWC_Release_001</members>
+        <members>a175e00000Ci7BWAAZ_Convert_CSV_To_Records_LWC_Staging_001</members>
         <members>a175e00000Ci7uDAAR_CustomerPortal_Production_001</members>
         <members>a175e00000Ci7uDAAR_CustomerPortal_Release_001</members>
         <members>a175e00000Ci7uDAAR_Development_Customer_Portal_001</members>
@@ -1572,10 +1390,8 @@
         <name>NamedCredential</name>
     </types>
     <types>
-        <members
-    >SFDC_Default_Navigation_Client_UU002d_Project_Management_Portal</members>
-        <members
-    >SFDC_Default_Navigation_Milestone_Consulting_Customer_Portal</members>
+        <members>SFDC_Default_Navigation_Client_UU002d_Project_Management_Portal</members>
+        <members>SFDC_Default_Navigation_Milestone_Consulting_Customer_Portal</members>
         <name>NavigationMenu</name>
     </types>
     <types>
@@ -1632,12 +1448,10 @@
     </types>
     <types>
         <members>ActivityEngagementVirtualChannel_ContactChangeEvent</members>
-        <members
-    >ActivityEngagementVirtualChannel_EmailMessageChangeEvent</members>
+        <members>ActivityEngagementVirtualChannel_EmailMessageChangeEvent</members>
         <members>ActivityEngagementVirtualChannel_LeadChangeEvent</members>
         <members>ActivityEngagementVirtualChannel_ListEmailChangeEvent</members>
-        <members
-    >ActivityEngagementVirtualChannel_ListEmailSentResultChangeEvent</members>
+        <members>ActivityEngagementVirtualChannel_ListEmailSentResultChangeEvent</members>
         <members>ActivityEngagementVirtualChannel_TaskChangeEvent</members>
         <members>ChangeEvents_AccountChangeEvent</members>
         <members>ChangeEvents_Project_ChangeEvent</members>
@@ -1684,15 +1498,13 @@
         <members>Executive_Sponsor_profilePasswordPolicy1565800039594</members>
         <members>PT1_profilePasswordPolicy1487029411628</members>
         <members>PT2_profilePasswordPolicy1539989544652</members>
-        <members
-    >Platform_User_Contractor_profilePasswordPolicy1693860962193</members>
+        <members>Platform_User_Contractor_profilePasswordPolicy1693860962193</members>
         <name>ProfilePasswordPolicy</name>
     </types>
     <types>
         <members>PT1_profileSessionSetting1487029411398</members>
         <members>PT2_profileSessionSetting1539989544703</members>
-        <members
-    >Platform_User_Contractor_profileSessionSetting1693860390192</members>
+        <members>Platform_User_Contractor_profileSessionSetting1693860390192</members>
         <members>null_profileSessionSetting1565800039616</members>
         <members>null_profileSessionSetting1565960334781</members>
         <name>ProfileSessionSetting</name>
@@ -1969,21 +1781,16 @@
     </types>
     <types>
         <members>Client - Project Management Portal.Customer_Members</members>
-        <members
-    >Client - Project Management Portal.Members_without_contribution</members>
-        <members
-    >Client - Project Management Portal.Partner_and_Customer_members</members>
+        <members>Client - Project Management Portal.Members_without_contribution</members>
+        <members>Client - Project Management Portal.Partner_and_Customer_members</members>
         <members>Milestone Consulting Customer Portal.Customer_Members</members>
-        <members
-    >Milestone Consulting Customer Portal.Members_without_contribution</members>
-        <members
-    >Milestone Consulting Customer Portal.Partner_and_Customer_members</members>
+        <members>Milestone Consulting Customer Portal.Members_without_contribution</members>
+        <members>Milestone Consulting Customer Portal.Partner_and_Customer_members</members>
         <name>UserCriteria</name>
     </types>
     <types>
         <members>Employee_Zoom_Identity__c.User_Validation</members>
-        <members
-    >Project_Task_Relationship__c.Prevent_Self_Relationship</members>
+        <members>Project_Task_Relationship__c.Prevent_Self_Relationship</members>
         <members>Project_Task__c.Prevent_Parent_Self_Reference</members>
         <members>Project_Task__c.Prevent_Subtask_If_Parent_Completed</members>
         <members>Project_Task__c.Validate_Client_Completion_Approval</members>
@@ -2023,14 +1830,12 @@
     </types>
     <types>
         <members>Account.TrayOnAccountCreateUpdate_Z14hTW0</members>
-        <members
-    >Quickbooks_Invoice__c.TrayOnQuickbooksInvoiceStat_ZFhbQ1</members>
+        <members>Quickbooks_Invoice__c.TrayOnQuickbooksInvoiceStat_ZFhbQ1</members>
         <name>WorkflowOutboundMessage</name>
     </types>
     <types>
         <members>Account.TrayOnAccountCreateUpdate_Z14hTW0</members>
-        <members
-    >Quickbooks_Invoice__c.TrayOnQuickbooksInvoiceStat_ZFhbQ1</members>
+        <members>Quickbooks_Invoice__c.TrayOnQuickbooksInvoiceStat_ZFhbQ1</members>
         <name>WorkflowRule</name>
     </types>
     <version>66.0</version>
