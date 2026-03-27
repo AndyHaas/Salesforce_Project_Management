@@ -21,6 +21,9 @@
  *   - Visibility on the portal follows Recipient_Type__c (and Visible_To_Client__c set on save)
  *   - Navigation uses Lightning Navigation Service
  *   - Default recipientType: "Client"
+ *
+ * File uploads: after send, files link to Message__c and to the host record (Flexipage recordId on
+ * LEX record pages, or related Task / Project / Account). Same LWC on internal Lightning and Experience Cloud.
  */
 
 import { LightningElement, api, wire, track } from "lwc";
@@ -35,9 +38,9 @@ import getCurrentUserContactId from "@salesforce/apex/PortalMessagingController.
 import isMilestoneTeamMember from "@salesforce/apex/PortalMessagingController.isMilestoneTeamMember";
 import markAsRead from "@salesforce/apex/PortalMessagingController.markAsRead";
 import updateMessage from "@salesforce/apex/PortalMessagingController.updateMessage";
-import deleteMessage from "@salesforce/apex/PortalMessagingController.deleteMessage";
+import deleteMessageAndAttachments from "@salesforce/apex/MessageFilesSupport.deleteMessageAndAttachments";
 import pinMessage from "@salesforce/apex/PortalMessagingController.pinMessage";
-import linkFilesToMessage from "@salesforce/apex/PortalMessagingController.linkFilesToMessage";
+import linkFilesToMessageAndContext from "@salesforce/apex/MessageFilesSupport.linkFilesToMessageAndContext";
 import getFilesForMessages from "@salesforce/apex/MessageFilesSupport.getFilesForMessages";
 import { ensureSitePath, formatDateTime } from "c/portalCommon";
 import MESSAGE_UPDATE_CHANNEL from "@salesforce/messageChannel/MessageUpdate__c";
@@ -211,19 +214,35 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       }
     }
 
-    // On Lightning Record Pages, recordId is available via @api
-    // On Community pages, we need to extract from pageRef
+    // On Lightning Record Pages, recordId is available via @api.
+    // Experience Cloud often exposes the record only in pageRef.state / attributes — hydrate _recordId
+    // so Files linking (primaryFileContextRecordId) and navigation see the same host Id.
     const { attributes = {}, state = {} } = pageRef;
-    const recordId = this._recordId || state.recordId || attributes.recordId;
-    const objectApiName = pageRef.attributes?.objectApiName;
+    const fromState = state.recordId != null ? String(state.recordId).trim() : "";
+    const fromAttributes = attributes.recordId != null ? String(attributes.recordId).trim() : "";
+    const fromApi = this._recordId != null ? String(this._recordId).trim() : "";
+    const resolvedRecordId = fromApi || fromState || fromAttributes || null;
+
+    if (resolvedRecordId && !fromApi) {
+      this._recordId = resolvedRecordId;
+    }
+
+    const objectApiName = pageRef.attributes?.objectApiName || state.objectApiName;
+    const recordId = resolvedRecordId;
+
+    // LEX record pages: objectApiName is e.g. Project__c or a namespaced ns__Project__c.
+    const objectApi = (objectApiName && String(objectApiName)) || "";
+    const isAccountObject = objectApi === "Account";
+    const isProjectObject = objectApi === "Project__c" || objectApi.endsWith("__Project__c");
+    const isProjectTaskObject = objectApi === "Project_Task__c" || objectApi.endsWith("__Project_Task__c");
 
     // Auto-populate context based on object type
     if (recordId && objectApiName) {
-      if (objectApiName === "Account" && !this._relatedAccountId) {
+      if (isAccountObject && !this._relatedAccountId) {
         this._relatedAccountId = recordId;
-      } else if (objectApiName === "Project__c" && !this._relatedProjectId) {
+      } else if (isProjectObject && !this._relatedProjectId) {
         this._relatedProjectId = recordId;
-      } else if (objectApiName === "Project_Task__c" && !this._relatedTaskId) {
+      } else if (isProjectTaskObject && !this._relatedTaskId) {
         this._relatedTaskId = recordId;
       }
 
@@ -828,6 +847,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     const filteredMessages = sorted;
 
     return filteredMessages.map((msg) => {
+      const isFromCurrentUser = this.isFromCurrentUser(msg.senderId);
       const taskLink = this.buildLink(msg.relatedTaskId, msg.relatedTaskName, "/project-task");
       const projectLink = this.buildLink(msg.relatedProjectId, msg.relatedProjectName, "/project");
 
@@ -846,7 +866,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         ...msg,
         formattedDate: this.formatMessageDate(msg.createdDate),
         formattedEditedDate: msg.lastEditedDate ? this.formatMessageDate(msg.lastEditedDate) : "",
-        isFromCurrentUser: this.isFromCurrentUser(msg.senderId),
+        isFromCurrentUser,
+        showOverflowActions: isFromCurrentUser || this.isMilestoneTeamMember,
         isUnread: !msg.isRead,
         isEditing: this._editingMessageId === msg.id,
         isReplying: this._replyingToMessageId === msg.id,
@@ -1310,6 +1331,34 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     );
   }
 
+  /**
+   * Host record for ContentDocumentLink: the record page Files list (recordId first), then explicit
+   * related* for app pages (task > project > account).
+   */
+  get primaryFileContextRecordId() {
+    const t = (v) => {
+      if (v == null) {
+        return "";
+      }
+      const s = String(v).trim();
+      return s.length ? s : "";
+    };
+    const pageHost = t(this.recordId);
+    if (pageHost) {
+      return pageHost;
+    }
+    if (t(this.relatedTaskId)) {
+      return t(this.relatedTaskId);
+    }
+    if (t(this.relatedProjectId)) {
+      return t(this.relatedProjectId);
+    }
+    if (t(this.relatedAccountId)) {
+      return t(this.relatedAccountId);
+    }
+    return null;
+  }
+
   /** LEX: standard file preview; portal: open download (handled in child). */
   get messageAttachmentShowPreview() {
     return true;
@@ -1401,6 +1450,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             relatedAccountId: this.relatedAccountId,
             relatedProjectId: this.relatedProjectId,
             relatedTaskId: this.relatedTaskId,
+            primaryFileContextRecordId: this.primaryFileContextRecordId,
             mentionedContactIds: mentionedContactIds,
             isVisibleToClient: this.visibleToClientForSend,
             replyToMessageId: this._replyingToMessageId
@@ -1427,13 +1477,25 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       // Link files if any were uploaded
       if (this._uploadedFileIds && this._uploadedFileIds.length > 0) {
         try {
-          await linkFilesToMessage({
+          await linkFilesToMessageAndContext({
             messageId: messageId,
-            contentVersionIds: this._uploadedFileIds
+            contentVersionIds: this._uploadedFileIds,
+            contextRecordId: this.primaryFileContextRecordId || undefined
           });
         } catch (fileError) {
           console.error("Error linking files:", JSON.stringify(fileError, Object.getOwnPropertyNames(fileError), 2));
-          // Don't fail the message send if file linking fails
+          const linkMsg =
+            fileError?.body?.message ||
+            fileError?.message ||
+            "Files were not linked to the record. Check permissions or contact an administrator.";
+          this.dispatchEvent(
+            new ShowToastEvent({
+              title: "Attachments",
+              message: linkMsg,
+              variant: "warning",
+              mode: "sticky"
+            })
+          );
         }
       }
 
@@ -1731,17 +1793,64 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
-   * @description Handle pin/unpin message
+   * Overflow menu: delete (first), pin / unpin (Milestone team).
    */
-  async handlePinMessage(event) {
-    const messageId = event.currentTarget.dataset.messageId;
-    const message = this._messages.find((m) => m.id === messageId);
+  handleMessageActionMenuSelect(event) {
+    const messageId = event.currentTarget?.dataset?.messageId;
+    const action = event.detail?.value;
+    if (!messageId || !action) {
+      return;
+    }
+    if (action === "delete") {
+      this.confirmAndDeleteMessage(messageId);
+    } else if (action === "pin") {
+      this.pinMessageWithId(messageId, true);
+    } else if (action === "unpin") {
+      this.pinMessageWithId(messageId, false);
+    }
+  }
 
-    if (!message || !messageId) {
+  async confirmAndDeleteMessage(messageId) {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(
+        "Delete this message and any attached files? This cannot be undone. Files will be removed from all linked records."
+      )
+    ) {
       return;
     }
 
-    const isPinned = !message.isPinned;
+    try {
+      await deleteMessageAndAttachments({ messageId });
+      await this.loadMessages();
+      this.publishMessageUpdate("deleted");
+      this.dispatchEvent(
+        new ShowToastEvent({
+          title: "Success",
+          message: "Message deleted",
+          variant: "success"
+        })
+      );
+    } catch (error) {
+      console.error("Error deleting message:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+      this.dispatchEvent(
+        new ShowToastEvent({
+          title: "Error",
+          message: "Failed to delete message: " + (error.body?.message || error.message || "Unknown error"),
+          variant: "error"
+        })
+      );
+    }
+  }
+
+  /**
+   * @description Pin or unpin a message (Milestone team).
+   */
+  async pinMessageWithId(messageId, isPinned) {
+    const message = this._messages.find((m) => m.id === messageId);
+    if (!message || !messageId) {
+      return;
+    }
 
     try {
       await pinMessage({
@@ -1749,10 +1858,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         isPinned: isPinned
       });
 
-      // Refresh messages
       await this.loadMessages();
-
-      // Publish message update to notify other components
       this.publishMessageUpdate(isPinned ? "pinned" : "unpinned");
 
       this.dispatchEvent(
@@ -1772,52 +1878,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             (isPinned ? "pin" : "unpin") +
             " message: " +
             (error.body?.message || error.message || "Unknown error"),
-          variant: "error"
-        })
-      );
-    }
-  }
-
-  /**
-   * @description Handle delete message
-   */
-  async handleDeleteMessage(event) {
-    const messageId = event.currentTarget.dataset.messageId;
-
-    if (!messageId) {
-      return;
-    }
-
-    // Confirm deletion (replace with lightning-modal when UX allows)
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm("Are you sure you want to delete this message? This action cannot be undone.")
-    ) {
-      return;
-    }
-
-    try {
-      await deleteMessage({ messageId: messageId });
-
-      // Refresh messages
-      await this.loadMessages();
-
-      // Publish message update to notify other components
-      this.publishMessageUpdate("deleted");
-
-      this.dispatchEvent(
-        new ShowToastEvent({
-          title: "Success",
-          message: "Message deleted successfully",
-          variant: "success"
-        })
-      );
-    } catch (error) {
-      console.error("Error deleting message:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
-      this.dispatchEvent(
-        new ShowToastEvent({
-          title: "Error",
-          message: "Failed to delete message: " + (error.body?.message || error.message || "Unknown error"),
           variant: "error"
         })
       );

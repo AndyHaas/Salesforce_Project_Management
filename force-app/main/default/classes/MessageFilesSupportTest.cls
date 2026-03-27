@@ -8,11 +8,7 @@ private class MessageFilesSupportTest {
     Account acc = new Account(Name = 'Msg Files Account');
     insert acc;
 
-    Contact sender = new Contact(
-      FirstName = 'Send',
-      LastName = 'Er',
-      AccountId = acc.Id
-    );
+    Contact sender = new Contact(FirstName = 'Send', LastName = 'Er', AccountId = acc.Id);
     insert sender;
 
     Message__c msg = new Message__c(
@@ -50,23 +46,14 @@ private class MessageFilesSupportTest {
     System.assertEquals(1, rows.size(), 'One message with files');
     System.assertEquals(String.valueOf(msg.Id), rows[0].messageId);
     System.assertEquals(1, rows[0].files.size());
-    System.assertEquals(
-      String.valueOf(docId),
-      rows[0].files[0].contentDocumentId
-    );
+    System.assertEquals(String.valueOf(docId), rows[0].files[0].contentDocumentId);
     System.assertEquals('Spec', rows[0].files[0].title);
   }
 
   @IsTest
   static void getFilesForMessages_emptyInput_returnsEmpty() {
-    System.assertEquals(
-      0,
-      MessageFilesSupport.getFilesForMessages(new List<String>()).size()
-    );
-    System.assertEquals(
-      0,
-      MessageFilesSupport.getFilesForMessages(null).size()
-    );
+    System.assertEquals(0, MessageFilesSupport.getFilesForMessages(new List<String>()).size());
+    System.assertEquals(0, MessageFilesSupport.getFilesForMessages(null).size());
   }
 
   @IsTest
@@ -74,11 +61,7 @@ private class MessageFilesSupportTest {
     Account acc = new Account(Name = 'Msg Files Account');
     insert acc;
 
-    Contact sender = new Contact(
-      FirstName = 'Send',
-      LastName = 'Er',
-      AccountId = acc.Id
-    );
+    Contact sender = new Contact(FirstName = 'Send', LastName = 'Er', AccountId = acc.Id);
     insert sender;
 
     Message__c msg = new Message__c(
@@ -113,16 +96,231 @@ private class MessageFilesSupportTest {
     );
     Test.stopTest();
 
-    System.assertEquals(
-      1,
-      rows.size(),
-      'Invalid strings skipped; one message with files'
-    );
+    System.assertEquals(1, rows.size(), 'Invalid strings skipped; one message with files');
     System.assertEquals(String.valueOf(msg.Id), rows[0].messageId);
     System.assertEquals(1, rows[0].files.size());
-    System.assertEquals(
-      String.valueOf(docId),
-      rows[0].files[0].contentDocumentId
+    System.assertEquals(String.valueOf(docId), rows[0].files[0].contentDocumentId);
+  }
+
+  @IsTest
+  static void linkFilesToMessageAndContext_linksMessageAndContextRecord() {
+    Account acc = new Account(Name = 'Link Context Account');
+    insert acc;
+
+    Contact sender = new Contact(FirstName = 'Send', LastName = 'Er', AccountId = acc.Id);
+    insert sender;
+
+    Message__c msg = new Message__c(
+      Body__c = 'With attachment',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
     );
+    insert msg;
+
+    ContentVersion cv = new ContentVersion(
+      Title = 'DraftDoc',
+      PathOnClient = 'DraftDoc.pdf',
+      VersionData = Blob.valueOf('PDF'),
+      FirstPublishLocationId = UserInfo.getUserId()
+    );
+    insert cv;
+
+    Id docId = [
+      SELECT ContentDocumentId
+      FROM ContentVersion
+      WHERE Id = :cv.Id
+      LIMIT 1
+    ]
+    .ContentDocumentId;
+
+    Test.startTest();
+    MessageFilesSupport.linkFilesToMessageAndContext(
+      String.valueOf(msg.Id),
+      new List<String>{ String.valueOf(cv.Id) },
+      String.valueOf(acc.Id)
+    );
+    Test.stopTest();
+
+    // ContentDocumentLink: use LinkedEntityId = (not filter by ContentDocumentId alone).
+    Integer msgLinkCount = [
+      SELECT COUNT()
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId = :msg.Id AND ContentDocumentId = :docId AND IsDeleted = FALSE
+    ];
+    Integer accLinkCount = [
+      SELECT COUNT()
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId = :acc.Id AND ContentDocumentId = :docId AND IsDeleted = FALSE
+    ];
+
+    System.assertEquals(1, msgLinkCount, 'Document should link to Message__c');
+    System.assertEquals(1, accLinkCount, 'Document should link to Account context');
+  }
+
+  @IsTest
+  static void linkFilesToMessageAndContext_idempotent_skipsExistingPairs() {
+    Account acc = new Account(Name = 'Idempotent Account');
+    insert acc;
+
+    Contact sender = new Contact(FirstName = 'Send', LastName = 'Er', AccountId = acc.Id);
+    insert sender;
+
+    Message__c msg = new Message__c(
+      Body__c = 'Msg',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+
+    ContentVersion cv = new ContentVersion(
+      Title = 'Dup',
+      PathOnClient = 'Dup.pdf',
+      VersionData = Blob.valueOf('x'),
+      FirstPublishLocationId = msg.Id
+    );
+    insert cv;
+
+    Id docId = [
+      SELECT ContentDocumentId
+      FROM ContentVersion
+      WHERE Id = :cv.Id
+      LIMIT 1
+    ]
+    .ContentDocumentId;
+
+    // Only the Account link is added by linkFiles; message link already exists from FirstPublishLocationId.
+    Integer accLinksBefore = [
+      SELECT COUNT()
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId = :acc.Id AND ContentDocumentId = :docId AND IsDeleted = FALSE
+    ];
+
+    Test.startTest();
+    MessageFilesSupport.linkFilesToMessageAndContext(
+      String.valueOf(msg.Id),
+      new List<String>{ String.valueOf(cv.Id) },
+      String.valueOf(acc.Id)
+    );
+    MessageFilesSupport.linkFilesToMessageAndContext(
+      String.valueOf(msg.Id),
+      new List<String>{ String.valueOf(cv.Id) },
+      String.valueOf(acc.Id)
+    );
+    Test.stopTest();
+
+    Integer accLinksAfter = [
+      SELECT COUNT()
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId = :acc.Id AND ContentDocumentId = :docId AND IsDeleted = FALSE
+    ];
+
+    System.assertEquals(0, accLinksBefore, 'Account should have no file link before');
+    System.assertEquals(1, accLinksAfter, 'Second call must not duplicate the Account link');
+  }
+
+  @IsTest
+  static void deleteMessageAndAttachments_removesFilesAndSoftDeletes() {
+    Account acc = new Account(Name = 'Delete Msg Account');
+    insert acc;
+
+    Contact sender = new Contact(FirstName = 'Send', LastName = 'Er', AccountId = acc.Id);
+    insert sender;
+
+    Message__c msg = new Message__c(
+      Body__c = 'With file',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+
+    ContentVersion cv = new ContentVersion(
+      Title = 'Attach',
+      PathOnClient = 'Attach.pdf',
+      VersionData = Blob.valueOf('PDF'),
+      FirstPublishLocationId = msg.Id
+    );
+    insert cv;
+
+    Id docId = [
+      SELECT ContentDocumentId
+      FROM ContentVersion
+      WHERE Id = :cv.Id
+      LIMIT 1
+    ]
+    .ContentDocumentId;
+
+    Test.startTest();
+    MessageFilesSupport.deleteMessageAndAttachments(String.valueOf(msg.Id));
+    Test.stopTest();
+
+    Message__c after = [SELECT Deleted__c FROM Message__c WHERE Id = :msg.Id];
+    System.assertEquals(true, after.Deleted__c, 'Message soft-deleted');
+
+    List<ContentDocument> docs = [
+      SELECT Id, IsDeleted
+      FROM ContentDocument
+      WHERE Id = :docId
+      ALL ROWS
+    ];
+    System.assertEquals(1, docs.size(), 'Document row still traceable in test');
+    System.assertEquals(true, docs[0].IsDeleted, 'ContentDocument deleted');
+  }
+
+  @IsTest
+  static void deleteMessageAndAttachments_nonOwnerThrows() {
+    Account acc = new Account(Name = 'Other User Acc');
+    insert acc;
+
+    Contact sender = new Contact(FirstName = 'Send', LastName = 'Er', AccountId = acc.Id);
+    insert sender;
+
+    Message__c msg = new Message__c(
+      Body__c = 'No delete',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+
+    Profile standard = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+    User other = new User(
+      Alias = 'odel',
+      Email = 'odel@test.org',
+      EmailEncodingKey = 'UTF-8',
+      LastName = 'OtherDel',
+      LanguageLocaleKey = 'en_US',
+      LocaleSidKey = 'en_US',
+      ProfileId = standard.Id,
+      TimeZoneSidKey = 'America/Los_Angeles',
+      Username = 'odel' + String.valueOf(Crypto.getRandomInteger()) + '@test.org'
+    );
+    insert other;
+
+    Boolean threw = false;
+    Test.startTest();
+    System.runAs(other) {
+      try {
+        MessageFilesSupport.deleteMessageAndAttachments(String.valueOf(msg.Id));
+      } catch (AuraHandledException expected) {
+        // In test context getMessage() is often the generic "Script-thrown exception".
+        threw = true;
+      }
+    }
+    Test.stopTest();
+
+    System.assertEquals(true, threw, 'Non-owner should not delete');
+    Message__c unchanged = [SELECT Deleted__c FROM Message__c WHERE Id = :msg.Id];
+    System.assertEquals(false, unchanged.Deleted__c);
   }
 }

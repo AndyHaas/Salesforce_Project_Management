@@ -210,44 +210,42 @@
                                 class="edit-button"
                               >
                               </lightning-button-icon>
-
-                              <lightning-button-icon
-                                icon-name="utility:delete"
-                                variant="border-filled"
-                                alternative-text="Delete message"
-                                title="Delete message"
-                                data-message-id={message.id}
-                                onclick={handleDeleteMessage}
-                                class="delete-button"
-                              >
-                              </lightning-button-icon>
                             </template>
 
-                            <template if:true={isMilestoneTeamMember}>
-                              <template if:true={message.isPinned}>
-                                <lightning-button-icon
-                                  icon-name="utility:pinned"
-                                  variant="border-filled"
-                                  alternative-text="Unpin message"
-                                  title="Unpin message"
-                                  data-message-id={message.id}
-                                  onclick={handlePinMessage}
-                                  class="pin-button"
-                                >
-                                </lightning-button-icon>
-                              </template>
-                              <template if:false={message.isPinned}>
-                                <lightning-button-icon
-                                  icon-name="utility:pin"
-                                  variant="border-filled"
-                                  alternative-text="Pin message"
-                                  title="Pin message"
-                                  data-message-id={message.id}
-                                  onclick={handlePinMessage}
-                                  class="pin-button"
-                                >
-                                </lightning-button-icon>
-                              </template>
+                            <template if:true={message.showOverflowActions}>
+                              <lightning-button-menu
+                                alternative-text="More message actions"
+                                title="More actions"
+                                icon-name="utility:down"
+                                variant="border-filled"
+                                menu-alignment="right"
+                                data-message-id={message.id}
+                                onselect={handleMessageActionMenuSelect}
+                                class="message-overflow-menu"
+                              >
+                                <template if:true={message.isFromCurrentUser}>
+                                  <lightning-menu-item
+                                    value="delete"
+                                    label="Delete message"
+                                    prefix-icon-name="utility:delete"
+                                  >
+                                  </lightning-menu-item>
+                                </template>
+                                <template if:true={isMilestoneTeamMember}>
+                                  <template if:true={message.isPinned}>
+                                    <lightning-menu-item
+                                      value="unpin"
+                                      label="Unpin message"
+                                      prefix-icon-name="utility:pinned"
+                                    >
+                                    </lightning-menu-item>
+                                  </template>
+                                  <template if:false={message.isPinned}>
+                                    <lightning-menu-item value="pin" label="Pin message" prefix-icon-name="utility:pin">
+                                    </lightning-menu-item>
+                                  </template>
+                                </template>
+                              </lightning-button-menu>
                             </template>
                           </lightning-button-group>
                         </div>

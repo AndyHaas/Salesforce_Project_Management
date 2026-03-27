@@ -86,12 +86,12 @@
   --slds-c-icon-color-foreground-default: #2e844a;
 }
 
-.pin-button {
+.message-overflow-menu {
   --slds-c-button-neutral-color-background: transparent;
   --slds-c-button-neutral-color-border: transparent;
 }
 
-.pin-button:hover {
+.message-overflow-menu:hover {
   --slds-c-button-neutral-color-background: #fafbfc;
   --slds-c-button-neutral-color-border: #c9c9c9;
 }
@@ -145,16 +145,6 @@
   margin-top: 0.5rem;
   color: #706e6b;
   font-size: 0.875rem;
-}
-
-.delete-button {
-  --slds-c-button-neutral-color-background: transparent;
-  --slds-c-button-neutral-color-border: transparent;
-}
-
-.delete-button:hover {
-  --slds-c-button-neutral-color-background: #fafbfc;
-  --slds-c-button-neutral-color-border: #c9c9c9;
 }
 
 .edit-button {
