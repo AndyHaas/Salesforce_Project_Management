@@ -25,7 +25,8 @@
  *   - taskListComponent: getTaskList(), getTaskListFieldSetDefinition()
  *   - groupedTaskList: getGroupedTasksWithSubtasks()
  *
- * NOTE: Task context panel functionality has been moved to TaskContextController
+ * NOTE: Task context panel functionality has been moved to TaskContextController.
+ * NOTE: Task messaging (Message__c) is handled only in MessagingController — not in this class.
  */
 public without sharing class ProjectTaskDashboardController {
   private static final String TASK_HOVER_FIELD_SET = 'Task_Hover_Fields';
@@ -75,6 +76,9 @@ public without sharing class ProjectTaskDashboardController {
     'Description__c'
   };
 
+  /** Caps description size in grouped-list payload. */
+  private static final Integer MAX_DESCRIPTION_LENGTH = 20000;
+
   private static final List<String> BASE_SUBTASK_FIELDS = new List<String>{
     'Id',
     'Name',
@@ -120,6 +124,22 @@ public without sharing class ProjectTaskDashboardController {
       return fieldSets.get(fieldSetName).getFields();
     }
     return new List<Schema.FieldSetMember>();
+  }
+
+  /**
+   * @description Truncates long strings before returning to LWC to stay within response size limits.
+   * @param value Source string (may be null).
+   * @param maxLen Maximum length; non-positive leaves value unchanged except null → ''.
+   * @return Truncated or original string.
+   */
+  private static String truncateForWire(String value, Integer maxLen) {
+    if (value == null) {
+      return '';
+    }
+    if (maxLen == null || maxLen <= 0 || value.length() <= maxLen) {
+      return value;
+    }
+    return value.substring(0, maxLen);
   }
 
   @AuraEnabled(cacheable=true)
@@ -999,40 +1019,6 @@ public without sharing class ProjectTaskDashboardController {
       throw new AuraHandledException('Error loading tasks: ' + e.getMessage());
     }
 
-    // Get task IDs for querying Chatter feed items
-    Set<Id> taskIds = new Set<Id>();
-    for (Project_Task__c task : allTasks) {
-      taskIds.add(task.Id);
-      if (task.Subtasks__r != null) {
-        for (Project_Task__c subtask : task.Subtasks__r) {
-          taskIds.add(subtask.Id);
-        }
-      }
-    }
-
-    // Query latest Chatter feed items (comments) for all tasks
-    Map<Id, FeedItem> latestFeedItems = new Map<Id, FeedItem>();
-    if (!taskIds.isEmpty()) {
-      try {
-        List<FeedItem> feedItems = [
-          SELECT Id, ParentId, Body, CreatedDate, CreatedBy.Name
-          FROM FeedItem
-          WHERE ParentId IN :taskIds AND Type = 'TextPost'
-          ORDER BY CreatedDate DESC
-        ];
-
-        // Get the latest feed item for each task
-        for (FeedItem feedItem : feedItems) {
-          if (!latestFeedItems.containsKey(feedItem.ParentId)) {
-            latestFeedItems.put(feedItem.ParentId, feedItem);
-          }
-        }
-      } catch (Exception e) {
-        // If FeedItem query fails (e.g., no access), continue without comments
-        System.debug('Error querying FeedItem: ' + e.getMessage());
-      }
-    }
-
     // Group tasks by status
     Map<String, List<TaskWithSubtasks>> tasksByStatus = new Map<String, List<TaskWithSubtasks>>();
 
@@ -1065,21 +1051,12 @@ public without sharing class ProjectTaskDashboardController {
         taskWrapper.portalUrlName = (String) task.get('UrlName');
       }
       taskWrapper.createdDate = task.CreatedDate;
-      taskWrapper.description = task.Description__c != null ? task.Description__c : '';
+      taskWrapper.description = truncateForWire(
+        task.Description__c != null ? task.Description__c : '',
+        MAX_DESCRIPTION_LENGTH
+      );
       taskWrapper.hasSubtasks = task.Subtasks__r != null && !task.Subtasks__r.isEmpty();
       taskWrapper.subtaskCount = task.Subtasks__r != null ? task.Subtasks__r.size() : 0;
-
-      // Get latest Chatter comment for this task
-      if (latestFeedItems.containsKey(task.Id)) {
-        FeedItem latestComment = latestFeedItems.get(task.Id);
-        taskWrapper.latestComment = latestComment.Body != null ? latestComment.Body : '';
-        taskWrapper.latestCommentAuthor = latestComment.CreatedBy != null ? latestComment.CreatedBy.Name : '';
-        taskWrapper.latestCommentDate = latestComment.CreatedDate;
-      } else {
-        taskWrapper.latestComment = '';
-        taskWrapper.latestCommentAuthor = '';
-        taskWrapper.latestCommentDate = null;
-      }
 
       taskWrapper.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
         task,
@@ -1120,19 +1097,10 @@ public without sharing class ProjectTaskDashboardController {
             subtaskInfo.portalUrlName = (String) subtask.get('UrlName');
           }
           subtaskInfo.createdDate = subtask.CreatedDate;
-          subtaskInfo.description = subtask.Description__c != null ? subtask.Description__c : '';
-
-          // Get latest Chatter comment for this subtask
-          if (latestFeedItems.containsKey(subtask.Id)) {
-            FeedItem latestComment = latestFeedItems.get(subtask.Id);
-            subtaskInfo.latestComment = latestComment.Body != null ? latestComment.Body : '';
-            subtaskInfo.latestCommentAuthor = latestComment.CreatedBy != null ? latestComment.CreatedBy.Name : '';
-            subtaskInfo.latestCommentDate = latestComment.CreatedDate;
-          } else {
-            subtaskInfo.latestComment = '';
-            subtaskInfo.latestCommentAuthor = '';
-            subtaskInfo.latestCommentDate = null;
-          }
+          subtaskInfo.description = truncateForWire(
+            subtask.Description__c != null ? subtask.Description__c : '',
+            MAX_DESCRIPTION_LENGTH
+          );
 
           subtaskInfo.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
             subtask,
@@ -1287,39 +1255,6 @@ public without sharing class ProjectTaskDashboardController {
       throw new AuraHandledException('Error loading tasks: ' + e.getMessage());
     }
 
-    // Get task IDs for querying Chatter feed items
-    Set<Id> taskIds = new Set<Id>();
-    for (Project_Task__c task : allTasks) {
-      taskIds.add(task.Id);
-      if (task.Subtasks__r != null) {
-        for (Project_Task__c subtask : task.Subtasks__r) {
-          taskIds.add(subtask.Id);
-        }
-      }
-    }
-
-    // Query latest Chatter feed items (comments) for all tasks
-    Map<Id, FeedItem> latestFeedItems = new Map<Id, FeedItem>();
-    if (!taskIds.isEmpty()) {
-      try {
-        List<FeedItem> feedItems = [
-          SELECT Id, ParentId, Body, CreatedDate, CreatedBy.Name
-          FROM FeedItem
-          WHERE ParentId IN :taskIds AND Type = 'TextPost'
-          ORDER BY CreatedDate DESC
-        ];
-
-        // Get the latest feed item for each task
-        for (FeedItem feedItem : feedItems) {
-          if (!latestFeedItems.containsKey(feedItem.ParentId)) {
-            latestFeedItems.put(feedItem.ParentId, feedItem);
-          }
-        }
-      } catch (Exception e) {
-        System.debug('Error querying FeedItem: ' + e.getMessage());
-      }
-    }
-
     // Group tasks by status
     Map<String, List<TaskWithSubtasks>> tasksByStatus = new Map<String, List<TaskWithSubtasks>>();
 
@@ -1352,21 +1287,12 @@ public without sharing class ProjectTaskDashboardController {
         taskWrapper.portalUrlName = (String) task.get('UrlName');
       }
       taskWrapper.createdDate = task.CreatedDate;
-      taskWrapper.description = task.Description__c != null ? task.Description__c : '';
+      taskWrapper.description = truncateForWire(
+        task.Description__c != null ? task.Description__c : '',
+        MAX_DESCRIPTION_LENGTH
+      );
       taskWrapper.hasSubtasks = task.Subtasks__r != null && !task.Subtasks__r.isEmpty();
       taskWrapper.subtaskCount = task.Subtasks__r != null ? task.Subtasks__r.size() : 0;
-
-      // Get latest Chatter comment for this task
-      if (latestFeedItems.containsKey(task.Id)) {
-        FeedItem latestComment = latestFeedItems.get(task.Id);
-        taskWrapper.latestComment = latestComment.Body != null ? latestComment.Body : '';
-        taskWrapper.latestCommentAuthor = latestComment.CreatedBy != null ? latestComment.CreatedBy.Name : '';
-        taskWrapper.latestCommentDate = latestComment.CreatedDate;
-      } else {
-        taskWrapper.latestComment = '';
-        taskWrapper.latestCommentAuthor = '';
-        taskWrapper.latestCommentDate = null;
-      }
 
       taskWrapper.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
         task,
@@ -1407,7 +1333,11 @@ public without sharing class ProjectTaskDashboardController {
             subtaskInfo.portalUrlName = (String) subtask.get('UrlName');
           }
           subtaskInfo.createdDate = subtask.CreatedDate;
-          subtaskInfo.description = subtask.Description__c != null ? subtask.Description__c : '';
+          subtaskInfo.description = truncateForWire(
+            subtask.Description__c != null ? subtask.Description__c : '',
+            MAX_DESCRIPTION_LENGTH
+          );
+
           subtaskInfo.hoverFields = ProjectTaskDashboardFieldSetHelper.buildHoverFieldValues(
             subtask,
             hoverFieldMembers,
@@ -1499,12 +1429,6 @@ public without sharing class ProjectTaskDashboardController {
     @AuraEnabled
     public String description;
     @AuraEnabled
-    public String latestComment;
-    @AuraEnabled
-    public String latestCommentAuthor;
-    @AuraEnabled
-    public DateTime latestCommentDate;
-    @AuraEnabled
     public Boolean hasSubtasks;
     @AuraEnabled
     public Integer subtaskCount;
@@ -1558,12 +1482,6 @@ public without sharing class ProjectTaskDashboardController {
     public DateTime createdDate;
     @AuraEnabled
     public String description;
-    @AuraEnabled
-    public String latestComment;
-    @AuraEnabled
-    public String latestCommentAuthor;
-    @AuraEnabled
-    public DateTime latestCommentDate;
     @AuraEnabled
     public List<HoverFieldValue> hoverFields;
     @AuraEnabled

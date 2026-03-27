@@ -562,8 +562,7 @@ public without sharing class MessagingController {
       System.debug(LoggingLevel.DEBUG, 'relatedProjectId: ' + relatedProjectId);
       System.debug(LoggingLevel.DEBUG, 'relatedAccountId: ' + relatedAccountId);
 
-      // Build query with proper security enforcement
-      // Note: Using without sharing class, but WITH SECURITY_ENFORCED ensures field-level security
+      // Dynamic SOQL without WITH SECURITY_ENFORCED (portal/internal UX; class is without sharing).
       // Declare query variable outside try block so it's accessible in catch block
       String query =
         'SELECT Id, Name, CreatedById, Body__c, Sender__c, Sender__r.Name, Sender__r.Email, ' +
@@ -576,9 +575,7 @@ public without sharing class MessagingController {
         'Is_Pinned__c ' +
         'FROM Message__c ' +
         whereClause +
-        ' ' +
-        'WITH SECURITY_ENFORCED ' +
-        'ORDER BY Is_Pinned__c DESC, ' +
+        ' ORDER BY Is_Pinned__c DESC, ' +
         normalizedOrderField +
         ' ' +
         normalizedOrderDirection +
@@ -607,28 +604,12 @@ public without sharing class MessagingController {
       try {
         messages = Database.query(query);
       } catch (QueryException qe) {
-        // QueryException often indicates FLS issues or query syntax errors
-        String qeMsg = qe.getMessage();
-        System.debug(LoggingLevel.ERROR, 'QueryException in getMessages: ' + qeMsg);
+        System.debug(LoggingLevel.ERROR, 'QueryException in getMessages: ' + qe.getMessage());
         System.debug(LoggingLevel.ERROR, 'Query that failed: ' + query);
         System.debug(LoggingLevel.ERROR, 'searchPattern value: ' + searchPattern);
         System.debug(LoggingLevel.ERROR, 'searchTerm input: ' + searchTerm);
         System.debug(LoggingLevel.ERROR, 'User: ' + UserInfo.getUserId() + ', Profile: ' + UserInfo.getProfileId());
-
-        if (qeMsg.contains('inaccessible field') || qeMsg.contains('secure query')) {
-          // Provide detailed FLS error message
-          String flsError = 'Field-level security error: ' + qeMsg;
-          flsError += ' The portal user may not have read access to one or more Message__c fields. ';
-          flsError += 'Check the Portal_Messaging permission set field permissions for: ';
-          flsError += 'Body__c, Sender__c, Sender__r.Name, Sender__r.Email, Recipient_Type__c, ';
-          flsError += 'Related_Project__c, Related_Project__r.Name, Related_Task__c, Related_Task__r.Name, ';
-          flsError += 'Mentioned_Contacts__c, Is_Read_By_Client__c, Is_Read_By_Milestone_Team__c, Deleted__c, Visible_To_Client__c, Is_Edited__c, ';
-          flsError += 'Last_Edited_Date__c, CreatedDate, CreatedBy.Name, Account__c, Account__r.Name, ';
-          flsError += 'Reply_To__c, Reply_To__r fields, Is_Pinned__c.';
-          throw new QueryException(flsError);
-        }
-        // Re-throw with more context for other query errors
-        throw new QueryException('Query error: ' + qeMsg + ' | Query: ' + query + ' | searchPattern: ' + searchPattern);
+        throw qe;
       }
 
       if (Test.isRunningTest() || LoggingLevel.DEBUG == LoggingLevel.DEBUG) {
@@ -723,21 +704,37 @@ public without sharing class MessagingController {
   }
 
   /**
-   * @description Get latest messages across all tasks for the current user's account
-   * Returns the most recent messages from all tasks the user has access to.
-   * Used by Experience Cloud (portalMessageFeed); User lookup intentionally omits WITH SECURITY_ENFORCED.
-   * @param limit Number of messages to return (default 5)
-   * @return List of MessageInfo objects with task information
+   * @description Latest messages for the home feed (portalMessageFeed). Same visibility rules as before migration.
+   * @param limitCount Max rows; null or non-positive defaults to 5; capped at MAX_MESSAGE_LIMIT.
+   * @param orderByField CreatedDate, LastEditedDate, or IsPinned
+   * @param orderDirection ASC or DESC
    */
   @AuraEnabled(cacheable=true)
-  public static List<MessageInfo> getLatestMessages(Integer limitCount) {
+  public static List<MessageInfo> getLatestMessages(Integer limitCount, String orderByField, String orderDirection) {
     if (limitCount == null || limitCount <= 0) {
       limitCount = 5;
+    } else if (limitCount > MAX_MESSAGE_LIMIT) {
+      limitCount = MAX_MESSAGE_LIMIT;
     }
 
+    orderByField = normalizeOptional(orderByField);
+    orderDirection = normalizeOptional(orderDirection);
+
+    Map<String, String> allowedOrderFields = new Map<String, String>{
+      'CreatedDate' => 'CreatedDate',
+      'LastEditedDate' => 'Last_Edited_Date__c',
+      'IsPinned' => 'Is_Pinned__c'
+    };
+    String normalizedOrderField = (orderByField != null && allowedOrderFields.containsKey(orderByField))
+      ? allowedOrderFields.get(orderByField)
+      : 'CreatedDate';
+    String normalizedOrderDirection = (orderDirection != null &&
+      orderDirection.toUpperCase() == 'ASC')
+      ? 'ASC'
+      : 'DESC';
+
     try {
-      // No WITH SECURITY_ENFORCED: portalMessageFeed (Experience Cloud) calls this method; guest/portal
-      // profiles often lack field access on User, which would make the query fail.
+      // User / Message queries omit WITH SECURITY_ENFORCED for portal compatibility (field access varies by profile).
       User currentUser = [
         SELECT Id, ContactId, AccountId, Name, Email
         FROM User
@@ -784,7 +781,11 @@ public without sharing class MessagingController {
         'FROM Message__c ' +
         whereClause +
         ' ' +
-        'ORDER BY Is_Pinned__c DESC, CreatedDate DESC ' +
+        'ORDER BY Is_Pinned__c DESC, ' +
+        normalizedOrderField +
+        ' ' +
+        normalizedOrderDirection +
+        ' ' +
         'LIMIT :limitCount';
 
       List<Message__c> messages = Database.query(query);
@@ -870,7 +871,6 @@ public without sharing class MessagingController {
         SELECT Id, ContactId, AccountId
         FROM User
         WHERE Id = :UserInfo.getUserId()
-        WITH SECURITY_ENFORCED
         LIMIT 1
       ];
 
@@ -883,6 +883,8 @@ public without sharing class MessagingController {
       }
 
       if (currentUser.AccountId != null) {
+        // Bind variable must be assigned before Database.query (dynamic SOQL resolution).
+        Id currentUserAccountId = currentUser.AccountId;
         // If user has an account, prioritize contacts from same account
         // Also include Milestone Consulting team members (users without account)
         String query =
@@ -895,9 +897,8 @@ public without sharing class MessagingController {
           query += ' AND (Name LIKE :searchLike ESCAPE \'\\\\\' OR Email LIKE :searchLike ESCAPE \'\\\\\')';
         }
 
-        query += ' WITH SECURITY_ENFORCED ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
+        query += ' ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
 
-        Id currentUserAccountId = currentUser.AccountId;
         contacts = Database.query(query);
       } else {
         // User doesn't have an account (Milestone team member)
@@ -910,7 +911,7 @@ public without sharing class MessagingController {
           query += ' AND (Name LIKE :searchLike ESCAPE \'\\\\\' OR Email LIKE :searchLike ESCAPE \'\\\\\')';
         }
 
-        query += ' WITH SECURITY_ENFORCED ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
+        query += ' ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
 
         contacts = Database.query(query);
       }
@@ -967,7 +968,6 @@ public without sharing class MessagingController {
         SELECT Id, AccountId
         FROM User
         WHERE Id = :UserInfo.getUserId()
-        WITH SECURITY_ENFORCED
         LIMIT 1
       ];
 
@@ -1173,7 +1173,6 @@ public without sharing class MessagingController {
         SELECT Id, Name, Email
         FROM Contact
         WHERE Id IN :mentionedContactIds AND Email != NULL
-        WITH SECURITY_ENFORCED
       ];
 
       if (mentionedContacts.isEmpty()) {
@@ -1185,7 +1184,6 @@ public without sharing class MessagingController {
         SELECT Id, Name, Sender__r.Name, Related_Project__r.Name, Related_Task__r.Name
         FROM Message__c
         WHERE Id = :messageId
-        WITH SECURITY_ENFORCED
         LIMIT 1
       ];
 
@@ -1255,7 +1253,6 @@ public without sharing class MessagingController {
         SELECT ContentDocumentId
         FROM ContentVersion
         WHERE Id IN :contentVersionIds
-        WITH SECURITY_ENFORCED
       ];
 
       if (contentVersions.isEmpty()) {
@@ -1278,7 +1275,6 @@ public without sharing class MessagingController {
         SELECT ContentDocumentId
         FROM ContentDocumentLink
         WHERE LinkedEntityId = :messageId AND ContentDocumentId IN :contentDocumentIds
-        WITH SECURITY_ENFORCED
       ];
 
       Set<Id> existingContentDocumentIds = new Set<Id>();
@@ -1378,7 +1374,6 @@ public without sharing class MessagingController {
           SELECT Id, Name, Project__c, Project__r.Name, Project__r.Account__c, Project__r.Account__r.Name
           FROM Project_Task__c
           WHERE Id = :relatedTaskId
-          WITH SECURITY_ENFORCED
           LIMIT 1
         ];
 
@@ -1395,7 +1390,6 @@ public without sharing class MessagingController {
           SELECT Id, Name, Account__c, Account__r.Name
           FROM Project__c
           WHERE Id = :relatedProjectId
-          WITH SECURITY_ENFORCED
           LIMIT 1
         ];
 
@@ -1410,7 +1404,6 @@ public without sharing class MessagingController {
           SELECT Id, Name
           FROM Account
           WHERE Id = :relatedAccountId
-          WITH SECURITY_ENFORCED
           LIMIT 1
         ];
 

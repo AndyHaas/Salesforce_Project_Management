@@ -510,7 +510,7 @@ private class MessagingControllerTest {
   @isTest
   static void testGetLatestMessages() {
     Test.startTest();
-    List<MessagingController.MessageInfo> results = MessagingController.getLatestMessages(5);
+    List<MessagingController.MessageInfo> results = MessagingController.getLatestMessages(5, 'CreatedDate', 'DESC');
     Test.stopTest();
 
     System.assert(results != null, 'Should return list of messages');

@@ -16,11 +16,7 @@ private class ProjectTaskDashboardControllerTest {
     if (!existing.isEmpty()) {
       return existing[0].Id;
     }
-    Project__c p = new Project__c(
-      Name = 'Unit Test Project',
-      Account__c = accountId,
-      Status__c = 'Not Started'
-    );
+    Project__c p = new Project__c(Name = 'Unit Test Project', Account__c = accountId, Status__c = 'Not Started');
     insert p;
     return p.Id;
   }
@@ -144,11 +140,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.statusCounts,
-      'Status counts should not be null'
-    );
+    System.assertNotEquals(null, result.statusCounts, 'Status counts should not be null');
     System.assert(result.totalTasks > 0, 'Should have tasks');
   }
 
@@ -174,11 +166,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.hoursByStatus,
-      'Hours by status should not be null'
-    );
+    System.assertNotEquals(null, result.hoursByStatus, 'Hours by status should not be null');
   }
 
   @isTest
@@ -205,11 +193,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.priorityCounts,
-      'Priority counts should not be null'
-    );
+    System.assertNotEquals(null, result.priorityCounts, 'Priority counts should not be null');
   }
 
   @isTest
@@ -250,18 +234,12 @@ private class ProjectTaskDashboardControllerTest {
 
     System.assertNotEquals(null, definitions, 'Definitions should not be null');
     System.assert(!definitions.isEmpty(), 'Field set should contain fields');
-    System.assertNotEquals(
-      null,
-      definitions[0].apiName,
-      'API name should be populated'
-    );
+    System.assertNotEquals(null, definitions[0].apiName, 'API name should be populated');
 
     Boolean foundNameField = false;
     Boolean foundReferenceField = false;
 
-    for (
-      ProjectTaskDashboardController.FieldSetFieldDefinition def : definitions
-    ) {
+    for (ProjectTaskDashboardController.FieldSetFieldDefinition def : definitions) {
       if (def.apiName == 'Name') {
         foundNameField = def.isNameField;
       }
@@ -275,23 +253,15 @@ private class ProjectTaskDashboardControllerTest {
       }
     }
 
-    System.assert(
-      foundNameField,
-      'Field set should include Name field marked correctly'
-    );
-    System.assert(
-      foundReferenceField,
-      'Field set should include at least one reference field'
-    );
+    System.assert(foundNameField, 'Field set should include Name field marked correctly');
+    System.assert(foundReferenceField, 'Field set should include at least one reference field');
   }
 
   @isTest
   static void testGetGroupedTasksWithSummaryFields() {
     Account summaryAccount = new Account(Name = 'Summary Account');
     insert summaryAccount;
-    List<Contact> summaryStakeholders = insertStakeholderContacts(
-      summaryAccount.Id
-    );
+    List<Contact> summaryStakeholders = insertStakeholderContacts(summaryAccount.Id);
     Id summaryProjectId = projectForAccount(summaryAccount.Id);
 
     Project_Task__c parentTask = new Project_Task__c(
@@ -329,57 +299,27 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.summaryFieldDefinitions,
-      'Summary field definitions should be returned'
-    );
-    System.assert(
-      !result.summaryFieldDefinitions.isEmpty(),
-      'Summary field definitions should not be empty'
-    );
-    System.assertNotEquals(
-      null,
-      result.statusGroups,
-      'Status groups should not be null'
-    );
+    System.assertNotEquals(null, result.summaryFieldDefinitions, 'Summary field definitions should be returned');
+    System.assert(!result.summaryFieldDefinitions.isEmpty(), 'Summary field definitions should not be empty');
+    System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
 
     Boolean validatedParent = false;
-    for (
-      ProjectTaskDashboardController.StatusGroup statusGroup : result.statusGroups
-    ) {
+    for (ProjectTaskDashboardController.StatusGroup statusGroup : result.statusGroups) {
       if (statusGroup == null || statusGroup.tasks == null) {
         continue;
       }
-      for (
-        ProjectTaskDashboardController.TaskWithSubtasks task : statusGroup.tasks
-      ) {
+      for (ProjectTaskDashboardController.TaskWithSubtasks task : statusGroup.tasks) {
         if (task.id == parentTask.Id) {
-          System.assertNotEquals(
-            null,
-            task.summaryFields,
-            'Summary fields should not be null on tasks'
-          );
+          System.assertNotEquals(null, task.summaryFields, 'Summary fields should not be null on tasks');
           System.assertEquals(
             result.summaryFieldDefinitions.size(),
             task.summaryFields.size(),
             'Summary fields should align with definitions'
           );
-          System.assertNotEquals(
-            null,
-            task.subtasks,
-            'Parent should include subtasks'
-          );
-          System.assert(
-            task.subtasks.size() > 0,
-            'Parent should have at least one subtask'
-          );
+          System.assertNotEquals(null, task.subtasks, 'Parent should include subtasks');
+          System.assert(task.subtasks.size() > 0, 'Parent should have at least one subtask');
           ProjectTaskDashboardController.TaskInfo childInfo = task.subtasks[0];
-          System.assertNotEquals(
-            null,
-            childInfo.summaryFields,
-            'Subtasks should include summary fields'
-          );
+          System.assertNotEquals(null, childInfo.summaryFields, 'Subtasks should include summary fields');
           validatedParent = true;
           break;
         }
@@ -389,10 +329,7 @@ private class ProjectTaskDashboardControllerTest {
       }
     }
 
-    System.assert(
-      validatedParent,
-      'Parent task with summary fields should be found'
-    );
+    System.assert(validatedParent, 'Parent task with summary fields should be found');
   }
 
   @isTest
@@ -413,27 +350,17 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.statusCounts,
-      'Status counts should not be null'
-    );
+    System.assertNotEquals(null, result.statusCounts, 'Status counts should not be null');
   }
 
   @isTest
   static void testGetHoursMetricsWithNull() {
     Test.startTest();
-    ProjectTaskDashboardController.HoursMetricsResult result = ProjectTaskDashboardController.getHoursMetrics(
-      null
-    );
+    ProjectTaskDashboardController.HoursMetricsResult result = ProjectTaskDashboardController.getHoursMetrics(null);
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.hoursByStatus,
-      'Hours by status should not be null'
-    );
+    System.assertNotEquals(null, result.hoursByStatus, 'Hours by status should not be null');
   }
 
   @isTest
@@ -456,11 +383,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.priorityCounts,
-      'Priority counts should not be null'
-    );
+    System.assertNotEquals(null, result.priorityCounts, 'Priority counts should not be null');
   }
 
   @isTest
@@ -538,34 +461,17 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assert(
-      result.overdueCount >= 0,
-      'Overdue count should be non-negative'
-    );
-    System.assert(
-      result.dueTodayCount >= 0,
-      'Due today count should be non-negative'
-    );
-    System.assert(
-      result.dueThisWeekCount >= 0,
-      'Due this week count should be non-negative'
-    );
-    System.assert(
-      result.tasksWithDueDate >= 0,
-      'Tasks with due date should be non-negative'
-    );
-    System.assert(
-      result.tasksWithoutDueDate >= 0,
-      'Tasks without due date should be non-negative'
-    );
+    System.assert(result.overdueCount >= 0, 'Overdue count should be non-negative');
+    System.assert(result.dueTodayCount >= 0, 'Due today count should be non-negative');
+    System.assert(result.dueThisWeekCount >= 0, 'Due this week count should be non-negative');
+    System.assert(result.tasksWithDueDate >= 0, 'Tasks with due date should be non-negative');
+    System.assert(result.tasksWithoutDueDate >= 0, 'Tasks without due date should be non-negative');
   }
 
   @isTest
   static void testGetDueDateMetricsWithNull() {
     Test.startTest();
-    ProjectTaskDashboardController.DueDateMetricsResult result = ProjectTaskDashboardController.getDueDateMetrics(
-      null
-    );
+    ProjectTaskDashboardController.DueDateMetricsResult result = ProjectTaskDashboardController.getDueDateMetrics(null);
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
@@ -610,11 +516,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertEquals(
-      1,
-      result.pageNumber,
-      'Page number should default to 1'
-    );
+    System.assertEquals(1, result.pageNumber, 'Page number should default to 1');
   }
 
   @isTest
@@ -636,11 +538,7 @@ private class ProjectTaskDashboardControllerTest {
   @isTest
   static void testGetTaskListWithNullAccountIds() {
     Test.startTest();
-    ProjectTaskDashboardController.TaskListResult result = ProjectTaskDashboardController.getTaskList(
-      null,
-      10,
-      1
-    );
+    ProjectTaskDashboardController.TaskListResult result = ProjectTaskDashboardController.getTaskList(null, 10, 1);
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
@@ -656,11 +554,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.statusGroups,
-      'Status groups should not be null'
-    );
+    System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
   }
 
   @isTest
@@ -672,11 +566,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.statusGroups,
-      'Status groups should not be null'
-    );
+    System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
   }
 
   @isTest
@@ -688,11 +578,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.statusGroups,
-      'Status groups should not be null'
-    );
+    System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
   }
 
   @isTest
@@ -789,25 +675,11 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assert(
-      result.avgProgress >= 0,
-      'Average progress should be non-negative'
-    );
+    System.assert(result.avgProgress >= 0, 'Average progress should be non-negative');
     System.assert(result.totalTasks > 0, 'Should have tasks');
-    System.assert(
-      result.completedCount >= 0,
-      'Completed count should be non-negative'
-    );
-    System.assertNotEquals(
-      null,
-      result.progressDistribution,
-      'Progress distribution should not be null'
-    );
-    System.assertNotEquals(
-      null,
-      result.avgProgressByStatus,
-      'Average progress by status should not be null'
-    );
+    System.assert(result.completedCount >= 0, 'Completed count should be non-negative');
+    System.assertNotEquals(null, result.progressDistribution, 'Progress distribution should not be null');
+    System.assertNotEquals(null, result.avgProgressByStatus, 'Average progress by status should not be null');
   }
 
   @isTest
@@ -873,14 +745,8 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assert(
-      result.inReviewTotal >= 0,
-      'In review total should be non-negative'
-    );
-    System.assert(
-      result.backlogTotal >= 0,
-      'Backlog total should be non-negative'
-    );
+    System.assert(result.inReviewTotal >= 0, 'In review total should be non-negative');
+    System.assert(result.backlogTotal >= 0, 'Backlog total should be non-negative');
   }
 
   @isTest
@@ -911,14 +777,8 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assert(
-      result.totalEstimated >= 0,
-      'Total estimated should be non-negative'
-    );
-    System.assert(
-      result.totalActual >= 0,
-      'Total actual should be non-negative'
-    );
+    System.assert(result.totalEstimated >= 0, 'Total estimated should be non-negative');
+    System.assert(result.totalActual >= 0, 'Total actual should be non-negative');
   }
 
   @isTest
@@ -1016,16 +876,8 @@ private class ProjectTaskDashboardControllerTest {
 
     System.assertNotEquals(null, page1, 'Page 1 should not be null');
     System.assertNotEquals(null, page2, 'Page 2 should not be null');
-    System.assertEquals(
-      1,
-      page1.pageNumber,
-      'Page 1 should have page number 1'
-    );
-    System.assertEquals(
-      2,
-      page2.pageNumber,
-      'Page 2 should have page number 2'
-    );
+    System.assertEquals(1, page1.pageNumber, 'Page 1 should have page number 1');
+    System.assertEquals(2, page2.pageNumber, 'Page 2 should have page number 2');
     System.assert(page1.totalPages >= 1, 'Should have at least 1 page');
   }
 
@@ -1052,67 +904,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.statusGroups,
-      'Status groups should not be null'
-    );
-  }
-
-  @isTest
-  static void testGetGroupedTasksWithSubtasksWithChatterComments() {
-    Account testAccount = [SELECT Id FROM Account LIMIT 1];
-    Id testProjectId = projectForAccount(testAccount.Id);
-
-    Project_Task__c parentTask = new Project_Task__c(
-      Name = 'Parent Task With Comments',
-      Status__c = 'Backlog',
-      Account__c = testAccount.Id,
-      Project__c = testProjectId,
-      Priority__c = 'High'
-    );
-    insert parentTask;
-
-    // Create a Chatter feed item (comment) for the task
-    FeedItem feedItem = new FeedItem(
-      ParentId = parentTask.Id,
-      Body = 'Test comment for task',
-      Type = 'TextPost'
-    );
-    insert feedItem;
-
-    Test.startTest();
-    ProjectTaskDashboardController.GroupedTasksResult result = ProjectTaskDashboardController.getGroupedTasksWithSubtasks(
-      new List<String>{ testAccount.Id }
-    );
-    Test.stopTest();
-
-    System.assertNotEquals(null, result, 'Result should not be null');
-
-    // Verify comment is included
-    Boolean foundTaskWithComment = false;
-    for (
-      ProjectTaskDashboardController.StatusGroup statusGroup : result.statusGroups
-    ) {
-      if (statusGroup != null && statusGroup.tasks != null) {
-        for (
-          ProjectTaskDashboardController.TaskWithSubtasks task : statusGroup.tasks
-        ) {
-          if (task.id == parentTask.Id) {
-            System.assertNotEquals(
-              null,
-              task.latestComment,
-              'Task should have latest comment'
-            );
-            foundTaskWithComment = true;
-            break;
-          }
-        }
-      }
-      if (foundTaskWithComment)
-        break;
-    }
-    System.assert(foundTaskWithComment, 'Task with comment should be found');
+    System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
   }
 
   @isTest
@@ -1144,10 +936,7 @@ private class ProjectTaskDashboardControllerTest {
   static void testGetGroupedTasksWithSubtasksWithReferenceFields() {
     Account testAccount = [SELECT Id FROM Account LIMIT 1];
     Id testProjectId = projectForAccount(testAccount.Id);
-    Contact devContact = new Contact(
-      LastName = 'RefFieldTest',
-      AccountId = testAccount.Id
-    );
+    Contact devContact = new Contact(LastName = 'RefFieldTest', AccountId = testAccount.Id);
     insert devContact;
 
     Project_Task__c task = new Project_Task__c(
@@ -1243,10 +1032,7 @@ private class ProjectTaskDashboardControllerTest {
       System.assertNotEquals(null, result, 'Result should not be null');
     } catch (Exception e) {
       // If there's an error, it should be an AuraHandledException
-      System.assert(
-        e instanceof AuraHandledException,
-        'Should throw AuraHandledException'
-      );
+      System.assert(e instanceof AuraHandledException, 'Should throw AuraHandledException');
     }
     Test.stopTest();
   }
@@ -1288,11 +1074,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.statusGroups,
-      'Status groups should not be null'
-    );
+    System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
     System.assert(result.statusGroups.size() > 0, 'Should have status groups');
   }
 
@@ -1318,11 +1100,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.statusGroups,
-      'Status groups should not be null'
-    );
+    System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
   }
 
   @isTest
@@ -1347,11 +1125,7 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.statusGroups,
-      'Status groups should not be null'
-    );
+    System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
     // Null status should default to 'Backlog'
   }
 
@@ -1382,10 +1156,47 @@ private class ProjectTaskDashboardControllerTest {
     Test.stopTest();
 
     System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertNotEquals(
-      null,
-      result.statusGroups,
-      'Status groups should not be null'
+    System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
+  }
+
+  @isTest
+  static void testGetGroupedTasksWithSubtasksByProject() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Account' LIMIT 1];
+    Project__c testProject = [
+      SELECT Id
+      FROM Project__c
+      WHERE Account__c = :testAccount.Id AND Name = 'Test Project'
+      LIMIT 1
+    ];
+
+    Test.startTest();
+    ProjectTaskDashboardController.GroupedTasksResult result = ProjectTaskDashboardController.getGroupedTasksWithSubtasksByProject(
+      testProject.Id
     );
+    Test.stopTest();
+
+    System.assertNotEquals(null, result, 'Result should not be null');
+    System.assertNotEquals(null, result.statusGroups, 'Status groups should not be null');
+    System.assertNotEquals(null, result.summaryFieldDefinitions, 'Summary field definitions should not be null');
+
+    Integer taskCount = 0;
+    for (ProjectTaskDashboardController.StatusGroup sg : result.statusGroups) {
+      if (sg != null && sg.tasks != null) {
+        taskCount += sg.tasks.size();
+      }
+    }
+    System.assertEquals(5, taskCount, 'All five @testSetup parent tasks should be returned for the project');
+  }
+
+  @isTest
+  static void testGetGroupedTasksWithSubtasksByProjectNullId() {
+    Boolean threw = false;
+    try {
+      ProjectTaskDashboardController.getGroupedTasksWithSubtasksByProject(null);
+    } catch (AuraHandledException e) {
+      threw = true;
+      System.assertNotEquals(null, e.getMessage(), 'AuraHandledException should include a message');
+    }
+    System.assert(threw, 'Null project Id should throw AuraHandledException');
   }
 }

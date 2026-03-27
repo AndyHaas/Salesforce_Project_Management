@@ -2,7 +2,7 @@
  * @description Grouped Task List Component
  *
  * Displays tasks grouped by status with expandable subtasks, hover field details,
- * and "Me" mode filtering. Shows latest Chatter comments for each task.
+ * and "Me" mode filtering. Task messages use MessagingController / portalMessaging, not this list payload.
  *
  * USAGE:
  * - Used in: Standalone component, can be placed on any Lightning page
