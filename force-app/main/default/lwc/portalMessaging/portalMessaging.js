@@ -25,13 +25,7 @@
 
 import { LightningElement, api, wire, track } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-import {
-  subscribe,
-  MessageContext,
-  unsubscribe,
-  APPLICATION_SCOPE,
-  publish
-} from "lightning/messageService";
+import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE, publish } from "lightning/messageService";
 import { CurrentPageReference, NavigationMixin } from "lightning/navigation";
 import sendMessage from "@salesforce/apex/PortalMessagingController.sendMessage";
 import getMessages from "@salesforce/apex/PortalMessagingController.getMessages";
@@ -141,10 +135,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
           this.subscribeToMessageUpdates();
         }
       } else if (error) {
-        console.error(
-          "Error getting message context:",
-          JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-        );
+        console.error("Error getting message context:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       }
     }
   }
@@ -254,10 +245,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     if (data) {
       this._contextInfo = data;
     } else if (error) {
-      console.error(
-        "Error loading context info:",
-        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-      );
+      console.error("Error loading context info:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     }
   }
 
@@ -277,9 +265,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     try {
       // For Milestone team members, pass null to see all messages (both Client and Milestone Team)
       // For portal users, use the recipientType (which is always 'Milestone Team')
-      const recipientTypeForQuery = this._isMilestoneTeamMember
-        ? null
-        : this.recipientType;
+      const recipientTypeForQuery = this._isMilestoneTeamMember ? null : this.recipientType;
 
       // Reset offset if not appending (initial load or refresh)
       if (!append) {
@@ -366,10 +352,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         this.maintainScrollPosition();
       }
     } catch (error) {
-      console.error(
-        "Error loading messages:",
-        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-      );
+      console.error("Error loading messages:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
 
       // Extract detailed error message
       let errorMessage = "Error retrieving messages";
@@ -432,18 +415,13 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       const bundles = await getFilesForMessages({
         messageIds: idsToFetch
       });
-      const map = new Map(
-        (bundles || []).map((b) => [String(b.messageId), b.files || []])
-      );
+      const map = new Map((bundles || []).map((b) => [String(b.messageId), b.files || []]));
       return messageRows.map((m) => ({
         ...m,
         files: m.id != null ? map.get(String(m.id)) || [] : []
       }));
     } catch (error) {
-      console.error(
-        "Error loading message attachments:",
-        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-      );
+      console.error("Error loading message attachments:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       return messageRows.map((m) => ({ ...m, files: [] }));
     }
   }
@@ -572,10 +550,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       this.mentionableContacts = data || [];
       this.filteredContacts = this.mentionableContacts;
     } else if (error) {
-      console.error(
-        "Error loading contacts:",
-        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-      );
+      console.error("Error loading contacts:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       this.mentionableContacts = [];
       this.filteredContacts = [];
     }
@@ -590,10 +565,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     if (data) {
       this._currentUserContactId = data;
     } else if (error) {
-      console.error(
-        "Error getting current user contact:",
-        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-      );
+      console.error("Error getting current user contact:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     }
   }
 
@@ -724,9 +696,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    */
   get showAccountContext() {
     return (
-      this._contextInfo &&
-      (this._contextInfo.contextType === "Project" ||
-        this._contextInfo.contextType === "Task")
+      this._contextInfo && (this._contextInfo.contextType === "Project" || this._contextInfo.contextType === "Task")
     );
   }
 
@@ -802,10 +772,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
 
     // Check if this update is relevant to this component
     const isRelevant =
-      (message.relatedAccountId &&
-        message.relatedAccountId === this.relatedAccountId) ||
-      (message.relatedProjectId &&
-        message.relatedProjectId === this.relatedProjectId) ||
+      (message.relatedAccountId && message.relatedAccountId === this.relatedAccountId) ||
+      (message.relatedProjectId && message.relatedProjectId === this.relatedProjectId) ||
       (message.relatedTaskId && message.relatedTaskId === this.relatedTaskId) ||
       (!message.relatedAccountId &&
         !message.relatedProjectId &&
@@ -860,16 +828,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     const filteredMessages = sorted;
 
     return filteredMessages.map((msg) => {
-      const taskLink = this.buildLink(
-        msg.relatedTaskId,
-        msg.relatedTaskName,
-        "/project-task"
-      );
-      const projectLink = this.buildLink(
-        msg.relatedProjectId,
-        msg.relatedProjectName,
-        "/project"
-      );
+      const taskLink = this.buildLink(msg.relatedTaskId, msg.relatedTaskName, "/project-task");
+      const projectLink = this.buildLink(msg.relatedProjectId, msg.relatedProjectName, "/project");
 
       // Prepare navigation data for Salesforce links
       let taskNavData = null;
@@ -885,41 +845,28 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       return {
         ...msg,
         formattedDate: this.formatMessageDate(msg.createdDate),
-        formattedEditedDate: msg.lastEditedDate
-          ? this.formatMessageDate(msg.lastEditedDate)
-          : "",
+        formattedEditedDate: msg.lastEditedDate ? this.formatMessageDate(msg.lastEditedDate) : "",
         isFromCurrentUser: this.isFromCurrentUser(msg.senderId),
         isUnread: !msg.isRead,
         isEditing: this._editingMessageId === msg.id,
         isReplying: this._replyingToMessageId === msg.id,
-        replyToFormattedDate: msg.replyToCreatedDate
-          ? this.formatMessageDate(msg.replyToCreatedDate)
-          : "",
+        replyToFormattedDate: msg.replyToCreatedDate ? this.formatMessageDate(msg.replyToCreatedDate) : "",
         replyToPreview: this.stripHtmlPreview(msg.replyToMessageBody || ""),
         taskLink: taskLink,
         projectLink: projectLink,
         // Add flags to determine if link is Salesforce navigation
-        taskLinkIsSalesforce:
-          taskLink && taskLink.type === "standard__recordPage",
-        projectLinkIsSalesforce:
-          projectLink && projectLink.type === "standard__recordPage",
+        taskLinkIsSalesforce: taskLink && taskLink.type === "standard__recordPage",
+        projectLinkIsSalesforce: projectLink && projectLink.type === "standard__recordPage",
         // JSON strings for navigation data
         taskNavData: taskNavData,
         projectNavData: projectNavData,
         // Hide task footer if we're already on that task's page
-        showTaskFooter: !(
-          this.relatedTaskId &&
-          msg.relatedTaskId &&
-          this.relatedTaskId === msg.relatedTaskId
-        ),
+        showTaskFooter: !(this.relatedTaskId && msg.relatedTaskId && this.relatedTaskId === msg.relatedTaskId),
         attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
         hasAttachments: Array.isArray(msg.files) && msg.files.length > 0,
         // Visible_To_Client__c === false — show badge only for Milestone team (template guard)
         isInternalMessage: msg.visibleToClient === false,
-        bodyPreview: this.truncatePreview(
-          this.stripHtmlPreview(msg.body || ""),
-          140
-        )
+        bodyPreview: this.truncatePreview(this.stripHtmlPreview(msg.body || ""), 140)
       };
     });
   }
@@ -944,11 +891,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   get showPinnedSectionBody() {
-    return (
-      this.hidePinnedMessagesSection !== true &&
-      this._pinnedSectionExpanded === true &&
-      this.hasPinnedMessages
-    );
+    return this.hidePinnedMessagesSection !== true && this._pinnedSectionExpanded === true && this.hasPinnedMessages;
   }
 
   get pinnedMessagesCompact() {
@@ -960,9 +903,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   get pinnedToggleTitle() {
-    return this._pinnedSectionExpanded
-      ? "Hide pinned messages panel"
-      : "Show pinned messages panel";
+    return this._pinnedSectionExpanded ? "Hide pinned messages panel" : "Show pinned messages panel";
   }
 
   handleTogglePinnedSection() {
@@ -1007,9 +948,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    */
   isFromCurrentUser(senderId) {
     // Will be set after we get current user contact ID
-    return (
-      this._currentUserContactId && senderId === this._currentUserContactId
-    );
+    return this._currentUserContactId && senderId === this._currentUserContactId;
   }
 
   /**
@@ -1056,18 +995,14 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       }
       // Portal/Experience Cloud context - use ensureSitePath
       const href = ensureSitePath(`${basePath}/${id}`, {
-        currentPathname:
-          typeof window !== "undefined" ? window.location.pathname : ""
+        currentPathname: typeof window !== "undefined" ? window.location.pathname : ""
       });
       return {
         href,
         label: name && name.length > 0 ? name : "View"
       };
     } catch (e) {
-      console.error(
-        "Error building link:",
-        JSON.stringify(e, Object.getOwnPropertyNames(e), 2)
-      );
+      console.error("Error building link:", JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
       return null;
     }
   }
@@ -1096,16 +1031,12 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         }
       }
     } catch (e) {
-      console.error(
-        "Error navigating to record:",
-        JSON.stringify(e, Object.getOwnPropertyNames(e), 2)
-      );
+      console.error("Error navigating to record:", JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
       // Fallback: try to navigate using recordId if available
       const recordId = event.currentTarget.dataset.recordId;
       if (recordId && this.isSalesforceContext) {
         // Try to determine object type from context
-        const objectApiName =
-          event.currentTarget.dataset.objectApiName || "Project_Task__c";
+        const objectApiName = event.currentTarget.dataset.objectApiName || "Project_Task__c";
         this[NavigationMixin.Navigate]({
           type: "standard__recordPage",
           attributes: {
@@ -1205,9 +1136,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   focusMessageSearch() {
     // Defer to next tick so the input is in the DOM
     window.requestAnimationFrame(() => {
-      const searchInput = this.template.querySelector(
-        ".message-search-input input"
-      );
+      const searchInput = this.template.querySelector(".message-search-input input");
       if (searchInput) {
         searchInput.focus();
       }
@@ -1339,9 +1268,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       return;
     }
 
-    const newIds = uploadedFiles
-      .map((file) => file.contentVersionId)
-      .filter((id) => id);
+    const newIds = uploadedFiles.map((file) => file.contentVersionId).filter((id) => id);
     this._uploadedFileIds = [...this._uploadedFileIds, ...newIds];
 
     const newRows = uploadedFiles.map((file) => ({
@@ -1366,14 +1293,21 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   get hasPendingComposerFiles() {
-    return (
-      Array.isArray(this._pendingComposerFiles) &&
-      this._pendingComposerFiles.length > 0
-    );
+    return Array.isArray(this._pendingComposerFiles) && this._pendingComposerFiles.length > 0;
   }
 
   get renderFileUpload() {
     return this._renderFileUpload;
+  }
+
+  /**
+   * Help text under Attach Files in the compose modal: draft vs. Milestone-owned attachments.
+   */
+  get composerFileUploadHelp() {
+    return (
+      "Before you send, use Remove next to a file to detach anything you attached. " +
+      "Attachments added by Milestone Consulting cannot be removed from the conversation."
+    );
   }
 
   /** LEX: standard file preview; portal: open download (handled in child). */
@@ -1402,8 +1336,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   resetComposerFilesState() {
-    const remountUpload =
-      this._pendingComposerFiles.length > 0 || this._uploadedFileIds.length > 0;
+    const remountUpload = this._pendingComposerFiles.length > 0 || this._uploadedFileIds.length > 0;
     this._uploadedFileIds = [];
     this._pendingComposerFiles = [];
     if (remountUpload) {
@@ -1420,24 +1353,15 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       if (contentVersionId && f.contentVersionId === contentVersionId) {
         return false;
       }
-      if (
-        contentDocumentId &&
-        f.contentDocumentId === contentDocumentId &&
-        !contentVersionId
-      ) {
+      if (contentDocumentId && f.contentDocumentId === contentDocumentId && !contentVersionId) {
         return false;
       }
       return true;
     });
     if (contentVersionId) {
-      this._uploadedFileIds = this._uploadedFileIds.filter(
-        (id) => id !== contentVersionId
-      );
+      this._uploadedFileIds = this._uploadedFileIds.filter((id) => id !== contentVersionId);
     }
-    if (
-      this._pendingComposerFiles.length === 0 &&
-      this._uploadedFileIds.length === 0
-    ) {
+    if (this._pendingComposerFiles.length === 0 && this._uploadedFileIds.length === 0) {
       this._renderFileUpload = false;
       Promise.resolve().then(() => {
         this._renderFileUpload = true;
@@ -1450,12 +1374,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    */
   async handleSendMessage() {
     // Get the current value from the rich text editor in the modal
-    const modalRichTextEditor = this.template.querySelector(
-      ".message-rich-text-large"
-    );
-    const currentMessageBody = modalRichTextEditor
-      ? modalRichTextEditor.value
-      : this.messageBody;
+    const modalRichTextEditor = this.template.querySelector(".message-rich-text-large");
+    const currentMessageBody = modalRichTextEditor ? modalRichTextEditor.value : this.messageBody;
 
     if (!currentMessageBody || currentMessageBody.trim().length === 0) {
       this.dispatchEvent(
@@ -1512,10 +1432,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
             contentVersionIds: this._uploadedFileIds
           });
         } catch (fileError) {
-          console.error(
-            "Error linking files:",
-            JSON.stringify(fileError, Object.getOwnPropertyNames(fileError), 2)
-          );
+          console.error("Error linking files:", JSON.stringify(fileError, Object.getOwnPropertyNames(fileError), 2));
           // Don't fail the message send if file linking fails
         }
       }
@@ -1528,9 +1445,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       this._replyingToMessage = null;
 
       // Clear rich text editor (both inline and modal)
-      const richTextEditors = this.template.querySelectorAll(
-        "lightning-input-rich-text"
-      );
+      const richTextEditors = this.template.querySelectorAll("lightning-input-rich-text");
       richTextEditors.forEach((editor) => {
         if (editor) {
           editor.value = "";
@@ -1567,10 +1482,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         })
       );
     } catch (error) {
-      console.error(
-        "Error sending message:",
-        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-      );
+      console.error("Error sending message:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       console.error(
         "Error details:",
         JSON.stringify(
@@ -1588,10 +1500,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
           title: "Error",
           message:
             "Failed to send message: " +
-            (error.body?.message ||
-              error.body?.exceptionMessage ||
-              error.message ||
-              "Unknown error"),
+            (error.body?.message || error.body?.exceptionMessage || error.message || "Unknown error"),
           variant: "error"
         })
       );
@@ -1603,18 +1512,13 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    */
   async markUnreadMessagesAsRead() {
     // Mark unread messages for the current recipient bucket
-    const unreadMessages = this._messages.filter(
-      (msg) => !msg.isRead && msg.recipientType === this.recipientType
-    );
+    const unreadMessages = this._messages.filter((msg) => !msg.isRead && msg.recipientType === this.recipientType);
 
     for (const msg of unreadMessages) {
       try {
         await markAsRead({ messageId: msg.id });
       } catch (error) {
-        console.error(
-          "Error marking message as read:",
-          JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-        );
+        console.error("Error marking message as read:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       }
     }
 
@@ -1664,10 +1568,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    * @description Handle save edit
    */
   async handleSaveEdit() {
-    if (
-      !this._editingMessageBody ||
-      this._editingMessageBody.trim().length === 0
-    ) {
+    if (!this._editingMessageBody || this._editingMessageBody.trim().length === 0) {
       this.dispatchEvent(
         new ShowToastEvent({
           title: "Error",
@@ -1702,16 +1603,11 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         })
       );
     } catch (error) {
-      console.error(
-        "Error updating message:",
-        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-      );
+      console.error("Error updating message:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       this.dispatchEvent(
         new ShowToastEvent({
           title: "Error",
-          message:
-            "Failed to update message: " +
-            (error.body?.message || error.message || "Unknown error"),
+          message: "Failed to update message: " + (error.body?.message || error.message || "Unknown error"),
           variant: "error"
         })
       );
@@ -1823,9 +1719,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     }
 
     // Find the message element in the DOM
-    const messageElement = this.template.querySelector(
-      `[data-message-id="${messageId}"]`
-    );
+    const messageElement = this.template.querySelector(`[data-message-id="${messageId}"]`);
     if (messageElement) {
       messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
       // Highlight the message briefly
@@ -1864,17 +1758,12 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       this.dispatchEvent(
         new ShowToastEvent({
           title: "Success",
-          message: isPinned
-            ? "Message pinned successfully"
-            : "Message unpinned successfully",
+          message: isPinned ? "Message pinned successfully" : "Message unpinned successfully",
           variant: "success"
         })
       );
     } catch (error) {
-      console.error(
-        "Error pinning message:",
-        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-      );
+      console.error("Error pinning message:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       this.dispatchEvent(
         new ShowToastEvent({
           title: "Error",
@@ -1902,9 +1791,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     // Confirm deletion (replace with lightning-modal when UX allows)
     if (
       typeof window !== "undefined" &&
-      !window.confirm(
-        "Are you sure you want to delete this message? This action cannot be undone."
-      )
+      !window.confirm("Are you sure you want to delete this message? This action cannot be undone.")
     ) {
       return;
     }
@@ -1926,16 +1813,11 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         })
       );
     } catch (error) {
-      console.error(
-        "Error deleting message:",
-        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-      );
+      console.error("Error deleting message:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       this.dispatchEvent(
         new ShowToastEvent({
           title: "Error",
-          message:
-            "Failed to delete message: " +
-            (error.body?.message || error.message || "Unknown error"),
+          message: "Failed to delete message: " + (error.body?.message || error.message || "Unknown error"),
           variant: "error"
         })
       );
