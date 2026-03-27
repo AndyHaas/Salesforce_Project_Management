@@ -119,15 +119,6 @@
 
                       <strong>{message.senderName}</strong>
 
-                      <template if:true={message.isPinned}>
-                        <lightning-badge
-                          label="Pinned"
-                          variant="success"
-                          class="slds-m-left_x-small"
-                        >
-                        </lightning-badge>
-                      </template>
-
                       <template if:true={message.isMentioned}>
                         <lightning-badge
                           label="Mentioned"
