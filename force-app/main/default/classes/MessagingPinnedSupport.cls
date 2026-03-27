@@ -1,16 +1,20 @@
 /**
  * Loads every pinned Message__c for the current portal / LEX messaging thread, independent of
- * pagination. {@link PortalMessagingController#getMessages} remains paged; this class keeps the
+ * pagination. {@link MessagingController#getMessages} remains paged; this class keeps the
  * pinned summary accurate for older pins that are not yet in the client buffer.
  * Visibility matches portal expectations: non–Milestone-team users only see client-visible rows.
  */
 public with sharing class MessagingPinnedSupport {
   /**
-   * Wire DTO aligned with {@code PortalMessagingController#getMessages} row shape for LWC reuse.
+   * Wire DTO aligned with {@code MessagingController#getMessages} row shape for LWC reuse.
    */
   public class MessageRow {
     @AuraEnabled
     public String id;
+    @AuraEnabled
+    public String createdById;
+    @AuraEnabled
+    public String createdByName;
     @AuraEnabled
     public String body;
     @AuraEnabled
@@ -108,6 +112,8 @@ public with sharing class MessagingPinnedSupport {
     return [
       SELECT
         Id,
+        CreatedById,
+        CreatedBy.Name,
         Body__c,
         CreatedDate,
         Sender__c,
@@ -139,6 +145,8 @@ public with sharing class MessagingPinnedSupport {
     return [
       SELECT
         Id,
+        CreatedById,
+        CreatedBy.Name,
         Body__c,
         CreatedDate,
         Sender__c,
@@ -170,6 +178,8 @@ public with sharing class MessagingPinnedSupport {
     return [
       SELECT
         Id,
+        CreatedById,
+        CreatedBy.Name,
         Body__c,
         CreatedDate,
         Sender__c,
@@ -201,6 +211,8 @@ public with sharing class MessagingPinnedSupport {
     return [
       SELECT
         Id,
+        CreatedById,
+        CreatedBy.Name,
         Body__c,
         CreatedDate,
         Sender__c,
@@ -236,6 +248,8 @@ public with sharing class MessagingPinnedSupport {
     return [
       SELECT
         Id,
+        CreatedById,
+        CreatedBy.Name,
         Body__c,
         CreatedDate,
         Sender__c,
@@ -267,6 +281,8 @@ public with sharing class MessagingPinnedSupport {
     return [
       SELECT
         Id,
+        CreatedById,
+        CreatedBy.Name,
         Body__c,
         CreatedDate,
         Sender__c,
@@ -302,6 +318,8 @@ public with sharing class MessagingPinnedSupport {
     for (Message__c msg : rows) {
       MessageRow row = new MessageRow();
       row.id = String.valueOf(msg.Id);
+      row.createdById = msg.CreatedById != null ? String.valueOf(msg.CreatedById) : null;
+      row.createdByName = msg.CreatedBy != null ? msg.CreatedBy.Name : null;
       row.body = msg.Body__c;
       row.createdDate = msg.CreatedDate;
       row.senderId = msg.Sender__c != null ? String.valueOf(msg.Sender__c) : null;

@@ -1717,16 +1717,14 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
-   * @description Handle edit message
+   * @description Enter inline edit mode for a message (overflow menu → Edit).
+   * @param {string} messageId Message__c Id
    */
-  handleEditMessage(event) {
-    const messageId = event.currentTarget.dataset.messageId;
+  beginEditMessage(messageId) {
     const message = this._messages.find((m) => m.id === messageId);
-
     if (!message) {
       return;
     }
-
     this._editingMessageId = messageId;
     this._editingMessageBody = message.body;
   }
@@ -1913,7 +1911,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
-   * Overflow menu: delete (first), pin / unpin (Milestone team).
+   * Overflow menu: edit and delete (author), pin / unpin (Milestone team).
    */
   handleMessageActionMenuSelect(event) {
     const messageId = event.currentTarget?.dataset?.messageId;
@@ -1921,7 +1919,9 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     if (!messageId || !action) {
       return;
     }
-    if (action === "delete") {
+    if (action === "edit") {
+      this.beginEditMessage(messageId);
+    } else if (action === "delete") {
       this.confirmAndDeleteMessage(messageId);
     } else if (action === "pin") {
       this.pinMessageWithId(messageId, true);

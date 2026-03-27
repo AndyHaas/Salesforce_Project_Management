@@ -199,19 +199,6 @@
                             >
                             </lightning-button-icon>
 
-                            <template if:true={message.isFromCurrentUser}>
-                              <lightning-button-icon
-                                icon-name="utility:edit"
-                                variant="border-filled"
-                                alternative-text="Edit message"
-                                title="Edit message"
-                                data-message-id={message.id}
-                                onclick={handleEditMessage}
-                                class="edit-button"
-                              >
-                              </lightning-button-icon>
-                            </template>
-
                             <template if:true={message.showOverflowActions}>
                               <lightning-button-menu
                                 alternative-text="More message actions"
@@ -223,6 +210,14 @@
                                 onselect={handleMessageActionMenuSelect}
                                 class="message-overflow-menu"
                               >
+                                <template if:true={message.isFromCurrentUser}>
+                                  <lightning-menu-item
+                                    value="edit"
+                                    label="Edit message"
+                                    prefix-icon-name="utility:edit"
+                                  >
+                                  </lightning-menu-item>
+                                </template>
                                 <template if:true={message.isFromCurrentUser}>
                                   <lightning-menu-item
                                     value="delete"

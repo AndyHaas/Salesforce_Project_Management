@@ -147,16 +147,6 @@
   font-size: 0.875rem;
 }
 
-.edit-button {
-  --slds-c-button-neutral-color-background: transparent;
-  --slds-c-button-neutral-color-border: transparent;
-}
-
-.edit-button:hover {
-  --slds-c-button-neutral-color-background: #fafbfc;
-  --slds-c-button-neutral-color-border: #c9c9c9;
-}
-
 .message-edit {
   margin: 0.75rem 0;
   padding: 0.75rem;
