@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
         <name>PTC_Client_Completion_Approved</name>
@@ -8,7 +8,8 @@
         <actionName>chatterPost</actionName>
         <actionType>chatterPost</actionType>
         <connector>
-            <targetReference>Update_Project_Task_Client_Approved_Completion</targetReference>
+            <targetReference
+      >Update_Project_Task_Client_Approved_Completion</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -29,9 +30,11 @@
     </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description>This task will run whenever the client approves a task for completion.</description>
+    <description
+  >This task will run whenever the client approves a task for completion.</description>
     <environments>Default</environments>
-    <interviewLabel>Autolaunch - Client Approved Completion {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Autolaunch - Client Approved Completion {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Autolaunch - Project Task - Client Approved Completion</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -53,7 +56,8 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordUpdates>
-        <description>The client has approved the task for completion. Set Client_Approved_for_Completion__c to true and Status to Completed.</description>
+        <description
+    >The client has approved the task for completion. Set Client_Approved_for_Completion__c to true and Status to Completed.</description>
         <name>Update_Project_Task_Client_Approved_Completion</name>
         <label>Update Project Task - Client Approved Completion</label>
         <locationX>0</locationX>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -11,14 +11,16 @@
             <assignToReference>numProjectedHours</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>Go_through_Open_Projects.Projected_Number_of_Hours__c</elementReference>
+                <elementReference
+        >Go_through_Open_Projects.Projected_Number_of_Hours__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>numTotalTime</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>Go_through_Open_Projects.Total_Time__c</elementReference>
+                <elementReference
+        >Go_through_Open_Projects.Total_Time__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -50,7 +52,8 @@
             <assignToReference>currTotalCost</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Project__r.Set_Cost_Value__c</elementReference>
+                <elementReference
+        >$Record.Project__r.Set_Cost_Value__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -70,7 +73,8 @@
             <name>Billable_Hours</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.Billable_Hours__c</leftValueReference>
+                <leftValueReference
+        >$Record.Billable_Hours__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -95,7 +99,8 @@
             <name>Set_Cost</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.Project__r.Set_Cost__c</leftValueReference>
+                <leftValueReference
+        >$Record.Project__r.Set_Cost__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -120,21 +125,24 @@
             <name>Open_Project</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Go_through_Open_Projects.Status__c</leftValueReference>
+                <leftValueReference
+        >Go_through_Open_Projects.Status__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Cancelled</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Go_through_Open_Projects.Status__c</leftValueReference>
+                <leftValueReference
+        >Go_through_Open_Projects.Status__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Deployed</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Go_through_Open_Projects.Status__c</leftValueReference>
+                <leftValueReference
+        >Go_through_Open_Projects.Status__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Not Started</stringValue>
@@ -151,16 +159,19 @@
     <formulas>
         <name>formCalcBurnRate</name>
         <dataType>Number</dataType>
-        <expression>{!numTotalTime}/{!$Record.Project__r.Projected_Number_of_Hours__c}</expression>
+        <expression
+    >{!numTotalTime}/{!$Record.Project__r.Projected_Number_of_Hours__c}</expression>
         <scale>2</scale>
     </formulas>
     <formulas>
         <name>formCurrCalcCost</name>
         <dataType>Currency</dataType>
-        <expression>{!$Record.Project__r.Per_Hour_Rate__c} * {!Go_Through_Time_Sheet_Entries.Sum_of_Time__c}</expression>
+        <expression
+    >{!$Record.Project__r.Per_Hour_Rate__c} * {!Go_Through_Time_Sheet_Entries.Sum_of_Time__c}</expression>
         <scale>2</scale>
     </formulas>
-    <interviewLabel>Record Trigger - Time Sheet - Calculate Cost Rollups {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Record Trigger - Time Sheet - Calculate Cost Rollups {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Record Trigger - Time Sheet - Calculate Cost Rollups</label>
     <loops>
         <name>Go_through_Open_Projects</name>
@@ -214,7 +225,8 @@
         <label>Get Open Projects</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Go_through_Open_Projects</targetReference>
         </connector>
@@ -242,7 +254,8 @@
         <label>Get Time Sheet Entries</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Is_Project_Set_Cost</targetReference>
         </connector>
@@ -282,7 +295,8 @@
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.Project__r.Account__r.Id</elementReference>
+                <elementReference
+        >$Record.Project__r.Account__r.Id</elementReference>
             </value>
         </filters>
         <inputAssignments>

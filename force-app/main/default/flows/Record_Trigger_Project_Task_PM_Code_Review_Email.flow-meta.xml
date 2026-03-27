@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
         <name>Send_Approval_Email</name>
@@ -25,9 +25,11 @@
     </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description>When a task enters PM/code review, emails the Project Manager contact with links. Use quick actions to approve or reject.</description>
+    <description
+  >When a task enters PM/code review, emails the Project Manager contact with links. Use quick actions to approve or reject.</description>
     <environments>Default</environments>
-    <interviewLabel>Record Trigger - Project Task - PM Code Review Email {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Record Trigger - Project Task - PM Code Review Email {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Record Trigger - Project Task - PM Code Review Email</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -54,7 +56,8 @@
         <connector>
             <targetReference>Send_Approval_Email</targetReference>
         </connector>
-        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <doesRequireRecordChangedToMeetCriteria
+    >true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Status__c</field>

@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Message channel for messaging updates in Portal Messaging components</description>
+    <description
+  >Message channel for messaging updates in Portal Messaging components</description>
     <isExposed>true</isExposed>
     <lightningMessageFields>
         <description>Related Project ID to filter messages</description>
@@ -11,7 +12,8 @@
         <fieldName>relatedTaskId</fieldName>
     </lightningMessageFields>
     <lightningMessageFields>
-        <description>Action type: &apos;sent&apos; or &apos;deleted&apos;</description>
+        <description
+    >Action type: &apos;sent&apos; or &apos;deleted&apos;</description>
         <fieldName>action</fieldName>
     </lightningMessageFields>
     <lightningMessageFields>

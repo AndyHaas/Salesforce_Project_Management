@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <WebLink xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Slack_Alerts</fullName>
     <availability>online</availability>
@@ -9,5 +9,6 @@
     <masterLabel>Slack Alerts</masterLabel>
     <openType>noSidebar</openType>
     <protected>false</protected>
-    <url>/apex/slackv2__slackAlerts?recordId={!CASESAFEID (Project__c.Id)}&amp;objectApiName=Project__c</url>
+    <url
+  >/apex/slackv2__slackAlerts?recordId={!CASESAFEID (Project__c.Id)}&amp;objectApiName=Project__c</url>
 </WebLink>

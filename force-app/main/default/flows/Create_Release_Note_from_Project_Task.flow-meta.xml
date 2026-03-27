@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>61.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description>Autolaunched flow that creates a Release Note record and associates it to the originating Project Task.</description>
-    <interviewLabel>Create Release Note from Project Task {!$Flow.CurrentDateTime}</interviewLabel>
+    <description
+  >Autolaunched flow that creates a Release Note record and associates it to the originating Project Task.</description>
+    <interviewLabel
+  >Create Release Note from Project Task {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Create Release Note from Project Task</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -25,7 +27,8 @@
         <locationY>200</locationY>
         <assignRecordIdToReference>varReleaseNoteId</assignRecordIdToReference>
         <connector>
-            <targetReference>Update_Project_Task_With_Release_Note</targetReference>
+            <targetReference
+      >Update_Project_Task_With_Release_Note</targetReference>
         </connector>
         <inputAssignments>
             <field>Release_Notes_Text__c</field>

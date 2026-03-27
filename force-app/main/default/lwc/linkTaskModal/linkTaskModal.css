@@ -1,14 +1,14 @@
 /* Modal styling */
 .slds-modal__container {
-    max-width: 32rem;
+  max-width: 32rem;
 }
 
 .slds-modal__content {
-    padding-bottom: 0;
-    margin-bottom: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .slds-modal__footer {
-    border-top: 1px solid var(--slds-g-color-border-base-4, #e5e5e5);
-    margin-top: 0;
+  border-top: 1px solid var(--slds-g-color-border-base-4, #e5e5e5);
+  margin-top: 0;
 }

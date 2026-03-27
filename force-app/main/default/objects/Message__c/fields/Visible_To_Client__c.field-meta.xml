@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Visible_To_Client__c</fullName>
     <defaultValue>true</defaultValue>
-    <description>If false, this message is only visible to Milestone Consulting team members and not to clients.</description>
+    <description
+  >If false, this message is only visible to Milestone Consulting team members and not to clients.</description>
     <label>Visible to Client</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

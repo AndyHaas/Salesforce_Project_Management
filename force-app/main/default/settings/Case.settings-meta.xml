@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CaseSettings xmlns="http://soap.sforce.com/2006/04/metadata">
     <caseFeedItemSettings>
         <characterLimit>400</characterLimit>
@@ -35,7 +35,8 @@
     <notifyOwnerOnCaseOwnerChange>false</notifyOwnerOnCaseOwnerChange>
     <rtaCaseComment>false</rtaCaseComment>
     <rtaCaseDescription>false</rtaCaseDescription>
-    <showEmailAttachmentsInCaseAttachmentsRL>true</showEmailAttachmentsInCaseAttachmentsRL>
+    <showEmailAttachmentsInCaseAttachmentsRL
+  >true</showEmailAttachmentsInCaseAttachmentsRL>
     <useSystemEmailAddress>true</useSystemEmailAddress>
     <useSystemUserAsDefaultCaseUser>false</useSystemUserAsDefaultCaseUser>
     <visibleInCssCheckbox>false</visibleInCssCheckbox>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
         <name>PTC_Client_Approved</name>
@@ -8,7 +8,8 @@
         <actionName>chatterPost</actionName>
         <actionType>chatterPost</actionType>
         <connector>
-            <targetReference>Update_Project_Task_Client_Approved_Backlog_Item</targetReference>
+            <targetReference
+      >Update_Project_Task_Client_Approved_Backlog_Item</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -29,9 +30,11 @@
     </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description>This task will run whenever the client approves a backlog task.</description>
+    <description
+  >This task will run whenever the client approves a backlog task.</description>
     <environments>Default</environments>
-    <interviewLabel>Autolaunch - Client Approved {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Autolaunch - Client Approved {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Autolaunch - Project Task - Client Approved Backlog Task</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -53,7 +56,8 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordUpdates>
-        <description>The client has approved a backlog item. Time to update to &quot;Pending&quot; and that the client has reviewed</description>
+        <description
+    >The client has approved a backlog item. Time to update to &quot;Pending&quot; and that the client has reviewed</description>
         <name>Update_Project_Task_Client_Approved_Backlog_Item</name>
         <label>Update Project Task - Client Approved Backlog Item</label>
         <locationX>0</locationX>

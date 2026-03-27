@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <AnalyticsSettings xmlns="http://soap.sforce.com/2006/04/metadata">
     <alwaysGenPreviews>false</alwaysGenPreviews>
     <analyticsAdoptionMetadata>false</analyticsAdoptionMetadata>
@@ -13,7 +13,8 @@
     <cdpQueryCachingOptIn>false</cdpQueryCachingOptIn>
     <concurrencyLimitSharing>false</concurrencyLimitSharing>
     <disableIncrementalDatasetCreation>false</disableIncrementalDatasetCreation>
-    <enableAmazonRedshiftOutputConnector>false</enableAmazonRedshiftOutputConnector>
+    <enableAmazonRedshiftOutputConnector
+  >false</enableAmazonRedshiftOutputConnector>
     <enableAnalyticsSharingEnable>true</enableAnalyticsSharingEnable>
     <enableAutoCompleteCombo>true</enableAutoCompleteCombo>
     <enableAzureDLGen2OutputConnector>false</enableAzureDLGen2OutputConnector>

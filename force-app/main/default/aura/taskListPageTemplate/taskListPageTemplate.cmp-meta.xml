@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <AuraDefinitionBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
-    <description>Custom template for Task List page - focused single-column layout optimized for task management</description>
+    <description
+  >Custom template for Task List page - focused single-column layout optimized for task management</description>
 </AuraDefinitionBundle>

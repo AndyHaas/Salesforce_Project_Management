@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
     <caseValues>
         <plural>false</plural>
@@ -11,13 +11,13 @@
     <layouts>
         <layout>Time Sheet Entries Layout</layout>
         <sections>
-            <label></label>
+            <label />
             <section>Custom Links</section>
         </sections>
     </layouts>
     <startsWith>Consonant</startsWith>
     <validationRules>
-        <errorMessage></errorMessage>
+        <errorMessage />
         <name>Project_Completed</name>
     </validationRules>
 </CustomObjectTranslation>

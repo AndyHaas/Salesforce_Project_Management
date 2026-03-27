@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
         <name>Send_Email_Alert</name>
@@ -28,7 +28,8 @@
             <name>Yes_already_above_80</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record__Prior.Burn_Rate__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Burn_Rate__c</leftValueReference>
                 <operator>GreaterThanOrEqualTo</operator>
                 <rightValue>
                     <numberValue>80.0</numberValue>
@@ -40,7 +41,8 @@
             <name>No_send_message</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record__Prior.Burn_Rate__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Burn_Rate__c</leftValueReference>
                 <operator>LessThan</operator>
                 <rightValue>
                     <numberValue>80.0</numberValue>
@@ -53,7 +55,8 @@
         </rules>
     </decisions>
     <environments>Default</environments>
-    <interviewLabel>Record - Project - Alert Burn Rate &gt; 80% {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Record - Project - Alert Burn Rate &gt; 80% {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Record - Project - Alert Burn Rate &gt; 80%</label>
     <processMetadataValues>
         <name>BuilderType</name>

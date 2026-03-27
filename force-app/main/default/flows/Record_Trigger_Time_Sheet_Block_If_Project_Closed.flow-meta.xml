@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -8,7 +8,8 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>$Record.val_ProjectCompleted__c</assignToReference>
+            <assignToReference
+      >$Record.val_ProjectCompleted__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <booleanValue>true</booleanValue>
@@ -39,13 +40,16 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Set_Validation_Flag_Project_Completed</targetReference>
+                <targetReference
+        >Set_Validation_Flag_Project_Completed</targetReference>
             </connector>
             <label>Project Completed and Invoiced</label>
         </rules>
     </decisions>
-    <description>This flow currently has a validation rule in it to make sure you can&apos;t add any more timesheet entries or modify them once the project is completed</description>
-    <interviewLabel>Record Trigger - Time Sheet - Block If Project Closed {!$Flow.CurrentDateTime}</interviewLabel>
+    <description
+  >This flow currently has a validation rule in it to make sure you can&apos;t add any more timesheet entries or modify them once the project is completed</description>
+    <interviewLabel
+  >Record Trigger - Time Sheet - Block If Project Closed {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Record Trigger - Time Sheet - Block If Project Closed</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -71,7 +75,8 @@
         <label>Get Project</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Is_Project_Completed</targetReference>
         </connector>
