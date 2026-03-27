@@ -93,9 +93,7 @@
         description="When checked, the pinned summary is hidden on load; users open it with the preview icon."
       />
         </targetConfig>
-        <targetConfig
-      targets="lightningCommunity__Page,lightningCommunity__Default"
-    >
+        <targetConfig targets="lightningCommunity__Default">
             <property
         name="relatedAccountId"
         type="String"
