@@ -1,607 +1,798 @@
 <template>
-    <c-field-edit-modal
-        onsave={handleFieldSaveFromModal}>
-    </c-field-edit-modal>
-    <lightning-card title="Tasks" icon-name="utility:list" class={densityClass}>
-        <div slot="actions" class="slds-p-around_small slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-            <div class="slds-col slds-grow slds-m-right_medium">
-                <div class="slds-grid slds-grid_vertical-align-center slds-gutters_x-small">
-                    <template if:true={shouldShowAccountFilter}>
-                        <div class="slds-col">
-                            <lightning-combobox
-                                label=""
-                                label-hidden
-                                placeholder="Filter by Account"
-                                value={accountFilterComboboxValue}
-                                options={accountFilterOptions}
-                                onchange={handleAccountChange}
-                                class="account-filter-combobox">
-                            </lightning-combobox>
-                        </div>
-                    </template>
+  <c-field-edit-modal onsave={handleFieldSaveFromModal}> </c-field-edit-modal>
+  <lightning-card title="Tasks" icon-name="utility:list" class={densityClass}>
+    <div
+      slot="actions"
+      class="slds-p-around_small slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+    >
+      <div class="slds-col slds-grow slds-m-right_medium">
+        <div
+          class="slds-grid slds-grid_vertical-align-center slds-gutters_x-small"
+        >
+          <template if:true={shouldShowAccountFilter}>
+            <div class="slds-col">
+              <lightning-combobox
+                label=""
+                label-hidden
+                placeholder="Filter by Account"
+                value={accountFilterComboboxValue}
+                options={accountFilterOptions}
+                onchange={handleAccountChange}
+                class="account-filter-combobox"
+              >
+              </lightning-combobox>
+            </div>
+          </template>
 
-                    <template if:false={isPortalMode}>
-                        <div class="slds-col">
-                            <lightning-combobox
-                                label=""
-                                label-hidden
-                                placeholder="Filter by project manager"
-                                value={selectedContactId}
-                                options={assignedContacts}
-                                onchange={handleContactSelected}
-                                class="contact-filter-combobox">
-                            </lightning-combobox>
-                        </div>
-                    </template>
-                </div>
+          <template if:false={isPortalMode}>
+            <div class="slds-col">
+              <lightning-combobox
+                label=""
+                label-hidden
+                placeholder="Filter by project manager"
+                value={selectedContactId}
+                options={assignedContacts}
+                onchange={handleContactSelected}
+                class="contact-filter-combobox"
+              >
+              </lightning-combobox>
             </div>
-            <div class="slds-col actions-container slds-grid slds-grid_vertical-align-center">
-                <template if:true={showProjectScopeFilterBadge}>
-                    <lightning-badge
-                        label="Filter by Project"
-                        class="slds-m-right_small"
-                        title="Tasks are limited to the selected project">
-                    </lightning-badge>
-                </template>
-                <template if:true={isFilteredByAccount}>
-                    <template if:false={isFilteredByProject}>
-                        <lightning-badge
-                            label="Filtered by Account"
-                            class="slds-m-right_small"
-                            title="Tasks are limited to the selected account(s)">
-                        </lightning-badge>
-                    </template>
-                </template>
-                <div class="button-group-wrapper">
-                    <lightning-button-group class="slds-m-right_small">
-                        <lightning-button-icon
-                            icon-name="utility:refresh"
-                            variant="border-filled"
-                            alternative-text="Refresh task list"
-                            title="Refresh task list"
-                            onclick={handleManualRefresh}>
-                        </lightning-button-icon>
-                        <template if:false={isPortalMode}>
-                            <lightning-button
-                                label="New Task"
-                                variant="brand"
-                                icon-name="utility:add"
-                                onclick={handleCreateNewTask}
-                                title="Create a new Project Task">
-                            </lightning-button>
-                        </template>
-                        <lightning-button-menu 
-                            alternative-text="More actions" 
-                            variant="border-filled"
-                            menu-alignment="auto"
-                            onselect={handleMenuSelect}>
-                            <template if:true={showMyTasksButton}>
-                                <lightning-menu-item 
-                                    label={meModeButtonLabel}
-                                    value="myTasks"
-                                    icon-name={meModeButtonIcon}>
-                                </lightning-menu-item>
-                            </template>
-                            <template if:true={hasCompletedTasks}>
-                                <lightning-menu-item 
-                                    label={completedToggleLabel}
-                                    value="showCompleted"
-                                    icon-name={completedToggleIcon}>
-                                </lightning-menu-item>
-                            </template>
-                            <template if:true={hasRemovedTasks}>
-                                <lightning-menu-item 
-                                    label={removedToggleLabel}
-                                    value="showRemoved"
-                                    icon-name={removedToggleIcon}>
-                                </lightning-menu-item>
-                            </template>
-                            <lightning-menu-item 
-                                label={expandCollapseAllLabel}
-                                value="expandCollapseAll"
-                                icon-name={expandCollapseAllIcon}
-                                disabled={expandCollapseAllDisabled}>
-                            </lightning-menu-item>
-                            <lightning-menu-item 
-                                label={expandCollapseAllSubtasksLabel}
-                                value="expandCollapseAllSubtasks"
-                                icon-name={expandCollapseAllSubtasksIcon}
-                                disabled={expandCollapseAllSubtasksDisabled}>
-                            </lightning-menu-item>
-                        </lightning-button-menu>
-                    </lightning-button-group>
-                </div>
-            </div>
+          </template>
         </div>
-        <template if:true={isLoading}>
-            <div class="slds-card__body slds-card__body_inner">
-                <div class="slds-text-align_center slds-p-around_medium">
-                    <lightning-spinner size="medium" variant="brand" alternative-text="Loading tasks"></lightning-spinner>
-                </div>
-            </div>
+      </div>
+      <div
+        class="slds-col actions-container slds-grid slds-grid_vertical-align-center"
+      >
+        <template if:true={showProjectScopeFilterBadge}>
+          <lightning-badge
+            label="Filter by Project"
+            class="slds-m-right_small"
+            title="Tasks are limited to the selected project"
+          >
+          </lightning-badge>
         </template>
+        <template if:true={isFilteredByAccount}>
+          <template if:false={isFilteredByProject}>
+            <lightning-badge
+              label="Filtered by Account"
+              class="slds-m-right_small"
+              title="Tasks are limited to the selected account(s)"
+            >
+            </lightning-badge>
+          </template>
+        </template>
+        <div class="button-group-wrapper">
+          <lightning-button-group class="slds-m-right_small">
+            <lightning-button-icon
+              icon-name="utility:refresh"
+              variant="border-filled"
+              alternative-text="Refresh task list"
+              title="Refresh task list"
+              onclick={handleManualRefresh}
+            >
+            </lightning-button-icon>
+            <template if:false={isPortalMode}>
+              <lightning-button
+                label="New Task"
+                variant="brand"
+                icon-name="utility:add"
+                onclick={handleCreateNewTask}
+                title="Create a new Project Task"
+              >
+              </lightning-button>
+            </template>
+            <lightning-button-menu
+              alternative-text="More actions"
+              variant="border-filled"
+              menu-alignment="auto"
+              onselect={handleMenuSelect}
+            >
+              <template if:true={showMyTasksButton}>
+                <lightning-menu-item
+                  label={meModeButtonLabel}
+                  value="myTasks"
+                  icon-name={meModeButtonIcon}
+                >
+                </lightning-menu-item>
+              </template>
+              <template if:true={hasCompletedTasks}>
+                <lightning-menu-item
+                  label={completedToggleLabel}
+                  value="showCompleted"
+                  icon-name={completedToggleIcon}
+                >
+                </lightning-menu-item>
+              </template>
+              <template if:true={hasRemovedTasks}>
+                <lightning-menu-item
+                  label={removedToggleLabel}
+                  value="showRemoved"
+                  icon-name={removedToggleIcon}
+                >
+                </lightning-menu-item>
+              </template>
+              <lightning-menu-item
+                label={expandCollapseAllLabel}
+                value="expandCollapseAll"
+                icon-name={expandCollapseAllIcon}
+                disabled={expandCollapseAllDisabled}
+              >
+              </lightning-menu-item>
+              <lightning-menu-item
+                label={expandCollapseAllSubtasksLabel}
+                value="expandCollapseAllSubtasks"
+                icon-name={expandCollapseAllSubtasksIcon}
+                disabled={expandCollapseAllSubtasksDisabled}
+              >
+              </lightning-menu-item>
+            </lightning-button-menu>
+          </lightning-button-group>
+        </div>
+      </div>
+    </div>
+    <template if:true={isLoading}>
+      <div class="slds-card__body slds-card__body_inner">
+        <div class="slds-text-align_center slds-p-around_medium">
+          <lightning-spinner
+            size="medium"
+            variant="brand"
+            alternative-text="Loading tasks"
+          ></lightning-spinner>
+        </div>
+      </div>
+    </template>
 
-        <template if:false={isLoading}>
-            <template if:true={error}>
-                <div class="slds-card__body slds-card__body_inner">
-                    <div class="slds-text-align_center slds-p-around_medium">
-                        <lightning-icon icon-name="utility:error" size="small" class="slds-m-bottom_x-small"></lightning-icon>
-                        <p class="slds-text-body_regular slds-text-color_error">
-                            Error loading tasks. Please try again.
-                        </p>
-                    </div>
+    <template if:false={isLoading}>
+      <template if:true={error}>
+        <div class="slds-card__body slds-card__body_inner">
+          <div class="slds-text-align_center slds-p-around_medium">
+            <lightning-icon
+              icon-name="utility:error"
+              size="small"
+              class="slds-m-bottom_x-small"
+            ></lightning-icon>
+            <p class="slds-text-body_regular slds-text-color_error">
+              Error loading tasks. Please try again.
+            </p>
+          </div>
+        </div>
+      </template>
+
+      <template if:true={hasData}>
+        <div class="slds-card__body slds-card__body_inner">
+          <template for:each={displayStatusGroups} for:item="statusGroup">
+            <div
+              key={statusGroup.status}
+              class="status-group slds-m-bottom_large"
+            >
+              <!-- Status Header -->
+              <div
+                class={statusGroup.headerClass}
+                style={statusGroup.headerStyle}
+              >
+                <div class="status-header-content">
+                  <h3 class="slds-text-heading_small">
+                    {statusGroup.status}
+                    <span
+                      class="slds-m-left_small slds-text-body_regular"
+                      style="opacity: 0.9"
+                    >
+                      ({statusGroup.taskCount})
+                    </span>
+                    <template
+                      if:true={statusGroup.formattedTotalEstimatedHours}
+                    >
+                      <span
+                        class="slds-m-left_small slds-text-body_regular"
+                        style="opacity: 0.9"
+                      >
+                        • {statusGroup.formattedTotalEstimatedHours}
+                      </span>
+                    </template>
+                  </h3>
+                  <lightning-button-icon
+                    class="status-toggle-button"
+                    icon-name={statusGroup.statusToggleIconName}
+                    alternative-text={statusGroup.statusToggleAltText}
+                    onclick={handleStatusToggle}
+                    data-status={statusGroup.status}
+                    variant="bare-inverse"
+                  >
+                  </lightning-button-icon>
                 </div>
-            </template>
-            
-            <template if:true={hasData}>
-            <div class="slds-card__body slds-card__body_inner">
-                <template for:each={displayStatusGroups} for:item="statusGroup">
-                    <div key={statusGroup.status} class="status-group slds-m-bottom_large">
-                        <!-- Status Header -->
-                        <div class={statusGroup.headerClass} style={statusGroup.headerStyle}>
-                            <div class="status-header-content">
-                                <h3 class="slds-text-heading_small">
-                                    {statusGroup.status}
-                                    <span class="slds-m-left_small slds-text-body_regular" style="opacity: 0.9;">
-                                        ({statusGroup.taskCount})
-                                    </span>
-                                    <template if:true={statusGroup.formattedTotalEstimatedHours}>
-                                        <span class="slds-m-left_small slds-text-body_regular" style="opacity: 0.9;">
-                                            • {statusGroup.formattedTotalEstimatedHours}
-                                        </span>
-                                    </template>
-                                </h3>
-                                <lightning-button-icon 
-                                    class="status-toggle-button"
-                                    icon-name={statusGroup.statusToggleIconName}
-                                    alternative-text={statusGroup.statusToggleAltText}
-                                    onclick={handleStatusToggle}
-                                    data-status={statusGroup.status}
-                                    variant="bare-inverse">
-                                </lightning-button-icon>
-                            </div>
-                        </div>
-                        
-                        <template if:false={statusGroup.isCollapsed}>
-                            <!-- HTML Table Structure -->
-                            <table class="task-table">
-                                <thead>
-                                    <tr class="column-headers">
-                                        <th class="task-name-header">
-                                            <strong>Task Name</strong>
-                                        </th>
-                                        <template if:true={hasSummaryFields}>
-                                            <template for:each={summaryFieldDefinitions} for:item="field">
-                                                <th key={field.apiName} class={field.headerClass}>
-                                                    <strong>{field.label}</strong>
-                                                </th>
-                                            </template>
-                                        </template>
-                                        <template if:false={hasSummaryFields}>
-                                            <template if:false={isFilteredByAccount}>
-                                                <template if:false={isFilteredByProject}>
-                                                    <th class="summary-header">
-                                                        <strong>Account</strong>
-                                                    </th>
-                                                </template>
-                                            </template>
-                                            <th class="summary-header">
-                                                <strong>Owner</strong>
-                                            </th>
-                                            <th class="summary-header">
-                                                <strong>Due Date</strong>
-                                            </th>
-                                            <th class="summary-header">
-                                                <strong>Priority</strong>
-                                            </th>
-                                            <th class="summary-header">
-                                                <strong>Est. Hours</strong>
-                                            </th>
-                                        </template>
-                                        <th class="menu-header"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <template for:each={statusGroup.tasks} for:item="task">
-                                        <!-- Task Row -->
-                                        <tr key={task.id} class="task-row" data-task-id={task.id}>
-                                            <!-- Task Name Cell -->
-                                            <td class="task-name-cell">
-                                                <div class="task-name-content">
-                                                    <template if:true={task.hasSubtasks}>
-                                                        <button 
-                                                            class="slds-button slds-button_icon slds-button_icon-small slds-m-right_x-small"
-                                                            data-task-id={task.id}
-                                                            onclick={handleToggleSubtasks}>
-                                                            <lightning-icon 
-                                                                icon-name={task.iconName}
-                                                                size="x-small"
-                                                                alternative-text={task.iconAltText}>
-                                                            </lightning-icon>
-                                                            <span class="slds-assistive-text">
-                                                                {task.iconAltText} subtasks
-                                                            </span>
-                                                        </button>
-                                                    </template>
-                                                    <template if:false={task.hasSubtasks}>
-                                                        <div class="slds-m-right_large"></div>
-                                                    </template>
-                                                    
-                                                    <div class="task-name-wrapper">
-                                                        <template if:true={task.isEditing}>
-                                                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                                                                <lightning-input
-                                                                    type="text"
-                                                                    label="Task Name"
-                                                                    value={editingTaskName}
-                                                                    onchange={handleTaskNameChange}
-                                                                    onkeydown={handleTaskNameKeyDown}
-                                                                    class="slds-grow slds-m-right_x-small"
-                                                                    variant="label-hidden">
-                                                                </lightning-input>
-                                                                <lightning-button-icon
-                                                                    icon-name="utility:check"
-                                                                    variant="bare"
-                                                                    alternative-text="Save"
-                                                                    onclick={handleTaskNameSave}
-                                                                    class="slds-m-right_x-small">
-                                                                </lightning-button-icon>
-                                                                <lightning-button-icon
-                                                                    icon-name="utility:close"
-                                                                    variant="bare"
-                                                                    alternative-text="Cancel"
-                                                                    onclick={cancelEdit}>
-                                                                </lightning-button-icon>
-                                                            </div>
-                                                        </template>
-                                                        <template if:false={task.isEditing}>
-                                                            <a 
-                                                                href="javascript:void(0);" 
-                                                                class="task-name-link slds-text-link"
-                                                                data-task-id={task.id}
-                                                                onclick={handleTaskNameClick}
-                                                                title="Click to view task record">
-                                                                {task.name}
-                                                            </a>
-                                                            
-                                                            <template if:true={task.hasSubtasks}>
-                                                                <span class="slds-m-left_small slds-text-body_small slds-text-color_weak">
-                                                                    ({task.subtaskCount} {task.subtaskLabel})
-                                                                </span>
-                                                            </template>
-                                                            
-                                                            <c-task-hover-card 
-                                                                hover-fields={task.hoverFields} 
-                                                                task-status={task.status}
-                                                                badge-style="custom">
-                                                            </c-task-hover-card>
-                                                        </template>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            
-                                            <!-- Summary Field Cells -->
-                                            <template if:true={hasSummaryFields}>
-                                                <template for:each={task.summaryFields} for:item="field">
-                                                    <template if:true={field.isEditable}>
-                                                        <td key={field.apiName} 
-                                                            class="summary-cell field-editable"
-                                                            data-task-id={task.id}
-                                                            data-field-api-name={field.apiName}
-                                                            onmouseenter={handleFieldHover}
-                                                            onmouseleave={handleFieldLeave}
-                                                            onclick={handleFieldClick}
-                                                            title="Click to edit">
-                                                            <div class="field-display-wrapper">
-                                                                <template if:true={field.displayValue}>
-                                                                    <div class="slds-text-body_small field-display">{field.displayValue}</div>
-                                                                </template>
-                                                                <template if:false={field.displayValue}>
-                                                                    <div class="slds-text-body_small field-display slds-text-color_weak">—</div>
-                                                                </template>
-                                                                <lightning-icon
-                                                                    icon-name="utility:edit"
-                                                                    size="xx-small"
-                                                                    class="field-edit-icon"
-                                                                    alternative-text="Edit">
-                                                                </lightning-icon>
-                                                            </div>
-                                                        </td>
-                                                    </template>
-                                                    <template if:false={field.isEditable}>
-                                                        <td key={field.apiName} 
-                                                            class="summary-cell"
-                                                            data-task-id={task.id}
-                                                            data-field-api-name={field.apiName}>
-                                                            <template if:true={field.displayValue}>
-                                                                <div class="slds-text-body_small field-display">{field.displayValue}</div>
-                                                            </template>
-                                                            <template if:false={field.displayValue}>
-                                                                <div class="slds-text-body_small field-display slds-text-color_weak">—</div>
-                                                            </template>
-                                                        </td>
-                                                    </template>
-                                                </template>
-                                            </template>
-                                            <template if:false={hasSummaryFields}>
-                                                <template if:false={isFilteredByAccount}>
-                                                    <template if:false={isFilteredByProject}>
-                                                        <td class="summary-cell">
-                                                            <template if:true={task.accountName}>
-                                                                <div class="slds-text-body_small">{task.accountName}</div>
-                                                            </template>
-                                                            <template if:false={task.accountName}>
-                                                                <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                            </template>
-                                                        </td>
-                                                    </template>
-                                                </template>
-                                                
-                                                <td class="summary-cell">
-                                                    <template if:true={task.projectManagerName}>
-                                                        <div class="slds-text-body_small">{task.projectManagerName}</div>
-                                                    </template>
-                                                    <template if:false={task.projectManagerName}>
-                                                        <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                    </template>
-                                                </td>
-                                                
-                                                <td class="summary-cell">
-                                                    <template if:true={task.formattedDueDate}>
-                                                        <div class="slds-text-body_small">{task.formattedDueDate}</div>
-                                                    </template>
-                                                    <template if:false={task.formattedDueDate}>
-                                                        <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                    </template>
-                                                </td>
-                                                
-                                                <td class="summary-cell">
-                                                    <template if:true={task.priority}>
-                                                        <div class="slds-text-body_small">{task.priority}</div>
-                                                    </template>
-                                                    <template if:false={task.priority}>
-                                                        <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                    </template>
-                                                </td>
-                                                
-                                                <td class="summary-cell">
-                                                    <template if:true={task.formattedEstimatedHours}>
-                                                        <div class="slds-text-body_small">{task.formattedEstimatedHours}</div>
-                                                    </template>
-                                                    <template if:false={task.formattedEstimatedHours}>
-                                                        <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                    </template>
-                                                </td>
-                                            </template>
-                                            
-                                            <!-- Menu Cell -->
-                                            <td class="menu-cell">
-                                                <template if:true={task.showMenu}>
-                                                    <lightning-button-menu
-                                                        alternative-text="Task actions"
-                                                        icon-name="utility:down"
-                                                        variant="border-filled"
-                                                        icon-size="x-small"
-                                                        menu-alignment="auto"
-                                                        data-task-id={task.id}
-                                                        onselect={handleMenuAction}
-                                                        class="task-action-menu">
-                                                        <template if:true={task.canEdit}>
-                                                            <lightning-menu-item
-                                                                label="Edit"
-                                                                value="edit"
-                                                                icon-name="utility:edit">
-                                                            </lightning-menu-item>
-                                                        </template>
-                                                        <template if:true={task.canDelete}>
-                                                            <lightning-menu-item
-                                                                label="Delete"
-                                                                value="delete"
-                                                                icon-name="utility:delete">
-                                                            </lightning-menu-item>
-                                                        </template>
-                                                    </lightning-button-menu>
-                                                </template>
-                                            </td>
-                                        </tr>
-                                        
-                                        <!-- Subtask Rows (shown when expanded) -->
-                                        <template if:true={task.hasSubtasks}>
-                                            <template if:true={task.isExpanded}>
-                                                <template for:each={task.subtasks} for:item="subtask">
-                                                    <tr key={subtask.id} class="subtask-row" data-task-id={subtask.id}>
-                                                        <!-- Subtask Name Cell -->
-                                                        <td class="task-name-cell subtask-indent">
-                                                            <div class="subtask-name-wrapper">
-                                                                <template if:true={subtask.isEditing}>
-                                                                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                                                                        <lightning-input
-                                                                            type="text"
-                                                                            label="Subtask Name"
-                                                                            value={editingTaskName}
-                                                                            onchange={handleTaskNameChange}
-                                                                            onkeydown={handleTaskNameKeyDown}
-                                                                            class="slds-grow slds-m-right_x-small"
-                                                                            variant="label-hidden">
-                                                                        </lightning-input>
-                                                                        <lightning-button-icon
-                                                                            icon-name="utility:check"
-                                                                            variant="bare"
-                                                                            alternative-text="Save"
-                                                                            onclick={handleTaskNameSave}
-                                                                            class="slds-m-right_x-small">
-                                                                        </lightning-button-icon>
-                                                                        <lightning-button-icon
-                                                                            icon-name="utility:close"
-                                                                            variant="bare"
-                                                                            alternative-text="Cancel"
-                                                                            onclick={cancelEdit}>
-                                                                        </lightning-button-icon>
-                                                                    </div>
-                                                                </template>
-                                                                <template if:false={subtask.isEditing}>
-                                                                    <a 
-                                                                        href="javascript:void(0);" 
-                                                                        class="subtask-name-link slds-text-link"
-                                                                        data-task-id={subtask.id}
-                                                                        onclick={handleTaskNameClick}
-                                                                        title="Click to view task record">
-                                                                        {subtask.name}
-                                                                    </a>
-                                                                    
-                                                                    <c-task-hover-card 
-                                                                        hover-fields={subtask.hoverFields} 
-                                                                        task-status={subtask.status}
-                                                                        badge-style="custom">
-                                                                    </c-task-hover-card>
-                                                                </template>
-                                                            </div>
-                                                        </td>
-                                                        
-                                                        <!-- Subtask Summary Field Cells -->
-                                                        <template if:true={hasSummaryFields}>
-                                                            <template for:each={subtask.summaryFields} for:item="field">
-                                                                <template if:true={field.isEditable}>
-                                                                    <td key={field.apiName} 
-                                                                        class="summary-cell field-editable"
-                                                                        data-task-id={subtask.id}
-                                                                        data-field-api-name={field.apiName}
-                                                                        onmouseenter={handleFieldHover}
-                                                                        onmouseleave={handleFieldLeave}
-                                                                        onclick={handleFieldClick}
-                                                                        title="Click to edit">
-                                                                        <div class="field-display-wrapper">
-                                                                            <template if:true={field.displayValue}>
-                                                                                <div class="slds-text-body_small field-display">{field.displayValue}</div>
-                                                                            </template>
-                                                                            <template if:false={field.displayValue}>
-                                                                                <div class="slds-text-body_small field-display slds-text-color_weak">—</div>
-                                                                            </template>
-                                                                            <lightning-icon
-                                                                                icon-name="utility:edit"
-                                                                                size="xx-small"
-                                                                                class="field-edit-icon"
-                                                                                alternative-text="Edit">
-                                                                            </lightning-icon>
-                                                                        </div>
-                                                                    </td>
-                                                                </template>
-                                                                <template if:false={field.isEditable}>
-                                                                    <td key={field.apiName} 
-                                                                        class="summary-cell"
-                                                                        data-task-id={subtask.id}
-                                                                        data-field-api-name={field.apiName}>
-                                                                        <template if:true={field.displayValue}>
-                                                                            <div class="slds-text-body_small field-display">{field.displayValue}</div>
-                                                                        </template>
-                                                                        <template if:false={field.displayValue}>
-                                                                            <div class="slds-text-body_small field-display slds-text-color_weak">—</div>
-                                                                        </template>
-                                                                    </td>
-                                                                </template>
-                                                            </template>
-                                                        </template>
-                                                        <template if:false={hasSummaryFields}>
-                                                            <template if:false={isFilteredByAccount}>
-                                                                <template if:false={isFilteredByProject}>
-                                                                    <td class="summary-cell">
-                                                                        <template if:true={subtask.accountName}>
-                                                                            <div class="slds-text-body_small">{subtask.accountName}</div>
-                                                                        </template>
-                                                                        <template if:false={subtask.accountName}>
-                                                                            <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                                        </template>
-                                                                    </td>
-                                                                </template>
-                                                            </template>
-                                                            
-                                                            <td class="summary-cell">
-                                                                <template if:true={subtask.projectManagerName}>
-                                                                    <div class="slds-text-body_small">{subtask.projectManagerName}</div>
-                                                                </template>
-                                                                <template if:false={subtask.projectManagerName}>
-                                                                    <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                                </template>
-                                                            </td>
-                                                            
-                                                            <td class="summary-cell">
-                                                                <template if:true={subtask.formattedDueDate}>
-                                                                    <div class="slds-text-body_small">{subtask.formattedDueDate}</div>
-                                                                </template>
-                                                                <template if:false={subtask.formattedDueDate}>
-                                                                    <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                                </template>
-                                                            </td>
-                                                            
-                                                            <td class="summary-cell">
-                                                                <template if:true={subtask.priority}>
-                                                                    <div class="slds-text-body_small">{subtask.priority}</div>
-                                                                </template>
-                                                                <template if:false={subtask.priority}>
-                                                                    <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                                </template>
-                                                            </td>
-                                                            
-                                                            <td class="summary-cell">
-                                                                <template if:true={subtask.formattedEstimatedHours}>
-                                                                    <div class="slds-text-body_small">{subtask.formattedEstimatedHours}</div>
-                                                                </template>
-                                                                <template if:false={subtask.formattedEstimatedHours}>
-                                                                    <div class="slds-text-body_small slds-text-color_weak">—</div>
-                                                                </template>
-                                                            </td>
-                                                        </template>
-                                                        
-                                                        <!-- Subtask Menu Cell -->
-                                                        <td class="menu-cell">
-                                                            <template if:true={subtask.showMenu}>
-                                                                <lightning-button-menu
-                                                                    alternative-text="Task actions"
-                                                                    icon-name="utility:down"
-                                                                    variant="border-filled"
-                                                                    icon-size="x-small"
-                                                                    menu-alignment="auto"
-                                                                    data-task-id={subtask.id}
-                                                                    onselect={handleMenuAction}
-                                                                    class="task-action-menu">
-                                                                    <template if:true={subtask.canEdit}>
-                                                                        <lightning-menu-item
-                                                                            label="Edit"
-                                                                            value="edit"
-                                                                            icon-name="utility:edit">
-                                                                        </lightning-menu-item>
-                                                                    </template>
-                                                                    <template if:true={subtask.canDelete}>
-                                                                        <lightning-menu-item
-                                                                            label="Delete"
-                                                                            value="delete"
-                                                                            icon-name="utility:delete">
-                                                                        </lightning-menu-item>
-                                                                    </template>
-                                                                </lightning-button-menu>
-                                                            </template>
-                                                        </td>
-                                                    </tr>
-                                                </template>
-                                            </template>
-                                        </template>
-                                    </template>
-                                </tbody>
-                            </table>
+              </div>
+
+              <template if:false={statusGroup.isCollapsed}>
+                <!-- HTML Table Structure -->
+                <table class="task-table">
+                  <thead>
+                    <tr class="column-headers">
+                      <th class="task-name-header">
+                        <strong>Task Name</strong>
+                      </th>
+                      <template if:true={hasSummaryFields}>
+                        <template
+                          for:each={summaryFieldDefinitions}
+                          for:item="field"
+                        >
+                          <th key={field.apiName} class={field.headerClass}>
+                            <strong>{field.label}</strong>
+                          </th>
                         </template>
-                    </div>
-                </template>
+                      </template>
+                      <template if:false={hasSummaryFields}>
+                        <template if:false={isFilteredByAccount}>
+                          <template if:false={isFilteredByProject}>
+                            <th class="summary-header">
+                              <strong>Account</strong>
+                            </th>
+                          </template>
+                        </template>
+                        <th class="summary-header">
+                          <strong>Owner</strong>
+                        </th>
+                        <th class="summary-header">
+                          <strong>Due Date</strong>
+                        </th>
+                        <th class="summary-header">
+                          <strong>Priority</strong>
+                        </th>
+                        <th class="summary-header">
+                          <strong>Est. Hours</strong>
+                        </th>
+                      </template>
+                      <th class="menu-header"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template for:each={statusGroup.tasks} for:item="task">
+                      <!-- Task Row -->
+                      <tr key={task.id} class="task-row" data-task-id={task.id}>
+                        <!-- Task Name Cell -->
+                        <td class="task-name-cell">
+                          <div class="task-name-content">
+                            <template if:true={task.hasSubtasks}>
+                              <button
+                                class="slds-button slds-button_icon slds-button_icon-small slds-m-right_x-small"
+                                data-task-id={task.id}
+                                onclick={handleToggleSubtasks}
+                              >
+                                <lightning-icon
+                                  icon-name={task.iconName}
+                                  size="x-small"
+                                  alternative-text={task.iconAltText}
+                                >
+                                </lightning-icon>
+                                <span class="slds-assistive-text">
+                                  {task.iconAltText} subtasks
+                                </span>
+                              </button>
+                            </template>
+                            <template if:false={task.hasSubtasks}>
+                              <div class="slds-m-right_large"></div>
+                            </template>
+
+                            <div class="task-name-wrapper">
+                              <template if:true={task.isEditing}>
+                                <div
+                                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+                                >
+                                  <lightning-input
+                                    type="text"
+                                    label="Task Name"
+                                    value={editingTaskName}
+                                    onchange={handleTaskNameChange}
+                                    onkeydown={handleTaskNameKeyDown}
+                                    class="slds-grow slds-m-right_x-small"
+                                    variant="label-hidden"
+                                  >
+                                  </lightning-input>
+                                  <lightning-button-icon
+                                    icon-name="utility:check"
+                                    variant="bare"
+                                    alternative-text="Save"
+                                    onclick={handleTaskNameSave}
+                                    class="slds-m-right_x-small"
+                                  >
+                                  </lightning-button-icon>
+                                  <lightning-button-icon
+                                    icon-name="utility:close"
+                                    variant="bare"
+                                    alternative-text="Cancel"
+                                    onclick={cancelEdit}
+                                  >
+                                  </lightning-button-icon>
+                                </div>
+                              </template>
+                              <template if:false={task.isEditing}>
+                                <a
+                                  href="javascript:void(0);"
+                                  class="task-name-link slds-text-link"
+                                  data-task-id={task.id}
+                                  onclick={handleTaskNameClick}
+                                  title="Click to view task record"
+                                >
+                                  {task.name}
+                                </a>
+
+                                <template if:true={task.hasSubtasks}>
+                                  <span
+                                    class="slds-m-left_small slds-text-body_small slds-text-color_weak"
+                                  >
+                                    ({task.subtaskCount} {task.subtaskLabel})
+                                  </span>
+                                </template>
+
+                                <c-task-hover-card
+                                  hover-fields={task.hoverFields}
+                                  task-status={task.status}
+                                  badge-style="custom"
+                                >
+                                </c-task-hover-card>
+                              </template>
+                            </div>
+                          </div>
+                        </td>
+
+                        <!-- Summary Field Cells -->
+                        <template if:true={hasSummaryFields}>
+                          <template
+                            for:each={task.summaryFields}
+                            for:item="field"
+                          >
+                            <template if:true={field.isEditable}>
+                              <td
+                                key={field.apiName}
+                                class="summary-cell field-editable"
+                                data-task-id={task.id}
+                                data-field-api-name={field.apiName}
+                                onmouseenter={handleFieldHover}
+                                onmouseleave={handleFieldLeave}
+                                onclick={handleFieldClick}
+                                title="Click to edit"
+                              >
+                                <div class="field-display-wrapper">
+                                  <template if:true={field.displayValue}>
+                                    <div
+                                      class="slds-text-body_small field-display"
+                                    >
+                                      {field.displayValue}
+                                    </div>
+                                  </template>
+                                  <template if:false={field.displayValue}>
+                                    <div
+                                      class="slds-text-body_small field-display slds-text-color_weak"
+                                    >
+                                      &#8212;
+                                    </div>
+                                  </template>
+                                  <lightning-icon
+                                    icon-name="utility:edit"
+                                    size="xx-small"
+                                    class="field-edit-icon"
+                                    alternative-text="Edit"
+                                  >
+                                  </lightning-icon>
+                                </div>
+                              </td>
+                            </template>
+                            <template if:false={field.isEditable}>
+                              <td
+                                key={field.apiName}
+                                class="summary-cell"
+                                data-task-id={task.id}
+                                data-field-api-name={field.apiName}
+                              >
+                                <template if:true={field.displayValue}>
+                                  <div
+                                    class="slds-text-body_small field-display"
+                                  >
+                                    {field.displayValue}
+                                  </div>
+                                </template>
+                                <template if:false={field.displayValue}>
+                                  <div
+                                    class="slds-text-body_small field-display slds-text-color_weak"
+                                  >
+                                    &#8212;
+                                  </div>
+                                </template>
+                              </td>
+                            </template>
+                          </template>
+                        </template>
+                        <template if:false={hasSummaryFields}>
+                          <template if:false={isFilteredByAccount}>
+                            <template if:false={isFilteredByProject}>
+                              <td class="summary-cell">
+                                <template if:true={task.accountName}>
+                                  <div class="slds-text-body_small">
+                                    {task.accountName}
+                                  </div>
+                                </template>
+                                <template if:false={task.accountName}>
+                                  <div
+                                    class="slds-text-body_small slds-text-color_weak"
+                                  >
+                                    &#8212;
+                                  </div>
+                                </template>
+                              </td>
+                            </template>
+                          </template>
+
+                          <td class="summary-cell">
+                            <template if:true={task.projectManagerName}>
+                              <div class="slds-text-body_small">
+                                {task.projectManagerName}
+                              </div>
+                            </template>
+                            <template if:false={task.projectManagerName}>
+                              <div
+                                class="slds-text-body_small slds-text-color_weak"
+                              >
+                                &#8212;
+                              </div>
+                            </template>
+                          </td>
+
+                          <td class="summary-cell">
+                            <template if:true={task.formattedDueDate}>
+                              <div class="slds-text-body_small">
+                                {task.formattedDueDate}
+                              </div>
+                            </template>
+                            <template if:false={task.formattedDueDate}>
+                              <div
+                                class="slds-text-body_small slds-text-color_weak"
+                              >
+                                &#8212;
+                              </div>
+                            </template>
+                          </td>
+
+                          <td class="summary-cell">
+                            <template if:true={task.priority}>
+                              <div class="slds-text-body_small">
+                                {task.priority}
+                              </div>
+                            </template>
+                            <template if:false={task.priority}>
+                              <div
+                                class="slds-text-body_small slds-text-color_weak"
+                              >
+                                &#8212;
+                              </div>
+                            </template>
+                          </td>
+
+                          <td class="summary-cell">
+                            <template if:true={task.formattedEstimatedHours}>
+                              <div class="slds-text-body_small">
+                                {task.formattedEstimatedHours}
+                              </div>
+                            </template>
+                            <template if:false={task.formattedEstimatedHours}>
+                              <div
+                                class="slds-text-body_small slds-text-color_weak"
+                              >
+                                &#8212;
+                              </div>
+                            </template>
+                          </td>
+                        </template>
+
+                        <!-- Menu Cell -->
+                        <td class="menu-cell">
+                          <template if:true={task.showMenu}>
+                            <lightning-button-menu
+                              alternative-text="Task actions"
+                              icon-name="utility:down"
+                              variant="border-filled"
+                              icon-size="x-small"
+                              menu-alignment="auto"
+                              data-task-id={task.id}
+                              onselect={handleMenuAction}
+                              class="task-action-menu"
+                            >
+                              <template if:true={task.canEdit}>
+                                <lightning-menu-item
+                                  label="Edit"
+                                  value="edit"
+                                  icon-name="utility:edit"
+                                >
+                                </lightning-menu-item>
+                              </template>
+                              <template if:true={task.canDelete}>
+                                <lightning-menu-item
+                                  label="Delete"
+                                  value="delete"
+                                  icon-name="utility:delete"
+                                >
+                                </lightning-menu-item>
+                              </template>
+                            </lightning-button-menu>
+                          </template>
+                        </td>
+                      </tr>
+
+                      <!-- Subtask Rows (shown when expanded) -->
+                      <template if:true={task.hasSubtasks}>
+                        <template if:true={task.isExpanded}>
+                          <template for:each={task.subtasks} for:item="subtask">
+                            <tr
+                              key={subtask.id}
+                              class="subtask-row"
+                              data-task-id={subtask.id}
+                            >
+                              <!-- Subtask Name Cell -->
+                              <td class="task-name-cell subtask-indent">
+                                <div class="subtask-name-wrapper">
+                                  <template if:true={subtask.isEditing}>
+                                    <div
+                                      class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+                                    >
+                                      <lightning-input
+                                        type="text"
+                                        label="Subtask Name"
+                                        value={editingTaskName}
+                                        onchange={handleTaskNameChange}
+                                        onkeydown={handleTaskNameKeyDown}
+                                        class="slds-grow slds-m-right_x-small"
+                                        variant="label-hidden"
+                                      >
+                                      </lightning-input>
+                                      <lightning-button-icon
+                                        icon-name="utility:check"
+                                        variant="bare"
+                                        alternative-text="Save"
+                                        onclick={handleTaskNameSave}
+                                        class="slds-m-right_x-small"
+                                      >
+                                      </lightning-button-icon>
+                                      <lightning-button-icon
+                                        icon-name="utility:close"
+                                        variant="bare"
+                                        alternative-text="Cancel"
+                                        onclick={cancelEdit}
+                                      >
+                                      </lightning-button-icon>
+                                    </div>
+                                  </template>
+                                  <template if:false={subtask.isEditing}>
+                                    <a
+                                      href="javascript:void(0);"
+                                      class="subtask-name-link slds-text-link"
+                                      data-task-id={subtask.id}
+                                      onclick={handleTaskNameClick}
+                                      title="Click to view task record"
+                                    >
+                                      {subtask.name}
+                                    </a>
+
+                                    <c-task-hover-card
+                                      hover-fields={subtask.hoverFields}
+                                      task-status={subtask.status}
+                                      badge-style="custom"
+                                    >
+                                    </c-task-hover-card>
+                                  </template>
+                                </div>
+                              </td>
+
+                              <!-- Subtask Summary Field Cells -->
+                              <template if:true={hasSummaryFields}>
+                                <template
+                                  for:each={subtask.summaryFields}
+                                  for:item="field"
+                                >
+                                  <template if:true={field.isEditable}>
+                                    <td
+                                      key={field.apiName}
+                                      class="summary-cell field-editable"
+                                      data-task-id={subtask.id}
+                                      data-field-api-name={field.apiName}
+                                      onmouseenter={handleFieldHover}
+                                      onmouseleave={handleFieldLeave}
+                                      onclick={handleFieldClick}
+                                      title="Click to edit"
+                                    >
+                                      <div class="field-display-wrapper">
+                                        <template if:true={field.displayValue}>
+                                          <div
+                                            class="slds-text-body_small field-display"
+                                          >
+                                            {field.displayValue}
+                                          </div>
+                                        </template>
+                                        <template if:false={field.displayValue}>
+                                          <div
+                                            class="slds-text-body_small field-display slds-text-color_weak"
+                                          >
+                                            &#8212;
+                                          </div>
+                                        </template>
+                                        <lightning-icon
+                                          icon-name="utility:edit"
+                                          size="xx-small"
+                                          class="field-edit-icon"
+                                          alternative-text="Edit"
+                                        >
+                                        </lightning-icon>
+                                      </div>
+                                    </td>
+                                  </template>
+                                  <template if:false={field.isEditable}>
+                                    <td
+                                      key={field.apiName}
+                                      class="summary-cell"
+                                      data-task-id={subtask.id}
+                                      data-field-api-name={field.apiName}
+                                    >
+                                      <template if:true={field.displayValue}>
+                                        <div
+                                          class="slds-text-body_small field-display"
+                                        >
+                                          {field.displayValue}
+                                        </div>
+                                      </template>
+                                      <template if:false={field.displayValue}>
+                                        <div
+                                          class="slds-text-body_small field-display slds-text-color_weak"
+                                        >
+                                          &#8212;
+                                        </div>
+                                      </template>
+                                    </td>
+                                  </template>
+                                </template>
+                              </template>
+                              <template if:false={hasSummaryFields}>
+                                <template if:false={isFilteredByAccount}>
+                                  <template if:false={isFilteredByProject}>
+                                    <td class="summary-cell">
+                                      <template if:true={subtask.accountName}>
+                                        <div class="slds-text-body_small">
+                                          {subtask.accountName}
+                                        </div>
+                                      </template>
+                                      <template if:false={subtask.accountName}>
+                                        <div
+                                          class="slds-text-body_small slds-text-color_weak"
+                                        >
+                                          &#8212;
+                                        </div>
+                                      </template>
+                                    </td>
+                                  </template>
+                                </template>
+
+                                <td class="summary-cell">
+                                  <template
+                                    if:true={subtask.projectManagerName}
+                                  >
+                                    <div class="slds-text-body_small">
+                                      {subtask.projectManagerName}
+                                    </div>
+                                  </template>
+                                  <template
+                                    if:false={subtask.projectManagerName}
+                                  >
+                                    <div
+                                      class="slds-text-body_small slds-text-color_weak"
+                                    >
+                                      &#8212;
+                                    </div>
+                                  </template>
+                                </td>
+
+                                <td class="summary-cell">
+                                  <template if:true={subtask.formattedDueDate}>
+                                    <div class="slds-text-body_small">
+                                      {subtask.formattedDueDate}
+                                    </div>
+                                  </template>
+                                  <template if:false={subtask.formattedDueDate}>
+                                    <div
+                                      class="slds-text-body_small slds-text-color_weak"
+                                    >
+                                      &#8212;
+                                    </div>
+                                  </template>
+                                </td>
+
+                                <td class="summary-cell">
+                                  <template if:true={subtask.priority}>
+                                    <div class="slds-text-body_small">
+                                      {subtask.priority}
+                                    </div>
+                                  </template>
+                                  <template if:false={subtask.priority}>
+                                    <div
+                                      class="slds-text-body_small slds-text-color_weak"
+                                    >
+                                      &#8212;
+                                    </div>
+                                  </template>
+                                </td>
+
+                                <td class="summary-cell">
+                                  <template
+                                    if:true={subtask.formattedEstimatedHours}
+                                  >
+                                    <div class="slds-text-body_small">
+                                      {subtask.formattedEstimatedHours}
+                                    </div>
+                                  </template>
+                                  <template
+                                    if:false={subtask.formattedEstimatedHours}
+                                  >
+                                    <div
+                                      class="slds-text-body_small slds-text-color_weak"
+                                    >
+                                      &#8212;
+                                    </div>
+                                  </template>
+                                </td>
+                              </template>
+
+                              <!-- Subtask Menu Cell -->
+                              <td class="menu-cell">
+                                <template if:true={subtask.showMenu}>
+                                  <lightning-button-menu
+                                    alternative-text="Task actions"
+                                    icon-name="utility:down"
+                                    variant="border-filled"
+                                    icon-size="x-small"
+                                    menu-alignment="auto"
+                                    data-task-id={subtask.id}
+                                    onselect={handleMenuAction}
+                                    class="task-action-menu"
+                                  >
+                                    <template if:true={subtask.canEdit}>
+                                      <lightning-menu-item
+                                        label="Edit"
+                                        value="edit"
+                                        icon-name="utility:edit"
+                                      >
+                                      </lightning-menu-item>
+                                    </template>
+                                    <template if:true={subtask.canDelete}>
+                                      <lightning-menu-item
+                                        label="Delete"
+                                        value="delete"
+                                        icon-name="utility:delete"
+                                      >
+                                      </lightning-menu-item>
+                                    </template>
+                                  </lightning-button-menu>
+                                </template>
+                              </td>
+                            </tr>
+                          </template>
+                        </template>
+                      </template>
+                    </template>
+                  </tbody>
+                </table>
+              </template>
             </div>
-        </template>
-            
-            <template if:false={hasData}>
-                <div class="slds-card__body slds-card__body_inner no-data-message">
-                    <div class="slds-text-align_center slds-p-around_medium">
-                        <lightning-icon icon-name="utility:info" size="small" class="slds-m-bottom_x-small"></lightning-icon>
-                        <p class="slds-text-body_regular">No tasks available.</p>
-                    </div>
-                </div>
-            </template>
-        </template>
-    </lightning-card>
+          </template>
+        </div>
+      </template>
+
+      <template if:false={hasData}>
+        <div class="slds-card__body slds-card__body_inner no-data-message">
+          <div class="slds-text-align_center slds-p-around_medium">
+            <lightning-icon
+              icon-name="utility:info"
+              size="small"
+              class="slds-m-bottom_x-small"
+            ></lightning-icon>
+            <p class="slds-text-body_regular">No tasks available.</p>
+          </div>
+        </div>
+      </template>
+    </template>
+  </lightning-card>
 </template>
