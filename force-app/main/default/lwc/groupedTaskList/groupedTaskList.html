@@ -19,7 +19,7 @@
             </div>
           </template>
 
-          <template if:false={isPortalMode}>
+          <template if:false={isExperienceSite}>
             <div class="slds-col">
               <lightning-combobox
                 label=""
@@ -63,7 +63,6 @@
                 alternative-text="Toggle list filters"
                 title="List filters"
                 onclick={toggleListFilterPanel}
-                class="slds-m-right_xx-small"
               >
               </lightning-button-icon>
             </template>
@@ -93,14 +92,6 @@
             >
               <template if:true={showMyTasksButton}>
                 <lightning-menu-item label={meModeButtonLabel} value="myTasks" icon-name={meModeButtonIcon}>
-                </lightning-menu-item>
-              </template>
-              <template if:true={hasCompletedTasks}>
-                <lightning-menu-item label={completedToggleLabel} value="showCompleted" icon-name={completedToggleIcon}>
-                </lightning-menu-item>
-              </template>
-              <template if:true={hasRemovedTasks}>
-                <lightning-menu-item label={removedToggleLabel} value="showRemoved" icon-name={removedToggleIcon}>
                 </lightning-menu-item>
               </template>
               <lightning-menu-item
@@ -206,16 +197,23 @@
                     class="slds-m-bottom_x-small"
                   >
                   </lightning-combobox>
-                  <lightning-combobox
-                    name="lvStatus"
-                    label="Status"
-                    value={_lvStatus}
-                    options={listViewFilterOptionsStatus}
-                    placeholder="All statuses"
-                    onchange={handleListFilterStatusChange}
-                    class="slds-m-bottom_x-small"
-                  >
-                  </lightning-combobox>
+                  <fieldset class="slds-form-element slds-m-bottom_x-small list-filter-status-fieldset">
+                    <legend class="slds-form-element__legend slds-form-element__label">Status</legend>
+                    <div class="slds-form-element__control list-filter-status-checkboxes">
+                      <template for:each={listViewStatusCheckboxRows} for:item="row">
+                        <lightning-input
+                          key={row.value}
+                          type="checkbox"
+                          label={row.label}
+                          checked={row.checked}
+                          data-status={row.value}
+                          onchange={handleListFilterStatusCheckboxChange}
+                          class="list-filter-status-checkbox"
+                        >
+                        </lightning-input>
+                      </template>
+                    </div>
+                  </fieldset>
                   <lightning-combobox
                     name="lvPriority"
                     label="Priority"
@@ -356,6 +354,7 @@
                                       href="javascript:void(0);"
                                       class="task-name-link slds-text-link"
                                       data-task-id={task.id}
+                                      data-portal-url-segment={task.portalUrlSegment}
                                       onclick={handleTaskNameClick}
                                       title="Click to view task record"
                                     >
@@ -548,6 +547,7 @@
                                           href="javascript:void(0);"
                                           class="subtask-name-link slds-text-link"
                                           data-task-id={subtask.id}
+                                          data-portal-url-segment={subtask.portalUrlSegment}
                                           onclick={handleTaskNameClick}
                                           title="Click to view task record"
                                         >

@@ -27,6 +27,7 @@ import getCurrentUserAccountId from "@salesforce/apex/ProjectTaskDashboardContro
 import getCurrentUserContactId from "@salesforce/apex/ProjectTaskDashboardController.getCurrentUserContactId";
 import getDisplayDensity from "@salesforce/apex/DisplayDensityController.getDisplayDensity";
 import { refreshApex } from "@salesforce/apex";
+import { ensureSitePath } from "c/experiencePathUtils";
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from "@salesforce/messageChannel/AccountFilter__c";
 import USER_ID from "@salesforce/user/Id";
 import {
@@ -35,6 +36,9 @@ import {
   ACCOUNT_SEL_ALL,
   salesforceIdsEqual
 } from "./groupedTaskListUtils";
+
+/** Status picklist values hidden by default in list filters (users can enable via checkboxes). */
+const LIST_FILTER_STATUS_UNCHECKED_BY_DEFAULT = new Set(["Completed", "Removed"]);
 
 export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   @api recordId; // Account or Project Id on record pages (see resolvedProjectId)
@@ -151,8 +155,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   _filteredAccountIds = [];
   refreshInterval = null; // Interval ID for periodic refresh
   showMyTasksOnly = false; // "Me" mode toggle
-  showCompletedTasks = false; // Toggle Completed status visibility (default hidden)
-  showRemovedTasks = false; // Toggle Removed status visibility (default hidden)
   currentUserId = USER_ID; // Current user ID
   currentUserContactId = null; // Current user's Contact ID (for portal)
   selectedContactId = null; // Selected Contact ID for filtering (for Salesforce)
@@ -162,7 +164,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   @track _lvAccount = "";
   @track _lvPm = "";
   @track _lvDeveloper = "";
-  @track _lvStatus = "";
+  /** Status values included in the list (multi-select); Completed/Removed off by default when present. */
+  @track _lvVisibleStatuses = [];
+  /** When true, next rebuild of list filter options resets status selection to defaults (e.g. new project). */
+  _resetListFilterStatusSelectionOnNextRebuild = false;
   @track _lvPriority = "";
   @track _listFilterOptionsBundle = {
     project: [{ label: "All projects", value: "" }],
@@ -453,6 +458,10 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   }
 
   get shouldShowAccountFilter() {
+    // Experience Cloud: never show org-style account picker (even if "Is Salesforce Context" is on)
+    if (this.isExperienceSite) {
+      return false;
+    }
     if (this.isPortalMode) {
       return false;
     }
@@ -486,15 +495,34 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     return !this._listFilterPanelOpen;
   }
 
-  get hasActiveListFilters() {
-    return !!(
-      this._lvProject ||
-      this._lvAccount ||
-      this._lvPm ||
-      this._lvDeveloper ||
-      this._lvStatus ||
-      this._lvPriority
+  get hasNonStatusListFilters() {
+    return !!(this._lvProject || this._lvAccount || this._lvPm || this._lvDeveloper || this._lvPriority);
+  }
+
+  get listFilterStatusKeysFromOptions() {
+    return (this._listFilterOptionsBundle.status || [])
+      .map((o) => o.value)
+      .filter((v) => v && String(v).trim().length > 0);
+  }
+
+  get hasNonDefaultStatusListFilter() {
+    const keys = this.listFilterStatusKeysFromOptions;
+    if (keys.length === 0) {
+      return false;
+    }
+    const sortedKeys = [...keys].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+    const defaultVisible = sortedKeys.filter((s) => !LIST_FILTER_STATUS_UNCHECKED_BY_DEFAULT.has(s));
+    const cur = [...(this._lvVisibleStatuses || [])].sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" })
     );
+    if (cur.length !== defaultVisible.length) {
+      return true;
+    }
+    return cur.some((s, i) => s !== defaultVisible[i]);
+  }
+
+  get hasActiveListFilters() {
+    return this.hasNonStatusListFilters || this.hasNonDefaultStatusListFilter;
   }
 
   get listViewFilterOptionsProject() {
@@ -505,8 +533,14 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     return this._listFilterOptionsBundle.account;
   }
 
-  get listViewFilterOptionsStatus() {
-    return this._listFilterOptionsBundle.status;
+  get listViewStatusCheckboxRows() {
+    const opts = (this._listFilterOptionsBundle.status || []).filter((o) => o.value);
+    const visible = new Set(this._lvVisibleStatuses || []);
+    return opts.map((o) => ({
+      value: o.value,
+      label: o.label,
+      checked: visible.has(o.value)
+    }));
   }
 
   get listViewFilterOptionsPriority() {
@@ -545,8 +579,19 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     this.refreshFilteredStatusGroups();
   }
 
-  handleListFilterStatusChange(event) {
-    this._lvStatus = event?.detail?.value ?? "";
+  handleListFilterStatusCheckboxChange(event) {
+    const status = event.currentTarget?.dataset?.status;
+    if (status === undefined || status === null) {
+      return;
+    }
+    const checked = !!event.detail?.checked;
+    const set = new Set(this._lvVisibleStatuses || []);
+    if (checked) {
+      set.add(status);
+    } else {
+      set.delete(status);
+    }
+    this._lvVisibleStatuses = [...set].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
     this.refreshFilteredStatusGroups();
   }
 
@@ -560,8 +605,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     this._lvAccount = "";
     this._lvPm = "";
     this._lvDeveloper = "";
-    this._lvStatus = "";
     this._lvPriority = "";
+    const keys = this.listFilterStatusKeysFromOptions;
+    this._lvVisibleStatuses = keys
+      .filter((s) => !LIST_FILTER_STATUS_UNCHECKED_BY_DEFAULT.has(s))
+      .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
     this.refreshFilteredStatusGroups();
   }
 
@@ -639,6 +687,48 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       pm: toOpts("All project managers", null, pmById),
       developer: toOpts("All developers", null, devById)
     };
+
+    const statusKeysSorted = [...statuses].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+    this._syncListFilterVisibleStatusesAfterRebuild(statusKeysSorted);
+  }
+
+  /**
+   * Keeps multi-select status filters aligned with values present in the grid.
+   * New statuses default to visible except Completed/Removed; project changes can force a full reset.
+   *
+   * @param {string[]} allStatusesSorted Distinct status picklist values from loaded tasks.
+   */
+  _syncListFilterVisibleStatusesAfterRebuild(allStatusesSorted) {
+    if (this._resetListFilterStatusSelectionOnNextRebuild) {
+      this._resetListFilterStatusSelectionOnNextRebuild = false;
+      this._lvVisibleStatuses = allStatusesSorted.filter((s) => !LIST_FILTER_STATUS_UNCHECKED_BY_DEFAULT.has(s));
+      return;
+    }
+
+    const prev = new Set(this._lvVisibleStatuses || []);
+
+    if (prev.size === 0 && allStatusesSorted.length > 0) {
+      this._lvVisibleStatuses = allStatusesSorted.filter((s) => !LIST_FILTER_STATUS_UNCHECKED_BY_DEFAULT.has(s));
+      return;
+    }
+
+    const next = new Set();
+    for (const s of allStatusesSorted) {
+      if (prev.has(s)) {
+        next.add(s);
+      } else if (!LIST_FILTER_STATUS_UNCHECKED_BY_DEFAULT.has(s)) {
+        next.add(s);
+      }
+    }
+    this._lvVisibleStatuses = [...next].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  }
+
+  isTaskStatusVisibleForListFilter(statusValue) {
+    const st = (statusValue || "").trim();
+    if (!st) {
+      return false;
+    }
+    return (this._lvVisibleStatuses || []).includes(st);
   }
 
   taskMatchesListFilters(task) {
@@ -663,11 +753,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     if (this._lvDeveloper && task.developerId !== this._lvDeveloper) {
       return false;
     }
-    if (this._lvStatus) {
-      const st = (task.status || "").trim();
-      if (st !== this._lvStatus) {
-        return false;
-      }
+    if (!this.isTaskStatusVisibleForListFilter(task.status)) {
+      return false;
     }
     if (this._lvPriority) {
       const pr = (task.priority || "").trim();
@@ -679,9 +766,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   }
 
   filterTaskForListView(task) {
-    if (!this.hasActiveListFilters) {
-      return task;
-    }
     const parentOk = this.taskMatchesListFilters(task);
     const subtasks = (task.subtasks || []).filter((st) => this.taskMatchesListFilters(st));
     if (!parentOk && subtasks.length === 0) {
@@ -697,9 +781,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   }
 
   filterGroupsForListView(groups) {
-    if (!this.hasActiveListFilters) {
-      return groups;
-    }
     return (groups || [])
       .map((g) => {
         const tasks = (g.tasks || []).map((t) => this.filterTaskForListView(t)).filter(Boolean);
@@ -776,12 +857,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     switch (selectedValue) {
       case "myTasks":
         this.handleMeModeToggle();
-        break;
-      case "showCompleted":
-        this.handleCompletedToggle();
-        break;
-      case "showRemoved":
-        this.handleRemovedToggle();
         break;
       case "expandCollapseAll":
         this.handleExpandCollapseAll();
@@ -1060,9 +1135,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         // This ensures we only use project-specific data
         this.statusGroups = [];
         this.filteredStatusGroups = [];
-        // Reset toggle states to default when loading new project data
-        this.showCompletedTasks = false;
-        this.showRemovedTasks = false;
+        this._resetListFilterStatusSelectionOnNextRebuild = true;
         const statusGroupsData = Array.isArray(data.statusGroups) ? data.statusGroups : [];
 
         // DEBUG: Log status groups and their tasks
@@ -1251,8 +1324,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
           }))
         );
 
-        // Apply filtering for completed and removed tasks based on toggle states
-        // This ensures only tasks for the specified project are shown, respecting showCompletedTasks and showRemovedTasks toggles
+        // List filters (including multi-select status) applied in refreshFilteredStatusGroups
         this.rebuildListViewFilterOptions();
         this.refreshFilteredStatusGroups();
         this.error = undefined;
@@ -1325,15 +1397,30 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     return this.isTaskExpanded(taskId) ? "Collapse" : "Expand";
   }
 
-  getPortalTaskUrl(taskId) {
-    return `/project-task/${taskId}`;
+  /**
+   * Path segment for /project-task/:segment — prefers SEO UrlName from Apex when present.
+   */
+  buildPortalTaskHref(pathSegment) {
+    const raw = pathSegment ? String(pathSegment).trim() : "";
+    if (!raw) {
+      return "/";
+    }
+    const isSalesforceId = /^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$/.test(raw);
+    const segment = isSalesforceId ? raw : encodeURIComponent(raw);
+    const path = `/project-task/${segment}`;
+    return ensureSitePath(path, {
+      currentPathname: typeof window !== "undefined" ? window.location.pathname : ""
+    });
   }
 
-  navigateToTask(taskId) {
-    if (!taskId) return;
-    if (this.isPortalMode) {
-      // Use Experience Cloud-friendly URL
-      window.location.assign(this.getPortalTaskUrl(taskId));
+  navigateToTask(taskId, portalPathSegment) {
+    if (!taskId) {
+      return;
+    }
+    const segment =
+      portalPathSegment && String(portalPathSegment).trim().length > 0 ? String(portalPathSegment).trim() : taskId;
+    if (this.isExperienceSite) {
+      window.location.assign(this.buildPortalTaskHref(segment));
       return;
     }
     this[NavigationMixin.Navigate]({
@@ -1347,7 +1434,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
   handleTaskClick(event) {
     const taskId = event.currentTarget.dataset.taskId;
-    this.navigateToTask(taskId);
+    const portalPathSegment = event.currentTarget.dataset.portalUrlSegment;
+    this.navigateToTask(taskId, portalPathSegment);
   }
 
   getStatusClass() {
@@ -1498,10 +1586,16 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       };
     });
 
+    const portalSeg =
+      record.portalUrlName && String(record.portalUrlName).trim().length > 0
+        ? String(record.portalUrlName).trim()
+        : record.id;
+
     return {
       ...record,
       // hoverFields passed as-is to taskHoverCard component
-      summaryFields
+      summaryFields,
+      portalUrlSegment: portalSeg
     };
   }
 
@@ -1574,65 +1668,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
   get meModeButtonIcon() {
     return this.showMyTasksOnly ? "utility:user" : "utility:user";
-  }
-
-  get completedToggleLabel() {
-    return this.showCompletedTasks ? "Hide Completed" : "Show Completed";
-  }
-
-  get completedToggleTitle() {
-    return this.showCompletedTasks
-      ? "Hide tasks that are currently in the Completed status"
-      : "Show tasks that are currently in the Completed status";
-  }
-
-  get completedToggleIcon() {
-    return this.showCompletedTasks ? "utility:hide" : "utility:success";
-  }
-
-  get hasCompletedTasks() {
-    if (!this.statusGroups || this.statusGroups.length === 0) {
-      return false;
-    }
-
-    if (typeof this.statusGroups[0] === "string") {
-      return this.statusGroups.includes("Completed");
-    }
-
-    const hasCompleted = this.statusGroups.some((group) => {
-      const status = (group?.status || "").trim();
-      return status === "Completed";
-    });
-    return hasCompleted;
-  }
-
-  get removedToggleLabel() {
-    return this.showRemovedTasks ? "Hide Removed" : "Show Removed";
-  }
-
-  get removedToggleTitle() {
-    return this.showRemovedTasks
-      ? "Hide tasks that are currently in the Removed status"
-      : "Show tasks that are currently in the Removed status";
-  }
-
-  get removedToggleIcon() {
-    return this.showRemovedTasks ? "utility:hide" : "utility:delete";
-  }
-
-  get hasRemovedTasks() {
-    if (!this.statusGroups || this.statusGroups.length === 0) {
-      return false;
-    }
-
-    if (typeof this.statusGroups[0] === "string") {
-      return this.statusGroups.includes("Removed");
-    }
-
-    return this.statusGroups.some((group) => {
-      const status = (group?.status || "").trim();
-      return status === "Removed";
-    });
   }
 
   get expandCollapseAllLabel() {
@@ -1725,39 +1760,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
   }
 
-  handleCompletedToggle() {
-    console.log(
-      "[DEBUG] handleCompletedToggle - Project ID:",
-      this.resolvedProjectId,
-      "Current state:",
-      this.showCompletedTasks,
-      "New state:",
-      !this.showCompletedTasks
-    );
-    console.log(
-      "[DEBUG] handleCompletedToggle - Status groups before filter:",
-      this.statusGroups.map((sg) => ({
-        status: sg.status,
-        taskCount: sg.tasks?.length || 0
-      }))
-    );
-    this.showCompletedTasks = !this.showCompletedTasks;
-    this.refreshFilteredStatusGroups();
-    console.log(
-      "[DEBUG] handleCompletedToggle - Filtered status groups after toggle:",
-      this.filteredStatusGroups.map((sg) => ({
-        status: sg.status,
-        taskCount: sg.tasks?.length || 0,
-        taskNames: sg.tasks?.map((t) => t.name).slice(0, 5) || []
-      }))
-    );
-  }
-
-  handleRemovedToggle() {
-    this.showRemovedTasks = !this.showRemovedTasks;
-    this.refreshFilteredStatusGroups();
-  }
-
   handleStatusToggle(event) {
     const status = event.currentTarget?.dataset?.status;
     if (!status) {
@@ -1844,48 +1846,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
           taskCount: sg.tasks?.length || 0
         }))
       );
-      console.log(
-        "[DEBUG] refreshFilteredStatusGroups - showCompletedTasks:",
-        this.showCompletedTasks,
-        "showRemovedTasks:",
-        this.showRemovedTasks
-      );
-    }
-
-    // Always respect the showCompletedTasks toggle, regardless of "My Tasks" mode
-    // Use trim() to handle any whitespace issues and ensure exact match
-    if (!this.showCompletedTasks) {
-      const beforeCount = groups.length;
-      groups = groups.filter((group) => {
-        const status = (group.status || "").trim();
-        return status !== "Completed";
-      });
-      if (this.resolvedProjectId && beforeCount !== groups.length) {
-        console.log(
-          "[DEBUG] refreshFilteredStatusGroups - Filtered out Completed, groups before:",
-          beforeCount,
-          "after:",
-          groups.length
-        );
-      }
-    }
-
-    // Always respect the showRemovedTasks toggle, regardless of "My Tasks" mode
-    // Use trim() to handle any whitespace issues and ensure exact match
-    if (!this.showRemovedTasks) {
-      const beforeCount = groups.length;
-      groups = groups.filter((group) => {
-        const status = (group.status || "").trim();
-        return status !== "Removed";
-      });
-      if (this.resolvedProjectId && beforeCount !== groups.length) {
-        console.log(
-          "[DEBUG] refreshFilteredStatusGroups - Filtered out Removed, groups before:",
-          beforeCount,
-          "after:",
-          groups.length
-        );
-      }
     }
 
     // Apply Contact filter if selected (works additively with Account filter)
@@ -2230,7 +2190,8 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     // Navigate with portal-aware routing
     event.preventDefault();
     event.stopPropagation();
-    this.navigateToTask(taskId);
+    const portalPathSegment = event.currentTarget.dataset.portalUrlSegment;
+    this.navigateToTask(taskId, portalPathSegment);
   }
 
   handleTaskNameChange(event) {
