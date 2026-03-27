@@ -66,6 +66,11 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       return;
     }
 
+    // Experience Cloud record and community pages use comm__* page types
+    if (pageRef.type && String(pageRef.type).startsWith("comm__")) {
+      this.isExperienceSite = true;
+    }
+
     const { attributes = {}, state = {} } = pageRef;
     const objectApiName = attributes.objectApiName || "";
     const recordIdFromRef = state.recordId || attributes.recordId;
@@ -453,20 +458,18 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   }
 
   get isPortalMode() {
-    // If on a record page (Account record page), always use Salesforce navigation
-    if (this.effectiveRecordId) {
-      return false;
-    }
-    // Use isSalesforceContext property if explicitly set (preferred)
+    // Explicit internal Salesforce builder flag (App/Home/Record) — not portal UX
     if (this.isSalesforceContext === true) {
       return false;
     }
-    // Fallback to deprecated context property for backward compatibility
     if (this.context === "salesforce") {
       return false;
     }
-    // Fallback to auto-detection if not explicitly set
-    return this.isExperienceSite === true;
+    // Experience Cloud — including Account/Project record pages (effectiveRecordId must NOT force non-portal)
+    if (this.isExperienceSite === true) {
+      return true;
+    }
+    return false;
   }
 
   get shouldShowAccountFilter() {
@@ -488,10 +491,17 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
   connectedCallback() {
     // Status colors will be loaded via wire service
     // Initialize with empty object - will be populated by getStatusColors wire
-    // Detect Experience Cloud / community context to hide account filter by default
+    // Detect Experience Cloud / community context (hostname, /s/ path, or comm__ page ref wire)
     try {
       const host = window?.location?.hostname || "";
-      this.isExperienceSite = /force\.com|live-preview|site\.com/i.test(host);
+      const path = window?.location?.pathname || "";
+      if (/force\.com|live-preview|site\.com/i.test(host)) {
+        this.isExperienceSite = true;
+      }
+      // Typical Experience Cloud site URL prefix (works with custom domains)
+      if (path === "/s" || path.startsWith("/s/")) {
+        this.isExperienceSite = true;
+      }
     } catch {
       this.isExperienceSite = false;
     }
