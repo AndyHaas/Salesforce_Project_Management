@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <flexiPageRegions>
         <itemInstances>
@@ -22,8 +22,7 @@
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.At_Risk_Due_to_Dependencies__c</fieldItem>
-                <identifier
-        >RecordAt_Risk_Due_to_Dependencies_cField</identifier>
+                <identifier>RecordAt_Risk_Due_to_Dependencies_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -113,19 +112,16 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value
-              >Project_Task__c.Submit_For_Client_Approval</value>
+                            <value>Project_Task__c.Submit_For_Client_Approval</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Ready_for_Client_Review__c}</leftValue>
+                                    <leftValue>{!Record.Ready_for_Client_Review__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>false</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Has_Client_User_Defined__c}</leftValue>
+                                    <leftValue>{!Record.Has_Client_User_Defined__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
                                 </criteria>
@@ -142,8 +138,7 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value
-              >Project_Task__c.Approve_Client_Backlog_Task</value>
+                            <value>Project_Task__c.Approve_Client_Backlog_Task</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2 AND 3</booleanFilter>
                                 <criteria>
@@ -152,22 +147,19 @@
                                     <rightValue>Backlog</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Ready_for_Client_Review__c}</leftValue>
+                                    <leftValue>{!Record.Ready_for_Client_Review__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Client_Approved_for_Development__c}</leftValue>
+                                    <leftValue>{!Record.Client_Approved_for_Development__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value
-              >Project_Task__c.Reject_Client_Backlog_Task</value>
+                            <value>Project_Task__c.Reject_Client_Backlog_Task</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2 AND 3</booleanFilter>
                                 <criteria>
@@ -176,22 +168,19 @@
                                     <rightValue>Backlog</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Ready_for_Client_Review__c}</leftValue>
+                                    <leftValue>{!Record.Ready_for_Client_Review__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Client_Approved_for_Development__c}</leftValue>
+                                    <leftValue>{!Record.Client_Approved_for_Development__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value
-              >Project_Task__c.Approve_PM_Code_Review_Task</value>
+                            <value>Project_Task__c.Approve_PM_Code_Review_Task</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
@@ -200,16 +189,14 @@
                                     <rightValue>In Review</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
+                                    <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value
-              >Project_Task__c.Reject_PM_Code_Review_Task</value>
+                            <value>Project_Task__c.Reject_PM_Code_Review_Task</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
@@ -218,16 +205,14 @@
                                     <rightValue>In Review</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
+                                    <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value
-              >Project_Task__c.Approve_Client_Completion_Task</value>
+                            <value>Project_Task__c.Approve_Client_Completion_Task</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2 AND 3</booleanFilter>
                                 <criteria>
@@ -236,22 +221,19 @@
                                     <rightValue>In Review</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
+                                    <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Client_Approved_for_Completion__c}</leftValue>
+                                    <leftValue>{!Record.Client_Approved_for_Completion__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value
-              >Project_Task__c.Reject_Client_Completion_Task</value>
+                            <value>Project_Task__c.Reject_Client_Completion_Task</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2 AND 3</booleanFilter>
                                 <criteria>
@@ -260,14 +242,12 @@
                                     <rightValue>In Review</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
+                                    <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue
-                  >{!Record.Client_Approved_for_Completion__c}</leftValue>
+                                    <leftValue>{!Record.Client_Approved_for_Completion__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>false</rightValue>
                                 </criteria>
@@ -287,8 +267,7 @@
                     <name>secondaryFields</name>
                     <value>Facet-e22fd93c-6c2d-4c55-8957-d94bb562a5fe</value>
                 </componentInstanceProperties>
-                <componentName
-        >record_flexipage:dynamicHighlights</componentName>
+                <componentName>record_flexipage:dynamicHighlights</componentName>
                 <identifier>record_flexipage_dynamicHighlights</identifier>
             </componentInstance>
         </itemInstances>
@@ -302,10 +281,8 @@
                     <name>variant</name>
                     <value>linear</value>
                 </componentInstanceProperties>
-                <componentName
-        >runtime_sales_pathassistant:pathAssistant</componentName>
-                <identifier
-        >runtime_sales_pathassistant_pathAssistant</identifier>
+                <componentName>runtime_sales_pathassistant:pathAssistant</componentName>
+                <identifier>runtime_sales_pathassistant_pathAssistant</identifier>
             </componentInstance>
         </itemInstances>
         <name>header</name>
@@ -464,6 +441,23 @@
                 <identifier>RecordClient_User_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Client_Approver_User__c</fieldItem>
+                <identifier>RecordClient_Approver_User_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.No_Client_Approver__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>true</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-4c076fb6-300e-4ea2-8965-30424bc44ce5</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -585,8 +579,7 @@
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Client_Approved_for_Development__c</fieldItem>
-                <identifier
-        >RecordClient_Approved_for_Development_cField</identifier>
+                <identifier>RecordClient_Approved_for_Development_cField</identifier>
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Status__c}</leftValue>
@@ -603,8 +596,24 @@
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Reviewed_by_PM_Code_Reviewer__c</fieldItem>
-                <identifier
-        >RecordReviewed_by_PM_Code_Reviewer_cField</identifier>
+                <identifier>RecordReviewed_by_PM_Code_Reviewer_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>In Review</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Ready_for_Client_Completion_Review__c</fieldItem>
+                <identifier>RecordReady_for_Client_Completion_Review_cField</identifier>
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Status__c}</leftValue>
@@ -621,8 +630,7 @@
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Client_Approved_for_Completion__c</fieldItem>
-                <identifier
-        >RecordClient_Approved_for_Completion_cField</identifier>
+                <identifier>RecordClient_Approved_for_Completion_cField</identifier>
                 <visibilityRule>
                     <booleanFilter>1 AND 2</booleanFilter>
                     <criteria>
@@ -631,8 +639,7 @@
                         <rightValue>In Review</rightValue>
                     </criteria>
                     <criteria>
-                        <leftValue
-            >{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
+                        <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>true</rightValue>
                     </criteria>
@@ -707,18 +714,14 @@
         </itemInstances>
         <itemInstances>
             <fieldInstance>
-                <fieldItem
-        >Record.Release_Notes__r.Release_Tag__r.Name</fieldItem>
-                <identifier
-        >RecordRelease_Notes_rRelease_Tag_rNameField</identifier>
+                <fieldItem>Record.Release_Notes__r.Release_Tag__r.Name</fieldItem>
+                <identifier>RecordRelease_Notes_rRelease_Tag_rNameField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
             <fieldInstance>
-                <fieldItem
-        >Record.Release_Notes__r.Release_Version__r.Name</fieldItem>
-                <identifier
-        >RecordRelease_Notes_rRelease_Version_rNameField</identifier>
+                <fieldItem>Record.Release_Notes__r.Release_Version__r.Name</fieldItem>
+                <identifier>RecordRelease_Notes_rRelease_Version_rNameField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-d4d31fb0-5d34-42d7-8251-8c24623a6df5</name>
@@ -727,10 +730,8 @@
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
-                <fieldItem
-        >Record.Release_Notes__r.Release_Notes_Text__c</fieldItem>
-                <identifier
-        >RecordRelease_Notes_rRelease_Notes_Text_cField</identifier>
+                <fieldItem>Record.Release_Notes__r.Release_Notes_Text__c</fieldItem>
+                <identifier>RecordRelease_Notes_rRelease_Notes_Text_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-06a6af8c-9744-400d-9a55-6a8976c7e495</name>
@@ -867,6 +868,27 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>decorate</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>richTextValue</name>
+                    <value>&lt;p&gt;&lt;span style=&quot;color: rgb(255, 0, 0);&quot;&gt;Client Needs to be Connected to a User&lt;/span&gt;&lt;/p&gt;</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:richText</componentName>
+                <identifier>flexipage_richText2</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.No_Client_Approver__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>true</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>columns</name>
                     <value>Facet-ee113da9-ed94-4726-8b78-19426749225b</value>
                 </componentInstanceProperties>
@@ -976,7 +998,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
+                    <value>ADVGRID</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>rowsToDisplay</name>
@@ -1139,6 +1161,14 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>hidePinnedMessagesSection</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>pinnedSectionCollapsedByDefault</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>recordId</name>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -1188,8 +1218,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value
-          >&lt;div style=&quot;background-color: #FFF4E5; padding: 12px;
+                    <value>&lt;div style=&quot;background-color: #FFF4E5; padding: 12px;
         border-radius: 4px; border-left: 4px solid #FFB75D;&quot;&gt;&lt;p style=&quot;margin: 0 0
         8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;🚫 This Task is Blocking
         Other Tasks&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color:
@@ -1216,8 +1245,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value
-          >&lt;div style=&quot;background-color: #FFEBEE; padding: 12px;
+                    <value>&lt;div style=&quot;background-color: #FFEBEE; padding: 12px;
         border-radius: 4px; border-left: 4px solid #C23934;&quot;&gt;&lt;p style=&quot;margin: 0 0
         8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⚠️ Task Blocked by
         Dependencies&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color:
@@ -1229,8 +1257,7 @@
                 <identifier>flexipage_richText_blocked_dependencies</identifier>
                 <visibilityRule>
                     <criteria>
-                        <leftValue
-            >{!Record.At_Risk_Due_to_Dependencies__c}</leftValue>
+                        <leftValue>{!Record.At_Risk_Due_to_Dependencies__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>true</rightValue>
                     </criteria>
@@ -1255,8 +1282,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value
-          >&lt;div style=&quot;background-color: #F3F2F2; padding: 12px;
+                    <value>&lt;div style=&quot;background-color: #F3F2F2; padding: 12px;
         border-radius: 4px; border-left: 4px solid #0176D3;&quot;&gt;&lt;p style=&quot;margin: 0 0
         8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⚠️ Cannot Submit for Client
         Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;To
@@ -1272,14 +1298,12 @@
                 <visibilityRule>
                     <booleanFilter>1 AND 2</booleanFilter>
                     <criteria>
-                        <leftValue
-            >{!Record.Ready_for_Client_Review__c}</leftValue>
+                        <leftValue>{!Record.Ready_for_Client_Review__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>false</rightValue>
                     </criteria>
                     <criteria>
-                        <leftValue
-            >{!Record.Has_Client_User_Defined__c}</leftValue>
+                        <leftValue>{!Record.Has_Client_User_Defined__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>false</rightValue>
                     </criteria>
@@ -1294,8 +1318,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value
-          >&lt;div style=&quot;background-color: #E8F5E9; padding: 12px;
+                    <value>&lt;div style=&quot;background-color: #E8F5E9; padding: 12px;
         border-radius: 4px; border-left: 4px solid #04844B;&quot;&gt;&lt;p style=&quot;margin: 0 0
         8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;✅ Ready to Submit for Client
         Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This
@@ -1313,8 +1336,7 @@
                         <rightValue>Backlog</rightValue>
                     </criteria>
                     <criteria>
-                        <leftValue
-            >{!Record.Ready_for_Client_Review__c}</leftValue>
+                        <leftValue>{!Record.Ready_for_Client_Review__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>false</rightValue>
                     </criteria>
@@ -1329,8 +1351,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value
-          >&lt;div style=&quot;background-color: #FFF3E0; padding: 12px;
+                    <value>&lt;div style=&quot;background-color: #FFF3E0; padding: 12px;
         border-radius: 4px; border-left: 4px solid #FF9800;&quot;&gt;&lt;p style=&quot;margin: 0 0
         8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⏳ Waiting for Client
         Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This
@@ -1339,8 +1360,7 @@
         &lt;strong&gt;Pending&lt;/strong&gt; and a developer can be assigned.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
-                <identifier
-        >flexipage_richText_waiting_client_approval</identifier>
+                <identifier>flexipage_richText_waiting_client_approval</identifier>
                 <visibilityRule>
                     <booleanFilter>1 AND 2 AND 3</booleanFilter>
                     <criteria>
@@ -1349,14 +1369,12 @@
                         <rightValue>Backlog</rightValue>
                     </criteria>
                     <criteria>
-                        <leftValue
-            >{!Record.Ready_for_Client_Review__c}</leftValue>
+                        <leftValue>{!Record.Ready_for_Client_Review__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>true</rightValue>
                     </criteria>
                     <criteria>
-                        <leftValue
-            >{!Record.Client_Approved_for_Development__c}</leftValue>
+                        <leftValue>{!Record.Client_Approved_for_Development__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>false</rightValue>
                     </criteria>
@@ -1371,8 +1389,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value
-          >&lt;div style=&quot;background-color: #F3F2F2; padding: 12px;
+                    <value>&lt;div style=&quot;background-color: #F3F2F2; padding: 12px;
         border-radius: 4px; border-left: 4px solid #0176D3;&quot;&gt;&lt;p style=&quot;margin: 0 0
         8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;👤 Assign a
         Developer&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;This
@@ -1398,8 +1415,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value
-          >&lt;div style=&quot;background-color: #E3F2FD; padding: 12px;
+                    <value>&lt;div style=&quot;background-color: #E3F2FD; padding: 12px;
         border-radius: 4px; border-left: 4px solid #0176D3;&quot;&gt;&lt;p style=&quot;margin: 0 0
         8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;💻 Ready for PM
         Review&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color: #3E3E3C;&quot;&gt;When
@@ -1427,8 +1443,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value
-          >&lt;div style=&quot;background-color: #FFF3E0; padding: 12px;
+                    <value>&lt;div style=&quot;background-color: #FFF3E0; padding: 12px;
         border-radius: 4px; border-left: 4px solid #FF9800;&quot;&gt;&lt;p style=&quot;margin: 0 0
         8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;⏳ Waiting for PM/Code
         Reviewer Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color:
@@ -1446,8 +1461,7 @@
                         <rightValue>In Review</rightValue>
                     </criteria>
                     <criteria>
-                        <leftValue
-            >{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
+                        <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>false</rightValue>
                     </criteria>
@@ -1462,8 +1476,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value
-          >&lt;div style=&quot;background-color: #FFF3E0; padding: 12px;
+                    <value>&lt;div style=&quot;background-color: #FFF3E0; padding: 12px;
         border-radius: 4px; border-left: 4px solid #FF9800;&quot;&gt;&lt;p style=&quot;margin: 0 0
         8px 0; font-weight: 600; color: #080707;&quot;&gt;&lt;strong&gt;✅ PM Approved - Waiting for
         Client Completion Approval&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0; color:
@@ -1472,8 +1485,7 @@
         &lt;strong&gt;Completed&lt;/strong&gt;.&lt;/p&gt;&lt;/div&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
-                <identifier
-        >flexipage_richText_waiting_client_completion</identifier>
+                <identifier>flexipage_richText_waiting_client_completion</identifier>
                 <visibilityRule>
                     <booleanFilter>1 AND 2 AND 3</booleanFilter>
                     <criteria>
@@ -1482,14 +1494,12 @@
                         <rightValue>In Review</rightValue>
                     </criteria>
                     <criteria>
-                        <leftValue
-            >{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
+                        <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>true</rightValue>
                     </criteria>
                     <criteria>
-                        <leftValue
-            >{!Record.Client_Approved_for_Completion__c}</leftValue>
+                        <leftValue>{!Record.Client_Approved_for_Completion__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>false</rightValue>
                     </criteria>
@@ -1522,8 +1532,7 @@
                     <name>prioritizationCriteria</name>
                     <value>Last Modified Date (Ascending)</value>
                 </componentInstanceProperties>
-                <componentName
-        >interaction_orchestrator:workGuide</componentName>
+                <componentName>interaction_orchestrator:workGuide</componentName>
                 <identifier>interaction_orchestrator_workGuide</identifier>
             </componentInstance>
         </itemInstances>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
         <name>PTC_Client_Approved</name>
@@ -8,8 +8,7 @@
         <actionName>chatterPost</actionName>
         <actionType>chatterPost</actionType>
         <connector>
-            <targetReference
-      >Update_Project_Task_Client_Approved_Backlog_Item</targetReference>
+            <targetReference>Get_Approval_Record</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -28,13 +27,156 @@
         <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
+    <actionCalls>
+        <name>Send_Client_Approved_Completed_Task_Email</name>
+        <label>Send Client Approved Completed Task Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Update_Project_Task_Client_Approved_Complete_Item</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>recipientAddresses</name>
+            <value>
+                <collectionElements>
+                    <elementReference>Get_Approval_Record.PM_Approver_User__r.Email</elementReference>
+                </collectionElements>
+                <collectionElements>
+                    <stringValue>kurt.savage@milestoneconsulting.tech</stringValue>
+                </collectionElements>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>composeEmailContent</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>Action Needed: Client Approved Complete Task</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <inputConfiguratorMode>Custom</inputConfiguratorMode>
+                <stringValue>&lt;p&gt;Hello {!Get_Approval_Record.PM_Approver_User__c}},&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;A completed task is ready for your review:&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;{!Get_Approval_Record.Name}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;To move forward, please complete the following:&lt;/p&gt;&lt;p&gt;Review the Task in Salesforce.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://%3Cyour-domain%3E.my.salesforce.com/lightning/o/Project_Task__c/list&quot; rel=&quot;noopener noreferrer&quot; target=&quot;_blank&quot; style=&quot;color: rgb(92, 92, 90);&quot;&gt;View Task&lt;/a&gt; in Salesforce&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;We appreciate your prompt attention and look forward to your feedback.&lt;/p&gt;</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>sendRichBody</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>useLineBreaks</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recipientId</name>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>2.0.1</versionString>
+    </actionCalls>
+    <actionCalls>
+        <name>Send_Client_Approved_Task_Email</name>
+        <label>Send Client Approved Task Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Update_Project_Task_Client_Approved_Backlog_Item</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>recipientAddresses</name>
+            <value>
+                <collectionElements>
+                    <elementReference>Get_Approval_Record.PM_Approver_User__r.Email</elementReference>
+                </collectionElements>
+                <collectionElements>
+                    <stringValue>kurt.savage@milestoneconsulting.tech</stringValue>
+                </collectionElements>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>composeEmailContent</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>Action Needed: Client Approved Task</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <inputConfiguratorMode>Custom</inputConfiguratorMode>
+                <stringValue>&lt;p&gt;Hello {!Get_Approval_Record.PM_Approver_User__c}},&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;A pending task is ready for your review:&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;{!Get_Approval_Record.Name}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;To move forward, please complete the following:&lt;/p&gt;&lt;p&gt;Review the Task in Salesforce.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://%3Cyour-domain%3E.my.salesforce.com/lightning/o/Project_Task__c/list&quot; rel=&quot;noopener noreferrer&quot; target=&quot;_blank&quot; style=&quot;color: rgb(92, 92, 90);&quot;&gt;View Task&lt;/a&gt; in Salesforce&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;We appreciate your prompt attention and look forward to your feedback.&lt;/p&gt;</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>sendRichBody</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>useLineBreaks</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recipientId</name>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>2.0.1</versionString>
+    </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description
-  >This task will run whenever the client approves a backlog task.</description>
+    <decisions>
+        <name>Is_Status_Backlog_or_In_Review</name>
+        <label>Is Status Backlog or In Review?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Send_Client_Approved_Completed_Task_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Status is In Review</defaultConnectorLabel>
+        <rules>
+            <name>Status_is_In_Backlog</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Approval_Record.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Backlog</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Client_Approved_Task_Email</targetReference>
+            </connector>
+            <label>Status is In Backlog</label>
+        </rules>
+    </decisions>
+    <description>This task will run whenever the client approves a backlog task.</description>
     <environments>Default</environments>
-    <interviewLabel
-  >Autolaunch - Client Approved {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel>Autolaunch - Client Approved {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Autolaunch - Project Task - Client Approved Backlog Task</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -55,9 +197,29 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Approval_Record</name>
+        <label>Get Approval Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Is_Status_Backlog_or_In_Review</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Project_Task__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
-        <description
-    >The client has approved a backlog item. Time to update to &quot;Pending&quot; and that the client has reviewed</description>
+        <description>The client has approved a backlog item. Time to update to &quot;Pending&quot; and that the client has reviewed</description>
         <name>Update_Project_Task_Client_Approved_Backlog_Item</name>
         <label>Update Project Task - Client Approved Backlog Item</label>
         <locationX>0</locationX>
@@ -77,9 +239,49 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Ready_for_Client_Review__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Status__c</field>
             <value>
                 <stringValue>Pending</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Project_Task__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>The client has approved a backlog item. Time to update to &quot;Pending&quot; and that the client has reviewed</description>
+        <name>Update_Project_Task_Client_Approved_Complete_Item</name>
+        <label>Update Project Task - Client Approved Complete Item</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Client_Approved_for_Development__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Ready_for_Client_Review__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status__c</field>
+            <value>
+                <stringValue>Completed</stringValue>
             </value>
         </inputAssignments>
         <object>Project_Task__c</object>

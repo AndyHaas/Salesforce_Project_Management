@@ -1,13 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Flow
-  xmlns="http://soap.sforce.com/2006/04/metadata"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
->
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <constants>
-        <description
-    >Stores the value for the status of a step that&apos;s been approved. The value of the constant must be Approve.</description>
+        <description>Stores the value for the status of a step that&apos;s been approved. The value of the constant must be Approve.</description>
         <name>const_Approved</name>
         <dataType>String</dataType>
         <value>
@@ -27,22 +23,19 @@
             <name>Approved</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference
-        >PM_Code_Reviewer_Approval.Outputs.approvalDecision</leftValueReference>
+                <leftValueReference>PM_Code_Reviewer_Approval.Outputs.approvalDecision</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <elementReference>const_Approved</elementReference>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference
-        >Process_the_Approved_Submission</targetReference>
+                <targetReference>Process_the_Approved_Submission</targetReference>
             </connector>
             <label>Approved</label>
         </rules>
     </decisions>
-    <description
-  >Approval workflow that triggers when a Project Task is submitted for PM/Code Reviewer review. When Status is set to &quot;In Review&quot; and Reviewed_by_PM_Code_Reviewer__c is false, this flow sends an approval request to PM Approver (User), synced from Project Manager (Contact) when an active User exists for that contact. Upon approval, it sets Reviewed_by_PM_Code_Reviewer__c to true, which triggers the Client Completion Approval Process. Upon rejection, it sets Reviewed_by_PM_Code_Reviewer__c to false and Status back to &quot;In Progress&quot;.</description>
+    <description>Approval workflow that triggers when a Project Task is submitted for PM/Code Reviewer review. When Status is set to &quot;In Review&quot; and Reviewed_by_PM_Code_Reviewer__c is false, this flow sends an approval request to PM Approver (User), synced from Project Manager (Contact) when an active User exists for that contact. Upon approval, it sets Reviewed_by_PM_Code_Reviewer__c to true, which triggers the Client Completion Approval Process. Upon rejection, it sets Reviewed_by_PM_Code_Reviewer__c to false and Status back to &quot;In Progress&quot;.</description>
     <environments>Default</environments>
     <formulas>
         <name>form_ApproverUserId</name>
@@ -54,8 +47,7 @@
         <dataType>String</dataType>
         <expression>{!$Record.Id}</expression>
     </formulas>
-    <interviewLabel
-  >Approval Process - Project Task - PM Code Reviewer Approval {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel>Approval Process - Project Task - PM Code Reviewer Approval {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Approval Process - Project Task - PM Code Reviewer Approval</label>
     <orchestratedStages>
         <name>PM_Code_Reviewer_Approval_Stage</name>
@@ -63,8 +55,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference
-      >Is_Submission_Approved_or_Rejected</targetReference>
+            <targetReference>Is_Submission_Approved_or_Rejected</targetReference>
         </connector>
         <exitConditionLogic>and</exitConditionLogic>
         <stageSteps>
@@ -73,9 +64,9 @@
             <actionType>stepApproval</actionType>
             <assignees>
                 <assignee>
-                    <elementReference>form_ApproverUserId</elementReference>
+                    <elementReference>$Record.PM_Approver_User__r.Username</elementReference>
                 </assignee>
-                <assigneeType>User</assigneeType>
+                <assigneeType>Resource</assigneeType>
             </assignees>
             <canAssigneeEdit>true</canAssigneeEdit>
             <debugSimulateStep>false</debugSimulateStep>
@@ -84,7 +75,7 @@
             <inputParameters>
                 <name>ActionInput__RecordId</name>
                 <value>
-                    <elementReference>form_txt_RecordId</elementReference>
+                    <elementReference>$Record.Id</elementReference>
                 </value>
             </inputParameters>
             <inputParameters>
@@ -96,11 +87,11 @@
             <label>PM Code Reviewer Approval</label>
             <outputConfigParams>
                 <name>approvalComments</name>
-                <value xsi:nil="true" />
+                <value xsi:nil="true"/>
             </outputConfigParams>
             <outputConfigParams>
                 <name>approvalDecision</name>
-                <value xsi:nil="true" />
+                <value xsi:nil="true"/>
             </outputConfigParams>
             <requiresAsyncProcessing>false</requiresAsyncProcessing>
             <runAsUser>false</runAsUser>
@@ -116,8 +107,7 @@
         <exitConditionLogic>and</exitConditionLogic>
         <stageSteps>
             <name>Mark_Task_As_PM_Approved</name>
-            <actionName
-      >Autolaunch_Project_Task_PM_Code_Reviewer_Approved</actionName>
+            <actionName>Autolaunch_Project_Task_PM_Code_Reviewer_Approved</actionName>
             <actionType>stepBackground</actionType>
             <canAssigneeEdit>false</canAssigneeEdit>
             <debugSimulateStep>false</debugSimulateStep>
@@ -132,8 +122,7 @@
             <inputParameters>
                 <name>txt_ApproveMessage</name>
                 <value>
-                    <elementReference
-          >PM_Code_Reviewer_Approval.Outputs.approvalComments</elementReference>
+                    <elementReference>PM_Code_Reviewer_Approval.Outputs.approvalComments</elementReference>
                 </value>
             </inputParameters>
             <label>Mark Task As PM Approved</label>
@@ -151,8 +140,7 @@
         <exitConditionLogic>and</exitConditionLogic>
         <stageSteps>
             <name>Mark_Task_as_PM_Rejected</name>
-            <actionName
-      >Autolaunch_Project_Task_PM_Code_Reviewer_Rejected</actionName>
+            <actionName>Autolaunch_Project_Task_PM_Code_Reviewer_Rejected</actionName>
             <actionType>stepBackground</actionType>
             <canAssigneeEdit>false</canAssigneeEdit>
             <debugSimulateStep>false</debugSimulateStep>
@@ -167,8 +155,7 @@
             <inputParameters>
                 <name>txt_DeclineMessage</name>
                 <value>
-                    <elementReference
-          >PM_Code_Reviewer_Approval.Outputs.approvalComments</elementReference>
+                    <elementReference>PM_Code_Reviewer_Approval.Outputs.approvalComments</elementReference>
                 </value>
             </inputParameters>
             <label>Mark Task as PM Rejected</label>
@@ -204,8 +191,6 @@
         <connector>
             <targetReference>PM_Code_Reviewer_Approval_Stage</targetReference>
         </connector>
-        <doesRequireRecordChangedToMeetCriteria
-    >true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Status__c</field>

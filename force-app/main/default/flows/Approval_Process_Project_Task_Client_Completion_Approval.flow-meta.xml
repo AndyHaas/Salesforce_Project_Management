@@ -1,13 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Flow
-  xmlns="http://soap.sforce.com/2006/04/metadata"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
->
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <constants>
-        <description
-    >Stores the value for the status of a step that&apos;s been approved. The value of the constant must be Approve.</description>
+        <description>Stores the value for the status of a step that&apos;s been approved. The value of the constant must be Approve.</description>
         <name>const_Approved</name>
         <dataType>String</dataType>
         <value>
@@ -27,22 +23,19 @@
             <name>Approved</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference
-        >Client_Completion_Approval.Outputs.approvalDecision</leftValueReference>
+                <leftValueReference>Client_Completion_Approval.Outputs.approvalDecision</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <elementReference>const_Approved</elementReference>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference
-        >Process_the_Approved_Submission</targetReference>
+                <targetReference>Process_the_Approved_Submission</targetReference>
             </connector>
             <label>Approved</label>
         </rules>
     </decisions>
-    <description
-  >Approval workflow that triggers when a Project Task has been reviewed by PM/Code Reviewer and is ready for client completion approval. When Reviewed_by_PM_Code_Reviewer__c is true, Client_Approved_for_Completion__c is false, and Status is &quot;In Review&quot;, this flow sends an approval request to Client Approver (User), synced from Client User (Contact) when an active User exists for that contact. Upon approval, it sets Client_Approved_for_Completion__c to true and Status to &quot;Completed&quot;. Upon rejection, it sets Client_Approved_for_Completion__c to false and Status back to &quot;In Progress&quot;.</description>
+    <description>Approval workflow that triggers when a Project Task has been reviewed by PM/Code Reviewer and is ready for client completion approval. When Reviewed_by_PM_Code_Reviewer__c is true, Client_Approved_for_Completion__c is false, and Status is &quot;In Review&quot;, this flow sends an approval request to Client Approver (User), synced from Client User (Contact) when an active User exists for that contact. Upon approval, it sets Client_Approved_for_Completion__c to true and Status to &quot;Completed&quot;. Upon rejection, it sets Client_Approved_for_Completion__c to false and Status back to &quot;In Progress&quot;.</description>
     <environments>Default</environments>
     <formulas>
         <name>form_ApproverUserId</name>
@@ -54,8 +47,7 @@
         <dataType>String</dataType>
         <expression>{!$Record.Id}</expression>
     </formulas>
-    <interviewLabel
-  >Approval Process - Project Task - Client Completion Approval {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel>Approval Process - Project Task - Client Completion Approval {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Approval Process - Project Task - Client Completion Approval</label>
     <orchestratedStages>
         <name>Client_Completion_Approval_Stage</name>
@@ -63,8 +55,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference
-      >Is_Submission_Approved_or_Rejected</targetReference>
+            <targetReference>Is_Submission_Approved_or_Rejected</targetReference>
         </connector>
         <exitConditionLogic>and</exitConditionLogic>
         <stageSteps>
@@ -73,9 +64,9 @@
             <actionType>stepApproval</actionType>
             <assignees>
                 <assignee>
-                    <elementReference>form_ApproverUserId</elementReference>
+                    <elementReference>$Record.Client_Approver_User__r.Username</elementReference>
                 </assignee>
-                <assigneeType>User</assigneeType>
+                <assigneeType>Resource</assigneeType>
             </assignees>
             <canAssigneeEdit>true</canAssigneeEdit>
             <debugSimulateStep>false</debugSimulateStep>
@@ -84,7 +75,7 @@
             <inputParameters>
                 <name>ActionInput__RecordId</name>
                 <value>
-                    <elementReference>form_txt_RecordId</elementReference>
+                    <elementReference>$Record.Id</elementReference>
                 </value>
             </inputParameters>
             <inputParameters>
@@ -96,11 +87,11 @@
             <label>Client Completion Approval</label>
             <outputConfigParams>
                 <name>approvalComments</name>
-                <value xsi:nil="true" />
+                <value xsi:nil="true"/>
             </outputConfigParams>
             <outputConfigParams>
                 <name>approvalDecision</name>
-                <value xsi:nil="true" />
+                <value xsi:nil="true"/>
             </outputConfigParams>
             <requiresAsyncProcessing>false</requiresAsyncProcessing>
             <runAsUser>false</runAsUser>
@@ -116,8 +107,7 @@
         <exitConditionLogic>and</exitConditionLogic>
         <stageSteps>
             <name>Mark_Task_As_Client_Completion_Approved</name>
-            <actionName
-      >Autolaunch_Project_Task_Client_Approved_Completion</actionName>
+            <actionName>Autolaunch_Project_Task_Client_Approved_Completion</actionName>
             <actionType>stepBackground</actionType>
             <canAssigneeEdit>false</canAssigneeEdit>
             <debugSimulateStep>false</debugSimulateStep>
@@ -132,8 +122,7 @@
             <inputParameters>
                 <name>txt_ApproveMessage</name>
                 <value>
-                    <elementReference
-          >Client_Completion_Approval.Outputs.approvalComments</elementReference>
+                    <elementReference>Client_Completion_Approval.Outputs.approvalComments</elementReference>
                 </value>
             </inputParameters>
             <label>Mark Task As Client Completion Approved</label>
@@ -151,8 +140,7 @@
         <exitConditionLogic>and</exitConditionLogic>
         <stageSteps>
             <name>Mark_Task_as_Client_Completion_Rejected</name>
-            <actionName
-      >Autolaunch_Project_Task_Client_Rejected_Completion</actionName>
+            <actionName>Autolaunch_Project_Task_Client_Rejected_Completion</actionName>
             <actionType>stepBackground</actionType>
             <canAssigneeEdit>false</canAssigneeEdit>
             <debugSimulateStep>false</debugSimulateStep>
@@ -167,8 +155,7 @@
             <inputParameters>
                 <name>txt_DeclineMessage</name>
                 <value>
-                    <elementReference
-          >Client_Completion_Approval.Outputs.approvalComments</elementReference>
+                    <elementReference>Client_Completion_Approval.Outputs.approvalComments</elementReference>
                 </value>
             </inputParameters>
             <label>Mark Task as Client Completion Rejected</label>
@@ -204,8 +191,7 @@
         <connector>
             <targetReference>Client_Completion_Approval_Stage</targetReference>
         </connector>
-        <doesRequireRecordChangedToMeetCriteria
-    >true</doesRequireRecordChangedToMeetCriteria>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Reviewed_by_PM_Code_Reviewer__c</field>

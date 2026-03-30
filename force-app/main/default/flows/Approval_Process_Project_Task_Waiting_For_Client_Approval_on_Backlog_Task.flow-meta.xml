@@ -1,13 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Flow
-  xmlns="http://soap.sforce.com/2006/04/metadata"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
->
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <constants>
-        <description
-    >Stores the value for the status of a step that&apos;s been approved. The value of the constant must be Approve.</description>
+        <description>Stores the value for the status of a step that&apos;s been approved. The value of the constant must be Approve.</description>
         <name>const_Approved</name>
         <dataType>String</dataType>
         <value>
@@ -27,45 +23,56 @@
             <name>Approved</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference
-        >Client_Approval.Outputs.approvalDecision</leftValueReference>
+                <leftValueReference>Client_Approval.Outputs.approvalDecision</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <elementReference>const_Approved</elementReference>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference
-        >Process_the_Approved_Submission</targetReference>
+                <targetReference>Process_the_Approved_Submission</targetReference>
             </connector>
             <label>Approved</label>
         </rules>
     </decisions>
-    <description
-  >Approval workflow that triggers when a Project Task in Backlog status is marked as ready for client review. When Ready_for_Client_Review__c is set to true, this flow sends an approval request to Client Approver (User), synced from Client User (Contact) when an active User exists for that contact. Upon approval, it sets Client_Approved_for_Development__c to true and Status to &quot;Pending&quot;. Upon rejection, it sets Client_Approved_for_Development__c to false and Status back to &quot;Backlog&quot;.</description>
+    <description>Approval workflow that triggers when a Project Task in Backlog status is marked as ready for client review. When Ready_for_Client_Review__c is set to true, this flow sends an approval request to Client Approver (User), synced from Client User (Contact) when an active User exists for that contact. Upon approval, it sets Client_Approved_for_Development__c to true and Status to &quot;Pending&quot;. Upon rejection, it sets Client_Approved_for_Development__c to false and Status back to &quot;Backlog&quot;.</description>
     <environments>Default</environments>
     <formulas>
         <name>form_ApproverUserId</name>
         <dataType>String</dataType>
-        <expression>{!$Record.Client_Approver_User__c}</expression>
+        <expression>&apos;005Ec00000W50gIIAR&apos;</expression>
+    </formulas>
+    <formulas>
+        <name>form_txt_ClientBody</name>
+        <dataType>String</dataType>
+        <expression>Hello {!$Record.Client_Approver_User__r.FirstName},
+
+A pending task is ready for your review:
+
+{!$Record.Name}
+
+ 
+
+To move forward, please complete the following:
+
+Review the Task in the Salesforce portal.
+
+We appreciate your prompt attention and look forward to your feedback.</expression>
     </formulas>
     <formulas>
         <name>form_txt_RecordId</name>
         <dataType>String</dataType>
         <expression>{!$Record.Id}</expression>
     </formulas>
-    <interviewLabel
-  >Approval Process - Project Task - Waiting For Client Approval on Backlog Task {!$Flow.CurrentDateTime}</interviewLabel>
-    <label
-  >Approval Process - Project Task - Waiting For Client Approval on Backlog Task</label>
+    <interviewLabel>Approval Process - Project Task - Waiting For Client Approval on Backlog Task {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Approval Process - Project Task - Waiting For Client Approval on Backlog Task</label>
     <orchestratedStages>
         <name>Client_Approval_Stage</name>
         <label>Client Approval Stage</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference
-      >Is_Submission_Approved_or_Rejected</targetReference>
+            <targetReference>Is_Submission_Approved_or_Rejected</targetReference>
         </connector>
         <exitConditionLogic>and</exitConditionLogic>
         <stageSteps>
@@ -74,9 +81,9 @@
             <actionType>stepApproval</actionType>
             <assignees>
                 <assignee>
-                    <elementReference>form_ApproverUserId</elementReference>
+                    <elementReference>$Record.Client_Approver_User__r.Username</elementReference>
                 </assignee>
-                <assigneeType>User</assigneeType>
+                <assigneeType>Resource</assigneeType>
             </assignees>
             <canAssigneeEdit>true</canAssigneeEdit>
             <debugSimulateStep>false</debugSimulateStep>
@@ -85,23 +92,29 @@
             <inputParameters>
                 <name>ActionInput__RecordId</name>
                 <value>
-                    <elementReference>form_txt_RecordId</elementReference>
+                    <elementReference>$Record.Id</elementReference>
                 </value>
             </inputParameters>
             <inputParameters>
                 <name>ActionInput__CustomEmailSubject</name>
+                <value>
+                    <stringValue>Task Approval Request</stringValue>
+                </value>
             </inputParameters>
             <inputParameters>
                 <name>ActionInput__CustomEmailBody</name>
+                <value>
+                    <elementReference>temp_ClientBody</elementReference>
+                </value>
             </inputParameters>
             <label>Client Approval</label>
             <outputConfigParams>
                 <name>approvalComments</name>
-                <value xsi:nil="true" />
+                <value xsi:nil="true"/>
             </outputConfigParams>
             <outputConfigParams>
                 <name>approvalDecision</name>
-                <value xsi:nil="true" />
+                <value xsi:nil="true"/>
             </outputConfigParams>
             <requiresAsyncProcessing>false</requiresAsyncProcessing>
             <runAsUser>false</runAsUser>
@@ -117,8 +130,7 @@
         <exitConditionLogic>and</exitConditionLogic>
         <stageSteps>
             <name>Mark_Task_As_Client_Approved</name>
-            <actionName
-      >Autolaunch_Project_Task_Client_Approved_Backlog_Task</actionName>
+            <actionName>Autolaunch_Project_Task_Client_Approved_Backlog_Task</actionName>
             <actionType>stepBackground</actionType>
             <canAssigneeEdit>false</canAssigneeEdit>
             <debugSimulateStep>false</debugSimulateStep>
@@ -133,8 +145,7 @@
             <inputParameters>
                 <name>txt_ApproveMessage</name>
                 <value>
-                    <elementReference
-          >Client_Approval.Outputs.approvalComments</elementReference>
+                    <elementReference>Client_Approval.Outputs.approvalComments</elementReference>
                 </value>
             </inputParameters>
             <label>Mark Task As Client Approved</label>
@@ -152,8 +163,7 @@
         <exitConditionLogic>and</exitConditionLogic>
         <stageSteps>
             <name>Mark_Task_as_Client_Rejected</name>
-            <actionName
-      >Autolaunch_Project_Task_Client_Rejected_Backlog_Task</actionName>
+            <actionName>Autolaunch_Project_Task_Client_Rejected_Backlog_Task</actionName>
             <actionType>stepBackground</actionType>
             <canAssigneeEdit>false</canAssigneeEdit>
             <debugSimulateStep>false</debugSimulateStep>
@@ -168,8 +178,7 @@
             <inputParameters>
                 <name>txt_DeclineMessage</name>
                 <value>
-                    <elementReference
-          >Client_Approval.Outputs.approvalComments</elementReference>
+                    <elementReference>Client_Approval.Outputs.approvalComments</elementReference>
                 </value>
             </inputParameters>
             <label>Mark Task as Client Rejected</label>
@@ -205,8 +214,7 @@
         <connector>
             <targetReference>Client_Approval_Stage</targetReference>
         </connector>
-        <doesRequireRecordChangedToMeetCriteria
-    >true</doesRequireRecordChangedToMeetCriteria>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Ready_for_Client_Review__c</field>
@@ -222,5 +230,10 @@
         </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>InvalidDraft</status>
+    <textTemplates>
+        <name>temp_ClientBody</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;p&gt;Hello &lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-size: medium;&quot;&gt;{{{Recipient.FirstName}}}&lt;/span&gt;,&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;A pending task is ready for your review:&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;{!$Record.Name}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;To move forward, please complete the following:&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Review the Task in the Salesforce portal.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://milestoneconsulting--dev.sandbox.my.site.com/portal&quot; rel=&quot;noopener noreferrer&quot; target=&quot;_blank&quot; style=&quot;color: rgb(0, 0, 0); font-size: 13px;&quot;&gt;View Task&lt;/a&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-size: 13px;&quot;&gt;&amp;nbsp;in Salesforce&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;We appreciate your prompt attention and look forward to your feedback.&lt;/p&gt;</text>
+    </textTemplates>
 </Flow>
