@@ -52,6 +52,29 @@
         <offset>0</offset>
         <versionString>2.0.1</versionString>
     </actionCalls>
+    <actionCalls>
+        <name>Unlock_Record</name>
+        <label>Unlock Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>lockRecord</actionName>
+        <actionType>lockRecord</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>recordId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>action</name>
+            <value>
+                <stringValue>Unlock</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>lockRecord</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
@@ -120,6 +143,9 @@
         <label>Update Project Task</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>Unlock_Record</targetReference>
+        </connector>
         <inputReference>rec_ProjectTask</inputReference>
     </recordUpdates>
     <start>
