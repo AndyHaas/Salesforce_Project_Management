@@ -32,24 +32,24 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Submission_Status__c</field>
+            <field>Client_Rejected__c</field>
             <operator>IsChanged</operator>
             <value>
                 <booleanValue>true</booleanValue>
             </value>
         </filters>
         <filters>
-            <field>Submission_Status__c</field>
+            <field>Client_Rejected__c</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>Client Rejects Backlog Task</stringValue>
+                <booleanValue>true</booleanValue>
             </value>
         </filters>
         <object>Project_Task__c</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Obsolete</status>
     <subflows>
         <name>Launch_Client_Rejected_Backlog_Task</name>
         <label>Launch Client Rejected Backlog Task</label>

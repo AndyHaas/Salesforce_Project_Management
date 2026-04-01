@@ -101,7 +101,7 @@
             <targetReference>Get_Project_Task</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>

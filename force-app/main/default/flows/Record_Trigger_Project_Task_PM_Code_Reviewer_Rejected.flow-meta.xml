@@ -49,7 +49,7 @@
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Obsolete</status>
     <subflows>
         <name>Autolaunch_Project_Task_PM_Code_Reviewer_Rejected</name>
         <label>Autolaunch - Project Task - PM Code Reviewer Rejected</label>

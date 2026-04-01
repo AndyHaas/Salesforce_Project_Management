@@ -188,10 +188,10 @@
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Submission_Status__c</field>
+            <field>Ready_for_Client_Review__c</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>Project Manager Submits for Client Approval</stringValue>
+                <booleanValue>true</booleanValue>
             </value>
         </filters>
         <object>Project_Task__c</object>
@@ -201,5 +201,5 @@
         </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Obsolete</status>
 </Flow>

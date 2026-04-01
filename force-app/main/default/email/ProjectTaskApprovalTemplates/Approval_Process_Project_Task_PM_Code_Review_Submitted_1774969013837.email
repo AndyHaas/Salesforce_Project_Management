@@ -5,7 +5,7 @@
 <body style="height: auto; min-height: auto;">
 <p>Hello {{{Recipient.FirstName}}},<br />
 <br />
-An task pending completion is ready for your review:<br />
+A task pending completion is ready for your review:<br />
 <br />
 {{{Project_Task__c.Name}}}<br />
 <br />

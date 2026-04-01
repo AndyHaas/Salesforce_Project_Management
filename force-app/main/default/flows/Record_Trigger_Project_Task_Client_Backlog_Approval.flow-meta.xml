@@ -64,7 +64,7 @@
             </value>
         </filters>
         <filters>
-            <field>Submission_Status__c</field>
+            <field>dep_Submission_Status__c</field>
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Project Manager Submits for Client Approval</stringValue>
@@ -74,5 +74,5 @@
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Obsolete</status>
 </Flow>

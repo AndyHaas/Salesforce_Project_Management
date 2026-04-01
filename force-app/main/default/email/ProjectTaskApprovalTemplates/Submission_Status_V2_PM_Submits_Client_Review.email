@@ -1,8 +1,8 @@
-﻿<html>
-<head>
+<html><head></head><body style="height: auto; min-height: auto;">﻿
+
 	<title></title>
-</head>
-<body style="height: auto; min-height: auto;">
+
+
 <p>Hello {{{Recipient.FirstName}}},</p>
 
 <p>&nbsp;</p>

@@ -114,16 +114,53 @@
                         <valueListItems>
                             <value>Project_Task__c.Submit_For_Client_Approval</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
-                                <criteria>
-                                    <leftValue>{!Record.Ready_for_Client_Review__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
-                                </criteria>
+                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Has_Client_User_Defined__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Backlog</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Submission_Status__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>Project Manager Submits for Client Approval</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Project_Task__c.Approve_Client_Backlog_Task</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Backlog</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Submission_Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Project Manager Submits for Client Approval</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Project_Task__c.Reject_Client_Backlog_Task</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Backlog</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Submission_Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Project Manager Submits for Client Approval</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -134,48 +171,6 @@
                                     <leftValue>{!Record.Status__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>In Progress</rightValue>
-                                </criteria>
-                            </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Project_Task__c.Approve_Client_Backlog_Task</value>
-                            <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
-                                <criteria>
-                                    <leftValue>{!Record.Status__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Backlog</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Ready_for_Client_Review__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>true</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Client_Approved_for_Development__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
-                                </criteria>
-                            </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Project_Task__c.Reject_Client_Backlog_Task</value>
-                            <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
-                                <criteria>
-                                    <leftValue>{!Record.Status__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Backlog</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Ready_for_Client_Review__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>true</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Client_Approved_for_Development__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -212,44 +207,60 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value>Project_Task__c.Approve_Client_Completion_Task</value>
+                            <value>Project_Task__c.Submit_For_Client_Completion_Approval</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>1 AND (2 OR 3 OR 4)</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Status__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>In Review</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
+                                    <leftValue>{!Record.Submission_Status__c}</leftValue>
                                     <operator>EQUAL</operator>
-                                    <rightValue>true</rightValue>
+                                    <rightValue>Developer Submits for Approval to Project Manager</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue>{!Record.Client_Approved_for_Completion__c}</leftValue>
+                                    <leftValue>{!Record.Submission_Status__c}</leftValue>
                                     <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
+                                    <rightValue>Project Manager Rejects In Progress Task</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Submission_Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Project Manager Accepts In Progress Task</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Project_Task__c.Approve_Client_Completion_Task</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>In Review</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Submission_Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Project Manager Submits for Client Review</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Project_Task__c.Reject_Client_Completion_Task</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Status__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>In Review</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
+                                    <leftValue>{!Record.Submission_Status__c}</leftValue>
                                     <operator>EQUAL</operator>
-                                    <rightValue>true</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Client_Approved_for_Completion__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
+                                    <rightValue>Project Manager Submits for Client Review</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -556,6 +567,23 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Review_Status_Icons__c</fieldItem>
                 <identifier>RecordReview_Status_Icons_cField2</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Submission_Status__c</fieldItem>
+                <identifier>RecordSubmission_Status_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Submission_Status__c}</leftValue>
+                        <operator>NE</operator>
+                        <rightValue>Client Approves Pending</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <name>Facet-092e13f0-d729-457b-b2c9-9644e763d3d1</name>

@@ -454,7 +454,7 @@
             <targetReference>Get_Approval_Record</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <textTemplates>
         <name>txt_PTC_Message</name>
         <isViewedAsPlainText>true</isViewedAsPlainText>
