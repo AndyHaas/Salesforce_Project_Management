@@ -63,7 +63,7 @@
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <subflows>
         <name>Launch_Client_Approved_Backlog_Task</name>
         <label>Launch Client Approved Backlog Task</label>

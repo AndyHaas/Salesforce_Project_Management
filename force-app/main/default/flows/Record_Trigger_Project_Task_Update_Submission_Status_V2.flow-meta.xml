@@ -317,14 +317,14 @@
             <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Developer Working</stringValue>
+                <stringValue>Developer Completes Work/Testing</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>No Action</stringValue>
+                <stringValue>Submit for Approval</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -480,9 +480,63 @@
             <targetReference>Send_Task_Email</targetReference>
         </connector>
     </assignments>
+
     <assignments>
-        <name>Copy_1_of_Assign_Email_Variables_Project_Manager_Rejects_In_Progress_Task</name>
-        <label>Copy 1 of Assign Email Variables Project Manager Rejects In Progress Task</label>
+        <name>Assign_Email_Variables_V2_PM_Submits_Client_Approval</name>
+        <label>Assign Email Variables V2 PM Submits for Client Approval</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_ClientApproverUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_PM_Submits_Client_Approval</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactClientId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_V2_PM_Submits_Client_Approval</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Project_Task_Submission_V2_PM_Submits_Client_Approval</name>
+        <label>Assign Project Task Submission V2 PM Submits for Client Approval</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Project Manager Submits for Client Approval</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Submit for Approval</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_Task_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_PM_Accepts_In_Progress</name>
+        <label>Assign Email Variables V2 PM Accepts In Progress Task</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
@@ -496,7 +550,7 @@
             <assignToReference>rec_LightningTemplate</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Email_Template_Project_Manager_Rejects_In_Progress_Task</elementReference>
+                <elementReference>Get_Email_Template_V2_PM_Accepts_In_Progress</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -507,19 +561,178 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Copy_1_of_Assign_Project_Task_SubmissionProject_Manager_Rejects_In_Progress_Task</targetReference>
+            <targetReference>Assign_Project_Task_Submission_V2_PM_Accepts_In_Progress</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <name>Copy_1_of_Assign_Project_Task_SubmissionProject_Manager_Rejects_In_Progress_Task</name>
-        <label>Copy 1 of Assign Project Task SubmissionProject Manager Rejects In Progress Task Project Manager Rejects In Progress Task</label>
+        <name>Assign_Project_Task_Submission_V2_PM_Accepts_In_Progress</name>
+        <label>Assign Project Task Submission V2 PM Accepts In Progress Task</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Project Manager Rejects In Progress Task</stringValue>
+                <stringValue>Project Manager Accepts In Progress Task</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Notification</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_Task_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_PM_Submits_Client_Review</name>
+        <label>Assign Email Variables V2 PM Submits for Client Review</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_ClientApproverUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_PM_Submits_Client_Review</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactClientId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_V2_PM_Submits_Client_Review</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Project_Task_Submission_V2_PM_Submits_Client_Review</name>
+        <label>Assign Project Task Submission V2 PM Submits for Client Review</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Project Manager Submits for Client Review</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Submit for Approval</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_Task_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_Client_Reviews_QA_Completion</name>
+        <label>Assign Email Variables V2 Client Reviews QA for Completion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_PMUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_Client_Reviews_QA_Completion</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactProjectManagerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_V2_Client_Reviews_QA_Completion</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Project_Task_Submission_V2_Client_Reviews_QA_Completion</name>
+        <label>Assign Project Task Submission V2 Client Reviews QA Completion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Client Reviews and QA&apos;s for Completion</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Notification</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_Task_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_Client_Rejects_Completion</name>
+        <label>Assign Email Variables V2 Client Rejects Completion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_PMUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_Client_Rejects_Completion</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactProjectManagerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_V2_Client_Rejects_Completion</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Project_Task_Submission_V2_Client_Rejects_Completion</name>
+        <label>Assign Project Task Submission V2 Client Rejects Completion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Client Rejects Completion</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -533,13 +746,338 @@
             <targetReference>Send_Task_Email</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_Client_Approves_Completion</name>
+        <label>Assign Email Variables V2 Client Approves Completion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_PMUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_Client_Approves_Completion</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactProjectManagerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_V2_Client_Approves_Completion</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Project_Task_Submission_V2_Client_Approves_Completion</name>
+        <label>Assign Project Task Submission V2 Client Approves Completion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Client Approves Completion</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Approved</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_Task_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_Project_Task_Complete</name>
+        <label>Assign Email Variables V2 Project Task Complete</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_PMUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_Project_Task_Complete</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactProjectManagerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_V2_Project_Task_Complete</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Project_Task_Submission_V2_Project_Task_Complete</name>
+        <label>Assign Project Task Submission V2 Project Task Complete</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Project Task Complete</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Notification</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_Task_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_Release_Notes_Released</name>
+        <label>Assign Email Variables V2 Release Notes Released</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_ClientApproverUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_Release_Notes_Released</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactClientId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_V2_Release_Notes_Released</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Project_Task_Submission_V2_Release_Notes_Released</name>
+        <label>Assign Project Task Submission V2 Release Notes Released</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Release Notes Released</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Notification</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_Task_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_Task_Is_Reviewed</name>
+        <label>Assign Email Variables V2 Task Is Reviewed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_PMUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_Task_Is_Reviewed</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactProjectManagerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_V2_Task_Is_Reviewed</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Project_Task_Submission_V2_Task_Is_Reviewed</name>
+        <label>Assign Project Task Submission V2 Task Is Reviewed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Task is Reviewed</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Notification</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_Task_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_Submission_Update_General</name>
+        <label>Assign Email Variables V2 Submission Update General</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_PMUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_Submission_Update_General</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactProjectManagerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_V2_Default</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Project_Task_Submission_V2_Default</name>
+        <label>Assign Project Task Submission V2 Default</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Submission_Status__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Notification</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Send_Task_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_Developer_Working</name>
+        <label>Assign Email Variables V2 Developer Working</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_PMUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_Developer_Working</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactProjectManagerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_Developer_Working</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Email_Variables_V2_Developer_Completes_Work_Testing</name>
+        <label>Assign Email Variables V2 Developer Completes Work Testing</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>txt_Email</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_PMUserEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_LightningTemplate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Email_Template_V2_Developer_Completes_Work_Testing</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>txt_ContactRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>txt_ContactProjectManagerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Project_Task_Submission_Developer_Completes_Work</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>What_is_the_submission_status</name>
         <label>What is the submission status?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Send_Task_Email</targetReference>
+            <targetReference>Get_Email_Template_V2_Submission_Update_General</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
@@ -553,7 +1091,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Task_Email</targetReference>
+                <targetReference>Get_Email_Template_V2_PM_Submits_Client_Approval</targetReference>
             </connector>
             <label>Project Manager Submits for Client Approval</label>
         </rules>
@@ -613,7 +1151,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Assign_Project_Task_Submission_Developer_Working</targetReference>
+                <targetReference>Get_Email_Template_V2_Developer_Working</targetReference>
             </connector>
             <label>Developer Working</label>
         </rules>
@@ -628,7 +1166,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Assign_Project_Task_Submission_Developer_Completes_Work</targetReference>
+                <targetReference>Get_Email_Template_V2_Developer_Completes_Work_Testing</targetReference>
             </connector>
             <label>Developer Completes Work/Testing</label>
         </rules>
@@ -674,7 +1212,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Task_Email</targetReference>
+                <targetReference>Get_Email_Template_V2_PM_Accepts_In_Progress</targetReference>
             </connector>
             <label>Project Manager Accepts In Progress Task</label>
         </rules>
@@ -689,7 +1227,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Get_Email_Template_Project_Manager_Project_Manager_Submits_for_Client_Review</targetReference>
+                <targetReference>Get_Email_Template_V2_PM_Submits_Client_Review</targetReference>
             </connector>
             <label>Project Manager Submits for Client Review</label>
         </rules>
@@ -704,7 +1242,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Task_Email</targetReference>
+                <targetReference>Get_Email_Template_V2_Client_Reviews_QA_Completion</targetReference>
             </connector>
             <label>Client Reviews and QA&apos;s for Completion</label>
         </rules>
@@ -719,7 +1257,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Task_Email</targetReference>
+                <targetReference>Get_Email_Template_V2_Client_Rejects_Completion</targetReference>
             </connector>
             <label>Client Rejects Completion</label>
         </rules>
@@ -734,7 +1272,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Task_Email</targetReference>
+                <targetReference>Get_Email_Template_V2_Client_Approves_Completion</targetReference>
             </connector>
             <label>Client Approves Completion</label>
         </rules>
@@ -749,11 +1287,24 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Task_Email</targetReference>
+                <targetReference>Get_Email_Template_V2_Project_Task_Complete</targetReference>
             </connector>
             <label>Project Task Complete</label>
-        </rules>
-        <rules>
+        </rules>        <rules>
+            <name>Task_Is_Reviewed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Submission_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Task is Reviewed</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Email_Template_V2_Task_Is_Reviewed</targetReference>
+            </connector>
+            <label>Task Is Reviewed</label>
+        </rules>        <rules>
             <name>Release_Notes_Released</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
@@ -764,7 +1315,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Task_Email</targetReference>
+                <targetReference>Get_Email_Template_V2_Release_Notes_Released</targetReference>
             </connector>
             <label>Release Notes Released</label>
         </rules>
@@ -811,9 +1362,13 @@
         <name>txt_ContactProjectManagerId</name>
         <dataType>String</dataType>
         <expression>{!$Record.Project_Manager__r.Id}</expression>
+    </formulas>    <formulas>
+        <name>txt_ContactClientId</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Client_User__r.Id}</expression>
     </formulas>
     <interviewLabel>Project Task Status Updated {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Record Trigger - Project Task - Update Submission Status</label>
+    <label>Record Trigger - Project Task - Update Submission Status V2</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -927,24 +1482,8 @@
         <object>EmailTemplate</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
-    <recordLookups>
-        <name>Get_Email_Template_Project_Manager_Project_Manager_Submits_for_Client_Review</name>
-        <label>Get Email Template Project Manager Project Manager Submits for Client Review</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Copy_1_of_Assign_Email_Variables_Project_Manager_Rejects_In_Progress_Task</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Name</field>
-            <operator>EqualTo</operator>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>EmailTemplate</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
+
+
     <recordLookups>
         <name>Get_Email_Template_Project_Manager_Rejects_In_Progress_Task</name>
         <label>Get Email Template Project Manager Rejects In Progress Task</label>
@@ -960,6 +1499,258 @@
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Approval Process - Project Task - PM Rejected</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_PM_Submits_Client_Approval</name>
+        <label>Get Email Template V2 PM Submits Client Approval</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_PM_Submits_Client_Approval</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - PM Submits for Client Approval</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_PM_Accepts_In_Progress</name>
+        <label>Get Email Template V2 PM Accepts In Progress</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_PM_Accepts_In_Progress</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - PM Accepts In Progress Task</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_PM_Submits_Client_Review</name>
+        <label>Get Email Template V2 PM Submits Client Review</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_PM_Submits_Client_Review</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - PM Submits for Client Review</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_Client_Reviews_QA_Completion</name>
+        <label>Get Email Template V2 Client Reviews QA Completion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_Client_Reviews_QA_Completion</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - Client Reviews QA for Completion</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_Client_Rejects_Completion</name>
+        <label>Get Email Template V2 Client Rejects Completion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_Client_Rejects_Completion</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - Client Rejects Completion</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_Client_Approves_Completion</name>
+        <label>Get Email Template V2 Client Approves Completion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_Client_Approves_Completion</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - Client Approves Completion</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_Project_Task_Complete</name>
+        <label>Get Email Template V2 Project Task Complete</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_Project_Task_Complete</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - Project Task Complete</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_Release_Notes_Released</name>
+        <label>Get Email Template V2 Release Notes Released</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_Release_Notes_Released</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - Release Notes Released</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_Task_Is_Reviewed</name>
+        <label>Get Email Template V2 Task Is Reviewed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_Task_Is_Reviewed</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - Task Is Reviewed</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_Submission_Update_General</name>
+        <label>Get Email Template V2 Submission Update General</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_Submission_Update_General</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - Submission Update</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_Developer_Working</name>
+        <label>Get Email Template V2 Developer Working</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_Developer_Working</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - Developer Working</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>EmailTemplate</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Email_Template_V2_Developer_Completes_Work_Testing</name>
+        <label>Get Email Template V2 Developer Completes Work Testing</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Email_Variables_V2_Developer_Completes_Work_Testing</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Submission Status V2 - Developer Completes Work Testing</stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>

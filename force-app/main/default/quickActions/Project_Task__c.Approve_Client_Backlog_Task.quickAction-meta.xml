@@ -1,16 +1,12 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fieldOverrides>
-        <field>Client_Approved_for_Development__c</field>
-        <formula>TRUE</formula>
-    </fieldOverrides>
-    <fieldOverrides>
-        <field>Ready_for_Client_Review__c</field>
-        <formula>FALSE</formula>
-    </fieldOverrides>
     <fieldOverrides>
         <field>Status__c</field>
         <literalValue>Pending</literalValue>
+    </fieldOverrides>
+    <fieldOverrides>
+        <field>Submission_Status__c</field>
+        <literalValue>Client Approves Pending</literalValue>
     </fieldOverrides>
     <label>Approve (Client – Backlog)</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
@@ -20,10 +16,10 @@
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
                 <field>Status__c</field>
-                <uiBehavior>Required</uiBehavior>
+                <uiBehavior>Readonly</uiBehavior>
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
-        <quickActionLayoutColumns />
+        <quickActionLayoutColumns/>
     </quickActionLayout>
     <successMessage>Client approved; task moved to Pending</successMessage>
     <type>Update</type>

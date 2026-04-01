@@ -1,5 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldOverrides>
+        <field>Submission_Status__c</field>
+        <literalValue>Developer Submits for Approval to Project Manager</literalValue>
+    </fieldOverrides>
     <fieldOverrides>
         <field>Status__c</field>
         <literalValue>In Review</literalValue>
@@ -12,12 +16,11 @@
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
                 <field>Status__c</field>
-                <uiBehavior>Required</uiBehavior>
+                <uiBehavior>Readonly</uiBehavior>
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
-        <quickActionLayoutColumns />
+        <quickActionLayoutColumns/>
     </quickActionLayout>
-    <successMessage
-  >Task submitted for PM/Code Reviewer approval</successMessage>
+    <successMessage>Task submitted for PM/Code Reviewer approval</successMessage>
     <type>Update</type>
 </QuickAction>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validate_PM_Skip_Client_Backlog</fullName>
+    <active>true</active>
+    <description>Only the assigned Project Manager may advance from client-approval submission directly to Developer Assigned.</description>
+    <errorConditionFormula>AND(
+    ISCHANGED(Submission_Status__c),
+    NOT(ISBLANK(Project_Manager__c)),
+    TEXT(Submission_Status__c) = &quot;Developer Assigned to Pending&quot;,
+    TEXT(PRIORVALUE(Submission_Status__c)) = &quot;Project Manager Submits for Client Approval&quot;,
+    $User.ContactId &lt;&gt; Project_Manager__c
+)</errorConditionFormula>
+    <errorDisplayField>Submission_Status__c</errorDisplayField>
+    <errorMessage>Only the Project Manager on this task may skip client backlog approval by setting submission status to Developer Assigned to Pending.</errorMessage>
+</ValidationRule>

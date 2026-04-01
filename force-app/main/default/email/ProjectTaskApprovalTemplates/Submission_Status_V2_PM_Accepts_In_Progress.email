@@ -1,0 +1,30 @@
+﻿<html>
+<head>
+	<title></title>
+</head>
+<body style="height: auto; min-height: auto;">
+<p>Hello {{{Recipient.FirstName}}},</p>
+
+<p>&nbsp;</p>
+
+<p>Your project manager has accepted your in-progress work on this task:</p>
+
+<p>{{{Project_Task__c.Name}}}</p>
+
+<p>&nbsp;</p>
+
+<p>To move forward, please complete the following:</p>
+
+<p>Review the task in Salesforce and take the appropriate next step.</p>
+
+<p>&nbsp;</p>
+
+<p><a href="https://milestoneconsulting--dev.sandbox.my.site.com/" rel="noopener noreferrer">View Task</a> in Salesforce</p>
+
+<p>&nbsp;</p>
+
+<p>Thank you.</p>
+
+<p>&nbsp;</p>
+</body>
+</html>

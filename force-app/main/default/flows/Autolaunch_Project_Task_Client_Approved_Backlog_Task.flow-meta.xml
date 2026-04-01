@@ -143,12 +143,19 @@
         <defaultConnectorLabel>Status is In Review</defaultConnectorLabel>
         <rules>
             <name>Status_is_In_Backlog</name>
-            <conditionLogic>and</conditionLogic>
+            <conditionLogic>1 OR 2</conditionLogic>
             <conditions>
                 <leftValueReference>Get_Approval_Record.Client_Approved_for_Development__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Approval_Record.Submission_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Client Approves Pending</stringValue>
                 </rightValue>
             </conditions>
             <connector>
