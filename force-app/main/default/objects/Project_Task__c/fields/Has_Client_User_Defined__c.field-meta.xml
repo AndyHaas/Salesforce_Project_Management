@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Has_Client_User_Defined__c</fullName>
-    <description
-  >Formula field that returns true if Client_User__c is populated</description>
+    <description>Formula field that returns true if Client_User__c is populated</description>
     <formula>NOT(ISBLANK(Client_User__c))</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Has Client User Defined</label>

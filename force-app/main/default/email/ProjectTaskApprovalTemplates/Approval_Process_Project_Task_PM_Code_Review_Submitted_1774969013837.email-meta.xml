@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>UTF-8</encodingKey>
+    <name>Approval Process - Project Task - PM Code Review Submitted</name>
+    <relatedEntityType>Project_Task__c</relatedEntityType>
+    <style>none</style>
+    <subject>Action Needed: Developer Submitted Task for Review</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>

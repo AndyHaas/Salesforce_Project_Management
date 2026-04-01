@@ -43,23 +43,6 @@
         <expression>&apos;005Ec00000W50gIIAR&apos;</expression>
     </formulas>
     <formulas>
-        <name>form_txt_ClientBody</name>
-        <dataType>String</dataType>
-        <expression>Hello {!$Record.Client_Approver_User__r.FirstName},
-
-A pending task is ready for your review:
-
-{!$Record.Name}
-
- 
-
-To move forward, please complete the following:
-
-Review the Task in the Salesforce portal.
-
-We appreciate your prompt attention and look forward to your feedback.</expression>
-    </formulas>
-    <formulas>
         <name>form_txt_RecordId</name>
         <dataType>String</dataType>
         <expression>{!$Record.Id}</expression>
@@ -93,18 +76,6 @@ We appreciate your prompt attention and look forward to your feedback.</expressi
                 <name>ActionInput__RecordId</name>
                 <value>
                     <elementReference>$Record.Id</elementReference>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>ActionInput__CustomEmailSubject</name>
-                <value>
-                    <stringValue>Task Approval Request</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>ActionInput__CustomEmailBody</name>
-                <value>
-                    <elementReference>temp_ClientBody</elementReference>
                 </value>
             </inputParameters>
             <label>Client Approval</label>
@@ -217,10 +188,10 @@ We appreciate your prompt attention and look forward to your feedback.</expressi
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Ready_for_Client_Review__c</field>
+            <field>Submission_Status__c</field>
             <operator>EqualTo</operator>
             <value>
-                <booleanValue>true</booleanValue>
+                <stringValue>Project Manager Submits for Client Approval</stringValue>
             </value>
         </filters>
         <object>Project_Task__c</object>
@@ -230,10 +201,5 @@ We appreciate your prompt attention and look forward to your feedback.</expressi
         </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>InvalidDraft</status>
-    <textTemplates>
-        <name>temp_ClientBody</name>
-        <isViewedAsPlainText>false</isViewedAsPlainText>
-        <text>&lt;p&gt;Hello &lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-size: medium;&quot;&gt;{{{Recipient.FirstName}}}&lt;/span&gt;,&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;A pending task is ready for your review:&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;{!$Record.Name}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;To move forward, please complete the following:&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Review the Task in the Salesforce portal.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://milestoneconsulting--dev.sandbox.my.site.com/portal&quot; rel=&quot;noopener noreferrer&quot; target=&quot;_blank&quot; style=&quot;color: rgb(0, 0, 0); font-size: 13px;&quot;&gt;View Task&lt;/a&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-size: 13px;&quot;&gt;&amp;nbsp;in Salesforce&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;We appreciate your prompt attention and look forward to your feedback.&lt;/p&gt;</text>
-    </textTemplates>
+    <status>Draft</status>
 </Flow>

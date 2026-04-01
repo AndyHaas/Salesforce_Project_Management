@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Priority__c</fullName>
     <defaultValue>&quot;Medium&quot;</defaultValue>
-    <description
-  >Priority level of the project task (High, Medium, or Low). Used to prioritize work and determine urgency.</description>
-    <inlineHelpText
-  >Select the priority level for this task. High = urgent, needs immediate attention. Medium = normal priority (default). Low = can be deferred if needed.</inlineHelpText>
+    <description>Priority level of the project task (High, Medium, or Low). Used to prioritize work and determine urgency.</description>
+    <inlineHelpText>Select the priority level for this task. High = urgent, needs immediate attention. Medium = normal priority (default). Low = can be deferred if needed.</inlineHelpText>
     <label>Priority</label>
     <required>true</required>
     <trackFeedHistory>false</trackFeedHistory>

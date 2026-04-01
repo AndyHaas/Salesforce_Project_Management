@@ -1,121 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <actionCalls>
-        <name>Send_Client_Rejected_Task_Email</name>
-        <label>Send Client Rejected Task Email</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>emailSimple</actionName>
-        <actionType>emailSimple</actionType>
-        <connector>
-            <targetReference>Set_Rejected_to_False</targetReference>
-        </connector>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>recipientAddresses</name>
-            <value>
-                <collectionElements>
-                    <elementReference>$Record.PM_Approver_User__r.Email</elementReference>
-                </collectionElements>
-                <collectionElements>
-                    <stringValue>kurt.savage@milestoneconsulting.tech</stringValue>
-                </collectionElements>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>useEmailTemplate</name>
-            <value>
-                <stringValue>True</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>emailTemplateId</name>
-            <value>
-                <inputConfiguratorMode>Custom</inputConfiguratorMode>
-                <stringValue>00XEc00000F2AttMAF</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>recipientId</name>
-            <value>
-                <elementReference>$Record.Project_Manager__c</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>relatedRecordId</name>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-                <inputConfiguratorMode>Resource</inputConfiguratorMode>
-            </value>
-        </inputParameters>
-        <nameSegment>emailSimple</nameSegment>
-        <offset>0</offset>
-        <versionString>2.0.1</versionString>
-    </actionCalls>
-    <actionCalls>
-        <name>Unlock_Record</name>
-        <label>Unlock Record</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>lockRecord</actionName>
-        <actionType>lockRecord</actionType>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>recordId</name>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>action</name>
-            <value>
-                <stringValue>Unlock</stringValue>
-            </value>
-        </inputParameters>
-        <nameSegment>lockRecord</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <assignments>
-        <name>Set_Record_Id</name>
-        <label>Set Record Id</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTask.Id</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Send_Client_Rejected_Task_Email</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Set_Rejected_to_False</name>
-        <label>Set Rejected and Ready for Client Review to False</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTask.Client_Rejected__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTask.Ready_for_Client_Review__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Update_Project_Task</targetReference>
-        </connector>
-    </assignments>
     <environments>Default</environments>
     <interviewLabel>Approval Process - {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Record Trigger - Project Task - Client Rejects Task</label>
@@ -138,42 +24,45 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
-    <recordUpdates>
-        <name>Update_Project_Task</name>
-        <label>Update Project Task</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>Unlock_Record</targetReference>
-        </connector>
-        <inputReference>rec_ProjectTask</inputReference>
-    </recordUpdates>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Set_Record_Id</targetReference>
+            <targetReference>Launch_Client_Rejected_Backlog_Task</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Client_Rejected__c</field>
+            <field>Submission_Status__c</field>
             <operator>IsChanged</operator>
             <value>
                 <booleanValue>true</booleanValue>
             </value>
         </filters>
         <filters>
-            <field>Client_Rejected__c</field>
+            <field>Submission_Status__c</field>
             <operator>EqualTo</operator>
             <value>
-                <booleanValue>true</booleanValue>
+                <stringValue>Client Rejects Backlog Task</stringValue>
             </value>
         </filters>
         <object>Project_Task__c</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
+    <subflows>
+        <name>Launch_Client_Rejected_Backlog_Task</name>
+        <label>Launch Client Rejected Backlog Task</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>Autolaunch_Project_Task_Client_Rejected_Backlog_Task</flowName>
+        <inputAssignments>
+            <name>recordId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
     <variables>
         <name>rec_ProjectTask</name>
         <dataType>SObject</dataType>

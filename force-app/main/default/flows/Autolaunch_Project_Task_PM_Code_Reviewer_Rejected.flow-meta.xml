@@ -1,33 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
-        <name>PTC_PM_Rejection_Message</name>
-        <label>PTC - PM Rejection Message</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>chatterPost</actionName>
-        <actionType>chatterPost</actionType>
-        <connector>
-            <targetReference>Get_Approval_Record</targetReference>
-        </connector>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>text</name>
-            <value>
-                <elementReference>txt_PTC_Message</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>subjectNameOrId</name>
-            <value>
-                <elementReference>recordId</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>chatterPost</nameSegment>
-        <offset>0</offset>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </actionCalls>
-    <actionCalls>
         <name>Send_Email_to_Developer</name>
         <label>Send Email to Developer</label>
         <locationX>0</locationX>
@@ -43,9 +16,6 @@
             <value>
                 <collectionElements>
                     <elementReference>Get_Approval_Record.Developer__r.Email</elementReference>
-                </collectionElements>
-                <collectionElements>
-                    <stringValue>kurt.savage@milestoneconsulting.tech</stringValue>
                 </collectionElements>
             </value>
         </inputParameters>
@@ -78,6 +48,29 @@
         <nameSegment>emailSimple</nameSegment>
         <offset>0</offset>
         <versionString>2.0.1</versionString>
+    </actionCalls>
+    <actionCalls>
+        <name>Unlock_Record</name>
+        <label>Unlock Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>lockRecord</actionName>
+        <actionType>lockRecord</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>recordId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>action</name>
+            <value>
+                <stringValue>Unlock</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>lockRecord</nameSegment>
+        <offset>0</offset>
     </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -131,6 +124,9 @@
         <label>Update Project Task - PM Code Reviewer Rejected</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>Unlock_Record</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -139,6 +135,12 @@
                 <elementReference>recordId</elementReference>
             </value>
         </filters>
+        <inputAssignments>
+            <field>Rejected_by_PM_Code_Reviewer__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <field>Reviewed_by_PM_Code_Reviewer__c</field>
             <value>
@@ -157,7 +159,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>PTC_PM_Rejection_Message</targetReference>
+            <targetReference>Get_Approval_Record</targetReference>
         </connector>
     </start>
     <status>Active</status>

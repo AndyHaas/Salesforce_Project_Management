@@ -55,19 +55,19 @@
             <targetReference>Send_Approval_Email</targetReference>
         </connector>
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Ready_for_Client_Review__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </filters>
+        <filterLogic>1 AND 2</filterLogic>
         <filters>
             <field>Status__c</field>
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Backlog</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Submission_Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Project Manager Submits for Client Approval</stringValue>
             </value>
         </filters>
         <object>Project_Task__c</object>

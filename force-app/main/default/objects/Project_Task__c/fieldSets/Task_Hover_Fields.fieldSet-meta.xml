@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Task_Hover_Fields</fullName>
-    <description
-  >This is used on the custom LWC component that shows the different tasks/subtasks and controls what fields are shown for the Tasks Snapshot hover action.</description>
+    <description>This is used on the custom LWC component that shows the different tasks/subtasks and controls what fields are shown for the Tasks Snapshot hover action.</description>
     <displayedFields>
         <field>Status__c</field>
         <isFieldManaged>false</isFieldManaged>

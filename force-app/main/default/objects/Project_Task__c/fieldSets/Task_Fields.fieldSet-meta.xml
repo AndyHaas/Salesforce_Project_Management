@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Task_Fields</fullName>
-    <description
-  >This is used in the project task LWC component to control what fields are shown after the task name as that field will be required.</description>
+    <description>This is used in the project task LWC component to control what fields are shown after the task name as that field will be required.</description>
     <displayedFields>
         <field>Account__c</field>
         <isFieldManaged>false</isFieldManaged>

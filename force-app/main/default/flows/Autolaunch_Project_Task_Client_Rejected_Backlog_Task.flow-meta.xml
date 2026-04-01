@@ -1,31 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
-        <name>PTC_Rejection_Message</name>
-        <label>PTC - Rejection Message</label>
+        <name>Send_Client_Rejected_Task_Email</name>
+        <label>Send Client Rejected Task Email</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <actionName>chatterPost</actionName>
-        <actionType>chatterPost</actionType>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
         <connector>
             <targetReference>Update_Project_Task_Client_Rejected_Backlog_Item</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
-            <name>text</name>
+            <name>recipientAddresses</name>
             <value>
-                <elementReference>txt_PTC_Message</elementReference>
+                <collectionElements>
+                    <stringValue>kurt.savage@milestoneconsulting.tech</stringValue>
+                </collectionElements>
+                <collectionElements>
+                    <elementReference>Get_Approval_Record.PM_Approver_User__r.Email</elementReference>
+                </collectionElements>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>subjectNameOrId</name>
+            <name>useEmailTemplate</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailTemplateId</name>
+            <value>
+                <inputConfiguratorMode>Custom</inputConfiguratorMode>
+                <stringValue>00XEc00000F2AttMAF</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>attachmentIdCollection</name>
+        </inputParameters>
+        <inputParameters>
+            <name>recipientId</name>
+            <value>
+                <elementReference>Get_Approval_Record.Project_Manager__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>relatedRecordId</name>
+            <value>
+                <elementReference>Get_Approval_Record.Id</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>2.0.1</versionString>
+    </actionCalls>
+    <actionCalls>
+        <name>Unlock_Record</name>
+        <label>Unlock Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>lockRecord</actionName>
+        <actionType>lockRecord</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>recordId</name>
             <value>
                 <elementReference>recordId</elementReference>
             </value>
         </inputParameters>
-        <nameSegment>chatterPost</nameSegment>
+        <inputParameters>
+            <name>action</name>
+            <value>
+                <stringValue>Unlock</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>lockRecord</nameSegment>
         <offset>0</offset>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -52,12 +103,36 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Approval_Record</name>
+        <label>Get Approval Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Send_Client_Rejected_Task_Email</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Project_Task__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <description>The client has rejected a backlog item. Ensure Task is set to &quot;Backlog&quot; and that the client has not reviewed</description>
         <name>Update_Project_Task_Client_Rejected_Backlog_Item</name>
         <label>Update Project Task - Client Rejected Backlog Item</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>Unlock_Record</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -68,6 +143,18 @@
         </filters>
         <inputAssignments>
             <field>Client_Approved_for_Development__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Client_Rejected__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Ready_for_Client_Review__c</field>
             <value>
                 <booleanValue>false</booleanValue>
             </value>
@@ -84,7 +171,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>PTC_Rejection_Message</targetReference>
+            <targetReference>Get_Approval_Record</targetReference>
         </connector>
     </start>
     <status>Active</status>

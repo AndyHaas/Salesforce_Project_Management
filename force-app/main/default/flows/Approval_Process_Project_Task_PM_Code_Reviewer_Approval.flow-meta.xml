@@ -59,6 +59,26 @@
         </connector>
         <exitConditionLogic>and</exitConditionLogic>
         <stageSteps>
+            <name>Autolaunch_Project_Task_PM_Code_Review_Sumbitted</name>
+            <actionName>Autolaunch_Project_Task_PM_Code_Review_Sumbitted</actionName>
+            <actionType>stepBackground</actionType>
+            <canAssigneeEdit>false</canAssigneeEdit>
+            <debugSimulateStep>false</debugSimulateStep>
+            <entryConditionLogic>and</entryConditionLogic>
+            <exitConditionLogic>and</exitConditionLogic>
+            <inputParameters>
+                <name>recordId</name>
+                <value>
+                    <elementReference>$Record.Id</elementReference>
+                </value>
+            </inputParameters>
+            <label>Autolaunch - Project Task - PM Code Review Sumbitted</label>
+            <requiresAsyncProcessing>false</requiresAsyncProcessing>
+            <runAsUser>false</runAsUser>
+            <shouldLock>false</shouldLock>
+            <stepSubtype>BackgroundStep</stepSubtype>
+        </stageSteps>
+        <stageSteps>
             <name>PM_Code_Reviewer_Approval</name>
             <actionName>standard_approvals__EvaluateApproval</actionName>
             <actionType>stepApproval</actionType>

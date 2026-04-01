@@ -1,33 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
-        <name>PTC_Client_Approved</name>
-        <label>PTC - Client Approved</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>chatterPost</actionName>
-        <actionType>chatterPost</actionType>
-        <connector>
-            <targetReference>Get_Approval_Record</targetReference>
-        </connector>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>text</name>
-            <value>
-                <elementReference>txt_PTC_Message</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>subjectNameOrId</name>
-            <value>
-                <elementReference>recordId</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>chatterPost</nameSegment>
-        <offset>0</offset>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </actionCalls>
-    <actionCalls>
         <name>Send_Client_Approved_Completed_Task_Email</name>
         <label>Send Client Approved Completed Task Email</label>
         <locationX>0</locationX>
@@ -35,7 +8,7 @@
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
         <connector>
-            <targetReference>Update_Project_Task_Client_Approved_Complete_Item</targetReference>
+            <targetReference>Create_Project_Task_Submission_for_Client_Approved_Complete</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -50,38 +23,33 @@
             </value>
         </inputParameters>
         <inputParameters>
-            <name>composeEmailContent</name>
+            <name>useEmailTemplate</name>
             <value>
                 <stringValue>True</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>emailSubject</name>
-            <value>
-                <stringValue>Action Needed: Client Approved Complete Task</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>emailBody</name>
+            <name>emailTemplateId</name>
             <value>
                 <inputConfiguratorMode>Custom</inputConfiguratorMode>
-                <stringValue>&lt;p&gt;Hello {!Get_Approval_Record.PM_Approver_User__c}},&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;A completed task is ready for your review:&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;{!Get_Approval_Record.Name}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;To move forward, please complete the following:&lt;/p&gt;&lt;p&gt;Review the Task in Salesforce.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://%3Cyour-domain%3E.my.salesforce.com/lightning/o/Project_Task__c/list&quot; rel=&quot;noopener noreferrer&quot; target=&quot;_blank&quot; style=&quot;color: rgb(92, 92, 90);&quot;&gt;View Task&lt;/a&gt; in Salesforce&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;We appreciate your prompt attention and look forward to your feedback.&lt;/p&gt;</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>sendRichBody</name>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>useLineBreaks</name>
-            <value>
-                <booleanValue>true</booleanValue>
+                <stringValue>00XEc00000F3gi1MAB</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
             <name>recipientId</name>
+            <value>
+                <elementReference>Get_Approval_Record.Project_Manager__r.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>relatedRecordId</name>
+            <value>
+                <elementReference>Get_Approval_Record.Id</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logEmailOnSend</name>
         </inputParameters>
         <nameSegment>emailSimple</nameSegment>
         <offset>0</offset>
@@ -95,7 +63,7 @@
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
         <connector>
-            <targetReference>Update_Project_Task_Client_Approved_Backlog_Item</targetReference>
+            <targetReference>Create_Project_Task_Submission</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -110,42 +78,57 @@
             </value>
         </inputParameters>
         <inputParameters>
-            <name>composeEmailContent</name>
+            <name>useEmailTemplate</name>
             <value>
                 <stringValue>True</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>emailSubject</name>
-            <value>
-                <stringValue>Action Needed: Client Approved Task</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>emailBody</name>
+            <name>emailTemplateId</name>
             <value>
                 <inputConfiguratorMode>Custom</inputConfiguratorMode>
-                <stringValue>&lt;p&gt;Hello {!Get_Approval_Record.PM_Approver_User__c}},&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;A pending task is ready for your review:&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;{!Get_Approval_Record.Name}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;To move forward, please complete the following:&lt;/p&gt;&lt;p&gt;Review the Task in Salesforce.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://%3Cyour-domain%3E.my.salesforce.com/lightning/o/Project_Task__c/list&quot; rel=&quot;noopener noreferrer&quot; target=&quot;_blank&quot; style=&quot;color: rgb(92, 92, 90);&quot;&gt;View Task&lt;/a&gt; in Salesforce&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;We appreciate your prompt attention and look forward to your feedback.&lt;/p&gt;</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>sendRichBody</name>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>useLineBreaks</name>
-            <value>
-                <booleanValue>true</booleanValue>
+                <stringValue>00XEc00000F3dnNMAR</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
             <name>recipientId</name>
+            <value>
+                <elementReference>Get_Approval_Record.Project_Manager__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>relatedRecordId</name>
+            <value>
+                <elementReference>Get_Approval_Record.Id</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
+            </value>
         </inputParameters>
         <nameSegment>emailSimple</nameSegment>
         <offset>0</offset>
         <versionString>2.0.1</versionString>
+    </actionCalls>
+    <actionCalls>
+        <name>Unlock_Record</name>
+        <label>Unlock Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>lockRecord</actionName>
+        <actionType>lockRecord</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>recordId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>action</name>
+            <value>
+                <stringValue>Unlock</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>lockRecord</nameSegment>
+        <offset>0</offset>
     </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -162,10 +145,10 @@
             <name>Status_is_In_Backlog</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Get_Approval_Record.Status__c</leftValueReference>
+                <leftValueReference>Get_Approval_Record.Client_Approved_for_Development__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>Backlog</stringValue>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -176,6 +159,23 @@
     </decisions>
     <description>This task will run whenever the client approves a backlog task.</description>
     <environments>Default</environments>
+    <formulas>
+        <name>form_num_NewStepNumber</name>
+        <dataType>Number</dataType>
+        <expression>{!Get_Approval_Record.Current_Submission_Step__c} + 1</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>form_txt_SubmittingUserRole</name>
+        <dataType>String</dataType>
+        <expression>CASE(
+  {!$User.ContactId},
+  {!Get_Approval_Record.Project_Manager__c}, &quot;Project Manager&quot;,
+  {!Get_Approval_Record.Client_User__c}, &quot;Client&quot;,
+  {!Get_Approval_Record.Developer__c}, &quot;Developer&quot;,
+  &quot;&quot;
+)</expression>
+    </formulas>
     <interviewLabel>Autolaunch - Client Approved {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Autolaunch - Project Task - Client Approved Backlog Task</label>
     <processMetadataValues>
@@ -197,6 +197,160 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Create_Project_Task_Submission</name>
+        <label>Create Project Task Submission</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_Project_Task_Client_Approved_Backlog_Item</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Approver_Type__c</field>
+            <value>
+                <stringValue>Client</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Contact__c</field>
+            <value>
+                <elementReference>$User.ContactId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Date_Resolved__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Date_Submitted__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Previous_Project_Task_Submission__c</field>
+            <value>
+                <elementReference>Get_Approval_Record.Most_Recent_Project_Task_Submission__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Prior_Project_Task_Status__c</field>
+            <value>
+                <elementReference>Get_Approval_Record.Status__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Project_Task__c</field>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Submission_Status__c</field>
+            <value>
+                <stringValue>Client Approves Pending</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Submission_Step__c</field>
+            <value>
+                <elementReference>form_num_NewStepNumber</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Submission_Type__c</field>
+            <value>
+                <stringValue>Approved</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Submitting_User_Role__c</field>
+            <value>
+                <elementReference>form_txt_SubmittingUserRole</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Project_Task_Submission__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>Create_Project_Task_Submission_for_Client_Approved_Complete</name>
+        <label>Create Project Task Submission for Client Approved Complete</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_Project_Task_Client_Approved_Complete_Item</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Approver_Type__c</field>
+            <value>
+                <stringValue>Client</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Contact__c</field>
+            <value>
+                <elementReference>$User.ContactId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Date_Resolved__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Date_Submitted__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Previous_Project_Task_Submission__c</field>
+            <value>
+                <elementReference>Get_Approval_Record.Most_Recent_Project_Task_Submission__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Prior_Project_Task_Status__c</field>
+            <value>
+                <elementReference>Get_Approval_Record.Status__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Project_Task__c</field>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Submission_Status__c</field>
+            <value>
+                <stringValue>Client Approves Pending</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Submission_Step__c</field>
+            <value>
+                <elementReference>form_num_NewStepNumber</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Submission_Type__c</field>
+            <value>
+                <stringValue>Approved</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Submitting_User_Role__c</field>
+            <value>
+                <elementReference>form_txt_SubmittingUserRole</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Project_Task_Submission__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
     <recordLookups>
         <name>Get_Approval_Record</name>
         <label>Get Approval Record</label>
@@ -224,6 +378,9 @@
         <label>Update Project Task - Client Approved Backlog Item</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>Unlock_Record</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -233,21 +390,21 @@
             </value>
         </filters>
         <inputAssignments>
-            <field>Client_Approved_for_Development__c</field>
+            <field>Current_Submission_Step__c</field>
             <value>
-                <booleanValue>true</booleanValue>
+                <elementReference>form_num_NewStepNumber</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Ready_for_Client_Review__c</field>
+            <field>Most_Recent_Project_Task_Submission__c</field>
             <value>
-                <booleanValue>false</booleanValue>
+                <elementReference>Create_Project_Task_Submission.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Status__c</field>
+            <field>Submission_Status__c</field>
             <value>
-                <stringValue>Pending</stringValue>
+                <stringValue>Client Approves Pending</stringValue>
             </value>
         </inputAssignments>
         <object>Project_Task__c</object>
@@ -258,6 +415,9 @@
         <label>Update Project Task - Client Approved Complete Item</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>Unlock_Record</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -267,21 +427,15 @@
             </value>
         </filters>
         <inputAssignments>
-            <field>Client_Approved_for_Development__c</field>
+            <field>Current_Submission_Step__c</field>
             <value>
-                <booleanValue>true</booleanValue>
+                <elementReference>form_num_NewStepNumber</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Ready_for_Client_Review__c</field>
+            <field>Submission_Status__c</field>
             <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status__c</field>
-            <value>
-                <stringValue>Completed</stringValue>
+                <stringValue>Client Approves Completion</stringValue>
             </value>
         </inputAssignments>
         <object>Project_Task__c</object>
@@ -290,7 +444,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>PTC_Client_Approved</targetReference>
+            <targetReference>Get_Approval_Record</targetReference>
         </connector>
     </start>
     <status>Active</status>
