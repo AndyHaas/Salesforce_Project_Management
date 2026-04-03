@@ -5,6 +5,9 @@
 # Wiki content belongs in the .wiki submodule only (not a second root-level wiki/ folder)
 /wiki/
 
+# One-off deploy/retrieve package manifests (local tooling; not versioned)
+manifest/
+
 # Salesforce local cache (shared CLI defaults: see .sf/config.json)
 .sf/*
 !.sf/config.json
