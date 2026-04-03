@@ -7,9 +7,7 @@ import { getFileIconName } from "./portalFileAttachmentsUtils";
  * Shared file “card” list: preview (Lightning file preview or open download in portal),
  * download, optional remove. Intended for portalMessaging and portalTaskFiles.
  */
-export default class PortalFileAttachments extends NavigationMixin(
-  LightningElement
-) {
+export default class PortalFileAttachments extends NavigationMixin(LightningElement) {
   /**
    * Programmatic file rows from a parent LWC (takes precedence when non-empty).
    */
@@ -26,9 +24,7 @@ export default class PortalFileAttachments extends NavigationMixin(
   }
   set attachmentsJson(value) {
     this._attachmentsJsonRaw = value == null ? "" : String(value);
-    this._parsedAttachmentsFromBuilder = this.parseAttachmentsJson(
-      this._attachmentsJsonRaw
-    );
+    this._parsedAttachmentsFromBuilder = this.parseAttachmentsJson(this._attachmentsJsonRaw);
   }
 
   parseAttachmentsJson(raw) {
@@ -86,8 +82,7 @@ export default class PortalFileAttachments extends NavigationMixin(
     }
     if (typeof window !== "undefined" && window.location) {
       const pathname = window.location.pathname || "";
-      this._experienceCloud =
-        pathname.startsWith("/s/") || pathname.includes("/s/");
+      this._experienceCloud = pathname.startsWith("/s/") || pathname.includes("/s/");
       return this._experienceCloud;
     }
     this._experienceCloud = false;
@@ -95,9 +90,7 @@ export default class PortalFileAttachments extends NavigationMixin(
   }
 
   get hasFiles() {
-    return (
-      Array.isArray(this.effectiveFileRows) && this.effectiveFileRows.length > 0
-    );
+    return Array.isArray(this.effectiveFileRows) && this.effectiveFileRows.length > 0;
   }
 
   get displayFiles() {
@@ -107,11 +100,14 @@ export default class PortalFileAttachments extends NavigationMixin(
     return this.effectiveFileRows.map((f, idx) => {
       const ext = (f.fileExtension || "").toLowerCase();
       const allowDelete = f.canDelete === undefined || f.canDelete === true;
+      const title = f.title || "Attachment";
+      const fullName = ext ? `${title}.${ext}` : title;
       return {
         rowKey: f.contentDocumentId || f.contentVersionId || `f-${idx}`,
         contentDocumentId: f.contentDocumentId,
         contentVersionId: f.contentVersionId,
-        title: f.title || "Attachment",
+        title,
+        fullName,
         fileExtension: ext,
         iconName: getFileIconName(ext),
         showDeleteRow: this.showDelete && allowDelete

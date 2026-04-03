@@ -1,13 +1,59 @@
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .portal-file-list {
   list-style: none;
   margin: 0;
   padding: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .portal-file-row {
   margin-top: 0.25rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .portal-file-row:first-child {
   margin-top: 0;
+}
+
+/* Allow the name column to shrink inside SLDS grid so ellipsis can apply */
+.portal-file-name-col {
+  min-width: 0;
+}
+
+.portal-file-icon {
+  flex-shrink: 0;
+}
+
+.portal-file-title-line {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  flex: 1;
+  max-width: 100%;
+}
+
+.portal-file-title-text {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.portal-file-title-link,
+.portal-file-title-plain {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-file-title-ext {
+  flex-shrink: 0;
+  margin-left: 0.125rem;
 }

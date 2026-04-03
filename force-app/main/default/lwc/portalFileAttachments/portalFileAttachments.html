@@ -1,46 +1,41 @@
 <template>
   <template if:true={hasFiles}>
-    <ul
-      class="portal-file-list slds-list_vertical slds-has-dividers_bottom-space"
-    >
+    <ul class="portal-file-list slds-list_vertical slds-has-dividers_bottom-space">
       <template for:each={displayFiles} for:item="file">
         <li key={file.rowKey} class="portal-file-row slds-item">
           <div
             class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-box slds-box_x-small slds-theme_shade"
           >
-            <div
-              class="slds-col slds-grow slds-grid slds-grid_vertical-align-center"
-            >
+            <div class="slds-col slds-grow slds-grid slds-grid_vertical-align-center portal-file-name-col">
               <lightning-icon
                 icon-name={file.iconName}
                 size="small"
-                class="slds-m-right_small"
+                class="slds-m-right_small portal-file-icon"
               ></lightning-icon>
-              <div class="slds-truncate" title={file.title}>
-                <template if:true={showPreview}>
-                  <a
-                    href="javascript:void(0);"
-                    class="slds-text-link"
-                    data-document-id={file.contentDocumentId}
-                    onclick={handlePreviewClick}
-                  >
-                    {file.title}
-                  </a>
-                </template>
-                <template if:false={showPreview}>
-                  <span class="slds-text-body_small">{file.title}</span>
-                </template>
+              <div class="portal-file-title-line" title={file.fullName}>
+                <div class="portal-file-title-text">
+                  <template if:true={showPreview}>
+                    <a
+                      href="javascript:void(0);"
+                      class="slds-text-link portal-file-title-link"
+                      data-document-id={file.contentDocumentId}
+                      onclick={handlePreviewClick}
+                    >
+                      {file.title}
+                    </a>
+                  </template>
+                  <template if:false={showPreview}>
+                    <span class="slds-text-body_small portal-file-title-plain">{file.title}</span>
+                  </template>
+                </div>
                 <template if:true={file.fileExtension}>
-                  <span
-                    class="slds-text-body_small slds-text-color_weak slds-m-left_xx-small"
+                  <span class="slds-text-body_small slds-text-color_weak portal-file-title-ext"
                     >.{file.fileExtension}</span
                   >
                 </template>
               </div>
             </div>
-            <div
-              class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center"
-            >
+            <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center">
               <template if:true={showDownload}>
                 <lightning-button-icon
                   icon-name="utility:download"
