@@ -8,7 +8,7 @@
 }
 
 .task-hover-card {
-  width: min(360px, 80vw);
+  width: min(420px, 88vw);
   background: var(--slds-g-color-neutral-base-100, #ffffff);
   border: 1px solid var(--slds-g-color-border-base-4, #d8dde6);
   border-radius: 0.25rem;
@@ -34,11 +34,18 @@
 }
 
 .hover-label {
+  flex: 0 0 auto;
+  max-width: 42%;
+  overflow-wrap: break-word;
   font-weight: 600;
   color: var(--slds-g-color-neutral-base-30, #514f4d);
 }
 
 .hover-value {
+  flex: 1 1 0%;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
   text-align: right;
   color: var(--slds-g-color-neutral-base-20, #3e3e3c);
 }
@@ -52,6 +59,11 @@
   text-align: left;
   max-width: 100%;
   word-wrap: break-word;
+}
+
+.hover-value_richtext lightning-formatted-rich-text {
+  display: block;
+  max-width: 100%;
 }
 
 .hover-value_richtext :deep(p) {
