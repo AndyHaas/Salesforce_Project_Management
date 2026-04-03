@@ -8,6 +8,9 @@
 # One-off deploy/retrieve package manifests (local tooling; not versioned)
 manifest/
 
+# Local retrieve output for flow deactivation / one-off tooling (not versioned)
+.retrieve-deactivate-flows/
+
 # Salesforce local cache (shared CLI defaults: see .sf/config.json)
 .sf/*
 !.sf/config.json
