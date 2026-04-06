@@ -2,7 +2,7 @@
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
     <encodingKey>UTF-8</encodingKey>
-    <name>Submission Status V2 - PM Accepts In Progress Task</name>
+    <name>Submission Status V2 - PM Accepts In Progress Task V3</name>
     <relatedEntityType>Project_Task__c</relatedEntityType>
     <style>none</style>
     <subject>Update: Project manager accepted your in-progress work</subject>

@@ -3,7 +3,7 @@
     <available>true</available>
     <description>Client Rejected Task</description>
     <encodingKey>UTF-8</encodingKey>
-    <name>Approval Process - Project Task - Client Rejected</name>
+    <name>Approval Process - Project Task - Client Rejected V3</name>
     <relatedEntityType>Project_Task__c</relatedEntityType>
     <style>none</style>
     <subject>Action Needed: Assigned to Work on Task</subject>

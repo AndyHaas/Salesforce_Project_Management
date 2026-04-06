@@ -1,8 +1,7 @@
-<html><head></head><body style="height: auto; min-height: auto;">﻿
-
-	<title></title>
-
-
+<html>
+<head>
+</head>
+<body style="height: auto; min-height: auto;">﻿<title></title>
 <p>Hello {{{Recipient.FirstName}}},</p>
 
 <p>&nbsp;</p>
@@ -15,7 +14,8 @@
 
 <p>To move forward, please complete the following:</p>
 
-<p>Review the task in Salesforce and take the appropriate next step.</p>
+<p>Review the task in the customer portal, or<br />
+Reply to this email</p>
 
 <p>&nbsp;</p>
 
@@ -23,8 +23,7 @@
 
 <p>&nbsp;</p>
 
-<p>Thank you.</p>
-
-<p>&nbsp;</p>
-</body>
+<p>Thank you,<br />
+<br />
+{{{Project_Task__c.Project_Manager_Full_Name__c}}}</p></body>
 </html>

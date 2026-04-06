@@ -11,14 +11,13 @@ A task pending completion is ready for your review:<br />
 <br />
 To move forward, please complete one of the following:<br />
 <br />
-Approve or reject the task in your client portal, or<br />
-Reply directly to this email with your decision<br />
+Approve or reject the task<br />
 <br />
 <a href="https://milestoneconsulting--dev.sandbox.my.site.com/https://milestoneconsulting--dev.sandbox.my.site.com/">View Task</a> in Salesforce<br />
 <br />
 We appreciate your prompt attention and look forward to your feedback.<br />
 <br />
 Best regards,<br />
-{{{Project_Task__c.Developer_Name__c}}}</p>
+{{{Project_Task__c.Developer_Full_Name__c}}}</p>
 </body>
 </html>

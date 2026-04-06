@@ -82,7 +82,7 @@
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - Client Rejects Completion</stringValue>
+                <stringValue>Submission Status V2 - Client Rejects Completion V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -142,7 +142,7 @@
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Approval Process - Project Task - Client Accepted Backlog</stringValue>
+                <stringValue>Approval Process - Project Task - Client Accepted Backlog V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -165,14 +165,14 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactDeveloperId</elementReference>
+                <elementReference>form_txt_ContactDeveloperId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Approval Process - Project Task - Assigned to Task</stringValue>
+                <stringValue>Approval Process - Project Task - Assigned to Task V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -202,7 +202,7 @@
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Approval Process - Project Task - PM Code Review Submitted</stringValue>
+                <stringValue>Approval Process - Project Task - PM Code Review Submitted V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -225,14 +225,14 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactDeveloperId</elementReference>
+                <elementReference>form_txt_ContactDeveloperId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Approval Process - Project Task - PM Rejected</stringValue>
+                <stringValue>Approval Process - Project Task - PM Rejected V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -262,7 +262,7 @@
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Approval Process - Project Task - Client Rejected</stringValue>
+                <stringValue>Approval Process - Project Task - Client Rejected V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -292,7 +292,7 @@
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - Client Approves Completion</stringValue>
+                <stringValue>Submission Status V2 - Client Approves Completion V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -322,7 +322,7 @@
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - Developer Completes Work Testing</stringValue>
+                <stringValue>Submission Status V2 - Developer Completes Work Testing V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -352,7 +352,7 @@
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - Developer Working</stringValue>
+                <stringValue>Submission Status V2 - Developer Working V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -375,14 +375,14 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactDeveloperId</elementReference>
+                <elementReference>form_txt_ContactDeveloperId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - PM Accepts In Progress Task</stringValue>
+                <stringValue>Submission Status V2 - PM Accepts In Progress Task V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -405,14 +405,14 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactClientId</elementReference>
+                <elementReference>form_txt_ContactClientId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - PM Submits for Client Approval</stringValue>
+                <stringValue>Submission Status V2 - PM Submits for Client Approval V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -435,14 +435,14 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactClientId</elementReference>
+                <elementReference>form_txt_ContactClientId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - PM Submits for Client Review</stringValue>
+                <stringValue>Submission Status V2 - PM Submits for Client Review V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -472,7 +472,7 @@
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - Project Task Complete</stringValue>
+                <stringValue>Submission Status V2 - Project Task Complete V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -495,14 +495,14 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactClientId</elementReference>
+                <elementReference>form_txt_ContactClientId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - Release Notes Released</stringValue>
+                <stringValue>Submission Status V2 - Release Notes Released V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -532,7 +532,7 @@
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - Submission Update</stringValue>
+                <stringValue>Submission Status V2 - Submission Update V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -562,7 +562,7 @@
             <assignToReference>txt_EmailTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Submission Status V2 - Task Is Reviewed</stringValue>
+                <stringValue>Submission Status V2 - Task Is Reviewed V3</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -1325,8 +1325,8 @@
             <name>Task_Is_Opened</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.Submission_Status__c</leftValueReference>
-                <operator>IsBlank</operator>
+                <leftValueReference>form_bool_SubmissionStatusNone</leftValueReference>
+                <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
@@ -1551,6 +1551,11 @@
     <description>V2: Reject rollbacks use formulas Assign_Project_Task_Rollback_Reject_Fields; PM code reviewer flags unchanged.</description>
     <environments>Default</environments>
     <formulas>
+        <name>form_bool_SubmissionStatusNone</name>
+        <dataType>Boolean</dataType>
+        <expression>ISBLANK(TEXT({!$Record.Submission_Status__c}))</expression>
+    </formulas>
+    <formulas>
         <name>form_date_DateResolved</name>
         <dataType>Date</dataType>
         <expression>IF(
@@ -1583,6 +1588,16 @@
         <name>form_txt_ClientApproverUserEmail</name>
         <dataType>String</dataType>
         <expression>{!$Record.Client_Approver_User__r.Email}</expression>
+    </formulas>
+    <formulas>
+        <name>form_txt_ContactClientId</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Client_User__r.Id}</expression>
+    </formulas>
+    <formulas>
+        <name>form_txt_ContactDeveloperId</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Developer__r.Id}</expression>
     </formulas>
     <formulas>
         <name>form_txt_DeveloperEmail</name>
@@ -1690,16 +1705,6 @@
 )</expression>
     </formulas>
     <formulas>
-        <name>txt_ContactClientId</name>
-        <dataType>String</dataType>
-        <expression>{!$Record.Client_User__r.Id}</expression>
-    </formulas>
-    <formulas>
-        <name>txt_ContactDeveloperId</name>
-        <dataType>String</dataType>
-        <expression>{!$Record.Developer__r.Id}</expression>
-    </formulas>
-    <formulas>
         <name>txt_ContactProjectManagerId</name>
         <dataType>String</dataType>
         <expression>{!$Record.Project_Manager__r.Id}</expression>
@@ -1781,7 +1786,7 @@
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>rec_LightningTemplate</name>
         <dataType>SObject</dataType>

@@ -1,13 +1,12 @@
-<html><head></head><body style="height: auto; min-height: auto;">﻿
-
-	<title></title>
-
-
+<html>
+<head>
+</head>
+<body style="height: auto; min-height: auto;">﻿<title></title>
 <p>Hello {{{Recipient.FirstName}}},</p>
 
 <p>&nbsp;</p>
 
-<p>This project task has been marked complete:</p>
+<p>This project task has been marked complete by Internal Staff:</p>
 
 <p>{{{Project_Task__c.Name}}}</p>
 
@@ -25,6 +24,5 @@
 
 <p>Thank you.</p>
 
-<p>&nbsp;</p>
-</body>
+<p>&nbsp;</p></body>
 </html>

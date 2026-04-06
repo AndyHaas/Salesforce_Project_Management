@@ -23,8 +23,11 @@
 
 <p>&nbsp;</p>
 
-<p>We appreciate your prompt attention and look forward to your feedback.</p>
+<p>We appreciate your prompt attention.</p>
 
-<p>&nbsp;</p>
+<p><br />
+Thank you,<br />
+<br />
+{{{Project_Task__c.Project_Manager_Full_Name__c}}}</p>
 </body>
 </html>
