@@ -1,0 +1,7 @@
+{
+  "packageDirectories": [{ "path": "force-app", "default": true }],
+  "name": "sf-deploy-report-stub",
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.sforce.com",
+  "sourceApiVersion": "66.0"
+}
