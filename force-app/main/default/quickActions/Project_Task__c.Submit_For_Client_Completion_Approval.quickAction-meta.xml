@@ -1,26 +1,21 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
     <fieldOverrides>
         <field>Submission_Status__c</field>
         <literalValue>Project Manager Submits for Client Review</literalValue>
     </fieldOverrides>
-    <fieldOverrides>
-        <field>Status__c</field>
-        <literalValue>In Review</literalValue>
-    </fieldOverrides>
-    <label>Approve (PM / Code Review)</label>
+    <label>Submit For Client Completion Approval</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
         <quickActionLayoutColumns>
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
-                <field>Status__c</field>
-                <uiBehavior>Readonly</uiBehavior>
+                <field>Submission_Status__c</field>
+                <uiBehavior>Edit</uiBehavior>
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
         <quickActionLayoutColumns/>
     </quickActionLayout>
-    <successMessage>Moving to client completion review</successMessage>
     <type>Update</type>
 </QuickAction>

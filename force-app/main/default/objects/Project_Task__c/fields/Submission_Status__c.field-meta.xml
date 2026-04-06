@@ -7,7 +7,78 @@
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
+        <controllingField>Status__c</controllingField>
         <restricted>true</restricted>
         <valueSetName>Submission_Status</valueSetName>
+        <valueSettings>
+            <controllingFieldValue>Backlog</controllingFieldValue>
+            <valueName>Project Manager Submits for Client Approval</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Backlog</controllingFieldValue>
+            <valueName>Client Rejects Backlog Task</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Pending</controllingFieldValue>
+            <valueName>Client Approves Pending</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Pending</controllingFieldValue>
+            <valueName>Developer Assigned to Pending</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>In Progress</controllingFieldValue>
+            <valueName>Developer Working</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>In Progress</controllingFieldValue>
+            <valueName>Developer Completes Work/Testing</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>In Progress</controllingFieldValue>
+            <valueName>Project Manager Rejects In Progress Task</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>In Progress</controllingFieldValue>
+            <controllingFieldValue>In Review</controllingFieldValue>
+            <valueName>Client Rejects Completion</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>In Review</controllingFieldValue>
+            <valueName>Developer Submits for Approval to Project Manager</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>In Review</controllingFieldValue>
+            <valueName>Project Manager Reviews and QA&apos;s Developer Work</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>In Review</controllingFieldValue>
+            <valueName>Project Manager Accepts In Progress Task</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>In Review</controllingFieldValue>
+            <valueName>Project Manager Submits for Client Review</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>In Review</controllingFieldValue>
+            <controllingFieldValue>Completed</controllingFieldValue>
+            <valueName>Client Approves Completion</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Blocked</controllingFieldValue>
+            <valueName>Blocked</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Completed</controllingFieldValue>
+            <valueName>Project Task Complete</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Removed</controllingFieldValue>
+            <valueName>Removed</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Closed</controllingFieldValue>
+            <valueName>Release Notes Released</valueName>
+        </valueSettings>
     </valueSet>
 </CustomField>

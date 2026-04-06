@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fieldOverrides>
-        <field>Submission_Status__c</field>
-        <literalValue>Developer Working</literalValue>
-    </fieldOverrides>
     <fieldOverrides>
         <field>Status__c</field>
         <literalValue>In Progress</literalValue>
+    </fieldOverrides>
+    <fieldOverrides>
+        <field>Submission_Status__c</field>
+        <literalValue>Developer Working</literalValue>
     </fieldOverrides>
     <label>Begin Developer Work</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>

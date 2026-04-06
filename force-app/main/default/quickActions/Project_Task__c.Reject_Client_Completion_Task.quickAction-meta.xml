@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
     <fieldOverrides>
-        <field>Submission_Status__c</field>
-        <literalValue>Client Rejects Completion</literalValue>
-    </fieldOverrides>
-    <fieldOverrides>
         <field>Status__c</field>
         <literalValue>In Progress</literalValue>
+    </fieldOverrides>
+    <fieldOverrides>
+        <field>Submission_Status__c</field>
+        <literalValue>Client Rejects Completion</literalValue>
     </fieldOverrides>
     <label>Reject Completion (Client)</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
@@ -16,12 +16,11 @@
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
                 <field>Status__c</field>
-                <uiBehavior>Readonly</uiBehavior>
+                <uiBehavior>Required</uiBehavior>
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
         <quickActionLayoutColumns/>
     </quickActionLayout>
-    <successMessage
-  >Completion rejected; status set to In Progress</successMessage>
+    <successMessage>Completion rejected; status set to In Progress</successMessage>
     <type>Update</type>
 </QuickAction>

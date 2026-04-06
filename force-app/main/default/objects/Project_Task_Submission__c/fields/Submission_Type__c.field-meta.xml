@@ -27,6 +27,11 @@
                 <default>false</default>
                 <label>Rejected</label>
             </value>
+            <value>
+                <fullName>Notification</fullName>
+                <default>false</default>
+                <label>Notification</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

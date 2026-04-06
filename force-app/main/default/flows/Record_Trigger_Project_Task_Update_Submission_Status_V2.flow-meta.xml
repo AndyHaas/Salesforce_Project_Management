@@ -15,7 +15,7 @@
             <name>recipientAddresses</name>
             <value>
                 <collectionElements>
-                    <elementReference>txt_ContactRecipientId</elementReference>
+                    <elementReference>txt_Email</elementReference>
                 </collectionElements>
             </value>
         </inputParameters>
@@ -102,10 +102,10 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>$Record.Most_Recent_Project_Task_Submission__c</assignToReference>
+            <assignToReference>rec_ProjectTask.Most_Recent_Project_Task_Submission__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Create_Project_Task_Submission</elementReference>
+                <elementReference>rec_ProjectTaskSubmission.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -117,86 +117,6 @@
         </assignmentItems>
         <connector>
             <targetReference>Update_Project_Task</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Project_Task_Submission_General</name>
-        <label>Assign Project Task Submission General</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Approver_Type__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Client</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Contact__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$User.ContactId</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Date_Resolved__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Date_Submitted__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.Most_Recent_Project_Task_Submission__r.Date_Submitted__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Prior_Project_Task_Status__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.Status__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Project_Task__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
-            <operator>Assign</operator>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Submission_Step__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>form_num_NewStepNumber</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
-            <operator>Assign</operator>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Submitting_User_Role__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>form_txt_SubmittingUserRole</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rec_ProjectTaskSubmission.Previous_Project_Task_Submission__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.Most_Recent_Project_Task_Submission__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>What_is_the_submission_status</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -692,7 +612,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -715,7 +635,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -731,7 +651,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -747,7 +667,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -763,7 +683,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -779,7 +699,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -795,7 +715,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -811,7 +731,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -827,7 +747,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -843,7 +763,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -859,7 +779,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -875,7 +795,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -899,6 +819,29 @@
         </assignmentItems>
         <connector>
             <targetReference>Set_Project_Task_Status_Client_Approves_Pending</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Project_Task_Submission_Dates</name>
+        <label>Set Project Task Submission Dates</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Date_Resolved__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_date_DateResolved</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Date_Submitted__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_date_DateSubmitted</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Email_Template</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -994,6 +937,79 @@
         </connector>
     </assignments>
     <assignments>
+        <name>Set_Project_Task_Submission_General</name>
+        <label>Set Project Task Submission General</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Approver_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Client</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submitter_Contact__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$User.ContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Date_Submitted__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_date_DateSubmitted</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Prior_Project_Task_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Status__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Project_Task__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Status__c</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Step__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_num_NewStepNumber</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submission_Type__c</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Previous_Project_Task_Submission__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Most_Recent_Project_Task_Submission__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_ProjectTaskSubmission.Submitting_User_Role__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>form_txt_SubmittingUserRole</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>What_is_the_submission_status</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Set_Project_Task_Submission_Status</name>
         <label>Set Project Task Status</label>
         <locationX>0</locationX>
@@ -1013,7 +1029,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1043,7 +1059,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1066,7 +1082,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1135,7 +1151,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Email_Template</targetReference>
+            <targetReference>Set_Project_Task_Submission_Dates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1535,9 +1551,32 @@
     <description>V2: Reject rollbacks use formulas Assign_Project_Task_Rollback_Reject_Fields; PM code reviewer flags unchanged.</description>
     <environments>Default</environments>
     <formulas>
+        <name>form_date_DateResolved</name>
+        <dataType>Date</dataType>
+        <expression>IF(
+  TEXT({!rec_ProjectTaskSubmission.Submission_Type__c}) = &quot;Approved&quot;,
+  {!$Flow.CurrentDate},
+  NULL
+)</expression>
+    </formulas>
+    <formulas>
+        <name>form_date_DateSubmitted</name>
+        <dataType>Date</dataType>
+        <expression>IF(
+  TEXT({!rec_ProjectTaskSubmission.Submission_Type__c}) = &apos;Submit for Approval&apos;, {!$Flow.CurrentDate},
+  IF(TEXT({!$Record.Most_Recent_Project_Task_Submission__r.Submission_Type__c}) = &quot;Submit for Approval&quot;,
+  DATEVALUE({!$Record.Most_Recent_Project_Task_Submission__r.CreatedDate}),
+  {!$Record.Most_Recent_Project_Task_Submission__r.Date_Submitted__c})
+)</expression>
+    </formulas>
+    <formulas>
         <name>form_num_NewStepNumber</name>
         <dataType>Number</dataType>
-        <expression>{!$Record.Current_Submission_Step__c} + 1</expression>
+        <expression>IF(
+  NOT(ISBLANK({!$Record.Current_Submission_Step__c})),
+  {!$Record.Current_Submission_Step__c} + 1,
+  1
+)</expression>
         <scale>0</scale>
     </formulas>
     <formulas>
@@ -1620,12 +1659,18 @@
     <formulas>
         <name>form_txt_SubmittingUserRole</name>
         <dataType>String</dataType>
-        <expression>CASE(
-  {!$User.ContactId},
-  {!$Record.Project_Manager__c}, &quot;Project Manager&quot;,
-  {!$Record.Client_User__c}, &quot;Client&quot;,
-  {!$Record.Developer__c}, &quot;Developer&quot;,
-  &quot;&quot;
+        <expression>IF(
+  CASESAFEID({!$User.ContactId}) = CASESAFEID({!$Record.Project_Manager__c}),
+  &quot;Project Manager&quot;,
+  IF(
+    CASESAFEID({!$User.ContactId}) = CASESAFEID({!$Record.Client_User__c}),
+    &quot;Client User&quot;,
+    IF(
+      CASESAFEID({!$User.ContactId}) = CASESAFEID({!$Record.Developer__c}),
+      &quot;Developer&quot;,
+      &quot;&quot;
+    )
+  )
 )</expression>
     </formulas>
     <formulas>
@@ -1706,7 +1751,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Assign_Project_Task_Submission_General</targetReference>
+            <targetReference>Set_Project_Task_Submission_General</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>

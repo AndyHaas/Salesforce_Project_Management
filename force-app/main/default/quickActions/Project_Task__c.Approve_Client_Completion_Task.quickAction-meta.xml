@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
     <fieldOverrides>
-        <field>Submission_Status__c</field>
-        <literalValue>Client Approves Completion</literalValue>
-    </fieldOverrides>
-    <fieldOverrides>
         <field>Status__c</field>
         <literalValue>Completed</literalValue>
+    </fieldOverrides>
+    <fieldOverrides>
+        <field>Submission_Status__c</field>
+        <literalValue>Client Approves Completion</literalValue>
     </fieldOverrides>
     <label>Approve Completion (Client)</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
@@ -16,7 +16,7 @@
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
                 <field>Status__c</field>
-                <uiBehavior>Readonly</uiBehavior>
+                <uiBehavior>Required</uiBehavior>
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
         <quickActionLayoutColumns/>

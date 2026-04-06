@@ -177,32 +177,20 @@
                         <valueListItems>
                             <value>Project_Task__c.Approve_PM_Code_Review_Task</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Status__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>In Review</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Project_Task__c.Reject_PM_Code_Review_Task</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Status__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>In Review</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Reviewed_by_PM_Code_Reviewer__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -1532,36 +1520,6 @@
                         <rightValue>false</rightValue>
                     </criteria>
                 </visibilityRule>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>componentLabel</name>
-                    <value>Work Guide</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>isHiddenWhenEmpty</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>isRunNameDisplayed</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>isStageNameDisplayed</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>isStepNameDisplayed</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>prioritizationCriteria</name>
-                    <value>Last Modified Date (Ascending)</value>
-                </componentInstanceProperties>
-                <componentName>interaction_orchestrator:workGuide</componentName>
-                <identifier>interaction_orchestrator_workGuide</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
