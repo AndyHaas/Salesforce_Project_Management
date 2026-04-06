@@ -1697,20 +1697,12 @@
     <formulas>
         <name>txt_ContactDeveloperId</name>
         <dataType>String</dataType>
-        <expression>IF(
-  NOT(ISBLANK({!$Record.Developer_User__c})),
-  CASESAFEID({!$Record.Developer_User__c}),
-  {!$Record.Developer__r.Id}
-)</expression>
+        <expression>{!$Record.Developer__r.Id}</expression>
     </formulas>
     <formulas>
         <name>txt_ContactProjectManagerId</name>
         <dataType>String</dataType>
-        <expression>IF(
-  NOT(ISBLANK({!$Record.PM_Approver_User__c})),
-  CASESAFEID({!$Record.PM_Approver_User__c}),
-  {!$Record.Project_Manager__r.Id}
-)</expression>
+        <expression>{!$Record.Project_Manager__r.Id}</expression>
     </formulas>
     <interviewLabel>Record Trigger - Project Task - Update Submission Status V4 {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Record Trigger - Project Task - Update Submission Status V4</label>
