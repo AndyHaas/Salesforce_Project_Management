@@ -1253,11 +1253,14 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
-   * @description Mark unread messages as read
+   * @description Mark unread messages as read after load.
+   * Do not filter by this.recipientType: that value is a compose / query default (e.g. LEX defaults
+   * to "Client" while getMessages loads all buckets for Milestone team; portal defaults to
+   * "Milestone Team" but the thread can include Client-addressed rows). isRead from Apex already
+   * uses the correct field for the viewer (Is_Read_By_Client__c vs Is_Read_By_Milestone_Team__c).
    */
   async markUnreadMessagesAsRead() {
-    // Mark unread messages for the current recipient bucket
-    const unreadMessages = this._messages.filter((msg) => !msg.isRead && msg.recipientType === this.recipientType);
+    const unreadMessages = this._messages.filter((msg) => !msg.isRead);
 
     for (const msg of unreadMessages) {
       try {
