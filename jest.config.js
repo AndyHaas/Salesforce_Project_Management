@@ -7,6 +7,7 @@ module.exports = {
   coverageProvider: "babel",
   modulePathIgnorePatterns: ["<rootDir>/.localdevserver"],
   moduleNameMapper: {
-    "^lightning/actions$": path.join(__dirname, "jest.mocks/lightning-actions.js")
+    "^lightning/actions$": path.join(__dirname, "jest.mocks/lightning-actions.js"),
+    "^lightning/modal$": path.join(__dirname, "jest.mocks/lightning-modal.js")
   }
 };

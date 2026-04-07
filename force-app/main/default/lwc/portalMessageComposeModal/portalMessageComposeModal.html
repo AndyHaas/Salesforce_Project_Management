@@ -1,0 +1,100 @@
+<template>
+  <lightning-modal-header label={modalTitle}></lightning-modal-header>
+  <lightning-modal-body>
+    <template if:true={isReplying}>
+      <div class="reply-indicator slds-m-bottom_medium">
+        <div class="slds-box slds-box_x-small slds-theme_info">
+          <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+            <div class="slds-col">
+              <lightning-icon icon-name="utility:reply" size="x-small" class="slds-m-right_x-small"> </lightning-icon>
+              <span class="slds-text-body_small">
+                Replying to
+                <strong>{replyingToDisplayName}</strong>
+                <template if:true={hasReplyPreview}>
+                  <span class="slds-text-color_weak"> : {replyingToPreview} </span>
+                </template>
+              </span>
+            </div>
+            <lightning-button-icon
+              icon-name="utility:close"
+              variant="border-filled"
+              alternative-text="Cancel reply"
+              title="Cancel reply"
+              onclick={handleCancelReply}
+              class="slds-m-left_small"
+            >
+            </lightning-button-icon>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <div class="slds-form-element slds-m-bottom_medium">
+      <label class="slds-form-element__label" for="message-body-compose-modal">
+        <abbr class="slds-required" title="required">*</abbr>
+        Message
+      </label>
+      <div class="slds-form-element__control">
+        <lightning-input-rich-text
+          id="message-body-compose-modal"
+          value={messageBody}
+          onchange={handleMessageBodyChange}
+          placeholder="Type your message here..."
+          class="message-rich-text-large"
+        >
+        </lightning-input-rich-text>
+      </div>
+    </div>
+
+    <template if:true={showRecipientTypeSelector}>
+      <div class="slds-form-element slds-m-bottom_medium">
+        <div class="slds-form-element__control">
+          <lightning-combobox
+            name="recipientType"
+            label="Visible To"
+            value={localRecipientType}
+            options={recipientTypeOptions}
+            field-level-help={recipientTypeFieldHelp}
+            onchange={handleRecipientTypeChange}
+            placeholder="Select who can see this message"
+            required
+          >
+          </lightning-combobox>
+        </div>
+      </div>
+    </template>
+
+    <div class="slds-form-element slds-m-bottom_medium">
+      <template if:true={renderFileUpload}>
+        <lightning-file-upload
+          label="Attach Files"
+          name="fileUpload"
+          record-id={composerFileUploadRecordId}
+          accept={acceptedFormats}
+          field-level-help={composerFileUploadHelp}
+          onuploadfinished={handleUploadFinished}
+          multiple
+        >
+        </lightning-file-upload>
+      </template>
+      <template if:true={hasPendingComposerFiles}>
+        <div class="slds-m-top_small">
+          <div class="slds-text-body_small slds-text-color_weak slds-m-bottom_xx-small">Files to Upload</div>
+          <c-portal-file-attachments
+            files={pendingComposerFiles}
+            show-preview={composerAttachmentShowPreview}
+            show-download={composerAttachmentShowDownload}
+            show-delete={composerAttachmentShowDelete}
+            onfileremove={handlePendingFileRemove}
+          >
+          </c-portal-file-attachments>
+        </div>
+      </template>
+    </div>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <lightning-button class="slds-m-right_x-small" variant="neutral" label="Cancel" onclick={handleDismiss}>
+    </lightning-button>
+    <lightning-button variant="brand" label="Send Message" onclick={handleSend}> </lightning-button>
+  </lightning-modal-footer>
+</template>

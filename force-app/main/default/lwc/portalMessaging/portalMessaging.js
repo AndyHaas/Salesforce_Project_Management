@@ -22,28 +22,26 @@
  *   - Navigation uses Lightning Navigation Service
  *   - Default recipientType: "Client"
  *
- * File uploads: after send, files link to Message__c and to the host record (Flexipage recordId on
- * LEX record pages, or related Task / Project / Account). Same LWC on internal Lightning and Experience Cloud.
+ * Compose and file upload live in c/portalMessageComposeModal (LightningModal) so Experience Cloud stacks
+ * platform file dialogs correctly. After send, files link to Message__c and the host record as before.
  */
 
 import { LightningElement, api, wire, track } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { subscribe, MessageContext, unsubscribe, APPLICATION_SCOPE, publish } from "lightning/messageService";
 import { CurrentPageReference, NavigationMixin } from "lightning/navigation";
-import sendMessage from "@salesforce/apex/MessagingController.sendMessage";
 import getMessages from "@salesforce/apex/MessagingController.getMessages";
 import getPinnedMessages from "@salesforce/apex/MessagingPinnedSupport.getPinnedMessages";
 import getContextInfo from "@salesforce/apex/MessagingController.getContextInfo";
-import getMentionableContacts from "@salesforce/apex/MessagingController.getMentionableContacts";
 import getCurrentUserContactId from "@salesforce/apex/MessagingController.getCurrentUserContactId";
 import isMilestoneTeamMember from "@salesforce/apex/MessagingController.isMilestoneTeamMember";
 import markAsRead from "@salesforce/apex/MessagingController.markAsRead";
 import updateMessage from "@salesforce/apex/MessagingController.updateMessage";
 import deleteMessageAndAttachments from "@salesforce/apex/MessageFilesSupport.deleteMessageAndAttachments";
 import pinMessage from "@salesforce/apex/MessagingController.pinMessage";
-import linkFilesToMessageAndContext from "@salesforce/apex/MessageFilesSupport.linkFilesToMessageAndContext";
 import getFilesForMessages from "@salesforce/apex/MessageFilesSupport.getFilesForMessages";
-import { ensureSitePath, formatDateTime, stripHtml, splitFileNameForPortalRow } from "c/portalCommon";
+import { ensureSitePath, formatDateTime, stripHtml } from "c/portalCommon";
+import PortalMessageComposeModal from "c/portalMessageComposeModal";
 import MESSAGE_UPDATE_CHANNEL from "@salesforce/messageChannel/MessageUpdate__c";
 import userId from "@salesforce/user/Id";
 
@@ -87,35 +85,19 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   /** When true, the pinned summary starts collapsed (user opens it with utility:preview). */
   @api pinnedSectionCollapsedByDefault = false;
 
-  @track messageBody = "";
   @track recipientType = null; // Will be set based on user type
-  @track searchTerm = "";
-  @track selectedMentions = [];
-  @track showMentionDropdown = false;
-  @track mentionableContacts = [];
-  @track filteredContacts = [];
-  @track mentionInputValue = "";
-  @track currentMentionIndex = -1;
 
   _messages = [];
   /** Pinned rows for the thread (full list from Apex), merged with paged thread for the panel. */
   @track _pinnedMessagesRaw = [];
   _messagesError = null;
   _previousParams;
-  _wiredContactsResult;
   _messageContext;
   _messageSubscription;
   @track _editingMessageId = null;
   @track _editingMessageBody = "";
-  @track _isModalOpen = false;
-  @track _replyingToMessageId = null;
-  @track _replyingToMessage = null;
   @track messageSearchTerm = "";
   @track showMessageSearch = false;
-  _uploadedFileIds = [];
-  /** @type {Array<{contentDocumentId: string, contentVersionId: string, title: string, fileExtension: string}>} */
-  @track _pendingComposerFiles = [];
-  @track _renderFileUpload = true;
   _currentOffset = 0;
   _isLoadingMore = false;
   _hasMoreMessages = true;
@@ -571,22 +553,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     this.attemptLoadMessages();
   }
 
-  // Wire service to get mentionable contacts
-  @wire(getMentionableContacts, { searchTerm: "$searchTerm" })
-  wiredContacts(result) {
-    this._wiredContactsResult = result;
-    const { error, data } = result;
-
-    if (data) {
-      this.mentionableContacts = data || [];
-      this.filteredContacts = this.mentionableContacts;
-    } else if (error) {
-      console.error("Error loading contacts:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
-      this.mentionableContacts = [];
-      this.filteredContacts = [];
-    }
-  }
-
   _currentUserContactId = null;
   _isMilestoneTeamMember = false;
 
@@ -654,16 +620,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    */
   get isMilestoneTeamMember() {
     return this._isMilestoneTeamMember;
-  }
-
-  /**
-   * @description Visible_To_Client__c for new messages: portal senders always true; internal senders true only when Visible To = Client.
-   */
-  get visibleToClientForSend() {
-    if (!this._isMilestoneTeamMember) {
-      return true;
-    }
-    return this.recipientType === "Client";
   }
 
   /**
@@ -905,7 +861,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       showOverflowActions: isFromCurrentUser || this.isMilestoneTeamMember,
       isUnread: !msg.isRead,
       isEditing: this._editingMessageId === msg.id,
-      isReplying: this._replyingToMessageId === msg.id,
       replyToFormattedDate: msg.replyToCreatedDate ? this.formatMessageDate(msg.replyToCreatedDate) : "",
       replyToPreview: this.truncatePreview(stripHtml(msg.replyToMessageBody || ""), 100),
       taskLink: taskLink,
@@ -1282,171 +1237,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     return formatDateTime(dateValue, "—");
   }
 
-  /**
-   * @description Get recipient type options
-   * Note: Portal users always send to Milestone Team, so this is not used in the UI
-   */
-  get recipientTypeOptions() {
-    return [
-      { label: "Client", value: "Client" },
-      { label: "Milestone Team", value: "Milestone Team" }
-    ];
-  }
-
-  /**
-   * @description Check if recipient type selector should be shown
-   * Only show in Salesforce context for Milestone team members
-   */
-  get showRecipientTypeSelector() {
-    return this.isSalesforceContext && this._isMilestoneTeamMember;
-  }
-
-  /**
-   * @description Check if recipient type is Client
-   */
-  get isClientRecipient() {
-    return this.recipientType === "Client";
-  }
-
-  /**
-   * @description Help text on the Visible To combobox (Salesforce / Milestone team).
-   */
-  get recipientTypeFieldHelp() {
-    if (this.recipientType === "Client") {
-      return "The client will see this message on the portal.";
-    }
-    if (this.recipientType === "Milestone Team") {
-      return "Only Milestone Consulting team members will see this message; it will not appear to clients.";
-    }
-    return "Choose whether this message is visible to the client or limited to the Milestone team.";
-  }
-
-  /**
-   * @description Handle recipient type change
-   * Only used in Salesforce context - Portal users always send to Milestone Team
-   */
-  handleRecipientTypeChange(event) {
-    this.recipientType = event.detail.value;
-  }
-
-  /**
-   * @description Handle message body change (rich text)
-   */
-  handleMessageBodyChange(event) {
-    this.messageBody = event.detail.value;
-    // Parse mentions from the rich text
-    this.parseMentions(this.messageBody);
-  }
-
-  /**
-   * @description Parse @mentions from message body
-   * Rich text editor stores mentions in format: @[Name](Id)
-   */
-  parseMentions(body) {
-    if (!body) {
-      this.selectedMentions = [];
-      return;
-    }
-
-    // Extract @mentions using regex - format: @[Name](Id)
-    const mentionRegex = /@\[([^\]]+)\]\(([^)]+)\)/g;
-    const mentions = [];
-    let match;
-
-    while ((match = mentionRegex.exec(body)) !== null) {
-      mentions.push({
-        name: match[1],
-        id: match[2]
-      });
-    }
-
-    this.selectedMentions = mentions;
-  }
-
-  /**
-   * @description Handle file upload finished
-   */
-  async handleUploadFinished(event) {
-    const uploadedFiles = event.detail.files;
-
-    if (!uploadedFiles || uploadedFiles.length === 0) {
-      return;
-    }
-
-    const newIds = uploadedFiles.map((file) => file.contentVersionId).filter((id) => id);
-    this._uploadedFileIds = [...this._uploadedFileIds, ...newIds];
-
-    const newRows = uploadedFiles.map((file) => {
-      const { title, fileExtension } = splitFileNameForPortalRow(file.name);
-      return {
-        contentDocumentId: file.documentId,
-        contentVersionId: file.contentVersionId,
-        title,
-        fileExtension
-      };
-    });
-    this._pendingComposerFiles = [...this._pendingComposerFiles, ...newRows];
-  }
-
-  get pendingComposerFiles() {
-    return this._pendingComposerFiles;
-  }
-
-  get hasPendingComposerFiles() {
-    return Array.isArray(this._pendingComposerFiles) && this._pendingComposerFiles.length > 0;
-  }
-
-  get renderFileUpload() {
-    return this._renderFileUpload;
-  }
-
-  /**
-   * Help text under Attach Files in the compose modal: draft vs. Milestone-owned attachments.
-   */
-  get composerFileUploadHelp() {
-    return (
-      "Before you send, use Remove next to a file to detach anything you attached. " +
-      "Attachments added by Milestone Consulting cannot be removed from the conversation."
-    );
-  }
-
-  /**
-   * Host record for ContentDocumentLink: the record page Files list (recordId first), then explicit
-   * related* for app pages (task > project > account).
-   */
-  get primaryFileContextRecordId() {
-    const t = (v) => {
-      if (v == null) {
-        return "";
-      }
-      const s = String(v).trim();
-      return s.length ? s : "";
-    };
-    const pageHost = t(this.recordId);
-    if (pageHost) {
-      return pageHost;
-    }
-    if (t(this.relatedTaskId)) {
-      return t(this.relatedTaskId);
-    }
-    if (t(this.relatedProjectId)) {
-      return t(this.relatedProjectId);
-    }
-    if (t(this.relatedAccountId)) {
-      return t(this.relatedAccountId);
-    }
-    return null;
-  }
-
-  /**
-   * Record Id for lightning-file-upload: files attach to the host record’s Files until send links
-   * them to Message__c. Improves upload behavior and platform confirmation dialogs.
-   */
-  get composerFileUploadRecordId() {
-    const id = this.primaryFileContextRecordId;
-    return id ? String(id) : undefined;
-  }
-
   /** LEX: standard file preview; portal: open download (handled in child). */
   get messageAttachmentShowPreview() {
     return true;
@@ -1458,179 +1248,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
 
   get messageAttachmentShowDelete() {
     return false;
-  }
-
-  get composerAttachmentShowPreview() {
-    return true;
-  }
-
-  get composerAttachmentShowDownload() {
-    return true;
-  }
-
-  get composerAttachmentShowDelete() {
-    return true;
-  }
-
-  resetComposerFilesState() {
-    const remountUpload = this._pendingComposerFiles.length > 0 || this._uploadedFileIds.length > 0;
-    this._uploadedFileIds = [];
-    this._pendingComposerFiles = [];
-    if (remountUpload) {
-      this._renderFileUpload = false;
-      Promise.resolve().then(() => {
-        this._renderFileUpload = true;
-      });
-    }
-  }
-
-  handlePendingFileRemove(event) {
-    const { contentVersionId, contentDocumentId } = event.detail || {};
-    this._pendingComposerFiles = this._pendingComposerFiles.filter((f) => {
-      if (contentVersionId && f.contentVersionId === contentVersionId) {
-        return false;
-      }
-      if (contentDocumentId && f.contentDocumentId === contentDocumentId && !contentVersionId) {
-        return false;
-      }
-      return true;
-    });
-    if (contentVersionId) {
-      this._uploadedFileIds = this._uploadedFileIds.filter((id) => id !== contentVersionId);
-    }
-    if (this._pendingComposerFiles.length === 0 && this._uploadedFileIds.length === 0) {
-      this._renderFileUpload = false;
-      Promise.resolve().then(() => {
-        this._renderFileUpload = true;
-      });
-    }
-  }
-
-  /**
-   * @description Send message
-   */
-  async handleSendMessage() {
-    // Get the current value from the rich text editor in the modal
-    const modalRichTextEditor = this.template.querySelector(".message-rich-text-large");
-    const currentMessageBody = modalRichTextEditor ? modalRichTextEditor.value : this.messageBody;
-
-    if (!currentMessageBody || currentMessageBody.trim().length === 0) {
-      this.dispatchEvent(
-        new ShowToastEvent({
-          title: "Error",
-          message: "Please enter a message",
-          variant: "error"
-        })
-      );
-      return;
-    }
-
-    try {
-      // Extract mentioned contact IDs
-      const mentionedContactIds = this.selectedMentions.map((m) => m.id);
-
-      // Send message
-      const messageId = await sendMessage({
-        messageBody: currentMessageBody,
-        recipientType: this.recipientType,
-        relatedAccountId: this.relatedAccountId,
-        relatedProjectId: this.relatedProjectId,
-        relatedTaskId: this.relatedTaskId,
-        mentionedContactIds: mentionedContactIds,
-        isVisibleToClient: this.visibleToClientForSend,
-        replyToMessageId: this._replyingToMessageId
-      });
-
-      // Link files if any were uploaded
-      if (this._uploadedFileIds && this._uploadedFileIds.length > 0) {
-        try {
-          await linkFilesToMessageAndContext({
-            messageId: messageId,
-            contentVersionIds: this._uploadedFileIds,
-            contextRecordId: this.primaryFileContextRecordId || undefined
-          });
-        } catch (fileError) {
-          console.error("Error linking files:", JSON.stringify(fileError, Object.getOwnPropertyNames(fileError), 2));
-          const linkMsg =
-            fileError?.body?.message ||
-            fileError?.message ||
-            "Files were not linked to the record. Check permissions or contact an administrator.";
-          this.dispatchEvent(
-            new ShowToastEvent({
-              title: "Attachments",
-              message: linkMsg,
-              variant: "warning",
-              mode: "sticky"
-            })
-          );
-        }
-      }
-
-      // Clear form
-      this.messageBody = "";
-      this.selectedMentions = [];
-      this.resetComposerFilesState();
-      this._replyingToMessageId = null;
-      this._replyingToMessage = null;
-
-      // Clear rich text editor (both inline and modal)
-      const richTextEditors = this.template.querySelectorAll("lightning-input-rich-text");
-      richTextEditors.forEach((editor) => {
-        if (editor) {
-          editor.value = "";
-        }
-      });
-
-      // Close modal after successful send
-      this._isModalOpen = false;
-
-      // Publish message update first to notify other components
-      this.publishMessageUpdate("sent");
-
-      // Reload messages after sending - reset to show newest at bottom
-      this._currentOffset = 0;
-      this._hasMoreMessages = true;
-      await this.loadMessages(false);
-
-      // Wait for DOM to update, then scroll to bottom to show the newly sent message
-      // Use requestAnimationFrame to ensure DOM has updated
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          this.scrollToBottom();
-        }, 50);
-      });
-
-      this.dispatchEvent(
-        new ShowToastEvent({
-          title: "Success",
-          message: "Message sent successfully",
-          variant: "success"
-        })
-      );
-    } catch (error) {
-      console.error("Error sending message:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
-      console.error(
-        "Error details:",
-        JSON.stringify(
-          {
-            body: error.body,
-            message: error.message,
-            stack: error.stack
-          },
-          null,
-          2
-        )
-      );
-      this.dispatchEvent(
-        new ShowToastEvent({
-          title: "Error",
-          message:
-            "Failed to send message: " +
-            (error.body?.message || error.body?.exceptionMessage || error.message || "Unknown error"),
-          variant: "error"
-        })
-      );
-    }
   }
 
   /**
@@ -1651,13 +1268,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     if (unreadMessages.length > 0) {
       await this.loadMessages();
     }
-  }
-
-  /**
-   * @description Get accepted file formats
-   */
-  get acceptedFormats() {
-    return ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png,.gif,.zip,.rar";
   }
 
   /**
@@ -1739,6 +1349,56 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
+   * @description Opens LightningModal-based compose UI so platform file-upload dialogs stack above the dialog in Experience Cloud.
+   *
+   * @param {object} [replyParams]
+   * @param {string} [replyParams.replyToMessageId]
+   * @param {string} [replyParams.replyingToDisplayName]
+   * @param {string} [replyParams.replyingToPreview]
+   */
+  async openComposeModal(replyParams = {}) {
+    const { replyToMessageId = null, replyingToDisplayName = "", replyingToPreview = "" } = replyParams;
+    try {
+      const result = await PortalMessageComposeModal.open({
+        size: "large",
+        recordId: this.recordId,
+        relatedAccountId: this.relatedAccountId,
+        relatedProjectId: this.relatedProjectId,
+        relatedTaskId: this.relatedTaskId,
+        isExperienceCloud: this.isExperienceCloud,
+        recipientType: this.recipientType,
+        isMilestoneTeamMember: this.isMilestoneTeamMember,
+        replyToMessageId,
+        replyingToDisplayName,
+        replyingToPreview
+      });
+      await this.handleComposeModalClosed(result);
+    } catch (error) {
+      console.error("Compose modal error:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+    }
+  }
+
+  /**
+   * @description Applies compose modal close payload (Visible To) and refreshes thread after send.
+   *
+   * @param {object} [result] From LightningModal.close()
+   */
+  async handleComposeModalClosed(result) {
+    const r = result || {};
+    if (r.recipientType != null && String(r.recipientType).length > 0) {
+      this.recipientType = r.recipientType;
+    }
+    if (r.status === "sent") {
+      this._currentOffset = 0;
+      this._hasMoreMessages = true;
+      await this.loadMessages(false);
+      requestAnimationFrame(() => {
+        setTimeout(() => this.scrollToBottom(), 50);
+      });
+    }
+  }
+
+  /**
    * @description Handle reply to message
    */
   handleReplyToMessage(event) {
@@ -1749,46 +1409,15 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       return;
     }
 
-    this._replyingToMessageId = messageId;
-    this._replyingToMessage = message;
-
-    this.resetComposerFilesState();
-    // Open modal for replying
-    this._isModalOpen = true;
+    void this.openComposeModal({
+      replyToMessageId: messageId,
+      replyingToDisplayName: message.displaySenderName || "",
+      replyingToPreview: message.replyToPreview || message.bodyPreview || ""
+    });
   }
 
   /**
-   * @description Cancel reply
-   */
-  handleCancelReply() {
-    this._replyingToMessageId = null;
-    this._replyingToMessage = null;
-  }
-
-  /**
-   * @description Get replying to message info
-   */
-  get replyingToMessage() {
-    return this._replyingToMessage;
-  }
-
-  /**
-   * @description Check if currently replying to a message
-   */
-  get isReplying() {
-    return !!this._replyingToMessageId;
-  }
-
-  /**
-   * @description Check if modal is open
-   */
-  get isModalOpen() {
-    return this._isModalOpen;
-  }
-
-  /**
-   * Root wrapper class: compose modal is a sibling of lightning-card (see template) so file-upload
-   * overlays are not stacked under the card slot in Experience Cloud.
+   * Root wrapper class for Experience Cloud–specific layout tweaks.
    */
   get portalMessagingRootClass() {
     const base = "portal-messaging-root";
@@ -1799,30 +1428,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    * @description Open message composition modal
    */
   handleOpenModal() {
-    this.resetComposerFilesState();
-    this._isModalOpen = true;
-  }
-
-  /**
-   * @description Close message composition modal
-   */
-  handleCloseModal() {
-    this._isModalOpen = false;
-    this.resetComposerFilesState();
-    // Cancel reply if modal is closed
-    if (this._replyingToMessageId) {
-      this.handleCancelReply();
-    }
-  }
-
-  /**
-   * @description Handle backdrop click to close modal
-   */
-  handleBackdropClick(event) {
-    // Only close if clicking the backdrop itself, not the modal content
-    if (event.target === event.currentTarget) {
-      this.handleCloseModal();
-    }
+    void this.openComposeModal();
   }
 
   /**

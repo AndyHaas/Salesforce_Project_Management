@@ -1,6 +1,13 @@
 import { createElement } from "lwc";
 import PortalMessaging from "c/portalMessaging";
 
+jest.mock("c/portalMessageComposeModal", () => ({
+  __esModule: true,
+  default: {
+    open: jest.fn().mockResolvedValue(undefined)
+  }
+}));
+
 function flushPromises() {
   return Promise.resolve().then(() => Promise.resolve());
 }
