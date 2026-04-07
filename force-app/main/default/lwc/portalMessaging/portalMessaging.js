@@ -1443,6 +1443,15 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     return null;
   }
 
+  /**
+   * Record Id for lightning-file-upload: files attach to the host record’s Files until send links
+   * them to Message__c. Improves upload behavior and platform confirmation dialogs.
+   */
+  get composerFileUploadRecordId() {
+    const id = this.primaryFileContextRecordId;
+    return id ? String(id) : undefined;
+  }
+
   /** LEX: standard file preview; portal: open download (handled in child). */
   get messageAttachmentShowPreview() {
     return true;
@@ -1780,6 +1789,26 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
    */
   get isModalOpen() {
     return this._isModalOpen;
+  }
+
+  /**
+   * SLDS modal class list. In Experience Cloud, default modal z-index (9000) can sit above
+   * lightning-file-upload confirmation overlays; extra classes lower stacking for that shell.
+   */
+  get modalSectionClass() {
+    let cls = "slds-modal slds-fade-in-open slds-modal_large";
+    if (this.isExperienceCloud) {
+      cls += " portal-messaging-modal--ec";
+    }
+    return cls;
+  }
+
+  get modalBackdropClass() {
+    let cls = "slds-backdrop slds-backdrop_open";
+    if (this.isExperienceCloud) {
+      cls += " portal-messaging-modal-backdrop--ec";
+    }
+    return cls;
   }
 
   /**

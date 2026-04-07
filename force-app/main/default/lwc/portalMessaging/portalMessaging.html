@@ -435,7 +435,7 @@
           <section
             role="dialog"
             tabindex="-1"
-            class="slds-modal slds-fade-in-open slds-modal_large"
+            class={modalSectionClass}
             aria-labelledby="message-modal-heading"
             aria-modal="true"
             onclick={handleBackdropClick}
@@ -529,6 +529,7 @@
                     <lightning-file-upload
                       label="Attach Files"
                       name="fileUpload"
+                      record-id={composerFileUploadRecordId}
                       accept={acceptedFormats}
                       field-level-help={composerFileUploadHelp}
                       onuploadfinished={handleUploadFinished}
@@ -561,7 +562,7 @@
               </footer>
             </div>
           </section>
-          <div class="slds-backdrop slds-backdrop_open"></div>
+          <div class={modalBackdropClass}></div>
         </template>
       </div>
     </lightning-card>

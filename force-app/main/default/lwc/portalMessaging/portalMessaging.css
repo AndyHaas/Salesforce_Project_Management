@@ -2,6 +2,19 @@
   margin-bottom: 1rem;
 }
 
+/*
+ * Experience Cloud: the compose dialog uses SLDS modal (z-index ~9000). Platform UI from
+ * lightning-file-upload (e.g. replace/confirm) often renders below that layer only in the portal
+ * shell, so users never see the confirmation. Lower this modal slightly so upload overlays win.
+ */
+.portal-messaging-modal--ec.slds-modal {
+  z-index: 8000;
+}
+
+.portal-messaging-modal-backdrop--ec.slds-backdrop_open {
+  z-index: 7999;
+}
+
 .context-display {
   display: flex;
   align-items: flex-start;
