@@ -1,17 +1,11 @@
 <template>
   <lightning-modal-header label={headerLabel}></lightning-modal-header>
   <lightning-modal-body>
-    <template if:true={loading}>
-      <div class="portal-file-preview-state">
-        <lightning-spinner alternative-text="Loading preview" size="medium"></lightning-spinner>
-        <p class="slds-text-body_small slds-m-top_small slds-text-color_weak">Loading preview…</p>
-      </div>
-    </template>
     <template if:true={loadError}>
       <p class="slds-text-body_regular">{errorMessage}</p>
     </template>
     <template if:true={showIframe}>
-      <iframe src={iframeSrc} class="portal-file-preview-iframe" title={headerLabel}></iframe>
+      <iframe src={shepherdIframeSrc} class="portal-file-preview-iframe" title={headerLabel}></iframe>
     </template>
   </lightning-modal-body>
   <lightning-modal-footer>
