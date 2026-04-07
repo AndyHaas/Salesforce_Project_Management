@@ -12,15 +12,16 @@ describe("c-task-detail", () => {
     }
   });
 
-  it("renders lightning-card with Task Detail title", async () => {
+  it("renders SLDS card with Task Detail title", async () => {
     const element = createElement("c-task-detail", {
       is: TaskDetail
     });
     document.body.appendChild(element);
     await flushPromises();
 
-    const card = element.shadowRoot.querySelector("lightning-card");
+    const card = element.shadowRoot.querySelector("article.task-detail-card");
     expect(card).not.toBeNull();
-    expect(card.title).toBe("Task Detail");
+    const title = element.shadowRoot.querySelector(".slds-card__header-title span");
+    expect(title?.textContent?.trim()).toBe("Task Detail");
   });
 });

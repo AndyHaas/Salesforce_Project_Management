@@ -1,3 +1,8 @@
+/**
+ * Portal task detail view (Experience Cloud). Often placed on the same page as `c-portal-messaging`
+ * (e.g. site page `portalTaskDetail`). Uses SLDS markup for the outer card instead of `lightning-card`
+ * to avoid an extra component shadow/stacking layer that can interfere with overlays from messaging.
+ */
 import { LightningElement, wire, track } from "lwc";
 import { CurrentPageReference } from "lightning/navigation";
 import { NavigationMixin } from "lightning/navigation";

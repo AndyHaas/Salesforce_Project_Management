@@ -3,6 +3,11 @@
   margin: 0 auto;
 }
 
+.task-detail-card .slds-card__header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--slds-g-color-border-base-1, #e5e5e5);
+}
+
 .page {
   padding: 1.5rem;
 }
