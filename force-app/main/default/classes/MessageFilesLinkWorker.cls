@@ -160,4 +160,73 @@ public without sharing class MessageFilesLinkWorker {
     cdl.Visibility = 'AllUsers';
     return cdl;
   }
+
+  /**
+   * @description Maps each ContentDocument Id to its LatestPublishedVersionId for linking after upload.
+   * @param contentDocumentIds Non-empty set of ContentDocument Ids.
+   * @return Map from ContentDocument Id to ContentVersion Id (excludes documents with no published version).
+   */
+  public static Map<Id, Id> getLatestVersionIdByContentDocumentIds(Set<Id> contentDocumentIds) {
+    Map<Id, Id> result = new Map<Id, Id>();
+    if (contentDocumentIds == null || contentDocumentIds.isEmpty()) {
+      return result;
+    }
+    for (ContentDocument cd : [
+      SELECT Id, LatestPublishedVersionId
+      FROM ContentDocument
+      WHERE Id IN :contentDocumentIds AND IsDeleted = FALSE
+    ]) {
+      if (cd.LatestPublishedVersionId != null) {
+        result.put(cd.Id, cd.LatestPublishedVersionId);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * @description Ordered ContentVersion Ids for composer linking when upload returns documentId only.
+   * Runs without sharing so Experience Cloud users can resolve files they attached to the host record.
+   * @param contentDocumentIds Ordered ContentDocument Id strings from the client.
+   * @return Parallel list (empty string when not resolved).
+   */
+  public static List<String> getLatestContentVersionIdsForDocumentsOrdered(List<String> contentDocumentIds) {
+    List<String> ordered = new List<String>();
+    if (contentDocumentIds == null || contentDocumentIds.isEmpty()) {
+      return ordered;
+    }
+
+    Set<Id> idSet = new Set<Id>();
+    for (String s : contentDocumentIds) {
+      if (String.isBlank(s)) {
+        continue;
+      }
+      try {
+        idSet.add((Id) s);
+      } catch (Exception ignored) {
+      }
+    }
+    if (idSet.isEmpty()) {
+      for (Integer i = 0; i < contentDocumentIds.size(); i++) {
+        ordered.add('');
+      }
+      return ordered;
+    }
+
+    Map<Id, Id> docToVersion = getLatestVersionIdByContentDocumentIds(idSet);
+
+    for (String s : contentDocumentIds) {
+      if (String.isBlank(s)) {
+        ordered.add('');
+        continue;
+      }
+      try {
+        Id docId = (Id) s;
+        Id verId = docToVersion.get(docId);
+        ordered.add(verId != null ? String.valueOf(verId) : '');
+      } catch (Exception ignored) {
+        ordered.add('');
+      }
+    }
+    return ordered;
+  }
 }

@@ -10,6 +10,7 @@ import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { publish, MessageContext } from "lightning/messageService";
 import sendMessage from "@salesforce/apex/MessagingController.sendMessage";
 import linkFilesToMessageAndContext from "@salesforce/apex/MessageFilesSupport.linkFilesToMessageAndContext";
+import getLatestContentVersionIdsForDocuments from "@salesforce/apex/MessageFilesSupport.getLatestContentVersionIdsForDocuments";
 import MESSAGE_UPDATE_CHANNEL from "@salesforce/messageChannel/MessageUpdate__c";
 
 export default class PortalMessageComposeModal extends LightningModal {
@@ -220,12 +221,21 @@ export default class PortalMessageComposeModal extends LightningModal {
         replyToMessageId: this._activeReplyToMessageId || null
       });
 
-      const uploadedFileIds = this.getComposerFileManager()?.getUploadedContentVersionIds?.() || [];
-      if (uploadedFileIds.length > 0) {
+      const fm = this.getComposerFileManager();
+      let contentVersionIds = fm?.getUploadedContentVersionIds ? [...fm.getUploadedContentVersionIds()] : [];
+      const docIdsNeedingVersion = fm?.getContentDocumentIdsNeedingVersionResolution
+        ? [...fm.getContentDocumentIdsNeedingVersionResolution()]
+        : [];
+      if (docIdsNeedingVersion.length > 0) {
+        const resolved = await getLatestContentVersionIdsForDocuments({ contentDocumentIds: docIdsNeedingVersion });
+        const extra = (resolved || []).filter((id) => id != null && String(id).trim().length > 0);
+        contentVersionIds = [...contentVersionIds, ...extra];
+      }
+      if (contentVersionIds.length > 0) {
         try {
           await linkFilesToMessageAndContext({
             messageId,
-            contentVersionIds: uploadedFileIds,
+            contentVersionIds: contentVersionIds,
             contextRecordId: this.primaryFileContextRecordId || undefined
           });
         } catch (fileError) {

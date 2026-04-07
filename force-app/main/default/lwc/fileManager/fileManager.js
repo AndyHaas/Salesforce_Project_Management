@@ -4,6 +4,46 @@ import getFilesForLinkedRecord from "@salesforce/apex/TaskContextController.getF
 import { splitFileNameForPortalRow } from "c/portalCommon";
 
 /**
+ * Clone uploadfinished file entries to plain objects (Locker / proxy-safe) and normalize property names.
+ * Docs list name + documentId; some runtimes also send contentVersionId, and guest flows may use PascalCase.
+ */
+function snapshotComposerUploadFileEntry(file) {
+  if (!file || typeof file !== "object") {
+    return null;
+  }
+  let base = file;
+  try {
+    const json = JSON.stringify(file);
+    if (json && json !== "{}" && json !== "null") {
+      base = JSON.parse(json);
+    }
+  } catch {
+    // keep raw object; pickFileFields still reads common keys
+  }
+  const pick = (obj, keys) => {
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
+      const v = obj[k];
+      if (v != null && v !== "") {
+        return typeof v === "string" ? v.trim() : v;
+      }
+    }
+    return undefined;
+  };
+  const name = pick(base, ["name", "Name"]);
+  const contentVersionId = pick(base, ["contentVersionId", "ContentVersionId", "versionId", "VersionId"]);
+  const documentId = pick(base, ["documentId", "DocumentId", "contentDocumentId", "ContentDocumentId"]);
+  if (!contentVersionId && !documentId) {
+    return null;
+  }
+  return {
+    name,
+    contentVersionId: contentVersionId != null ? String(contentVersionId) : undefined,
+    documentId: documentId != null ? String(documentId) : undefined
+  };
+}
+
+/**
  * Unified file list + optional upload.
  *
  * Packaging: Portal Add-On should embed this with variant "record" only (project/task/account files).
@@ -77,8 +117,10 @@ export default class FileManager extends LightningElement {
 
   @api uploadHelpText;
 
-  @track _uploadedFileIds = [];
-  /** @type {Array<{contentDocumentId: string, contentVersionId: string, title: string, fileExtension: string}>} */
+  /**
+   * Composer pending rows only (single source of truth). Each row may have contentVersionId and/or contentDocumentId.
+   * @type {Array<{contentDocumentId?: string, contentVersionId?: string, title: string, fileExtension: string}>}
+   */
   @track _pendingComposerFiles = [];
   @track _renderFileUpload = true;
 
@@ -173,21 +215,23 @@ export default class FileManager extends LightningElement {
   }
 
   handleRecordUploadFinished() {
-    Promise.resolve().then(() => {
+    // eslint-disable-next-line @lwc/lwc/no-async-operation
+    setTimeout(() => {
       if (this._wiredFilesResult) {
         refreshApex(this._wiredFilesResult).catch((e) => {
           console.error("fileManager refreshApex:", e);
         });
       }
-    });
+    }, 0);
   }
 
   /**
    * Upload-finished runs inside the platform file-upload stack; updating @track state synchronously
-   * can re-enter Lightning internals and surface as [NoErrorObjectAvailable] Script error. Defer work.
+   * can re-enter Lightning internals and surface as [NoErrorObjectAvailable] Script error.
+   * Defer with setTimeout(0) so we leave the platform stack before mutating LWC state (modal-safe).
    *
-   * Copy file fields synchronously before deferring: `detail.files` entries are often recycled after
-   * the handler returns, so reading them in a microtask yields missing ids and the list never updates.
+   * Snapshot synchronously: detail.files proxies are often invalid after the handler returns; official
+   * docs emphasize name + documentId — version id may be absent until resolved at send time.
    */
   handleComposerUploadFinished(event) {
     const raw = event?.detail?.files;
@@ -195,51 +239,44 @@ export default class FileManager extends LightningElement {
       return;
     }
     const snapshot = [];
-    for (const file of raw) {
-      if (!file) {
-        continue;
+    for (let i = 0; i < raw.length; i++) {
+      const entry = snapshotComposerUploadFileEntry(raw[i]);
+      if (entry) {
+        snapshot.push(entry);
       }
-      snapshot.push({
-        name: file.name,
-        contentVersionId: file.contentVersionId || file.versionId,
-        documentId: file.documentId,
-        contentDocumentId: file.contentDocumentId
-      });
     }
     if (snapshot.length === 0) {
       return;
     }
-    Promise.resolve().then(() => {
+    // eslint-disable-next-line @lwc/lwc/no-async-operation
+    setTimeout(() => {
       this.applyComposerUploadFinishedPayload(snapshot);
-    });
+    }, 0);
   }
 
   applyComposerUploadFinishedPayload(uploadedFiles) {
     try {
-      const newIds = [];
       const newRows = [];
       for (const file of uploadedFiles) {
         if (!file) {
           continue;
         }
-        const contentVersionId = file.contentVersionId || file.versionId;
-        if (!contentVersionId) {
+        const contentVersionId = file.contentVersionId;
+        const contentDocumentId = file.documentId || file.contentDocumentId;
+        if (!contentVersionId && !contentDocumentId) {
           continue;
         }
-        newIds.push(contentVersionId);
-        const contentDocumentId = file.documentId || file.contentDocumentId;
         const { title, fileExtension } = splitFileNameForPortalRow(file.name);
         newRows.push({
           contentDocumentId: contentDocumentId || undefined,
-          contentVersionId,
+          contentVersionId: contentVersionId || undefined,
           title,
           fileExtension
         });
       }
-      if (newIds.length === 0) {
+      if (newRows.length === 0) {
         return;
       }
-      this._uploadedFileIds = [...this._uploadedFileIds, ...newIds];
       this._pendingComposerFiles = [...this._pendingComposerFiles, ...newRows];
     } catch (e) {
       console.error("fileManager applyComposerUploadFinishedPayload:", e);
@@ -248,45 +285,71 @@ export default class FileManager extends LightningElement {
 
   handleComposerFileRemove(event) {
     const { contentVersionId, contentDocumentId } = event.detail || {};
+    const ver = contentVersionId != null && String(contentVersionId).length > 0 ? String(contentVersionId) : null;
+    const doc = contentDocumentId != null && String(contentDocumentId).length > 0 ? String(contentDocumentId) : null;
     this._pendingComposerFiles = this._pendingComposerFiles.filter((f) => {
-      if (contentVersionId && f.contentVersionId === contentVersionId) {
+      if (ver && f.contentVersionId === ver) {
         return false;
       }
-      if (contentDocumentId && f.contentDocumentId === contentDocumentId && !contentVersionId) {
+      if (doc && f.contentDocumentId === doc && !f.contentVersionId) {
         return false;
       }
       return true;
     });
-    if (contentVersionId) {
-      this._uploadedFileIds = this._uploadedFileIds.filter((id) => id !== contentVersionId);
-    }
-    if (this._pendingComposerFiles.length === 0 && this._uploadedFileIds.length === 0) {
+    if (this._pendingComposerFiles.length === 0) {
       this._renderFileUpload = false;
-      Promise.resolve().then(() => {
+      // eslint-disable-next-line @lwc/lwc/no-async-operation
+      setTimeout(() => {
         this._renderFileUpload = true;
-      });
+      }, 0);
     }
   }
 
   /**
-   * @returns ContentVersion Ids accumulated in composer variant (for linking after message insert).
+   * @returns ContentVersion Ids known from uploadfinished (may be incomplete — use getContentDocumentIdsNeedingVersionResolution + Apex for the rest).
    */
   @api
   getUploadedContentVersionIds() {
-    return Array.isArray(this._uploadedFileIds) ? [...this._uploadedFileIds] : [];
+    const ids = [];
+    const rows = Array.isArray(this._pendingComposerFiles) ? this._pendingComposerFiles : [];
+    for (let i = 0; i < rows.length; i++) {
+      const v = rows[i].contentVersionId;
+      if (v != null && String(v).length > 0) {
+        ids.push(String(v));
+      }
+    }
+    return ids;
+  }
+
+  /**
+   * ContentDocument Ids for pending rows that have no ContentVersion Id yet (document-only upload payload).
+   */
+  @api
+  getContentDocumentIdsNeedingVersionResolution() {
+    const out = [];
+    const rows = Array.isArray(this._pendingComposerFiles) ? this._pendingComposerFiles : [];
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      const doc = r.contentDocumentId;
+      const ver = r.contentVersionId;
+      if (doc != null && String(doc).length > 0 && (ver == null || String(ver).length === 0)) {
+        out.push(String(doc));
+      }
+    }
+    return out;
   }
 
   /** Clears composer pending files and remounts the upload control when needed. */
   @api
   resetComposerState() {
-    const remount = this._pendingComposerFiles.length > 0 || this._uploadedFileIds.length > 0;
-    this._uploadedFileIds = [];
+    const remount = this._pendingComposerFiles.length > 0;
     this._pendingComposerFiles = [];
     if (remount) {
       this._renderFileUpload = false;
-      Promise.resolve().then(() => {
+      // eslint-disable-next-line @lwc/lwc/no-async-operation
+      setTimeout(() => {
         this._renderFileUpload = true;
-      });
+      }, 0);
     }
   }
 }

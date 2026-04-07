@@ -172,6 +172,17 @@ public with sharing class MessageFilesSupport {
   }
 
   /**
+   * @description Resolves LatestPublishedVersionId for each ContentDocument Id, preserving input order.
+   * Used when lightning-file-upload returns documentId but not contentVersionId (see component spec).
+   * @param contentDocumentIds Ordered ContentDocument Ids; invalid strings yield blank entries at that index.
+   * @return ContentVersion Ids aligned index-for-index with the input list (empty string when not resolved).
+   */
+  @AuraEnabled(cacheable=false)
+  public static List<String> getLatestContentVersionIdsForDocuments(List<String> contentDocumentIds) {
+    return MessageFilesLinkWorker.getLatestContentVersionIdsForDocumentsOrdered(contentDocumentIds);
+  }
+
+  /**
    * Soft-deletes a message (Deleted__c = true) after removing linked ContentDocument records.
    * Caller must be the message sender (Contact on User) or the user who created the row.
    *

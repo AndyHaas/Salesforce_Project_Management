@@ -58,6 +58,52 @@ private class MessageFilesSupportTest {
   }
 
   @IsTest
+  static void getLatestContentVersionIdsForDocuments_preservesOrderAndResolves() {
+    Account acc = new Account(Name = 'Version resolve account');
+    insert acc;
+
+    Contact sender = new Contact(FirstName = 'V', LastName = 'Resolve', AccountId = acc.Id);
+    insert sender;
+
+    Message__c msg = new Message__c(
+      Body__c = 'Host',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+
+    ContentVersion cv = new ContentVersion(
+      Title = 'ResolveMe',
+      PathOnClient = 'ResolveMe.pdf',
+      VersionData = Blob.valueOf('x'),
+      FirstPublishLocationId = msg.Id
+    );
+    insert cv;
+
+    Id docId = [
+      SELECT ContentDocumentId
+      FROM ContentVersion
+      WHERE Id = :cv.Id
+      LIMIT 1
+    ]
+    .ContentDocumentId;
+
+    Test.startTest();
+    List<String> out = MessageFilesSupport.getLatestContentVersionIdsForDocuments(
+      new List<String>{ '', String.valueOf(docId), 'bad' }
+    );
+    Test.stopTest();
+
+    System.assertEquals(3, out.size(), 'Output length matches input');
+    System.assertEquals('', out[0]);
+    System.assertEquals(String.valueOf(cv.Id), out[1]);
+    System.assertEquals('', out[2]);
+  }
+
+  @IsTest
   static void getFilesForMessages_emptyInput_returnsEmpty() {
     System.assertEquals(0, MessageFilesSupport.getFilesForMessages(new List<String>()).size());
     System.assertEquals(0, MessageFilesSupport.getFilesForMessages(null).size());
