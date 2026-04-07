@@ -18,6 +18,10 @@ import {
 } from "lightning/messageService";
 import getTaskList from "@salesforce/apex/ProjectTaskDashboardController.getTaskList";
 import getTaskListFieldSetDefinition from "@salesforce/apex/ProjectTaskDashboardController.getTaskListFieldSetDefinition";
+import {
+  accountIdsFromFilterMessage,
+  resolveEffectiveAccountIds
+} from "c/dashboardAccountFilterUtils";
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from "@salesforce/messageChannel/AccountFilter__c";
 import DASHBOARD_REFRESH_MESSAGE_CHANNEL from "@salesforce/messageChannel/DashboardRefresh__c";
 
@@ -38,10 +42,10 @@ export default class TaskListComponent extends NavigationMixin(
   columns = [];
 
   get effectiveAccountIds() {
-    if (this._filteredAccountIds.length > 0) {
-      return this._filteredAccountIds;
-    }
-    return this.accountId ? [this.accountId] : [];
+    return resolveEffectiveAccountIds(
+      this._filteredAccountIds,
+      this.accountId
+    );
   }
 
   connectedCallback() {
@@ -50,16 +54,9 @@ export default class TaskListComponent extends NavigationMixin(
         this.messageContext,
         ACCOUNT_FILTER_MESSAGE_CHANNEL,
         (message) => {
-          if (message) {
-            if (message.accountIds !== undefined) {
-              this._filteredAccountIds = Array.isArray(message.accountIds)
-                ? message.accountIds
-                : [];
-            } else if (message.accountId !== undefined) {
-              this._filteredAccountIds = message.accountId
-                ? [message.accountId]
-                : [];
-            }
+          const next = accountIdsFromFilterMessage(message);
+          if (next !== undefined) {
+            this._filteredAccountIds = next;
           }
         },
         { scope: APPLICATION_SCOPE }

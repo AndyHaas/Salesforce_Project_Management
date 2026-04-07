@@ -26,4 +26,14 @@ describe("c-task-due-date-metrics", () => {
     expect(card).not.toBeNull();
     expect(card.title).toBe("Due Date Metrics");
   });
+
+  it("disconnects without throwing (LMS cleanup)", async () => {
+    const el = createElement("c-task-due-date-metrics", {
+      is: TaskDueDateMetrics
+    });
+    document.body.appendChild(el);
+    await flushPromises();
+    expect(() => document.body.removeChild(el)).not.toThrow();
+    await flushPromises();
+  });
 });

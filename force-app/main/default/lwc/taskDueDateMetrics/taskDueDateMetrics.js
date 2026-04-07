@@ -21,6 +21,10 @@ import {
   APPLICATION_SCOPE
 } from "lightning/messageService";
 import getDueDateMetrics from "@salesforce/apex/ProjectTaskDashboardController.getDueDateMetrics";
+import {
+  accountIdsFromFilterMessage,
+  resolveEffectiveAccountIds
+} from "c/dashboardAccountFilterUtils";
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from "@salesforce/messageChannel/AccountFilter__c";
 import DASHBOARD_REFRESH_MESSAGE_CHANNEL from "@salesforce/messageChannel/DashboardRefresh__c";
 
@@ -82,7 +86,12 @@ export default class TaskDueDateMetrics extends NavigationMixin(
       this.subscription = subscribe(
         this.messageContext,
         ACCOUNT_FILTER_MESSAGE_CHANNEL,
-        (message) => this.handleAccountFilterChange(message),
+        (message) => {
+          const next = accountIdsFromFilterMessage(message);
+          if (next !== undefined) {
+            this._filteredAccountIds = next;
+          }
+        },
         { scope: APPLICATION_SCOPE }
       );
 
@@ -130,34 +139,14 @@ export default class TaskDueDateMetrics extends NavigationMixin(
   }
 
   /**
-   * @description Handle account filter change from LMS
-   * @param {Object} message - Message payload with accountIds or accountId
-   * @private
-   */
-  handleAccountFilterChange(message) {
-    if (message) {
-      if (message.accountIds !== undefined) {
-        // New multi-select format
-        this._filteredAccountIds = Array.isArray(message.accountIds)
-          ? message.accountIds
-          : [];
-      } else if (message.accountId !== undefined) {
-        // Backward compatibility - single account ID
-        this._filteredAccountIds = message.accountId ? [message.accountId] : [];
-      }
-    }
-  }
-
-  /**
    * @description Getter for effective account IDs (LMS filter takes precedence)
    * @returns {Array<string>} Account IDs to use for filtering
    */
   get effectiveAccountIds() {
-    // LMS filter takes precedence, fall back to @api property
-    if (this._filteredAccountIds.length > 0) {
-      return this._filteredAccountIds;
-    }
-    return this.accountId ? [this.accountId] : [];
+    return resolveEffectiveAccountIds(
+      this._filteredAccountIds,
+      this.accountId
+    );
   }
 
   /**
