@@ -170,30 +170,60 @@ export default class FileManager extends LightningElement {
   }
 
   handleRecordUploadFinished() {
-    if (this._wiredFilesResult) {
-      refreshApex(this._wiredFilesResult).catch((e) => {
-        console.error("fileManager refreshApex:", e);
-      });
-    }
+    Promise.resolve().then(() => {
+      if (this._wiredFilesResult) {
+        refreshApex(this._wiredFilesResult).catch((e) => {
+          console.error("fileManager refreshApex:", e);
+        });
+      }
+    });
   }
 
+  /**
+   * Upload-finished runs inside the platform file-upload stack; updating @track state synchronously
+   * can re-enter Lightning internals and surface as [NoErrorObjectAvailable] Script error. Defer work.
+   */
   handleComposerUploadFinished(event) {
-    const uploadedFiles = event.detail.files;
-    if (!uploadedFiles || uploadedFiles.length === 0) {
+    const raw = event?.detail?.files;
+    const uploadedFiles = Array.isArray(raw) ? raw : [];
+    if (uploadedFiles.length === 0) {
       return;
     }
-    const newIds = uploadedFiles.map((file) => file.contentVersionId).filter((id) => id);
-    this._uploadedFileIds = [...this._uploadedFileIds, ...newIds];
-    const newRows = uploadedFiles.map((file) => {
-      const { title, fileExtension } = splitFileNameForPortalRow(file.name);
-      return {
-        contentDocumentId: file.documentId,
-        contentVersionId: file.contentVersionId,
-        title,
-        fileExtension
-      };
+    Promise.resolve().then(() => {
+      this.applyComposerUploadFinishedPayload(uploadedFiles);
     });
-    this._pendingComposerFiles = [...this._pendingComposerFiles, ...newRows];
+  }
+
+  applyComposerUploadFinishedPayload(uploadedFiles) {
+    try {
+      const newIds = [];
+      const newRows = [];
+      for (const file of uploadedFiles) {
+        if (!file) {
+          continue;
+        }
+        const contentVersionId = file.contentVersionId;
+        if (!contentVersionId) {
+          continue;
+        }
+        newIds.push(contentVersionId);
+        const contentDocumentId = file.documentId || file.contentDocumentId;
+        const { title, fileExtension } = splitFileNameForPortalRow(file.name);
+        newRows.push({
+          contentDocumentId: contentDocumentId || undefined,
+          contentVersionId,
+          title,
+          fileExtension
+        });
+      }
+      if (newIds.length === 0) {
+        return;
+      }
+      this._uploadedFileIds = [...this._uploadedFileIds, ...newIds];
+      this._pendingComposerFiles = [...this._pendingComposerFiles, ...newRows];
+    } catch (e) {
+      console.error("fileManager applyComposerUploadFinishedPayload:", e);
+    }
   }
 
   handleComposerFileRemove(event) {
