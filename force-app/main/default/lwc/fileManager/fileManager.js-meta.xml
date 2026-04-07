@@ -4,7 +4,7 @@
   <isExposed>true</isExposed>
   <masterLabel>File Manager</masterLabel>
   <description
-  >Unified files UI for linked records (wire + optional upload). Packaging: Portal Add-On pages should use variant record only—do not ship a local compose modal; message attachment list (list) and composer buffer (composer) are used inside Core c-portal-messaging and c-portal-message-compose-modal, not in the add-on package.</description>
+  >Linked files + optional upload. Portal Add-On: variant record on Experience pages. list/composer = Core c-portal-messaging + compose modal only (see LWC JSDoc).</description>
   <targets>
     <target>lightningCommunity__Page</target>
     <target>lightningCommunity__Default</target>
@@ -13,28 +13,6 @@
     <target>lightning__HomePage</target>
   </targets>
   <targetConfigs>
-    <targetConfig targets="lightningCommunity__Page,lightningCommunity__Default">
-      <property
-        name="variant"
-        type="String"
-        label="Variant"
-        datasource="record"
-        default="record"
-        description="Experience Cloud: record only. list/composer are internal to Core messaging components."
-      />
-      <property
-        name="recordId"
-        type="String"
-        label="Record Id"
-        description="Host record for linked files and/or lightning-file-upload."
-      />
-      <property name="cardTitle" type="String" label="Card title" default="Files" />
-      <property name="showCard" type="Boolean" label="Show card chrome" default="true" />
-      <property name="showUpload" type="Boolean" label="Show upload" default="true" />
-      <property name="showPreview" type="Boolean" label="Show preview link" default="true" />
-      <property name="showDownload" type="Boolean" label="Show download" default="true" />
-      <property name="showDelete" type="Boolean" label="Show remove" default="false" />
-    </targetConfig>
     <targetConfig targets="lightning__RecordPage,lightning__AppPage,lightning__HomePage">
       <property
         name="variant"
@@ -42,7 +20,7 @@
         label="Variant"
         datasource="record,list,composer"
         default="record"
-        description="record: wire + upload. list/composer: used by Core messaging LWCs (c-portal-messaging, compose modal); not for Portal Add-On Experience pages."
+        description="record: wire + upload. list/composer: Core messaging LWCs only, not add-on Experience pages."
       />
       <property
         name="recordId"
