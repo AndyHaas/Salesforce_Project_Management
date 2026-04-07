@@ -1,3 +1,7 @@
 .file-manager_record .slds-card__body .lightning-file-upload {
   display: block;
 }
+
+.file-manager_composer {
+  overflow: visible;
+}

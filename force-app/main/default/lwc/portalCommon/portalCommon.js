@@ -221,36 +221,6 @@ export function formatDateTime(value, emptyValue = "") {
 }
 
 /**
- * Format a byte size for file lists (B / KB / MB / GB).
- * @param {number|string|null|undefined} bytes - Content size in bytes
- * @param {string} emptyValue - When missing or invalid
- * @returns {string}
- */
-export function formatFileSize(bytes, emptyValue = "") {
-  if (bytes === null || bytes === undefined || bytes === "") {
-    return emptyValue;
-  }
-  const n = Number(bytes);
-  if (!Number.isFinite(n) || n < 0) {
-    return emptyValue;
-  }
-  if (n < 1024) {
-    return `${Math.round(n)} B`;
-  }
-  const kb = n / 1024;
-  if (kb < 1024) {
-    const digits = kb < 10 ? 1 : 0;
-    return `${kb.toFixed(digits)} KB`;
-  }
-  const mb = kb / 1024;
-  if (mb < 1024) {
-    return `${mb.toFixed(1)} MB`;
-  }
-  const gb = mb / 1024;
-  return `${gb.toFixed(1)} GB`;
-}
-
-/**
  * Format a time value
  * @param {number|string} value - Time value (milliseconds since midnight for Salesforce Time)
  * @param {string} emptyValue - Value to return if empty (default: '')

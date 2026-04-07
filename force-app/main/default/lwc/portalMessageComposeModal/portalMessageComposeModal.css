@@ -4,3 +4,13 @@
   border-left: 3px solid #0176d3;
   border-radius: 0.25rem;
 }
+
+/*
+ * lightning-file-upload shows a platform "Upload Files" / progress overlay. Modal content areas
+ * often use overflow: auto, which can clip or trap that overlay in Experience Cloud.
+ */
+.compose-modal-file-slot {
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}

@@ -1,8 +1,8 @@
 import { LightningElement, api } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
 import getContentDocumentIdForVersionId from "@salesforce/apex/MessageFilesSupport.getContentDocumentIdForVersionId";
-import { ensureSitePath, formatDateTime, formatFileSize } from "c/portalCommon";
-import { getFileIconName } from "./portalFileAttachmentsUtils";
+import { ensureSitePath, formatDateTime } from "c/portalCommon";
+import { getFileIconName, formatFileSize } from "./portalFileAttachmentsUtils";
 
 /**
  * Shared file “card” list: preview (Lightning file preview or open file in portal),
@@ -115,33 +115,96 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
     });
   }
 
-  async handlePreviewClick(event) {
-    let docId = event.currentTarget.dataset.documentId || "";
-    const versionId = event.currentTarget.dataset.versionId || "";
-    docId = (await this.resolveDocumentIdForOpen(docId, versionId)) || "";
-    if (!docId && versionId) {
-      this.openDocumentUrl(null, versionId);
+  handlePreviewClick(event) {
+    const docIdEarly = (event.currentTarget.dataset.documentId || "").trim();
+    const versionId = (event.currentTarget.dataset.versionId || "").trim();
+
+    // LEX: navigation and sync window.open must run in the same turn as the click (no await before them),
+    // or pop-up blockers block new tabs — especially noticeable inside Lightning modals (compose upload list).
+    if (docIdEarly && this.isExperienceCloudRuntime) {
+      this.openDocumentUrl(docIdEarly, null);
       return;
     }
-    if (!docId) {
+    if (docIdEarly && !this.isExperienceCloudRuntime) {
+      try {
+        this[NavigationMixin.Navigate]({
+          type: "standard__namedPage",
+          attributes: {
+            pageName: "filePreview"
+          },
+          state: {
+            selectedRecordId: docIdEarly
+          }
+        });
+      } catch {
+        this.openDocumentUrl(docIdEarly, null);
+      }
       return;
     }
-    if (this.isExperienceCloudRuntime) {
-      this.openDocumentUrl(docId, null);
-      return;
-    }
-    try {
-      this[NavigationMixin.Navigate]({
-        type: "standard__namedPage",
-        attributes: {
-          pageName: "filePreview"
-        },
-        state: {
-          selectedRecordId: docId
+
+    if (!docIdEarly && versionId) {
+      if (this.isExperienceCloudRuntime) {
+        const tab =
+          typeof window !== "undefined"
+            ? window.open("about:blank", "_blank", "noopener,noreferrer")
+            : null;
+        if (tab) {
+          try {
+            tab.opener = null;
+          } catch {
+            // ignore
+          }
         }
-      });
-    } catch {
-      this.openDocumentUrl(docId, null);
+        void this.resolveDocumentIdForOpen("", versionId)
+          .then((docId) => {
+            if (!tab || tab.closed) {
+              return;
+            }
+            const pathname = typeof window !== "undefined" ? window.location.pathname || "" : "";
+            if (docId) {
+              const url = ensureSitePath(`/sfc/servlet.shepherd/document/download/${docId}`, {
+                currentPathname: pathname
+              });
+              tab.location.assign(url);
+              return;
+            }
+            const url = ensureSitePath(`/sfc/servlet.shepherd/version/download/${versionId}`, {
+              currentPathname: pathname
+            });
+            tab.location.assign(url);
+          })
+          .catch((e) => {
+            console.error("portalFileAttachments: preview after resolve failed", e);
+            if (tab && !tab.closed) {
+              tab.close();
+            }
+          });
+        return;
+      }
+      void this.resolveDocumentIdForOpen("", versionId)
+        .then((docId) => {
+          if (docId) {
+            try {
+              this[NavigationMixin.Navigate]({
+                type: "standard__namedPage",
+                attributes: {
+                  pageName: "filePreview"
+                },
+                state: {
+                  selectedRecordId: docId
+                }
+              });
+            } catch {
+              this.openDocumentUrl(docId, null);
+            }
+            return;
+          }
+          this.openDocumentUrl(null, versionId);
+        })
+        .catch((e) => {
+          console.error("portalFileAttachments: preview resolve failed", e);
+        });
+      return;
     }
   }
 
