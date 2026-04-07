@@ -9,7 +9,6 @@ import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { publish, MessageContext } from "lightning/messageService";
 import sendMessage from "@salesforce/apex/MessagingController.sendMessage";
 import linkFilesToMessageAndContext from "@salesforce/apex/MessageFilesSupport.linkFilesToMessageAndContext";
-import { splitFileNameForPortalRow } from "c/portalCommon";
 import MESSAGE_UPDATE_CHANNEL from "@salesforce/messageChannel/MessageUpdate__c";
 
 export default class PortalMessageComposeModal extends LightningModal {
@@ -28,10 +27,6 @@ export default class PortalMessageComposeModal extends LightningModal {
   @track messageBody = "";
   @track localRecipientType;
   @track selectedMentions = [];
-  _uploadedFileIds = [];
-  /** @type {Array<{contentDocumentId: string, contentVersionId: string, title: string, fileExtension: string}>} */
-  @track _pendingComposerFiles = [];
-  @track _renderFileUpload = true;
   /** Reply Id cleared in-modal when user cancels reply banner */
   @track _activeReplyToMessageId;
 
@@ -143,18 +138,6 @@ export default class PortalMessageComposeModal extends LightningModal {
     return ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png,.gif,.zip,.rar";
   }
 
-  get pendingComposerFiles() {
-    return this._pendingComposerFiles;
-  }
-
-  get hasPendingComposerFiles() {
-    return Array.isArray(this._pendingComposerFiles) && this._pendingComposerFiles.length > 0;
-  }
-
-  get renderFileUpload() {
-    return this._renderFileUpload;
-  }
-
   get composerAttachmentShowPreview() {
     return true;
   }
@@ -193,57 +176,8 @@ export default class PortalMessageComposeModal extends LightningModal {
     this.selectedMentions = mentions;
   }
 
-  handleUploadFinished(event) {
-    const uploadedFiles = event.detail.files;
-    if (!uploadedFiles || uploadedFiles.length === 0) {
-      return;
-    }
-    const newIds = uploadedFiles.map((file) => file.contentVersionId).filter((id) => id);
-    this._uploadedFileIds = [...this._uploadedFileIds, ...newIds];
-    const newRows = uploadedFiles.map((file) => {
-      const { title, fileExtension } = splitFileNameForPortalRow(file.name);
-      return {
-        contentDocumentId: file.documentId,
-        contentVersionId: file.contentVersionId,
-        title,
-        fileExtension
-      };
-    });
-    this._pendingComposerFiles = [...this._pendingComposerFiles, ...newRows];
-  }
-
-  resetComposerFilesState() {
-    const remountUpload = this._pendingComposerFiles.length > 0 || this._uploadedFileIds.length > 0;
-    this._uploadedFileIds = [];
-    this._pendingComposerFiles = [];
-    if (remountUpload) {
-      this._renderFileUpload = false;
-      Promise.resolve().then(() => {
-        this._renderFileUpload = true;
-      });
-    }
-  }
-
-  handlePendingFileRemove(event) {
-    const { contentVersionId, contentDocumentId } = event.detail || {};
-    this._pendingComposerFiles = this._pendingComposerFiles.filter((f) => {
-      if (contentVersionId && f.contentVersionId === contentVersionId) {
-        return false;
-      }
-      if (contentDocumentId && f.contentDocumentId === contentDocumentId && !contentVersionId) {
-        return false;
-      }
-      return true;
-    });
-    if (contentVersionId) {
-      this._uploadedFileIds = this._uploadedFileIds.filter((id) => id !== contentVersionId);
-    }
-    if (this._pendingComposerFiles.length === 0 && this._uploadedFileIds.length === 0) {
-      this._renderFileUpload = false;
-      Promise.resolve().then(() => {
-        this._renderFileUpload = true;
-      });
-    }
+  getComposerFileManager() {
+    return this.template.querySelector("c-file-manager");
   }
 
   handleCancelReply() {
@@ -297,11 +231,12 @@ export default class PortalMessageComposeModal extends LightningModal {
         replyToMessageId: this._activeReplyToMessageId || null
       });
 
-      if (this._uploadedFileIds && this._uploadedFileIds.length > 0) {
+      const uploadedFileIds = this.getComposerFileManager()?.getUploadedContentVersionIds?.() || [];
+      if (uploadedFileIds.length > 0) {
         try {
           await linkFilesToMessageAndContext({
             messageId,
-            contentVersionIds: this._uploadedFileIds,
+            contentVersionIds: uploadedFileIds,
             contextRecordId: this.primaryFileContextRecordId || undefined
           });
         } catch (fileError) {

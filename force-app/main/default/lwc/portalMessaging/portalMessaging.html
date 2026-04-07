@@ -290,13 +290,14 @@
                     </div>
                     <template if:true={message.hasAttachments}>
                       <div class="message-attachments slds-m-top_small">
-                        <c-portal-file-attachments
-                          files={message.attachmentFiles}
+                        <c-file-manager
+                          variant="list"
+                          file-rows={message.attachmentFiles}
                           show-preview={messageAttachmentShowPreview}
                           show-download={messageAttachmentShowDownload}
                           show-delete={messageAttachmentShowDelete}
                         >
-                        </c-portal-file-attachments>
+                        </c-file-manager>
                       </div>
                     </template>
                   </template>

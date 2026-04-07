@@ -160,6 +160,18 @@
               </div>
             </div>
 
+            <!-- Files -->
+            <div class="section">
+              <h3 class="section-title">Files</h3>
+              <c-file-manager
+                variant="record"
+                record-id={taskId}
+                show-card="false"
+                card-title="Files"
+              >
+              </c-file-manager>
+            </div>
+
             <!-- Dependencies Section -->
             <template if:true={hasParentTask}>
               <div class="section">

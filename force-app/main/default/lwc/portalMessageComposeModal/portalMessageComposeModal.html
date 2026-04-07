@@ -65,31 +65,16 @@
     </template>
 
     <div class="slds-form-element slds-m-bottom_medium">
-      <template if:true={renderFileUpload}>
-        <lightning-file-upload
-          label="Attach Files"
-          name="fileUpload"
-          record-id={composerFileUploadRecordId}
-          accept={acceptedFormats}
-          field-level-help={composerFileUploadHelp}
-          onuploadfinished={handleUploadFinished}
-          multiple
-        >
-        </lightning-file-upload>
-      </template>
-      <template if:true={hasPendingComposerFiles}>
-        <div class="slds-m-top_small">
-          <div class="slds-text-body_small slds-text-color_weak slds-m-bottom_xx-small">Files to Upload</div>
-          <c-portal-file-attachments
-            files={pendingComposerFiles}
-            show-preview={composerAttachmentShowPreview}
-            show-download={composerAttachmentShowDownload}
-            show-delete={composerAttachmentShowDelete}
-            onfileremove={handlePendingFileRemove}
-          >
-          </c-portal-file-attachments>
-        </div>
-      </template>
+      <c-file-manager
+        variant="composer"
+        record-id={composerFileUploadRecordId}
+        accepted-formats={acceptedFormats}
+        upload-help-text={composerFileUploadHelp}
+        show-preview={composerAttachmentShowPreview}
+        show-download={composerAttachmentShowDownload}
+        show-delete={composerAttachmentShowDelete}
+      >
+      </c-file-manager>
     </div>
   </lightning-modal-body>
   <lightning-modal-footer>

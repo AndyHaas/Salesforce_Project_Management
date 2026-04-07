@@ -9,6 +9,7 @@
  *   - taskContextPanel: getDependencyData()
  *   - linkTaskModal: createTaskRelationship(), updateTaskRelationship(), getRelationshipDetails()
  *   - taskContextPanel: deleteTaskRelationship()
+ *   - fileManager: getFilesForLinkedRecord()
  *
  * SHARING (without sharing): Supports task relationship UI in Experience Cloud and internal apps;
  * callers need dependency graph data even when sharing would hide related tasks. Validate portal
@@ -550,13 +551,13 @@ public without sharing class TaskContextController {
   }
 
   /**
-   * @description Get files linked to a task
-   * @param taskId The Project Task ID
-   * @return List of FileInfo with file details
+   * @description Returns ContentDocument rows linked to any record (Project__c, Project_Task__c, etc.).
+   * @param linkedEntityId Record Id used as ContentDocumentLink.LinkedEntityId
+   * @return List of FileInfo ordered by document created date (newest first)
    */
   @AuraEnabled(cacheable=true)
-  public static List<FileInfo> getTaskFiles(String taskId) {
-    if (String.isBlank(taskId)) {
+  public static List<FileInfo> getFilesForLinkedRecord(String linkedEntityId) {
+    if (String.isBlank(linkedEntityId)) {
       return new List<FileInfo>();
     }
 
@@ -572,7 +573,7 @@ public without sharing class TaskContextController {
         ContentDocument.CreatedBy.Name,
         ContentDocument.LatestPublishedVersionId
       FROM ContentDocumentLink
-      WHERE LinkedEntityId = :taskId
+      WHERE LinkedEntityId = :linkedEntityId
       ORDER BY ContentDocument.CreatedDate DESC
     ];
 
@@ -589,6 +590,15 @@ public without sharing class TaskContextController {
     }
 
     return files;
+  }
+
+  /**
+   * @description Backward-compatible alias for {@link #getFilesForLinkedRecord}.
+   * @param taskId Project task or any record Id with linked files
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<FileInfo> getTaskFiles(String taskId) {
+    return getFilesForLinkedRecord(taskId);
   }
 
   public class SubtaskProgressInfo {

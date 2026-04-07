@@ -5,7 +5,7 @@ import { getFileIconName } from "./portalFileAttachmentsUtils";
 
 /**
  * Shared file “card” list: preview (Lightning file preview or open download in portal),
- * download, optional remove. Intended for portalMessaging and portalTaskFiles.
+ * download, optional remove. Used by c-file-manager and App Builder configurations.
  */
 export default class PortalFileAttachments extends NavigationMixin(LightningElement) {
   /**

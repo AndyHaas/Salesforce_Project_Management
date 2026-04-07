@@ -1,0 +1,9 @@
+<template>
+  <!-- Portal project page: lists files linked to the project record (URL /project/:id or c__projectId). -->
+  <template if:true={projectId}>
+    <c-file-manager variant="record" record-id={projectId} card-title="Project files"> </c-file-manager>
+  </template>
+  <template if:false={projectId}>
+    <p class="slds-text-body_small slds-text-color_weak slds-p-around_medium">No project id provided in URL.</p>
+  </template>
+</template>

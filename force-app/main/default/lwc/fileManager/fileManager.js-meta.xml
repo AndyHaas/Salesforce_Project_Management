@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+  <apiVersion>66.0</apiVersion>
+  <isExposed>true</isExposed>
+  <masterLabel>File Manager</masterLabel>
+  <description
+  >Unified files UI: list linked files, optional upload, and message-composer pending uploads. Variants: record (wire + upload), list (parent-supplied rows), composer (modal upload buffer).</description>
+  <targets>
+    <target>lightningCommunity__Page</target>
+    <target>lightningCommunity__Default</target>
+    <target>lightning__AppPage</target>
+    <target>lightning__RecordPage</target>
+    <target>lightning__HomePage</target>
+  </targets>
+  <targetConfigs>
+    <targetConfig targets="lightning__RecordPage,lightning__AppPage,lightning__HomePage">
+      <property name="variant" type="String" label="Variant" datasource="record,list,composer" default="record" />
+      <property name="recordId" type="String" label="Record Id" description="Host record for linked files and/or lightning-file-upload." />
+      <property name="cardTitle" type="String" label="Card title" default="Files" />
+      <property name="showCard" type="Boolean" label="Show card chrome" default="true" />
+      <property name="showUpload" type="Boolean" label="Show upload" default="true" />
+      <property name="showPreview" type="Boolean" label="Show preview link" default="true" />
+      <property name="showDownload" type="Boolean" label="Show download" default="true" />
+      <property name="showDelete" type="Boolean" label="Show remove (composer pending / optional)" default="false" />
+    </targetConfig>
+  </targetConfigs>
+</LightningComponentBundle>
