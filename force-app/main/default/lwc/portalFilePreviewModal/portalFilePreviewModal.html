@@ -11,7 +11,7 @@
       <p class="slds-text-body_regular">{errorMessage}</p>
     </template>
     <template if:true={showIframe}>
-      <iframe src={previewObjectUrl} class="portal-file-preview-iframe" title={headerLabel}></iframe>
+      <iframe src={iframeSrc} class="portal-file-preview-iframe" title={headerLabel}></iframe>
     </template>
   </lightning-modal-body>
   <lightning-modal-footer>

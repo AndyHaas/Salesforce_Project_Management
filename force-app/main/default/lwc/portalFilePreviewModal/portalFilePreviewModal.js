@@ -7,9 +7,9 @@ const MAX_PREVIEW_BYTES = 45 * 1024 * 1024;
 
 /**
  * In-modal file preview for Experience Cloud.
- * Shepherd /download/ URLs often send Content-Disposition: attachment, which forces a download
- * when used as an iframe src. We fetch the file with the session cookie and show it via a blob:
- * URL so the browser renders PDFs/images inline instead of downloading.
+ * Prefer fetch → blob: URL so Content-Disposition: attachment does not force download in the iframe.
+ * Falls back to a direct shepherd iframe src (previous behavior) when fetch fails or is blocked.
+ * Load starts after a microtask so LightningModal.open() can apply @api values before we read ids.
  */
 export default class PortalFilePreviewModal extends LightningModal {
   @api headerLabel = "File preview";
@@ -20,12 +20,18 @@ export default class PortalFilePreviewModal extends LightningModal {
   @track loadError = false;
   @track errorMessage = "";
   @track previewObjectUrl = "";
+  /** Relative site path for iframe when blob preview is not used (legacy / resilient path). */
+  @track directShepherdSrc = "";
 
   /** @type {string|null} */
   _objectUrlToRevoke = null;
 
+  get iframeSrc() {
+    return this.previewObjectUrl || this.directShepherdSrc || "";
+  }
+
   get showIframe() {
-    return !this.loading && !this.loadError && Boolean(this.previewObjectUrl);
+    return !this.loading && !this.loadError && Boolean(this.iframeSrc);
   }
 
   get openInNewTabDisabled() {
@@ -37,7 +43,9 @@ export default class PortalFilePreviewModal extends LightningModal {
   }
 
   connectedCallback() {
-    void this._loadPreviewAsBlob();
+    Promise.resolve().then(() => {
+      void this._loadPreview();
+    });
   }
 
   disconnectedCallback() {
@@ -68,12 +76,19 @@ export default class PortalFilePreviewModal extends LightningModal {
     return "";
   }
 
-  _absoluteShepherdUrl() {
+  _relativeShepherdUrl() {
     const path = this._buildShepherdPath();
     if (!path || typeof window === "undefined") {
       return "";
     }
-    const relative = ensureSitePath(path, { currentPathname: window.location.pathname || "" });
+    return ensureSitePath(path, { currentPathname: window.location.pathname || "" });
+  }
+
+  _absoluteShepherdUrl() {
+    const relative = this._relativeShepherdUrl();
+    if (!relative || typeof window === "undefined") {
+      return "";
+    }
     try {
       return new URL(relative, window.location.origin).href;
     } catch {
@@ -106,70 +121,62 @@ export default class PortalFilePreviewModal extends LightningModal {
     );
   }
 
-  async _loadPreviewAsBlob() {
+  _useDirectIframeFallback() {
+    const rel = this._relativeShepherdUrl();
+    this.directShepherdSrc = rel || "";
+  }
+
+  async _loadPreview() {
     this.loading = true;
     this.loadError = false;
     this.errorMessage = "";
+    this.directShepherdSrc = "";
     this._revokeObjectUrl();
 
+    const relativeUrl = this._relativeShepherdUrl();
     const absoluteUrl = this._absoluteShepherdUrl();
-    if (!absoluteUrl) {
+
+    if (!relativeUrl || !absoluteUrl) {
       this.loading = false;
       this.loadError = true;
       this.errorMessage = "No file is available to preview.";
       return;
     }
 
-    if (!this._isAllowedPreviewUrl(absoluteUrl)) {
-      this.loading = false;
+    const tryBlob = this._isAllowedPreviewUrl(absoluteUrl);
+
+    if (tryBlob) {
+      try {
+        const response = await fetch(absoluteUrl, {
+          method: "GET",
+          credentials: "include",
+          redirect: "follow"
+        });
+
+        if (response.ok) {
+          const contentType = (response.headers.get("Content-Type") || "").toLowerCase();
+          if (!contentType.includes("text/html")) {
+            const blob = await response.blob();
+            if (blob && blob.size > 0 && blob.size <= MAX_PREVIEW_BYTES) {
+              const objectUrl = URL.createObjectURL(blob);
+              this._objectUrlToRevoke = objectUrl;
+              this.previewObjectUrl = objectUrl;
+              this.loading = false;
+              return;
+            }
+          }
+        }
+      } catch (e) {
+        console.error("portalFilePreviewModal: blob preview failed, using direct iframe", e);
+      }
+    }
+
+    this._useDirectIframeFallback();
+    if (!this.directShepherdSrc) {
       this.loadError = true;
       this.errorMessage = "Preview is not available for this file.";
-      return;
     }
-
-    try {
-      const response = await fetch(absoluteUrl, {
-        method: "GET",
-        credentials: "include",
-        redirect: "follow"
-      });
-
-      if (!response.ok) {
-        this.loadError = true;
-        this.errorMessage = `Could not load file (${response.status}).`;
-        return;
-      }
-
-      const contentType = (response.headers.get("Content-Type") || "").toLowerCase();
-      if (contentType.includes("text/html")) {
-        this.loadError = true;
-        this.errorMessage = "Preview could not be loaded. Try opening in a new tab.";
-        return;
-      }
-
-      const blob = await response.blob();
-      if (!blob || blob.size === 0) {
-        this.loadError = true;
-        this.errorMessage = "The file is empty or could not be read.";
-        return;
-      }
-
-      if (blob.size > MAX_PREVIEW_BYTES) {
-        this.loadError = true;
-        this.errorMessage = "This file is too large to preview here. Use Open in new tab.";
-        return;
-      }
-
-      const objectUrl = URL.createObjectURL(blob);
-      this._objectUrlToRevoke = objectUrl;
-      this.previewObjectUrl = objectUrl;
-    } catch (e) {
-      this.loadError = true;
-      this.errorMessage = "Preview could not be loaded. Try opening in a new tab.";
-      console.error("portalFilePreviewModal: fetch preview failed", e);
-    } finally {
-      this.loading = false;
-    }
+    this.loading = false;
   }
 
   handleOpenNewTab() {
