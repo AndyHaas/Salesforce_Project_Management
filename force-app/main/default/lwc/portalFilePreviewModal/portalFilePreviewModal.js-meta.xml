@@ -4,5 +4,5 @@
   <isExposed>false</isExposed>
   <masterLabel>Portal File Preview Modal</masterLabel>
   <description
-  >Imperative modal: iframe preview for Experience Cloud (standard filePreview navigation is not supported there).</description>
+  >Embedded modal: ContentDistribution preview URL for Experience Cloud (Portal Add-On pattern).</description>
 </LightningComponentBundle>

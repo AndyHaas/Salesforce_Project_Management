@@ -410,4 +410,36 @@ private class MessageFilesSupportTest {
     Message__c unchanged = [SELECT Deleted__c FROM Message__c WHERE Id = :msg.Id];
     System.assertEquals(false, unchanged.Deleted__c);
   }
+
+  @IsTest
+  static void getFilePreviewUrl_blankThrows() {
+    Boolean threw = false;
+    try {
+      MessageFilesSupport.getFilePreviewUrl('');
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assertEquals(true, threw, 'Blank version Id should throw');
+  }
+
+  @IsTest
+  static void getFilePreviewUrl_returnsDistributionPublicUrl() {
+    Account acc = new Account(Name = 'Preview URL Account');
+    insert acc;
+
+    ContentVersion cv = new ContentVersion(
+      Title = 'PreviewDoc',
+      PathOnClient = 'PreviewDoc.pdf',
+      VersionData = Blob.valueOf('PDFBYTES'),
+      FirstPublishLocationId = acc.Id
+    );
+    insert cv;
+
+    Test.startTest();
+    String url = MessageFilesSupport.getFilePreviewUrl(String.valueOf(cv.Id));
+    Test.stopTest();
+
+    System.assert(!String.isBlank(url), 'Distribution URL should be returned');
+    System.assert(url.startsWith('http'), 'Public URL expected');
+  }
 }

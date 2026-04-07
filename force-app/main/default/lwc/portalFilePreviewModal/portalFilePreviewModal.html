@@ -1,23 +1,65 @@
 <template>
-  <lightning-modal-header label={headerLabel}></lightning-modal-header>
-  <lightning-modal-body>
-    <template if:true={hasSrc}>
-      <iframe src={iframeSrc} class="portal-file-preview-iframe" title={headerLabel}></iframe>
-    </template>
-    <template if:false={hasSrc}>
-      <p class="slds-text-body_small slds-text-color_weak">No file is available to preview.</p>
-    </template>
-  </lightning-modal-body>
-  <lightning-modal-footer>
-    <lightning-button
-      class="slds-m-right_x-small"
-      variant="neutral"
-      label="Open in new tab"
-      title="Open in new tab"
-      onclick={handleOpenNewTab}
-      disabled={openInNewTabDisabled}
+  <template if:true={isOpen}>
+    <section
+      class="slds-modal slds-fade-in-open slds-modal_large portal-file-preview-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={headingId}
     >
-    </lightning-button>
-    <lightning-button variant="brand" label="Close" title="Close" onclick={handleClose}> </lightning-button>
-  </lightning-modal-footer>
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <lightning-button-icon
+            icon-name="utility:close"
+            alternative-text="Close preview"
+            variant="bare"
+            class="slds-modal__close"
+            onclick={closePreview}
+          ></lightning-button-icon>
+          <h2 id={headingId} class="slds-modal__title slds-hyphenate">
+            <lightning-formatted-text value={titleLabel}></lightning-formatted-text>
+          </h2>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium portal-file-preview-modal__body">
+          <template if:true={loading}>
+            <div class="slds-align_absolute-center slds-p-around_large">
+              <lightning-spinner alternative-text="Loading preview" size="medium"></lightning-spinner>
+            </div>
+          </template>
+          <template if:false={loading}>
+            <template if:true={previewUrl}>
+              <iframe class="portal-file-preview-iframe" src={previewUrl} title={titleLabel}></iframe>
+              <div
+                class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info slds-m-top_small portal-file-preview-embed-hint"
+                role="status"
+              >
+                <span class="slds-assistive-text">Information</span>
+                <div class="slds-notify__content slds-grid">
+                  <lightning-icon
+                    class="slds-m-right_x-small portal-file-preview-embed-hint-icon"
+                    icon-name="utility:info"
+                    alternative-text="Information"
+                    variant="inverse"
+                    size="x-small"
+                  ></lightning-icon>
+                  <p class="slds-col slds-align-middle slds-text-body_small">
+                    If the preview stays blank, your browser may block embedding. Use Open in new tab.
+                  </p>
+                </div>
+              </div>
+            </template>
+          </template>
+        </div>
+        <footer class="slds-modal__footer portal-file-preview-modal__footer">
+          <lightning-button
+            variant="neutral"
+            label="Open in new tab"
+            onclick={handleOpenInNewTab}
+            disabled={openInNewTabDisabled}
+          ></lightning-button>
+          <lightning-button variant="brand" label="Close" onclick={closePreview}></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open portal-file-preview-backdrop" onclick={handleBackdropClick}></div>
+  </template>
 </template>

@@ -231,6 +231,68 @@ public with sharing class MessageFilesSupport {
   }
 
   /**
+   * @description Returns a browser-viewable URL for a ContentVersion using ContentDistribution
+   * (matches Portal Add-On / Experience Cloud iframe preview — avoids shepherd download disposition in the modal).
+   *
+   * @param contentVersionId ContentVersion Id the user can read.
+   * @return Distribution public URL suitable for iframe or new tab.
+   */
+  @AuraEnabled(cacheable=false)
+  public static String getFilePreviewUrl(String contentVersionId) {
+    if (String.isBlank(contentVersionId)) {
+      throw new AuraHandledException('Content Version ID is required');
+    }
+
+    try {
+      Id verId = (Id) contentVersionId.trim();
+
+      List<ContentDistribution> existingDistributions = [
+        SELECT DistributionPublicUrl
+        FROM ContentDistribution
+        WHERE
+          ContentVersionId = :verId
+          AND PreferencesAllowViewInBrowser = TRUE
+        LIMIT 1
+      ];
+
+      if (!existingDistributions.isEmpty()) {
+        return existingDistributions[0].DistributionPublicUrl;
+      }
+
+      ContentDistribution dist = new ContentDistribution();
+      dist.ContentVersionId = verId;
+      dist.Name = 'Preview Distribution';
+      dist.PreferencesAllowViewInBrowser = true;
+      dist.PreferencesLinkLatestVersion = true;
+      dist.PreferencesAllowOriginalDownload = true;
+
+      insert dist;
+
+      ContentDistribution createdDist = [
+        SELECT DistributionPublicUrl
+        FROM ContentDistribution
+        WHERE Id = :dist.Id
+        LIMIT 1
+      ];
+
+      return createdDist.DistributionPublicUrl;
+    } catch (AuraHandledException e) {
+      throw e;
+    } catch (Exception e) {
+      System.debug(
+        LoggingLevel.ERROR,
+        'MessageFilesSupport.getFilePreviewUrl: ' +
+          e.getMessage() +
+          ' Type: ' +
+          e.getTypeName() +
+          ' Stack: ' +
+          e.getStackTraceString()
+      );
+      throw new AuraHandledException('Unable to open file preview. Please try again.');
+    }
+  }
+
+  /**
    * Soft-deletes a message (Deleted__c = true) after removing linked ContentDocument records.
    * Caller must be the message sender (Contact on User) or the user who created the row.
    *

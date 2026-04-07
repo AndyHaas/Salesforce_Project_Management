@@ -1,8 +1,8 @@
 import { LightningElement, api } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
 import getContentDocumentIdForVersionId from "@salesforce/apex/MessageFilesSupport.getContentDocumentIdForVersionId";
+import getLatestContentVersionIdsForDocuments from "@salesforce/apex/MessageFilesSupport.getLatestContentVersionIdsForDocuments";
 import { ensureSitePath, formatDateTime } from "c/portalCommon";
-import PortalFilePreviewModal from "c/portalFilePreviewModal";
 import { getFileIconName, formatFileSize } from "./portalFileAttachmentsUtils";
 
 /**
@@ -98,7 +98,7 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
   }
 
   /**
-   * Use in-modal shepherd iframe preview (portal). LEX uses standard filePreview navigation instead.
+   * Use in-modal ContentDistribution preview (portal; Portal Add-On pattern). LEX uses filePreview navigation.
    */
   get usePortalFilePreviewModal() {
     if (this._isExperienceCloudApi === true || this._isExperienceCloudApi === "true") {
@@ -204,26 +204,44 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
   }
 
   /**
-   * Experience Cloud: standard__namedPage filePreview is not supported — use modal + shepherd URL.
+   * Experience Cloud: filePreview navigation is not supported — use embedded modal + ContentDistribution URL (Portal Add-On).
    */
   async openPreviewForExperienceCloud(docIdEarly, versionId, previewTitle) {
-    let doc = docIdEarly;
-    if (!doc && versionId) {
-      doc = (await this.resolveDocumentIdForOpen("", versionId)) || "";
+    let ver = (versionId || "").trim();
+    const doc = (docIdEarly || "").trim();
+
+    if (!ver && doc) {
+      try {
+        const list = await getLatestContentVersionIdsForDocuments({
+          contentDocumentIds: [doc]
+        });
+        if (Array.isArray(list) && list.length > 0 && list[0]) {
+          ver = String(list[0]).trim();
+        }
+      } catch (e) {
+        console.error("portalFileAttachments: resolve version for preview failed", e);
+      }
     }
-    if (!doc && !versionId) {
+
+    if (!ver) {
+      this.openDocumentUrl(doc || null, (versionId || "").trim() || null);
       return;
     }
+
+    const modal = this.refs.filePreviewModal;
+    if (!modal || typeof modal.openPreview !== "function") {
+      this.openDocumentUrl(doc || null, ver);
+      return;
+    }
+
     try {
-      await PortalFilePreviewModal.open({
-        size: "large",
-        headerLabel: previewTitle,
-        contentDocumentId: doc || undefined,
-        contentVersionId: !doc && versionId ? versionId : undefined
+      await modal.openPreview({
+        contentVersionId: ver,
+        title: previewTitle
       });
     } catch (e) {
       console.error("portalFileAttachments: preview modal failed", e);
-      this.openDocumentUrl(doc || null, doc ? null : versionId);
+      this.openDocumentUrl(doc || null, ver);
     }
   }
 

@@ -1,8 +1,39 @@
+:host {
+  display: contents;
+}
+
+.portal-file-preview-modal.slds-modal {
+  z-index: 90000;
+}
+
+.portal-file-preview-backdrop {
+  z-index: 89999;
+}
+
+.portal-file-preview-modal__body {
+  min-height: 12rem;
+}
+
+.portal-file-preview-modal__footer.slds-modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .portal-file-preview-iframe {
-  display: block;
   width: 100%;
-  min-height: 65vh;
-  border: 1px solid var(--slds-g-color-border-base-1, #c9c9c9);
-  border-radius: 0.25rem;
-  background: var(--slds-g-color-neutral-base-100, #fff);
+  min-height: 70vh;
+  border: 0;
+  background: var(--slds-g-color-neutral-base-95, #f3f3f3);
+}
+
+.portal-file-preview-embed-hint {
+  width: 100%;
+  text-align: left;
+}
+
+.portal-file-preview-embed-hint-icon {
+  flex-shrink: 0;
 }
