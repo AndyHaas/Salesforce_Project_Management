@@ -232,7 +232,9 @@ public with sharing class MessageFilesSupport {
 
   /**
    * @description Returns a browser-viewable URL for a ContentVersion using ContentDistribution
-   * (matches Portal Add-On / Experience Cloud iframe preview — avoids shepherd download disposition in the modal).
+   * (Portal Add-On pattern). Confirms the running user can read the version (with sharing), then
+   * creates or reuses a distribution via {@link MessageFilesPreviewWorker} so Experience Cloud users
+   * are not blocked by missing ContentDistribution CRUD on the community profile.
    *
    * @param contentVersionId ContentVersion Id the user can read.
    * @return Distribution public URL suitable for iframe or new tab.
@@ -246,36 +248,17 @@ public with sharing class MessageFilesSupport {
     try {
       Id verId = (Id) contentVersionId.trim();
 
-      List<ContentDistribution> existingDistributions = [
-        SELECT DistributionPublicUrl
-        FROM ContentDistribution
-        WHERE
-          ContentVersionId = :verId
-          AND PreferencesAllowViewInBrowser = TRUE
+      List<ContentVersion> visibleToUser = [
+        SELECT Id
+        FROM ContentVersion
+        WHERE Id = :verId AND IsDeleted = FALSE
         LIMIT 1
       ];
-
-      if (!existingDistributions.isEmpty()) {
-        return existingDistributions[0].DistributionPublicUrl;
+      if (visibleToUser.isEmpty()) {
+        throw new AuraHandledException('File not found or not accessible.');
       }
 
-      ContentDistribution dist = new ContentDistribution();
-      dist.ContentVersionId = verId;
-      dist.Name = 'Preview Distribution';
-      dist.PreferencesAllowViewInBrowser = true;
-      dist.PreferencesLinkLatestVersion = true;
-      dist.PreferencesAllowOriginalDownload = true;
-
-      insert dist;
-
-      ContentDistribution createdDist = [
-        SELECT DistributionPublicUrl
-        FROM ContentDistribution
-        WHERE Id = :dist.Id
-        LIMIT 1
-      ];
-
-      return createdDist.DistributionPublicUrl;
+      return MessageFilesPreviewWorker.getDistributionPublicUrlForContentVersion(verId);
     } catch (AuraHandledException e) {
       throw e;
     } catch (Exception e) {
