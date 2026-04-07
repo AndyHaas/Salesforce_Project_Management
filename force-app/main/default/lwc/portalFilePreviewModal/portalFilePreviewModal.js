@@ -1,6 +1,7 @@
 import { LightningElement, api, track } from "lwc";
 import getFilePreviewUrl from "@salesforce/apex/MessageFilesSupport.getFilePreviewUrl";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
+import { openShepherdDownloadInNewTab } from "c/portalCommon";
 
 let titleIdSequence = 0;
 
@@ -16,6 +17,10 @@ export default class PortalFilePreviewModal extends LightningElement {
   @track loading = false;
   @track previewUrl;
   @track titleLabel = "File";
+
+  /** Shepherd fallback when ContentDistribution preview fails (permissions, etc.). */
+  _fallbackDocId;
+  _fallbackVersionId;
 
   _escapeCloseHandler = (e) => {
     if (e.key === "Escape") {
@@ -42,7 +47,7 @@ export default class PortalFilePreviewModal extends LightningElement {
   /**
    * Opens the modal and loads a browser-viewable URL for the ContentVersion.
    *
-   * @param {{ contentVersionId: string, title?: string }} config
+   * @param {{ contentVersionId: string, contentDocumentId?: string, title?: string }} config
    */
   @api
   async openPreview(config) {
@@ -51,6 +56,10 @@ export default class PortalFilePreviewModal extends LightningElement {
     if (!contentVersionId) {
       return;
     }
+
+    const doc = config?.contentDocumentId != null ? String(config.contentDocumentId).trim() : "";
+    this._fallbackDocId = doc || null;
+    this._fallbackVersionId = String(contentVersionId).trim();
 
     this.isOpen = true;
     this.loading = true;
@@ -70,6 +79,7 @@ export default class PortalFilePreviewModal extends LightningElement {
           variant: "error"
         })
       );
+      openShepherdDownloadInNewTab(this._fallbackDocId, this._fallbackVersionId);
       this.closePreview();
     } finally {
       this.loading = false;
@@ -86,6 +96,8 @@ export default class PortalFilePreviewModal extends LightningElement {
     this.loading = false;
     this.previewUrl = undefined;
     this.titleLabel = "File";
+    this._fallbackDocId = undefined;
+    this._fallbackVersionId = undefined;
   }
 
   /**

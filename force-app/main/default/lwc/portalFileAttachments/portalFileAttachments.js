@@ -237,6 +237,7 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
     try {
       await modal.openPreview({
         contentVersionId: ver,
+        contentDocumentId: doc || undefined,
         title: previewTitle
       });
     } catch (e) {

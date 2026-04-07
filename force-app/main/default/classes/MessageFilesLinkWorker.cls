@@ -241,12 +241,18 @@ public without sharing class MessageFilesLinkWorker {
       throw new AuraHandledException('Content Version ID is required');
     }
 
-    List<ContentDistribution> existingDistributions = [
-      SELECT DistributionPublicUrl
-      FROM ContentDistribution
-      WHERE ContentVersionId = :contentVersionId AND PreferencesAllowViewInBrowser = TRUE
-      LIMIT 1
-    ];
+    List<ContentDistribution> existingDistributions;
+    try {
+      existingDistributions = [
+        SELECT DistributionPublicUrl
+        FROM ContentDistribution
+        WHERE ContentVersionId = :contentVersionId AND PreferencesAllowViewInBrowser = TRUE
+        LIMIT 1
+      ];
+    } catch (QueryException qe) {
+      String m = String.isBlank(qe.getMessage()) ? 'Cannot query ContentDistribution.' : qe.getMessage();
+      throw new AuraHandledException(m);
+    }
 
     if (!existingDistributions.isEmpty()) {
       return existingDistributions[0].DistributionPublicUrl;
@@ -259,15 +265,28 @@ public without sharing class MessageFilesLinkWorker {
     dist.PreferencesLinkLatestVersion = true;
     dist.PreferencesAllowOriginalDownload = true;
 
-    insert dist;
+    try {
+      insert dist;
+    } catch (DmlException e) {
+      String m = e.getNumDml() > 0 ? e.getDmlMessage(0) : e.getMessage();
+      if (String.isBlank(m)) {
+        m =
+          'Could not create a view-in-browser link. Assign permission set Milestone Experience Cloud Portal Files (or grant Create and Read on ContentDistribution) to this user.';
+      }
+      throw new AuraHandledException(m);
+    }
 
-    ContentDistribution createdDist = [
-      SELECT DistributionPublicUrl
-      FROM ContentDistribution
-      WHERE Id = :dist.Id
-      LIMIT 1
-    ];
-
-    return createdDist.DistributionPublicUrl;
+    try {
+      ContentDistribution createdDist = [
+        SELECT DistributionPublicUrl
+        FROM ContentDistribution
+        WHERE Id = :dist.Id
+        LIMIT 1
+      ];
+      return createdDist.DistributionPublicUrl;
+    } catch (Exception e) {
+      String m = String.isBlank(e.getMessage()) ? 'Could not load distribution URL after create.' : e.getMessage();
+      throw new AuraHandledException(m);
+    }
   }
 }

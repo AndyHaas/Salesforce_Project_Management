@@ -233,8 +233,10 @@ public with sharing class MessageFilesSupport {
   /**
    * @description Returns a browser-viewable URL for a ContentVersion using ContentDistribution
    * (Portal Add-On pattern). Confirms the running user can read the version (with sharing), then
-   * creates or reuses a distribution via {@link MessageFilesLinkWorker} so Experience Cloud users
-   * are not blocked by missing ContentDistribution CRUD on the community profile.
+   * creates or reuses a distribution via {@link MessageFilesLinkWorker}. The worker runs without
+   * sharing for SOQL/DML row visibility, but the running user still needs profile or permission-set
+   * CRUD: Read on ContentVersion, and Create and Read on ContentDistribution (see permission set
+   * Milestone_Experience_Cloud_Portal_Files).
    *
    * @param contentVersionId ContentVersion Id the user can read.
    * @return Distribution public URL suitable for iframe or new tab.

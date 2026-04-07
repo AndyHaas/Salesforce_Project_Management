@@ -39,7 +39,8 @@ When `c-portal-file-attachments` runs on an **Experience Cloud** site, file name
 
 **Setup checklist for portal users**
 
-- Grant the Experience Cloud **member profile** (or guest profile, if applicable) **Apex class access** to **`MessageFilesSupport`** (and any other `@AuraEnabled` classes your page components call). **`MessageFilesLinkWorker`** is server-only (no separate enablement).
+- Assign permission set **`Milestone_Experience_Cloud_Portal_Files`** to portal users (or merge its settings into your existing portal permission set). It grants **Apex** access to **`MessageFilesSupport`**, **Read** on **`ContentDocument`** / **`ContentVersion`**, and **Create** + **Read** on **`ContentDistribution`**. Without **Create on ContentDistribution**, `getFilePreviewUrl` cannot insert a distribution; `without sharing` does not bypass object CRUD.
+- Alternatively, enable the same **Apex class** and **object permissions** on the Experience Cloud **member** or **guest** profile under **Public Access Settings**.
 - Prefer file rows that include **`contentVersionId`**; if only **`contentDocumentId`** is present, core resolves the latest version via **`getLatestContentVersionIdsForDocuments`**.
 - **`c-file-manager`** can set **`is-experience-cloud`** when the site URL does not contain `/s/` so preview still uses the modal instead of unsupported LEX **`filePreview`** navigation.
 - Fallback for errors or blocked iframes: **Open in new tab** uses shepherd download URLs via **`portalCommon.openShepherdDownloadInNewTab`**.
@@ -63,6 +64,7 @@ Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** an
 
 | API name                         | Typical users                                    |
 | -------------------------------- | ------------------------------------------------ |
+| `Milestone_Experience_Cloud_Portal_Files` | Experience Cloud members/guests using **`c-portal-file-preview-modal`** / **`getFilePreviewUrl`**. |
 | `Project_Management_User`        | Internal user, limited access.                   |
 | `Project_Management_Team_Member` | Internal delivery team.                          |
 | `Project_Management_Manager`     | Managers (view-all style patterns per metadata). |
