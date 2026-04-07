@@ -94,7 +94,7 @@ public without sharing class MessagingController {
    */
   private static User getCurrentUserWithContactFields() {
     return [
-      SELECT Id, ContactId, AccountId, Name, Email, Messaging_Sender_Contact_Id__c
+      SELECT Id, ContactId, AccountId, Name, Email
       FROM User
       WHERE Id = :UserInfo.getUserId()
       LIMIT 1
@@ -380,31 +380,13 @@ public without sharing class MessagingController {
   }
 
   /**
-   * @description Resolve Contact for Message__c.Sender__c: portal users use ContactId; internal users use
-   * Messaging_Sender_Contact_Id__c when set, otherwise create a Contact and store its Id on the User.
-   * @param user User row including ContactId and Messaging_Sender_Contact_Id__c
+   * @description Resolve Contact for Message__c.Sender__c: use User.ContactId when set; otherwise create a Contact.
+   * @param user User row including ContactId, Name, Email
    * @return Contact Id to use as sender
    */
   private static Id getOrCreateContactForUser(User user) {
     if (user.ContactId != null) {
       return user.ContactId;
-    }
-
-    if (String.isNotBlank(user.Messaging_Sender_Contact_Id__c)) {
-      try {
-        Id storedContactId = (Id) user.Messaging_Sender_Contact_Id__c.trim();
-        List<Contact> linked = [
-          SELECT Id
-          FROM Contact
-          WHERE Id = :storedContactId
-          LIMIT 1
-        ];
-        if (!linked.isEmpty()) {
-          return linked[0].Id;
-        }
-      } catch (Exception ignore) {
-        // Invalid stored Id — fall through to create
-      }
     }
 
     Contact newContact = new Contact();
@@ -421,21 +403,7 @@ public without sharing class MessagingController {
 
     insert newContact;
 
-    // User is treated as setup for DML mixing rules — avoid MIXED_DML with Contact insert
-    persistMessagingSenderContactId(user.Id, String.valueOf(newContact.Id));
-
     return newContact.Id;
-  }
-
-  /**
-   * @description Stores sender Contact Id on User in a separate async transaction (avoids MIXED_DML with Contact).
-   */
-  @future
-  private static void persistMessagingSenderContactId(Id userId, String contactIdStr) {
-    if (userId == null || String.isBlank(contactIdStr)) {
-      return;
-    }
-    update new User(Id = userId, Messaging_Sender_Contact_Id__c = contactIdStr.trim());
   }
 
   /**
@@ -902,7 +870,7 @@ public without sharing class MessagingController {
     try {
       // User / Message queries omit WITH SECURITY_ENFORCED for portal compatibility (field access varies by profile).
       User currentUser = [
-        SELECT Id, ContactId, AccountId, Name, Email, Messaging_Sender_Contact_Id__c
+        SELECT Id, ContactId, AccountId, Name, Email
         FROM User
         WHERE Id = :UserInfo.getUserId()
         LIMIT 1
@@ -1178,7 +1146,7 @@ public without sharing class MessagingController {
     try {
       // Get current user (need Name and Email for Contact creation if needed)
       User currentUser = [
-        SELECT Id, ContactId, Name, Email, Messaging_Sender_Contact_Id__c
+        SELECT Id, ContactId, Name, Email
         FROM User
         WHERE Id = :UserInfo.getUserId()
         LIMIT 1
@@ -1285,7 +1253,7 @@ public without sharing class MessagingController {
     try {
       // Get current user (need Name and Email for Contact creation if needed)
       User currentUser = [
-        SELECT Id, ContactId, Name, Email, Messaging_Sender_Contact_Id__c
+        SELECT Id, ContactId, Name, Email
         FROM User
         WHERE Id = :UserInfo.getUserId()
         LIMIT 1

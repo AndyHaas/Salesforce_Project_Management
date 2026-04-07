@@ -195,27 +195,17 @@ private class MessagingControllerTest {
     );
     Test.stopTest();
 
-    // Verify Contact was created and linked on User (no ambiguous email match)
-    List<Contact> createdContacts = [
-      SELECT Id, FirstName, LastName, Email
-      FROM Contact
-      WHERE Email = :currentUser.Email
-    ];
-    System.assert(!createdContacts.isEmpty(), 'Contact should be created for Milestone team member');
-
-    User userAfter = [
-      SELECT Messaging_Sender_Contact_Id__c
-      FROM User
-      WHERE Id = :currentUser.Id
-    ];
-    System.assertEquals(
-      String.valueOf(createdContacts[0].Id),
-      userAfter.Messaging_Sender_Contact_Id__c,
-      'User should store Messaging_Sender_Contact_Id__c after first send'
-    );
-
     Message__c message = [SELECT Id, Sender__c FROM Message__c WHERE Id = :messageId];
-    System.assertEquals(createdContacts[0].Id, message.Sender__c, 'Message should use created Contact');
+    System.assertNotEquals(null, message.Sender__c, 'Message should have a sender Contact');
+
+    List<Contact> senderRows = [
+      SELECT Id, Email
+      FROM Contact
+      WHERE Id = :message.Sender__c
+      LIMIT 1
+    ];
+    System.assertEquals(1, senderRows.size(), 'Sender Contact should exist');
+    System.assertEquals(currentUser.Email, senderRows[0].Email, 'Sender Contact should match user email');
   }
 
   @isTest
