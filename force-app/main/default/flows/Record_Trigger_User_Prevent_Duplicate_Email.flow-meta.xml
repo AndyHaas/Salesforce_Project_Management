@@ -93,7 +93,7 @@
         </rules>
     </decisions>
     <description
-  >Before save on User: blocks create/update when another user has the same email. Compares using LOWER(TRIM($Record.Email)) to the User.Email field (case-insensitive match is typical in Salesforce; leading/trailing spaces on existing users may not match). Fault path returns a generic error if the duplicate lookup fails.</description>
+  >Before save on User: blocks create/update when another user has the same email. Entry uses a formula so the flow runs on insert with Email set (Is Changed alone does not evaluate true on create) and on update when Email changes. Compares using LOWER(TRIM($Record.Email)) to User.Email. Fault path returns a generic error if the duplicate lookup fails.</description>
     <formulas>
         <name>form_txt_NormalizedEmail</name>
         <dataType>String</dataType>
@@ -185,21 +185,8 @@
         <connector>
             <targetReference>Is_record_new</targetReference>
         </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Email</field>
-            <operator>IsNull</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <filters>
-            <field>Email</field>
-            <operator>IsChanged</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </filters>
+        <filterFormula
+    >AND(NOT(ISBLANK({!$Record.Email})),OR(ISBLANK({!$Record__Prior.Id}),{!$Record.Email} &lt;&gt; {!$Record__Prior.Email}))</filterFormula>
         <object>User</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordBeforeSave</triggerType>
