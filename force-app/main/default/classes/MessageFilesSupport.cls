@@ -68,21 +68,32 @@ public with sharing class MessageFilesSupport {
       return rows;
     }
 
-    List<ContentDocumentLink> links = [
-      SELECT
-        LinkedEntityId,
-        ContentDocumentId,
-        ContentDocument.Title,
-        ContentDocument.FileExtension,
-        ContentDocument.ContentSize,
-        ContentDocument.CreatedDate,
-        ContentDocument.CreatedBy.Id,
-        ContentDocument.CreatedBy.Name,
-        ContentDocument.LatestPublishedVersionId
-      FROM ContentDocumentLink
-      WHERE LinkedEntityId IN :messageIds AND IsDeleted = FALSE
-      ORDER BY ContentDocument.Title ASC
-    ];
+    List<ContentDocumentLink> links;
+    try {
+      links = [
+        SELECT
+          LinkedEntityId,
+          ContentDocumentId,
+          ContentDocument.Title,
+          ContentDocument.FileExtension,
+          ContentDocument.ContentSize,
+          ContentDocument.CreatedDate,
+          ContentDocument.CreatedBy.Id,
+          ContentDocument.CreatedBy.Name,
+          ContentDocument.LatestPublishedVersionId
+        FROM ContentDocumentLink
+        WHERE LinkedEntityId IN :messageIds AND IsDeleted = FALSE
+        ORDER BY ContentDocument.Title ASC
+      ];
+    } catch (Exception e) {
+      // Experience Cloud users without ContentDocument / ContentDocumentLink read hit QueryException;
+      // return no rows so the thread still loads (attachments empty). Grant file object read for full behavior.
+      System.debug(
+        LoggingLevel.WARN,
+        'MessageFilesSupport.loadMessageAttachmentLinks: ' + e.getMessage() + ' — ' + e.getStackTraceString()
+      );
+      return rows;
+    }
 
     for (ContentDocumentLink link : links) {
       if (link.ContentDocumentId == null) {

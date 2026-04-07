@@ -96,7 +96,7 @@ public with sharing class MessagingPinnedSupport {
       rows = milestone ? queryPinnedForAccount(accountId) : queryPinnedForAccountClientVisible(accountId);
     }
 
-    return toRows(rows);
+    return toRows(rows, milestone);
   }
 
   private static Id parseId(String value) {
@@ -121,7 +121,8 @@ public with sharing class MessagingPinnedSupport {
         Sender__c,
         Sender__r.Name,
         Is_Pinned__c,
-        Is_Read__c,
+        Is_Read_By_Client__c,
+        Is_Read_By_Milestone_Team__c,
         Is_Edited__c,
         Related_Task__c,
         Related_Task__r.Name,
@@ -155,7 +156,8 @@ public with sharing class MessagingPinnedSupport {
         Sender__c,
         Sender__r.Name,
         Is_Pinned__c,
-        Is_Read__c,
+        Is_Read_By_Client__c,
+        Is_Read_By_Milestone_Team__c,
         Is_Edited__c,
         Related_Task__c,
         Related_Task__r.Name,
@@ -189,7 +191,8 @@ public with sharing class MessagingPinnedSupport {
         Sender__c,
         Sender__r.Name,
         Is_Pinned__c,
-        Is_Read__c,
+        Is_Read_By_Client__c,
+        Is_Read_By_Milestone_Team__c,
         Is_Edited__c,
         Related_Task__c,
         Related_Task__r.Name,
@@ -223,7 +226,8 @@ public with sharing class MessagingPinnedSupport {
         Sender__c,
         Sender__r.Name,
         Is_Pinned__c,
-        Is_Read__c,
+        Is_Read_By_Client__c,
+        Is_Read_By_Milestone_Team__c,
         Is_Edited__c,
         Related_Task__c,
         Related_Task__r.Name,
@@ -261,7 +265,8 @@ public with sharing class MessagingPinnedSupport {
         Sender__c,
         Sender__r.Name,
         Is_Pinned__c,
-        Is_Read__c,
+        Is_Read_By_Client__c,
+        Is_Read_By_Milestone_Team__c,
         Is_Edited__c,
         Related_Task__c,
         Related_Task__r.Name,
@@ -295,7 +300,8 @@ public with sharing class MessagingPinnedSupport {
         Sender__c,
         Sender__r.Name,
         Is_Pinned__c,
-        Is_Read__c,
+        Is_Read_By_Client__c,
+        Is_Read_By_Milestone_Team__c,
         Is_Edited__c,
         Related_Task__c,
         Related_Task__r.Name,
@@ -318,11 +324,15 @@ public with sharing class MessagingPinnedSupport {
     ];
   }
 
-  private static List<MessageRow> toRows(List<Message__c> rows) {
+  /**
+   * @param isMilestoneTeamMember When true (internal viewer), {@code Is_Read_By_Milestone_Team__c}; otherwise {@code Is_Read_By_Client__c}, matching {@link MessagingController#getMessages}.
+   */
+  private static List<MessageRow> toRows(List<Message__c> rows, Boolean isMilestoneTeamMember) {
     List<MessageRow> out = new List<MessageRow>();
     if (rows == null || rows.isEmpty()) {
       return out;
     }
+    Boolean milestone = isMilestoneTeamMember == true;
     for (Message__c msg : rows) {
       MessageRow row = new MessageRow();
       row.id = String.valueOf(msg.Id);
@@ -333,7 +343,11 @@ public with sharing class MessagingPinnedSupport {
       row.senderId = msg.Sender__c != null ? String.valueOf(msg.Sender__c) : null;
       row.senderName = msg.Sender__r != null ? msg.Sender__r.Name : null;
       row.isPinned = msg.Is_Pinned__c == true;
-      row.isRead = msg.Is_Read__c == true;
+      if (milestone) {
+        row.isRead = msg.Is_Read_By_Milestone_Team__c != null ? msg.Is_Read_By_Milestone_Team__c : false;
+      } else {
+        row.isRead = msg.Is_Read_By_Client__c != null ? msg.Is_Read_By_Client__c : false;
+      }
       row.isEdited = msg.Is_Edited__c == true;
       row.relatedTaskId = msg.Related_Task__c != null ? String.valueOf(msg.Related_Task__c) : null;
       row.relatedTaskName = msg.Related_Task__r != null ? msg.Related_Task__r.Name : null;
