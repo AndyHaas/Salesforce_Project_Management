@@ -28,6 +28,13 @@
             </value>
         </inputParameters>
         <inputParameters>
+            <name>senderType</name>
+            <value>
+                <inputConfiguratorMode>Custom</inputConfiguratorMode>
+                <stringValue>DefaultWorkflowUser</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
             <name>useEmailTemplate</name>
             <value>
                 <stringValue>True</stringValue>
@@ -75,7 +82,7 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactProjectManagerId</elementReference>
+                <elementReference>form_txt_ContactProjectManagerId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -135,7 +142,7 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactProjectManagerId</elementReference>
+                <elementReference>form_txt_ContactProjectManagerId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -195,7 +202,7 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactProjectManagerId</elementReference>
+                <elementReference>form_txt_ContactProjectManagerId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -255,7 +262,7 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactProjectManagerId</elementReference>
+                <elementReference>form_txt_ContactProjectManagerId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -285,7 +292,7 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactProjectManagerId</elementReference>
+                <elementReference>form_txt_ContactProjectManagerId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -315,7 +322,7 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactProjectManagerId</elementReference>
+                <elementReference>form_txt_ContactProjectManagerId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -345,7 +352,7 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactProjectManagerId</elementReference>
+                <elementReference>form_txt_ContactProjectManagerId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -465,7 +472,7 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactProjectManagerId</elementReference>
+                <elementReference>form_txt_ContactProjectManagerId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -525,7 +532,7 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactProjectManagerId</elementReference>
+                <elementReference>form_txt_ContactProjectManagerId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -555,7 +562,7 @@
             <assignToReference>txt_ContactRecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>txt_ContactProjectManagerId</elementReference>
+                <elementReference>form_txt_ContactProjectManagerId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -1548,7 +1555,7 @@
             <label>Release Notes Released</label>
         </rules>
     </decisions>
-    <description>V2: Reject rollbacks use formulas Assign_Project_Task_Rollback_Reject_Fields; PM code reviewer flags unchanged.</description>
+    <description>V5: Same logic as V4. Added SystemModeWithoutSharing so Get_Email_Template and recipient formulas are not limited by the triggering portal user. V4 unchanged in source; deploy and cut over (deactivate V4, activate V5) manually.</description>
     <environments>Default</environments>
     <formulas>
         <name>form_bool_SubmissionStatusNone</name>
@@ -1598,6 +1605,11 @@
         <name>form_txt_ContactDeveloperId</name>
         <dataType>String</dataType>
         <expression>{!$Record.Developer__r.Id}</expression>
+    </formulas>
+    <formulas>
+        <name>form_txt_ContactProjectManagerId</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Project_Manager__r.Id}</expression>
     </formulas>
     <formulas>
         <name>form_txt_DeveloperEmail</name>
@@ -1704,13 +1716,8 @@
   )
 )</expression>
     </formulas>
-    <formulas>
-        <name>txt_ContactProjectManagerId</name>
-        <dataType>String</dataType>
-        <expression>{!$Record.Project_Manager__r.Id}</expression>
-    </formulas>
-    <interviewLabel>Record Trigger - Project Task - Update Submission Status V4 {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Record Trigger - Project Task - Update Submission Status V4</label>
+    <interviewLabel>Record Trigger - Project Task - Update Submission Status V5 {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Record Trigger - Project Task - Update Submission Status V5</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -1768,6 +1775,7 @@
         <locationY>0</locationY>
         <inputReference>rec_ProjectTask</inputReference>
     </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
@@ -1786,7 +1794,7 @@
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>rec_LightningTemplate</name>
         <dataType>SObject</dataType>
