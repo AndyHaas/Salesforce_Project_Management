@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
-  <description>Assign to Experience Cloud member (or guest) users who use portal file preview. Grants Apex access to MessageFilesSupport, read on file objects, and create/read on ContentDistribution so getFilePreviewUrl can insert or reuse a view-in-browser distribution. Merge these settings into your existing portal permission set if preferred.</description>
+  <description>Portal file preview: MessageFilesSupport Apex, read on file objects, create/read ContentDistribution for getFilePreviewUrl. Merge into your portal permission set if preferred.</description>
   <hasActivationRequired>false</hasActivationRequired>
   <label>Milestone Experience Cloud Portal Files</label>
   <classAccesses>
