@@ -2,6 +2,7 @@ import { LightningElement, api, track, wire } from "lwc";
 import { refreshApex } from "@salesforce/apex";
 import getFilesForLinkedRecord from "@salesforce/apex/TaskContextController.getFilesForLinkedRecord";
 import { splitFileNameForPortalRow } from "c/portalCommon";
+import PortalFileListModal from "c/portalFileListModal";
 
 /**
  * Clone uploadfinished file entries to plain objects (Locker / proxy-safe) and normalize property names.
@@ -58,6 +59,15 @@ export default class FileManager extends LightningElement {
 
   /** For variant=list: rows like MessageFilesSupport.FileRow */
   @api fileRows;
+
+  /**
+   * list variant only: show at most this many files inline; remainder via "View more" + modal.
+   * Omit, 0, or invalid = show all (no footer).
+   */
+  @api listMaxVisibleFiles;
+
+  /** list variant: modal title when opening the full file list */
+  @api listOverflowModalTitle = "All attachments";
 
   @api cardTitle = "Files";
 
@@ -188,6 +198,60 @@ export default class FileManager extends LightningElement {
 
   get hasDisplayFiles() {
     return this.displayFileRows.length > 0;
+  }
+
+  get listMaxVisibleEffective() {
+    if (!this.isListVariant) {
+      return 0;
+    }
+    const v = this.listMaxVisibleFiles;
+    if (v === undefined || v === null || v === "" || v === false) {
+      return 0;
+    }
+    const n = typeof v === "number" ? v : parseInt(String(v), 10);
+    return !isNaN(n) && n > 0 ? n : 0;
+  }
+
+  get showListFileViewMoreFooter() {
+    const max = this.listMaxVisibleEffective;
+    return this.isListVariant && max > 0 && this.displayFileRows.length > max;
+  }
+
+  get listVisibleFileRows() {
+    const all = this.displayFileRows;
+    const max = this.listMaxVisibleEffective;
+    if (!this.isListVariant || max <= 0 || all.length <= max) {
+      return all;
+    }
+    return all.slice(0, max);
+  }
+
+  get listViewMoreLabel() {
+    const max = this.listMaxVisibleEffective;
+    const total = this.displayFileRows.length;
+    const extra = total - max;
+    if (extra <= 0) {
+      return "View more";
+    }
+    return `View ${extra} more`;
+  }
+
+  async handleOpenFileListOverflowModal() {
+    if (!this.isListVariant || !this.showListFileViewMoreFooter) {
+      return;
+    }
+    try {
+      await PortalFileListModal.open({
+        size: "medium",
+        headerLabel: this.listOverflowModalTitle || "All attachments",
+        fileRows: Array.isArray(this.displayFileRows) ? [...this.displayFileRows] : [],
+        showPreview: this.showPreview,
+        showDownload: this.showDownload,
+        showDelete: this.showDelete
+      });
+    } catch (e) {
+      console.error("fileManager file list modal:", JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
+    }
   }
 
   get showRecordUpload() {

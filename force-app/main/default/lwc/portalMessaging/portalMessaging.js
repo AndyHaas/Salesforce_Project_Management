@@ -24,7 +24,7 @@
  *
  * Compose and file upload live in c/portalMessageComposeModal (LightningModal) so Experience Cloud stacks
  * platform file dialogs correctly. After send, files link to Message__c and the host record as before.
- * Message attachment rows use c-file-manager variant=list; compose uses variant=composer inside that modal.
+ * Message attachments: c-file-manager variant=list (5 inline + View more modal); compose uses variant=composer in modal.
  * Portal Add-On does not duplicate those flows—only Core ships portalMessageComposeModal and this component.
  */
 

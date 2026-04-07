@@ -57,12 +57,24 @@
         <template if:true={hasDisplayFiles}>
           <div class={listSpacingClass}>
             <c-portal-file-attachments
-              files={displayFileRows}
+              files={listVisibleFileRows}
               show-preview={showPreview}
               show-download={showDownload}
               show-delete={showDelete}
             >
             </c-portal-file-attachments>
+            <template if:true={showListFileViewMoreFooter}>
+              <div class="file-manager__list-overflow-footer slds-m-top_x-small slds-border_top slds-p-top_x-small">
+                <lightning-button
+                  variant="base"
+                  label={listViewMoreLabel}
+                  title={listViewMoreLabel}
+                  class="file-manager__view-more"
+                  onclick={handleOpenFileListOverflowModal}
+                >
+                </lightning-button>
+              </div>
+            </template>
           </div>
         </template>
         <template if:true={showEmptyRecordHint}>

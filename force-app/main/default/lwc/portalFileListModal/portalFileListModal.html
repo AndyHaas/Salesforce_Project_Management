@@ -1,0 +1,15 @@
+<template>
+  <lightning-modal-header label={headerLabel}> </lightning-modal-header>
+  <lightning-modal-body>
+    <c-portal-file-attachments
+      files={fileRows}
+      show-preview={showPreview}
+      show-download={showDownload}
+      show-delete={showDelete}
+    >
+    </c-portal-file-attachments>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <lightning-button variant="neutral" label="Close" title="Close" onclick={handleClose}> </lightning-button>
+  </lightning-modal-footer>
+</template>

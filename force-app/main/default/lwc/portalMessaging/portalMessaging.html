@@ -293,6 +293,8 @@
                         <c-file-manager
                           variant="list"
                           file-rows={message.attachmentFiles}
+                          list-max-visible-files="5"
+                          list-overflow-modal-title="All attachments"
                           show-preview={messageAttachmentShowPreview}
                           show-download={messageAttachmentShowDownload}
                           show-delete={messageAttachmentShowDelete}

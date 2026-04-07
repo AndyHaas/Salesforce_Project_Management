@@ -34,6 +34,19 @@
       <property name="showPreview" type="Boolean" label="Show preview link" default="true" />
       <property name="showDownload" type="Boolean" label="Show download" default="true" />
       <property name="showDelete" type="Boolean" label="Show remove (composer pending / optional)" default="false" />
+      <property
+        name="listMaxVisibleFiles"
+        type="Integer"
+        label="List: max visible files (0 = all)"
+        description="list variant only. Extra files open in a View more modal."
+        default="0"
+      />
+      <property
+        name="listOverflowModalTitle"
+        type="String"
+        label="List: modal title for all files"
+        default="All attachments"
+      />
     </targetConfig>
   </targetConfigs>
 </LightningComponentBundle>
