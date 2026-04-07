@@ -48,6 +48,13 @@ private class MessageFilesSupportTest {
     System.assertEquals(1, rows[0].files.size());
     System.assertEquals(String.valueOf(docId), rows[0].files[0].contentDocumentId);
     System.assertEquals('Spec', rows[0].files[0].title);
+
+    List<MessageFilesSupport.AttachmentLinkRow> raw = MessageFilesSupport.loadMessageAttachmentLinks(
+      new Set<Id>{ msg.Id }
+    );
+    System.assertEquals(1, raw.size(), 'Shared loader returns same attachment count');
+    System.assertEquals(msg.Id, raw[0].linkedEntityId);
+    System.assertEquals(String.valueOf(docId), String.valueOf(raw[0].contentDocumentId));
   }
 
   @IsTest

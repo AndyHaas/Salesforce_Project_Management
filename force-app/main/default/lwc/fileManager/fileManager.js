@@ -4,11 +4,14 @@ import getFilesForLinkedRecord from "@salesforce/apex/TaskContextController.getF
 import { splitFileNameForPortalRow } from "c/portalCommon";
 
 /**
- * Unified file list + optional upload for records, static rows (e.g. message attachments),
- * or composer pending uploads (lightning-file-upload + removable list).
+ * Unified file list + optional upload.
+ *
+ * Packaging: Portal Add-On should embed this with variant "record" only (project/task/account files).
+ * variant "list" and "composer" are reserved for Core messaging: c-portal-messaging and
+ * c-portal-message-compose-modal. The add-on does not ship portalMessageComposeModal.
  */
 export default class FileManager extends LightningElement {
-  /** "record" | "list" | "composer" */
+  /** "record" | "list" | "composer" — Experience Cloud App Builder exposes record only; list/composer set in Core LWCs. */
   @api variant = "record";
 
   @api recordId;

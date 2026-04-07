@@ -2,6 +2,7 @@
  * Single integration point for Message__c file attachments (ContentDocumentLink).
  * Portal and internal UIs should use {@link #getFilesForMessages} instead of duplicating
  * ContentDocument SOQL on Message__c or embedding file payloads in message DTOs.
+ * All message-attachment reads share {@link #loadMessageAttachmentLinks}.
  * After upload, {@link #linkFilesToMessageAndContext} links files to the message and optionally
  * to the host Account, Project__c, or Project_Task__c for Files related lists (via
  * {@link MessageFilesLinkWorker} without sharing so Experience Cloud users can complete links).
@@ -33,6 +34,70 @@ public with sharing class MessageFilesSupport {
   }
 
   /**
+   * Server-only projection of ContentDocumentLink rows for Message__c attachments.
+   * Populated by {@link #loadMessageAttachmentLinks}; not exposed to LWC directly.
+   */
+  public class AttachmentLinkRow {
+    public Id linkedEntityId;
+    public Id contentDocumentId;
+    public String title;
+    public String fileExtension;
+    public Long contentSize;
+    public Datetime createdDate;
+    public Id createdById;
+    public String createdByName;
+    public Id latestPublishedVersionId;
+  }
+
+  /**
+   * Single SOQL for files linked to one or more messages. Used by {@link #getFilesForMessages}
+   * and by {@link MessagingController#getMessageFiles}.
+   *
+   * @param messageIds Message__c Ids (empty set returns empty list).
+   * @return Rows ordered by document title (stable portal list order).
+   */
+  public static List<AttachmentLinkRow> loadMessageAttachmentLinks(Set<Id> messageIds) {
+    List<AttachmentLinkRow> rows = new List<AttachmentLinkRow>();
+    if (messageIds == null || messageIds.isEmpty()) {
+      return rows;
+    }
+
+    List<ContentDocumentLink> links = [
+      SELECT
+        LinkedEntityId,
+        ContentDocumentId,
+        ContentDocument.Title,
+        ContentDocument.FileExtension,
+        ContentDocument.ContentSize,
+        ContentDocument.CreatedDate,
+        ContentDocument.CreatedBy.Id,
+        ContentDocument.CreatedBy.Name,
+        ContentDocument.LatestPublishedVersionId
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId IN :messageIds AND IsDeleted = FALSE
+      ORDER BY ContentDocument.Title ASC
+    ];
+
+    for (ContentDocumentLink link : links) {
+      if (link.ContentDocumentId == null) {
+        continue;
+      }
+      AttachmentLinkRow r = new AttachmentLinkRow();
+      r.linkedEntityId = link.LinkedEntityId;
+      r.contentDocumentId = link.ContentDocumentId;
+      r.title = link.ContentDocument.Title;
+      r.fileExtension = link.ContentDocument.FileExtension;
+      r.contentSize = link.ContentDocument.ContentSize;
+      r.createdDate = link.ContentDocument.CreatedDate;
+      r.createdById = link.ContentDocument.CreatedBy?.Id;
+      r.createdByName = link.ContentDocument.CreatedBy?.Name;
+      r.latestPublishedVersionId = link.ContentDocument.LatestPublishedVersionId;
+      rows.add(r);
+    }
+    return rows;
+  }
+
+  /**
    * Returns attachment rows for messages that have at least one linked ContentDocument.
    * Messages with no links do not appear in the result; callers merge by message Id.
    *
@@ -61,34 +126,21 @@ public with sharing class MessageFilesSupport {
       return results;
     }
 
-    List<ContentDocumentLink> links = [
-      SELECT
-        LinkedEntityId,
-        ContentDocumentId,
-        ContentDocument.Title,
-        ContentDocument.FileExtension,
-        ContentDocument.LatestPublishedVersionId
-      FROM ContentDocumentLink
-      WHERE LinkedEntityId IN :idSet AND IsDeleted = FALSE
-      ORDER BY ContentDocument.Title ASC
-    ];
+    List<AttachmentLinkRow> linkRows = loadMessageAttachmentLinks(idSet);
 
     Map<Id, List<FileRow>> byMessage = new Map<Id, List<FileRow>>();
-    for (ContentDocumentLink link : links) {
-      if (link.ContentDocumentId == null) {
-        continue;
-      }
-      Id msgId = link.LinkedEntityId;
+    for (AttachmentLinkRow ar : linkRows) {
+      Id msgId = ar.linkedEntityId;
       if (!byMessage.containsKey(msgId)) {
         byMessage.put(msgId, new List<FileRow>());
       }
       FileRow row = new FileRow();
-      row.contentDocumentId = String.valueOf(link.ContentDocumentId);
-      row.contentVersionId = link.ContentDocument.LatestPublishedVersionId != null
-        ? String.valueOf(link.ContentDocument.LatestPublishedVersionId)
+      row.contentDocumentId = String.valueOf(ar.contentDocumentId);
+      row.contentVersionId = ar.latestPublishedVersionId != null
+        ? String.valueOf(ar.latestPublishedVersionId)
         : null;
-      row.title = link.ContentDocument.Title;
-      row.fileExtension = link.ContentDocument.FileExtension;
+      row.title = ar.title;
+      row.fileExtension = ar.fileExtension;
       byMessage.get(msgId).add(row);
     }
 

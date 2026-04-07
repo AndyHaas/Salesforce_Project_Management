@@ -1444,7 +1444,7 @@ public without sharing class MessagingController {
   }
 
   /**
-   * @description Get files linked to a message
+   * @description Get files linked to a message (same underlying query as {@link MessageFilesSupport#getFilesForMessages}).
    * @param messageId The message ID
    * @return List of FileInfo objects
    */
@@ -1454,36 +1454,31 @@ public without sharing class MessagingController {
       return new List<FileInfo>();
     }
 
-    List<FileInfo> files = new List<FileInfo>();
+    Id msgId;
+    try {
+      msgId = (Id) messageId;
+    } catch (Exception badId) {
+      return new List<FileInfo>();
+    }
 
-    List<ContentDocumentLink> links = [
-      SELECT
-        ContentDocumentId,
-        ContentDocument.Title,
-        ContentDocument.FileExtension,
-        ContentDocument.ContentSize,
-        ContentDocument.CreatedDate,
-        ContentDocument.CreatedBy.Name,
-        ContentDocument.CreatedBy.Id,
-        ContentDocument.LatestPublishedVersionId
-      FROM ContentDocumentLink
-      WHERE LinkedEntityId = :messageId
-      ORDER BY ContentDocument.CreatedDate DESC
-    ];
+    List<MessageFilesSupport.AttachmentLinkRow> linkRows = MessageFilesSupport.loadMessageAttachmentLinks(
+      new Set<Id>{ msgId }
+    );
 
     Id currentUserId = UserInfo.getUserId();
+    List<FileInfo> files = new List<FileInfo>();
 
-    for (ContentDocumentLink link : links) {
+    for (MessageFilesSupport.AttachmentLinkRow ar : linkRows) {
       FileInfo file = new FileInfo();
-      file.id = link.ContentDocumentId;
-      file.title = link.ContentDocument.Title;
-      file.extension = link.ContentDocument.FileExtension;
-      file.size = link.ContentDocument.ContentSize;
-      file.createdDate = link.ContentDocument.CreatedDate;
-      file.createdBy = link.ContentDocument.CreatedBy?.Name;
-      file.createdById = link.ContentDocument.CreatedBy?.Id;
-      file.versionId = link.ContentDocument.LatestPublishedVersionId;
-      file.canDelete = (link.ContentDocument.CreatedBy?.Id == currentUserId);
+      file.id = ar.contentDocumentId != null ? String.valueOf(ar.contentDocumentId) : null;
+      file.title = ar.title;
+      file.extension = ar.fileExtension;
+      file.size = ar.contentSize;
+      file.createdDate = ar.createdDate;
+      file.createdBy = ar.createdByName;
+      file.createdById = ar.createdById != null ? String.valueOf(ar.createdById) : null;
+      file.versionId = ar.latestPublishedVersionId != null ? String.valueOf(ar.latestPublishedVersionId) : null;
+      file.canDelete = (ar.createdById == currentUserId);
       files.add(file);
     }
 

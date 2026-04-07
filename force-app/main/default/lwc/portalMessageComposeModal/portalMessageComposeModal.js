@@ -2,6 +2,7 @@
  * Compose / reply dialog opened imperatively from portalMessaging via LightningModal.
  * Uses the platform overlay stack so lightning-file-upload confirmation UI stacks correctly
  * in Experience Cloud (custom SLDS modals do not).
+ * File UI: c-file-manager variant=composer. Not duplicated in Portal Add-On—ship messaging from Core only.
  */
 import { api, track, wire } from "lwc";
 import LightningModal from "lightning/modal";
