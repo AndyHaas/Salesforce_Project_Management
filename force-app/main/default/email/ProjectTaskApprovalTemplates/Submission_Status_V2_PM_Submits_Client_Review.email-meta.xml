@@ -2,7 +2,7 @@
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
     <encodingKey>UTF-8</encodingKey>
-    <name>Submission Status V2 - PM Submits for Client Review V3</name>
+    <name>Submission Status - PM Submits for Client Review</name>
     <relatedEntityType>Project_Task__c</relatedEntityType>
     <style>none</style>
     <subject>Action needed: Client review requested for project task</subject>

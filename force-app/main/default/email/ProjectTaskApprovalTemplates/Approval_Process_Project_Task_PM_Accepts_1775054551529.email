@@ -7,24 +7,22 @@
 
 <p>&nbsp;</p>
 
-<p>A pending task is ready for your review:</p>
-
-<p>&nbsp;</p>
+<p>A task has been accepted:</p>
 
 <p>{{{Project_Task__c.Name}}}</p>
 
 <p>&nbsp;</p>
 
-<p>To move forward, please complete the following:</p>
-
-<p>Review the Task in Salesforce.</p>
+<p>No additional action needed.</p>
 
 <p>&nbsp;</p>
 
-<p><a href="https://milestoneconsulting--dev.sandbox.my.site.com/" rel="noopener noreferrer">View Task</a> in Salesforce</p>
+<p><a href="https://milestoneconsulting--dev.sandbox.lightning.force.com/lightning/r/Project_Task__c/" rel="noopener noreferrer">View Task</a> in Salesforce</p>
 
 <p>&nbsp;</p>
 
 <p>We appreciate your prompt attention and look forward to your feedback.</p>
+
+<p>&nbsp;</p>
 </body>
 </html>

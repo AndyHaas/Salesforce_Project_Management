@@ -2,7 +2,7 @@
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
     <encodingKey>UTF-8</encodingKey>
-    <name>Submission Status V2 - Task Is Reviewed V3</name>
+    <name>Submission Status - Task Is Reviewed</name>
     <relatedEntityType>Project_Task__c</relatedEntityType>
     <style>none</style>
     <subject>Update: Task was reviewed</subject>

@@ -3,7 +3,7 @@
     <available>true</available>
     <description>Project Manager Rejected Task</description>
     <encodingKey>UTF-8</encodingKey>
-    <name>Approval Process - Project Task - PM Rejected</name>
+    <name>Submission Status - Project Task - PM Rejected</name>
     <relatedEntityType>Project_Task__c</relatedEntityType>
     <style>none</style>
     <subject>Action Needed: Task Rejected by PM</subject>
