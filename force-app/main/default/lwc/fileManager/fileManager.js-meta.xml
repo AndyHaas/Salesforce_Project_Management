@@ -32,7 +32,6 @@
       <property name="showCard" type="Boolean" label="Show card chrome" default="true" />
       <property name="showUpload" type="Boolean" label="Show upload" default="true" />
       <property name="showPreview" type="Boolean" label="Show preview link" default="true" />
-      <property name="showDownload" type="Boolean" label="Show download" default="true" />
       <property name="showDelete" type="Boolean" label="Show remove (composer pending / optional)" default="false" />
       <property
         name="listMaxVisibleFiles"

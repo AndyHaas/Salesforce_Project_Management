@@ -13,7 +13,6 @@ export default class PortalFileListModal extends LightningModal {
   @api fileRows = [];
 
   _showPreview = true;
-  _showDownload = true;
   _showDelete = false;
 
   @api
@@ -22,14 +21,6 @@ export default class PortalFileListModal extends LightningModal {
   }
   set showPreview(value) {
     this._showPreview = value === true || value === "true";
-  }
-
-  @api
-  get showDownload() {
-    return this._showDownload;
-  }
-  set showDownload(value) {
-    this._showDownload = value === true || value === "true";
   }
 
   @api

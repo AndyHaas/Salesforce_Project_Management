@@ -21,6 +21,12 @@ public with sharing class MessageFilesSupport {
     public String title;
     @AuraEnabled
     public String fileExtension;
+    /** ContentDocument.ContentSize in bytes */
+    @AuraEnabled
+    public Long contentSize;
+    /** ContentDocument.CreatedDate */
+    @AuraEnabled
+    public Datetime createdDate;
   }
 
   /**
@@ -141,6 +147,8 @@ public with sharing class MessageFilesSupport {
         : null;
       row.title = ar.title;
       row.fileExtension = ar.fileExtension;
+      row.contentSize = ar.contentSize;
+      row.createdDate = ar.createdDate;
       byMessage.get(msgId).add(row);
     }
 
@@ -180,6 +188,35 @@ public with sharing class MessageFilesSupport {
   @AuraEnabled(cacheable=false)
   public static List<String> getLatestContentVersionIdsForDocuments(List<String> contentDocumentIds) {
     return MessageFilesLinkWorker.getLatestContentVersionIdsForDocumentsOrdered(contentDocumentIds);
+  }
+
+  /**
+   * Resolves ContentDocument Id from ContentVersion Id for preview/download when the client row only
+   * has a version Id (e.g. immediate post-upload payloads). Visibility follows the running user.
+   *
+   * @param contentVersionId ContentVersion Id from LWC row data.
+   * @return ContentDocument Id string, or null when not found, not visible, or invalid.
+   */
+  @AuraEnabled(cacheable=true)
+  public static String getContentDocumentIdForVersionId(String contentVersionId) {
+    if (String.isBlank(contentVersionId)) {
+      return null;
+    }
+    try {
+      Id verId = (Id) contentVersionId.trim();
+      List<ContentVersion> rows = [
+        SELECT ContentDocumentId
+        FROM ContentVersion
+        WHERE Id = :verId AND IsDeleted = FALSE AND ContentDocumentId != NULL
+        LIMIT 1
+      ];
+      if (rows.isEmpty()) {
+        return null;
+      }
+      return String.valueOf(rows[0].ContentDocumentId);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   /**

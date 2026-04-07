@@ -4,7 +4,7 @@
     <isExposed>true</isExposed>
     <masterLabel>Portal File Attachments</masterLabel>
     <description
-  >Reusable file cards with optional preview, download, and remove. From another LWC use the `files` attribute; in App Builder use Attachments JSON (array of objects with contentDocumentId, optional contentVersionId, title, fileExtension).</description>
+  >Reusable file cards with optional preview and remove. From another LWC use the `files` attribute; in App Builder use Attachments JSON (array of objects with contentDocumentId, optional contentVersionId, title, fileExtension).</description>
     <targets>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
@@ -20,18 +20,12 @@
         name="attachmentsJson"
         type="String"
         label="Attachments JSON"
-        description='JSON array, e.g. [{"contentDocumentId":"069...","title":"Spec","fileExtension":"pdf"}]'
+        description='JSON array, e.g. [{"contentDocumentId":"069...","title":"Spec","fileExtension":"pdf","contentSize":12345,"createdDate":"2024-01-01T12:00:00.000Z"}]'
       />
             <property
         name="showPreview"
         type="Boolean"
         label="Show preview (name link / LEX preview)"
-        default="true"
-      />
-            <property
-        name="showDownload"
-        type="Boolean"
-        label="Show download"
         default="true"
       />
             <property

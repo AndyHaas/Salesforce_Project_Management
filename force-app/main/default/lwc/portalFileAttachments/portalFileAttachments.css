@@ -27,6 +27,12 @@
   min-width: 0;
 }
 
+.portal-file-main {
+  min-width: 0;
+  flex: 1;
+  max-width: 100%;
+}
+
 .portal-file-icon {
   flex-shrink: 0;
 }
@@ -56,4 +62,11 @@
 .portal-file-title-ext {
   flex-shrink: 0;
   margin-left: 0.125rem;
+}
+
+.portal-file-meta {
+  margin-top: 0.125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

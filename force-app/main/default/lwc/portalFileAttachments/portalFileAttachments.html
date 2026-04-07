@@ -6,48 +6,44 @@
           <div
             class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-box slds-box_x-small slds-theme_shade"
           >
-            <div class="slds-col slds-grow slds-grid slds-grid_vertical-align-center portal-file-name-col">
+            <div class="slds-col slds-grow slds-grid slds-grid_vertical-align-start portal-file-name-col">
               <lightning-icon
                 icon-name={file.iconName}
                 size="small"
-                class="slds-m-right_small portal-file-icon"
+                class="slds-m-right_small slds-m-top_xx-small portal-file-icon"
               ></lightning-icon>
-              <div class="portal-file-title-line" title={file.fullName}>
-                <div class="portal-file-title-text">
-                  <template if:true={showPreview}>
-                    <a
-                      href="javascript:void(0);"
-                      class="slds-text-link portal-file-title-link"
-                      data-document-id={file.contentDocumentId}
-                      onclick={handlePreviewClick}
+              <div class="portal-file-main">
+                <div class="portal-file-title-line" title={file.fullName}>
+                  <div class="portal-file-title-text">
+                    <template if:true={showPreview}>
+                      <a
+                        href="javascript:void(0);"
+                        class="slds-text-link portal-file-title-link"
+                        data-document-id={file.contentDocumentId}
+                        data-version-id={file.contentVersionId}
+                        onclick={handlePreviewClick}
+                      >
+                        {file.title}
+                      </a>
+                    </template>
+                    <template if:false={showPreview}>
+                      <span class="slds-text-body_small portal-file-title-plain">{file.title}</span>
+                    </template>
+                  </div>
+                  <template if:true={file.fileExtension}>
+                    <span class="slds-text-body_small slds-text-color_weak portal-file-title-ext"
+                      >.{file.fileExtension}</span
                     >
-                      {file.title}
-                    </a>
-                  </template>
-                  <template if:false={showPreview}>
-                    <span class="slds-text-body_small portal-file-title-plain">{file.title}</span>
                   </template>
                 </div>
-                <template if:true={file.fileExtension}>
-                  <span class="slds-text-body_small slds-text-color_weak portal-file-title-ext"
-                    >.{file.fileExtension}</span
-                  >
+                <template if:true={file.showMetaLine}>
+                  <div class="portal-file-meta slds-text-body_small slds-text-color_weak" title={file.metaLine}>
+                    {file.metaLine}
+                  </div>
                 </template>
               </div>
             </div>
             <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center">
-              <template if:true={showDownload}>
-                <lightning-button-icon
-                  icon-name="utility:download"
-                  variant="border-filled"
-                  alternative-text="Download"
-                  title="Download"
-                  data-document-id={file.contentDocumentId}
-                  onclick={handleDownloadClick}
-                  class="slds-m-left_xx-small"
-                >
-                </lightning-button-icon>
-              </template>
               <template if:true={file.showDeleteRow}>
                 <lightning-button-icon
                   icon-name="utility:delete"

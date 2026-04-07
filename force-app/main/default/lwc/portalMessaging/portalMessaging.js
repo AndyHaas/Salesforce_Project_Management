@@ -1239,12 +1239,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     return formatDateTime(dateValue, "—");
   }
 
-  /** LEX: standard file preview; portal: open download (handled in child). */
+  /** LEX: standard file preview; portal: open file (handled in child). */
   get messageAttachmentShowPreview() {
-    return true;
-  }
-
-  get messageAttachmentShowDownload() {
     return true;
   }
 

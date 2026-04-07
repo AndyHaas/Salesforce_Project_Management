@@ -48,6 +48,8 @@ private class MessageFilesSupportTest {
     System.assertEquals(1, rows[0].files.size());
     System.assertEquals(String.valueOf(docId), rows[0].files[0].contentDocumentId);
     System.assertEquals('Spec', rows[0].files[0].title);
+    System.assertEquals(3L, rows[0].files[0].contentSize, 'VersionData blob length');
+    System.assertNotEquals(null, rows[0].files[0].createdDate);
 
     List<MessageFilesSupport.AttachmentLinkRow> raw = MessageFilesSupport.loadMessageAttachmentLinks(
       new Set<Id>{ msg.Id }
@@ -55,6 +57,38 @@ private class MessageFilesSupportTest {
     System.assertEquals(1, raw.size(), 'Shared loader returns same attachment count');
     System.assertEquals(msg.Id, raw[0].linkedEntityId);
     System.assertEquals(String.valueOf(docId), String.valueOf(raw[0].contentDocumentId));
+  }
+
+  @IsTest
+  static void getContentDocumentIdForVersionId_resolvesWhenVisible() {
+    Account acc = new Account(Name = 'Version to document');
+    insert acc;
+
+    ContentVersion cv = new ContentVersion(
+      Title = 'Lookup',
+      PathOnClient = 'Lookup.txt',
+      VersionData = Blob.valueOf('x'),
+      FirstPublishLocationId = acc.Id
+    );
+    insert cv;
+
+    Id docId = [
+      SELECT ContentDocumentId
+      FROM ContentVersion
+      WHERE Id = :cv.Id
+      LIMIT 1
+    ]
+    .ContentDocumentId;
+
+    Test.startTest();
+    String resolved = MessageFilesSupport.getContentDocumentIdForVersionId(String.valueOf(cv.Id));
+    String blank = MessageFilesSupport.getContentDocumentIdForVersionId('');
+    String bad = MessageFilesSupport.getContentDocumentIdForVersionId('not-an-id');
+    Test.stopTest();
+
+    System.assertEquals(String.valueOf(docId), resolved);
+    System.assertEquals(null, blank);
+    System.assertEquals(null, bad);
   }
 
   @IsTest

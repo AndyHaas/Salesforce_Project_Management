@@ -1,11 +1,12 @@
 import { LightningElement, api } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
-import { ensureSitePath } from "c/portalCommon";
+import getContentDocumentIdForVersionId from "@salesforce/apex/MessageFilesSupport.getContentDocumentIdForVersionId";
+import { ensureSitePath, formatDateTime, formatFileSize } from "c/portalCommon";
 import { getFileIconName } from "./portalFileAttachmentsUtils";
 
 /**
- * Shared file “card” list: preview (Lightning file preview or open download in portal),
- * download, optional remove. Used by c-file-manager and App Builder configurations.
+ * Shared file “card” list: preview (Lightning file preview or open file in portal),
+ * optional remove. Used by c-file-manager and App Builder configurations.
  */
 export default class PortalFileAttachments extends NavigationMixin(LightningElement) {
   /**
@@ -16,7 +17,7 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
   _parsedAttachmentsFromBuilder = [];
 
   /**
-   * App Builder only: JSON string array of { contentDocumentId, contentVersionId?, title, fileExtension }.
+   * App Builder only: JSON string array of { contentDocumentId, contentVersionId?, title, fileExtension, contentSize?, createdDate? }.
    */
   @api
   get attachmentsJson() {
@@ -47,7 +48,6 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
   }
 
   _showPreview = true;
-  _showDownload = true;
   _showDelete = false;
 
   @api
@@ -56,14 +56,6 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
   }
   set showPreview(value) {
     this._showPreview = value === true || value === "true";
-  }
-
-  @api
-  get showDownload() {
-    return this._showDownload;
-  }
-  set showDownload(value) {
-    this._showDownload = value === true || value === "true";
   }
 
   @api
@@ -102,6 +94,12 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
       const allowDelete = f.canDelete === undefined || f.canDelete === true;
       const title = f.title || "Attachment";
       const fullName = ext ? `${title}.${ext}` : title;
+      const sizeBytes = f.contentSize != null ? f.contentSize : f.size;
+      const createdRaw = f.createdDate != null ? f.createdDate : f.uploadedAt;
+      const uploadedPart = formatDateTime(createdRaw, "");
+      const sizePart = formatFileSize(sizeBytes, "");
+      const metaParts = [uploadedPart, sizePart].filter((p) => p && String(p).trim());
+      const metaLine = metaParts.join(" · ");
       return {
         rowKey: f.contentDocumentId || f.contentVersionId || `f-${idx}`,
         contentDocumentId: f.contentDocumentId,
@@ -110,18 +108,26 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
         fullName,
         fileExtension: ext,
         iconName: getFileIconName(ext),
-        showDeleteRow: this.showDelete && allowDelete
+        showDeleteRow: this.showDelete && allowDelete,
+        showMetaLine: metaParts.length > 0,
+        metaLine
       };
     });
   }
 
-  handlePreviewClick(event) {
-    const docId = event.currentTarget.dataset.documentId;
+  async handlePreviewClick(event) {
+    let docId = event.currentTarget.dataset.documentId || "";
+    const versionId = event.currentTarget.dataset.versionId || "";
+    docId = (await this.resolveDocumentIdForOpen(docId, versionId)) || "";
+    if (!docId && versionId) {
+      this.openDocumentUrl(null, versionId);
+      return;
+    }
     if (!docId) {
       return;
     }
     if (this.isExperienceCloudRuntime) {
-      this.openDocumentUrl(docId);
+      this.openDocumentUrl(docId, null);
       return;
     }
     try {
@@ -135,20 +141,46 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
         }
       });
     } catch {
-      this.openDocumentUrl(docId);
+      this.openDocumentUrl(docId, null);
     }
   }
 
-  handleDownloadClick(event) {
-    const docId = event.currentTarget.dataset.documentId;
-    this.openDocumentUrl(docId);
+  /**
+   * When only ContentVersion Id is present, resolve ContentDocument Id for LEX file preview / shepherd URLs.
+   * @param {string} contentDocumentId
+   * @param {string} contentVersionId
+   * @returns {Promise<string|null>}
+   */
+  async resolveDocumentIdForOpen(contentDocumentId, contentVersionId) {
+    if (contentDocumentId) {
+      return contentDocumentId;
+    }
+    if (!contentVersionId) {
+      return null;
+    }
+    try {
+      const resolved = await getContentDocumentIdForVersionId({
+        contentVersionId
+      });
+      return resolved || null;
+    } catch (e) {
+      console.error("portalFileAttachments: resolve document Id failed", e);
+      return null;
+    }
   }
 
-  openDocumentUrl(contentDocumentId) {
-    if (typeof window === "undefined" || !contentDocumentId) {
+  openDocumentUrl(contentDocumentId, contentVersionId) {
+    if (typeof window === "undefined") {
       return;
     }
-    const path = `/sfc/servlet.shepherd/document/download/${contentDocumentId}`;
+    let path;
+    if (contentDocumentId) {
+      path = `/sfc/servlet.shepherd/document/download/${contentDocumentId}`;
+    } else if (contentVersionId) {
+      path = `/sfc/servlet.shepherd/version/download/${contentVersionId}`;
+    } else {
+      return;
+    }
     const url = ensureSitePath(path, {
       currentPathname: window.location.pathname || ""
     });

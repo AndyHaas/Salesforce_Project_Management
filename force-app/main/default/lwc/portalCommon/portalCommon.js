@@ -63,10 +63,15 @@ export function ensureSitePath(path, { currentPathname = "" } = {}) {
   }
 
   const normalized = path.startsWith("/") ? path : `/${path}`;
-  const isExperienceCloud = currentPathname.startsWith("/s/");
 
-  if (isExperienceCloud && !normalized.startsWith("/s/")) {
-    return `/s${normalized}`;
+  if (normalized.startsWith("/s/")) {
+    return normalized;
+  }
+
+  const siteSegmentIdx = currentPathname.indexOf("/s/");
+  if (siteSegmentIdx >= 0) {
+    const prefix = currentPathname.substring(0, siteSegmentIdx);
+    return `${prefix}/s${normalized}`;
   }
 
   return normalized;
@@ -213,6 +218,36 @@ export function formatDateTime(value, emptyValue = "") {
   const hh = pad(date.getHours());
   const min = pad(date.getMinutes());
   return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+}
+
+/**
+ * Format a byte size for file lists (B / KB / MB / GB).
+ * @param {number|string|null|undefined} bytes - Content size in bytes
+ * @param {string} emptyValue - When missing or invalid
+ * @returns {string}
+ */
+export function formatFileSize(bytes, emptyValue = "") {
+  if (bytes === null || bytes === undefined || bytes === "") {
+    return emptyValue;
+  }
+  const n = Number(bytes);
+  if (!Number.isFinite(n) || n < 0) {
+    return emptyValue;
+  }
+  if (n < 1024) {
+    return `${Math.round(n)} B`;
+  }
+  const kb = n / 1024;
+  if (kb < 1024) {
+    const digits = kb < 10 ? 1 : 0;
+    return `${kb.toFixed(digits)} KB`;
+  }
+  const mb = kb / 1024;
+  if (mb < 1024) {
+    return `${mb.toFixed(1)} MB`;
+  }
+  const gb = mb / 1024;
+  return `${gb.toFixed(1)} GB`;
 }
 
 /**

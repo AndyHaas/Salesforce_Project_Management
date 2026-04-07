@@ -31,7 +31,11 @@ function snapshotComposerUploadFileEntry(file) {
     }
     return undefined;
   };
-  const name = pick(base, ["name", "Name"]);
+  const rawName = pick(base, ["name", "Name"]);
+  const name =
+    rawName == null || rawName === ""
+      ? undefined
+      : String(rawName).trim() || undefined;
   const contentVersionId = pick(base, ["contentVersionId", "ContentVersionId", "versionId", "VersionId"]);
   const documentId = pick(base, ["documentId", "DocumentId", "contentDocumentId", "ContentDocumentId"]);
   if (!contentVersionId && !documentId) {
@@ -42,6 +46,49 @@ function snapshotComposerUploadFileEntry(file) {
     contentVersionId: contentVersionId != null ? String(contentVersionId) : undefined,
     documentId: documentId != null ? String(documentId) : undefined
   };
+}
+
+/** @returns {string} */
+function serializeComposerPayloadError(err) {
+  if (err == null) {
+    return String(err);
+  }
+  const msg = err.message != null ? String(err.message) : "";
+  const stk = err.stack != null ? String(err.stack) : "";
+  const nm = err.name != null ? String(err.name) : "";
+  if (msg || stk || nm) {
+    return [nm && `name=${nm}`, msg && `message=${msg}`, stk && `stack=${stk}`].filter(Boolean).join(" | ");
+  }
+  try {
+    return JSON.stringify(err, Object.getOwnPropertyNames(err));
+  } catch {
+    try {
+      return Object.prototype.toString.call(err);
+    } catch {
+      return "unknown error";
+    }
+  }
+}
+
+/**
+ * Copy a pending row to a plain object so @track reassignment does not mix LWC reactive proxies
+ * with new literals (can throw or log as Proxy(Object) in prod debug).
+ */
+function toPlainComposerPendingRow(row) {
+  if (!row || typeof row !== "object") {
+    return null;
+  }
+  const out = {
+    title: row.title != null ? String(row.title) : "Attachment",
+    fileExtension: row.fileExtension != null ? String(row.fileExtension) : ""
+  };
+  if (row.contentDocumentId != null && String(row.contentDocumentId).trim() !== "") {
+    out.contentDocumentId = String(row.contentDocumentId).trim();
+  }
+  if (row.contentVersionId != null && String(row.contentVersionId).trim() !== "") {
+    out.contentVersionId = String(row.contentVersionId).trim();
+  }
+  return out;
 }
 
 /**
@@ -103,15 +150,6 @@ export default class FileManager extends LightningElement {
   }
   set showPreview(value) {
     this._showPreview = value === true || value === "true";
-  }
-
-  _showDownload = true;
-  @api
-  get showDownload() {
-    return this._showDownload;
-  }
-  set showDownload(value) {
-    this._showDownload = value === true || value === "true";
   }
 
   _showDelete = false;
@@ -182,7 +220,9 @@ export default class FileManager extends LightningElement {
       contentDocumentId: f.id,
       contentVersionId: f.versionId,
       title: f.title || "File",
-      fileExtension: (f.extension || "").toLowerCase()
+      fileExtension: (f.extension || "").toLowerCase(),
+      contentSize: f.size != null && f.size !== "" ? Number(f.size) : undefined,
+      createdDate: f.createdDate
     }));
   }
 
@@ -246,7 +286,6 @@ export default class FileManager extends LightningElement {
         headerLabel: this.listOverflowModalTitle || "All attachments",
         fileRows: Array.isArray(this.displayFileRows) ? [...this.displayFileRows] : [],
         showPreview: this.showPreview,
-        showDownload: this.showDownload,
         showDelete: this.showDelete
       });
     } catch (e) {
@@ -314,15 +353,24 @@ export default class FileManager extends LightningElement {
     }
     // eslint-disable-next-line @lwc/lwc/no-async-operation
     setTimeout(() => {
-      this.applyComposerUploadFinishedPayload(snapshot);
+      try {
+        this.applyComposerUploadFinishedPayload(snapshot);
+      } catch (deferredErr) {
+        console.error(
+          "fileManager handleComposerUploadFinished (deferred):",
+          serializeComposerPayloadError(deferredErr)
+        );
+      }
     }, 0);
   }
 
   applyComposerUploadFinishedPayload(uploadedFiles) {
     try {
       const newRows = [];
-      for (const file of uploadedFiles) {
-        if (!file) {
+      const files = Array.isArray(uploadedFiles) ? uploadedFiles : [];
+      for (let fi = 0; fi < files.length; fi++) {
+        const file = files[fi];
+        if (!file || typeof file !== "object") {
           continue;
         }
         const contentVersionId = file.contentVersionId;
@@ -330,10 +378,11 @@ export default class FileManager extends LightningElement {
         if (!contentVersionId && !contentDocumentId) {
           continue;
         }
-        const { title, fileExtension } = splitFileNameForPortalRow(file.name);
+        const safeName = file.name == null ? "" : String(file.name);
+        const { title, fileExtension } = splitFileNameForPortalRow(safeName);
         newRows.push({
-          contentDocumentId: contentDocumentId || undefined,
-          contentVersionId: contentVersionId || undefined,
+          contentDocumentId: contentDocumentId ? String(contentDocumentId).trim() : undefined,
+          contentVersionId: contentVersionId ? String(contentVersionId).trim() : undefined,
           title,
           fileExtension
         });
@@ -341,9 +390,17 @@ export default class FileManager extends LightningElement {
       if (newRows.length === 0) {
         return;
       }
-      this._pendingComposerFiles = [...this._pendingComposerFiles, ...newRows];
+      const prior = Array.isArray(this._pendingComposerFiles) ? this._pendingComposerFiles : [];
+      const plainPrior = [];
+      for (let pi = 0; pi < prior.length; pi++) {
+        const plain = toPlainComposerPendingRow(prior[pi]);
+        if (plain) {
+          plainPrior.push(plain);
+        }
+      }
+      this._pendingComposerFiles = [...plainPrior, ...newRows];
     } catch (e) {
-      console.error("fileManager applyComposerUploadFinishedPayload:", e);
+      console.error("fileManager applyComposerUploadFinishedPayload:", serializeComposerPayloadError(e));
     }
   }
 
