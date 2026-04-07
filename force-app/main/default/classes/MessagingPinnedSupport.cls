@@ -3,6 +3,11 @@
  * pagination. {@link MessagingController#getMessages} remains paged; this class keeps the
  * pinned summary accurate for older pins that are not yet in the client buffer.
  * Visibility matches portal expectations: non–Milestone-team users only see client-visible rows.
+ * <p>SOQL intentionally omits {@code WITH SECURITY_ENFORCED} (same rationale as
+ * {@link MessagingController#getLatestMessages}): Experience Cloud profiles often lack FLS on
+ * cross-object columns ({@code CreatedBy.Name}, {@code Sender__r.Name}, reply traversals) while
+ * still needing the thread UI. Record access is enforced by {@code with sharing} and the same
+ * {@code Visible_To_Client__c} / context filters as the client-visible query variants.
  */
 public with sharing class MessagingPinnedSupport {
   /**
@@ -77,26 +82,34 @@ public with sharing class MessagingPinnedSupport {
     String relatedTaskId,
     Boolean isMilestoneTeamMember
   ) {
-    Id taskId = parseId(relatedTaskId);
-    Id projectId = parseId(relatedProjectId);
-    Id accountId = parseId(relatedAccountId);
+    try {
+      Id taskId = parseId(relatedTaskId);
+      Id projectId = parseId(relatedProjectId);
+      Id accountId = parseId(relatedAccountId);
 
-    if (taskId == null && projectId == null && accountId == null) {
-      return new List<MessageRow>();
+      if (taskId == null && projectId == null && accountId == null) {
+        return new List<MessageRow>();
+      }
+
+      Boolean milestone = isMilestoneTeamMember == true;
+      List<Message__c> rows;
+
+      if (taskId != null) {
+        rows = milestone ? queryPinnedForTask(taskId) : queryPinnedForTaskClientVisible(taskId);
+      } else if (projectId != null) {
+        rows = milestone ? queryPinnedForProject(projectId) : queryPinnedForProjectClientVisible(projectId);
+      } else {
+        rows = milestone ? queryPinnedForAccount(accountId) : queryPinnedForAccountClientVisible(accountId);
+      }
+
+      return toRows(rows, milestone);
+    } catch (Exception e) {
+      System.debug(LoggingLevel.ERROR, 'MessagingPinnedSupport.getPinnedMessages: ' + e.getMessage());
+      System.debug(LoggingLevel.ERROR, e.getStackTraceString());
+      throw new AuraHandledException(
+        String.isNotBlank(e.getMessage()) ? e.getMessage() : 'Unable to load pinned messages.'
+      );
     }
-
-    Boolean milestone = isMilestoneTeamMember == true;
-    List<Message__c> rows;
-
-    if (taskId != null) {
-      rows = milestone ? queryPinnedForTask(taskId) : queryPinnedForTaskClientVisible(taskId);
-    } else if (projectId != null) {
-      rows = milestone ? queryPinnedForProject(projectId) : queryPinnedForProjectClientVisible(projectId);
-    } else {
-      rows = milestone ? queryPinnedForAccount(accountId) : queryPinnedForAccountClientVisible(accountId);
-    }
-
-    return toRows(rows, milestone);
   }
 
   private static Id parseId(String value) {
@@ -139,7 +152,6 @@ public with sharing class MessagingPinnedSupport {
         Reply_To__r.Sender__r.Name
       FROM Message__c
       WHERE Deleted__c = FALSE AND Is_Pinned__c = TRUE AND Related_Task__c = :taskId
-      WITH SECURITY_ENFORCED
       ORDER BY CreatedDate ASC
       LIMIT :MAX_PINNED
     ];
@@ -174,7 +186,6 @@ public with sharing class MessagingPinnedSupport {
         Reply_To__r.Sender__r.Name
       FROM Message__c
       WHERE Deleted__c = FALSE AND Is_Pinned__c = TRUE AND Related_Task__c = :taskId AND Visible_To_Client__c = TRUE
-      WITH SECURITY_ENFORCED
       ORDER BY CreatedDate ASC
       LIMIT :MAX_PINNED
     ];
@@ -209,7 +220,6 @@ public with sharing class MessagingPinnedSupport {
         Reply_To__r.Sender__r.Name
       FROM Message__c
       WHERE Deleted__c = FALSE AND Is_Pinned__c = TRUE AND Related_Project__c = :projectId
-      WITH SECURITY_ENFORCED
       ORDER BY CreatedDate ASC
       LIMIT :MAX_PINNED
     ];
@@ -248,7 +258,6 @@ public with sharing class MessagingPinnedSupport {
         AND Is_Pinned__c = TRUE
         AND Related_Project__c = :projectId
         AND Visible_To_Client__c = TRUE
-      WITH SECURITY_ENFORCED
       ORDER BY CreatedDate ASC
       LIMIT :MAX_PINNED
     ];
@@ -283,7 +292,6 @@ public with sharing class MessagingPinnedSupport {
         Reply_To__r.Sender__r.Name
       FROM Message__c
       WHERE Deleted__c = FALSE AND Is_Pinned__c = TRUE AND Account__c = :accountId
-      WITH SECURITY_ENFORCED
       ORDER BY CreatedDate ASC
       LIMIT :MAX_PINNED
     ];
@@ -318,7 +326,6 @@ public with sharing class MessagingPinnedSupport {
         Reply_To__r.Sender__r.Name
       FROM Message__c
       WHERE Deleted__c = FALSE AND Is_Pinned__c = TRUE AND Account__c = :accountId AND Visible_To_Client__c = TRUE
-      WITH SECURITY_ENFORCED
       ORDER BY CreatedDate ASC
       LIMIT :MAX_PINNED
     ];
