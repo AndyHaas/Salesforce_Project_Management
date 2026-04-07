@@ -18,6 +18,8 @@ describe("groupedTaskListUtils", () => {
     expect(salesforceIdsEqual(null, "001xx")).toBe(false);
     expect(salesforceIdsEqual("001000000000000AAA", "001000000000000")).toBe(true);
     expect(salesforceIdsEqual("abc", "def")).toBe(false);
+    expect(salesforceIdsEqual(" 001000000000000AAA ", "001000000000000AAA")).toBe(true);
+    expect(salesforceIdsEqual("001000000000000", "001000000000000")).toBe(true);
   });
 
   test("isExperienceCloudPageReferenceType", () => {
@@ -53,6 +55,55 @@ describe("groupedTaskListUtils", () => {
       inferExperienceCloudFromBrowserLocation({
         hostname: "custom.example.com",
         pathname: "/home"
+      })
+    ).toBe(false);
+
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "",
+        pathname: "/about"
+      })
+    ).toBe(false);
+
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "acme.my.site-preview.com",
+        pathname: "/"
+      })
+    ).toBe(true);
+
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "tenant.live-preview.salesforce.com",
+        pathname: "/"
+      })
+    ).toBe(true);
+
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "acme.my.salesforce.com",
+        pathname: "/"
+      })
+    ).toBe(false);
+
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "custom.na142.force.com",
+        pathname: "/s/home"
+      })
+    ).toBe(true);
+
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "legacy.site.com",
+        pathname: "/"
+      })
+    ).toBe(true);
+
+    expect(
+      inferExperienceCloudFromBrowserLocation({
+        hostname: "legacy.lightning.site.com",
+        pathname: "/"
       })
     ).toBe(false);
   });

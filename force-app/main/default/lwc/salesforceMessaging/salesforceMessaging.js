@@ -7,6 +7,10 @@
 
 import { LightningElement, api, wire } from "lwc";
 import { CurrentPageReference } from "lightning/navigation";
+import {
+  extractRecordIdFromPageReference,
+  relatedIdsFromRecordAndObject
+} from "./salesforceMessagingUtils";
 
 export default class SalesforceMessaging extends LightningElement {
   _recordId;
@@ -56,21 +60,23 @@ export default class SalesforceMessaging extends LightningElement {
       return;
     }
 
-    // Extract recordId from page reference if not provided via @api
     if (!this._recordId) {
-      const { attributes = {}, state = {} } = pageRef;
-      this._recordId = state.recordId || attributes.recordId;
+      this._recordId = extractRecordIdFromPageReference(pageRef);
     }
 
-    // Auto-populate context based on object type
     if (this._recordId && pageRef.attributes?.objectApiName) {
-      const objectApiName = pageRef.attributes.objectApiName;
-      if (objectApiName === "Account" && !this._relatedAccountId) {
-        this._relatedAccountId = this._recordId;
-      } else if (objectApiName === "Project__c" && !this._relatedProjectId) {
-        this._relatedProjectId = this._recordId;
-      } else if (objectApiName === "Project_Task__c" && !this._relatedTaskId) {
-        this._relatedTaskId = this._recordId;
+      const related = relatedIdsFromRecordAndObject(
+        this._recordId,
+        pageRef.attributes.objectApiName
+      );
+      if (related.relatedAccountId && !this._relatedAccountId) {
+        this._relatedAccountId = related.relatedAccountId;
+      }
+      if (related.relatedProjectId && !this._relatedProjectId) {
+        this._relatedProjectId = related.relatedProjectId;
+      }
+      if (related.relatedTaskId && !this._relatedTaskId) {
+        this._relatedTaskId = related.relatedTaskId;
       }
     }
 

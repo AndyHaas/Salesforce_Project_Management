@@ -25,6 +25,10 @@ import getAccounts from "@salesforce/apex/ProjectTaskDashboardController.getAcco
 import getCurrentUserAccountId from "@salesforce/apex/ProjectTaskDashboardController.getCurrentUserAccountId";
 import ACCOUNT_OBJECT from "@salesforce/schema/Account";
 import ACCOUNT_FILTER_MESSAGE_CHANNEL from "@salesforce/messageChannel/AccountFilter__c";
+import {
+  filterAccountPicklistOptions,
+  buildAccountFilterPayload
+} from "./accountFilterUtils";
 
 export default class AccountFilter extends LightningElement {
   /**
@@ -105,7 +109,8 @@ export default class AccountFilter extends LightningElement {
   loadAccounts() {
     getAccounts()
       .then((result) => {
-        this.accounts = result.map((acc) => ({
+        const rows = result || [];
+        this.accounts = rows.map((acc) => ({
           label: acc.Name,
           value: acc.Id
         }));
@@ -152,20 +157,11 @@ export default class AccountFilter extends LightningElement {
    * @private
    */
   filterAccounts() {
-    if (!this.searchTerm || this.searchTerm.trim() === "") {
-      // Filter out already selected accounts
-      this.filteredAccounts = this.accounts.filter(
-        (acc) => !this.selectedAccountIds.includes(acc.value)
-      );
-    } else {
-      const searchLower = this.searchTerm.toLowerCase();
-      // Filter by search term and exclude already selected
-      this.filteredAccounts = this.accounts.filter(
-        (acc) =>
-          acc.label.toLowerCase().includes(searchLower) &&
-          !this.selectedAccountIds.includes(acc.value)
-      );
-    }
+    this.filteredAccounts = filterAccountPicklistOptions(
+      this.accounts,
+      this.selectedAccountIds,
+      this.searchTerm
+    );
   }
 
   /**
@@ -240,15 +236,7 @@ export default class AccountFilter extends LightningElement {
    */
   publishAccountFilter() {
     if (this.messageContext) {
-      const payload = {
-        accountIds: this.selectedAccountIds || [],
-        accountId:
-          this.selectedAccountIds.length === 1
-            ? this.selectedAccountIds[0]
-            : this.selectedAccountIds.length === 0
-              ? ""
-              : null // For backward compatibility
-      };
+      const payload = buildAccountFilterPayload(this.selectedAccountIds);
       publish(this.messageContext, ACCOUNT_FILTER_MESSAGE_CHANNEL, payload);
     }
   }

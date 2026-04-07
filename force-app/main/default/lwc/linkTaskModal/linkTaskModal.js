@@ -90,7 +90,7 @@ export default class LinkTaskModal extends LightningElement {
     this.relationshipType = "Related";
     // Reset form fields
     const form = this.template.querySelector("lightning-record-edit-form");
-    if (form) {
+    if (form && typeof form.reset === "function") {
       form.reset();
     }
   }

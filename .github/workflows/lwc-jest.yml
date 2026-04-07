@@ -1,0 +1,33 @@
+# Runs Salesforce LWC Jest unit tests. If you already run the same commands in another
+# pipeline, remove this workflow or disable the job to avoid duplicate runs.
+name: LWC unit tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lwc-jest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run LWC Jest with coverage
+        run: npm run test:unit:coverage
+
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: lwc-jest-coverage
+          path: coverage/
+          if-no-files-found: ignore
