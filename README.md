@@ -39,8 +39,8 @@ When `c-portal-file-attachments` runs on an **Experience Cloud** site, file name
 
 **Setup checklist for portal users**
 
-- Assign permission set **`Milestone_Experience_Cloud_Portal_Files`** to portal users (or merge its settings into your existing portal permission set). It grants **Apex** access to **`MessageFilesSupport`**, **Read** on **`ContentDocument`** / **`ContentVersion`**, and **Create** + **Read** on **`ContentDistribution`**. Without **Create on ContentDistribution**, `getFilePreviewUrl` cannot insert a distribution; `without sharing` does not bypass object CRUD.
-- Alternatively, enable the same **Apex class** and **object permissions** on the Experience Cloud **member** or **guest** profile under **Public Access Settings**.
+- Portal users should have **`Client_Project_Management_Portal_User`** (core metadata), which includes **Apex** access to **`MessageFilesSupport`**, **Read** on **`ContentDocument`** / **`ContentVersion`**, and **Create** + **Read** on **`ContentDistribution`**. Without **Create on ContentDistribution**, `getFilePreviewUrl` cannot insert a distribution; `without sharing` does not bypass object CRUD.
+- If you use a **custom** portal permission set instead, grant the same **Apex class** and **object permissions**, or mirror them on the Experience Cloud **member** / **guest** profile under **Public Access Settings**.
 - Prefer file rows that include **`contentVersionId`**; if only **`contentDocumentId`** is present, core resolves the latest version via **`getLatestContentVersionIdsForDocuments`**.
 - **`c-file-manager`** can set **`is-experience-cloud`** when the site URL does not contain `/s/` so preview still uses the modal instead of unsupported LEX **`filePreview`** navigation.
 - Fallback for errors or blocked iframes: **Open in new tab** uses shepherd download URLs via **`portalCommon.openShepherdDownloadInNewTab`**.
@@ -64,13 +64,13 @@ Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** an
 
 | API name                         | Typical users                                    |
 | -------------------------------- | ------------------------------------------------ |
-| `Milestone_Experience_Cloud_Portal_Files` | Experience Cloud members/guests using **`c-portal-file-preview-modal`** / **`getFilePreviewUrl`**. |
+| `Client_Project_Management_Portal_User` | Experience Cloud portal users (messaging, tasks, projects, file list/preview). |
 | `Project_Management_User`        | Internal user, limited access.                   |
 | `Project_Management_Team_Member` | Internal delivery team.                          |
 | `Project_Management_Manager`     | Managers (view-all style patterns per metadata). |
 | `Project_Management_Admin`       | Administrators / full config.                    |
 
-**Portal Add-On** permission sets include **`Client_Project_Management_Portal_User`**, **`Customer_Portal_Manager`** (internal users toggling portal flags on Account/Contact), and legacy **`Community_User`**—see the add-on repo and [Permission Sets](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Permission-Sets).
+**Portal Add-On** adds **`Customer_Portal_Manager`** (internal users toggling portal flags on Account/Contact) and legacy **`Community_User`**—see the add-on repo and [Permission Sets](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Permission-Sets). **`Client_Project_Management_Portal_User`** ships in **core** (this repo).
 
 Details: [Permission Sets](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Permission-Sets).
 

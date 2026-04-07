@@ -271,7 +271,7 @@ public without sharing class MessageFilesLinkWorker {
       String m = e.getNumDml() > 0 ? e.getDmlMessage(0) : e.getMessage();
       if (String.isBlank(m)) {
         m =
-          'Could not create a view-in-browser link. Assign permission set Milestone Experience Cloud Portal Files (or grant Create and Read on ContentDistribution) to this user.';
+          'Could not create a view-in-browser link. Ensure the user has Client Project Management Portal User (or Create and Read on ContentDistribution).';
       }
       throw new AuraHandledException(m);
     }

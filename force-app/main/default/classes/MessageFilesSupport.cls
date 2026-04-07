@@ -235,8 +235,8 @@ public with sharing class MessageFilesSupport {
    * (Portal Add-On pattern). Confirms the running user can read the version (with sharing), then
    * creates or reuses a distribution via {@link MessageFilesLinkWorker}. The worker runs without
    * sharing for SOQL/DML row visibility, but the running user still needs profile or permission-set
-   * CRUD: Read on ContentVersion, and Create and Read on ContentDistribution (see permission set
-   * Milestone_Experience_Cloud_Portal_Files).
+   * CRUD: Read on ContentVersion, and Create and Read on ContentDistribution (included on
+   * Client_Project_Management_Portal_User).
    *
    * @param contentVersionId ContentVersion Id the user can read.
    * @return Distribution public URL suitable for iframe or new tab.
