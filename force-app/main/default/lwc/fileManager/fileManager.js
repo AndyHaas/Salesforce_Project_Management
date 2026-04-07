@@ -185,15 +185,32 @@ export default class FileManager extends LightningElement {
   /**
    * Upload-finished runs inside the platform file-upload stack; updating @track state synchronously
    * can re-enter Lightning internals and surface as [NoErrorObjectAvailable] Script error. Defer work.
+   *
+   * Copy file fields synchronously before deferring: `detail.files` entries are often recycled after
+   * the handler returns, so reading them in a microtask yields missing ids and the list never updates.
    */
   handleComposerUploadFinished(event) {
     const raw = event?.detail?.files;
-    const uploadedFiles = Array.isArray(raw) ? raw : [];
-    if (uploadedFiles.length === 0) {
+    if (!Array.isArray(raw) || raw.length === 0) {
+      return;
+    }
+    const snapshot = [];
+    for (const file of raw) {
+      if (!file) {
+        continue;
+      }
+      snapshot.push({
+        name: file.name,
+        contentVersionId: file.contentVersionId || file.versionId,
+        documentId: file.documentId,
+        contentDocumentId: file.contentDocumentId
+      });
+    }
+    if (snapshot.length === 0) {
       return;
     }
     Promise.resolve().then(() => {
-      this.applyComposerUploadFinishedPayload(uploadedFiles);
+      this.applyComposerUploadFinishedPayload(snapshot);
     });
   }
 
@@ -205,7 +222,7 @@ export default class FileManager extends LightningElement {
         if (!file) {
           continue;
         }
-        const contentVersionId = file.contentVersionId;
+        const contentVersionId = file.contentVersionId || file.versionId;
         if (!contentVersionId) {
           continue;
         }
