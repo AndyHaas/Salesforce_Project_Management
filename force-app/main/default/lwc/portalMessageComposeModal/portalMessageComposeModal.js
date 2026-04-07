@@ -138,18 +138,6 @@ export default class PortalMessageComposeModal extends LightningModal {
     return ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png,.gif,.zip,.rar";
   }
 
-  get composerAttachmentShowPreview() {
-    return true;
-  }
-
-  get composerAttachmentShowDownload() {
-    return true;
-  }
-
-  get composerAttachmentShowDelete() {
-    return true;
-  }
-
   handleMessageBodyChange(event) {
     this.messageBody = event.detail.value;
     this.parseMentions(this.messageBody);
