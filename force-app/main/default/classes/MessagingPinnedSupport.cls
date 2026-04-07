@@ -38,6 +38,8 @@ public with sharing class MessagingPinnedSupport {
     @AuraEnabled
     public String relatedProjectName;
     @AuraEnabled
+    public String accountId;
+    @AuraEnabled
     public String accountName;
     @AuraEnabled
     public Boolean visibleToClient;
@@ -125,6 +127,7 @@ public with sharing class MessagingPinnedSupport {
         Related_Task__r.Name,
         Related_Project__c,
         Related_Project__r.Name,
+        Account__c,
         Account__r.Name,
         Visible_To_Client__c,
         Last_Edited_Date__c,
@@ -158,6 +161,7 @@ public with sharing class MessagingPinnedSupport {
         Related_Task__r.Name,
         Related_Project__c,
         Related_Project__r.Name,
+        Account__c,
         Account__r.Name,
         Visible_To_Client__c,
         Last_Edited_Date__c,
@@ -191,6 +195,7 @@ public with sharing class MessagingPinnedSupport {
         Related_Task__r.Name,
         Related_Project__c,
         Related_Project__r.Name,
+        Account__c,
         Account__r.Name,
         Visible_To_Client__c,
         Last_Edited_Date__c,
@@ -224,6 +229,7 @@ public with sharing class MessagingPinnedSupport {
         Related_Task__r.Name,
         Related_Project__c,
         Related_Project__r.Name,
+        Account__c,
         Account__r.Name,
         Visible_To_Client__c,
         Last_Edited_Date__c,
@@ -261,6 +267,7 @@ public with sharing class MessagingPinnedSupport {
         Related_Task__r.Name,
         Related_Project__c,
         Related_Project__r.Name,
+        Account__c,
         Account__r.Name,
         Visible_To_Client__c,
         Last_Edited_Date__c,
@@ -294,6 +301,7 @@ public with sharing class MessagingPinnedSupport {
         Related_Task__r.Name,
         Related_Project__c,
         Related_Project__r.Name,
+        Account__c,
         Account__r.Name,
         Visible_To_Client__c,
         Last_Edited_Date__c,
@@ -331,6 +339,7 @@ public with sharing class MessagingPinnedSupport {
       row.relatedTaskName = msg.Related_Task__r != null ? msg.Related_Task__r.Name : null;
       row.relatedProjectId = msg.Related_Project__c != null ? String.valueOf(msg.Related_Project__c) : null;
       row.relatedProjectName = msg.Related_Project__r != null ? msg.Related_Project__r.Name : null;
+      row.accountId = msg.Account__c != null ? String.valueOf(msg.Account__c) : null;
       row.accountName = msg.Account__r != null ? msg.Account__r.Name : null;
       row.visibleToClient = msg.Visible_To_Client__c == true;
       row.lastEditedDate = msg.Last_Edited_Date__c;

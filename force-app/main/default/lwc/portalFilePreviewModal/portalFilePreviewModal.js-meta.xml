@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+  <apiVersion>66.0</apiVersion>
+  <isExposed>false</isExposed>
+  <masterLabel>Portal File Preview Modal</masterLabel>
+  <description
+  >Imperative modal: iframe preview for Experience Cloud (standard filePreview navigation is not supported there).</description>
+</LightningComponentBundle>

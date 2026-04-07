@@ -844,15 +844,20 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     const isFromCurrentUser = this.isActingUserMessageAuthor(msg);
     const taskLink = this.buildLink(msg.relatedTaskId, msg.relatedTaskName, "/project-task");
     const projectLink = this.buildLink(msg.relatedProjectId, msg.relatedProjectName, "/project");
+    const accountLink = this.buildLink(msg.accountId, msg.accountName, "/account");
 
     let taskNavData = null;
     let projectNavData = null;
+    let accountNavData = null;
 
     if (taskLink && taskLink.type === "standard__recordPage") {
       taskNavData = JSON.stringify(taskLink);
     }
     if (projectLink && projectLink.type === "standard__recordPage") {
       projectNavData = JSON.stringify(projectLink);
+    }
+    if (accountLink && accountLink.type === "standard__recordPage") {
+      accountNavData = JSON.stringify(accountLink);
     }
 
     return {
@@ -867,10 +872,13 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       replyToPreview: this.truncatePreview(stripHtml(msg.replyToMessageBody || ""), 100),
       taskLink: taskLink,
       projectLink: projectLink,
+      accountLink: accountLink,
       taskLinkIsSalesforce: taskLink && taskLink.type === "standard__recordPage",
       projectLinkIsSalesforce: projectLink && projectLink.type === "standard__recordPage",
+      accountLinkIsSalesforce: accountLink && accountLink.type === "standard__recordPage",
       taskNavData: taskNavData,
       projectNavData: projectNavData,
+      accountNavData: accountNavData,
       showTaskFooter: !(this.relatedTaskId && msg.relatedTaskId && this.relatedTaskId === msg.relatedTaskId),
       attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
       hasAttachments: Array.isArray(msg.files) && msg.files.length > 0,

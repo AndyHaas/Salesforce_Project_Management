@@ -1,0 +1,8 @@
+.portal-file-preview-iframe {
+  display: block;
+  width: 100%;
+  min-height: 65vh;
+  border: 1px solid var(--slds-g-color-border-base-1, #c9c9c9);
+  border-radius: 0.25rem;
+  background: var(--slds-g-color-neutral-base-100, #fff);
+}

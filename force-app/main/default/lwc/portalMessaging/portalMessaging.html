@@ -295,6 +295,7 @@
                           file-rows={message.attachmentFiles}
                           list-max-visible-files="5"
                           list-overflow-modal-title="All attachments"
+                          is-experience-cloud={isExperienceCloud}
                           show-preview={messageAttachmentShowPreview}
                           show-delete={messageAttachmentShowDelete}
                         >
@@ -328,7 +329,28 @@
                     <template if:true={showAccountContext}>
                       <div class="message-related">
                         <lightning-icon icon-name="utility:account" size="xx-small"> </lightning-icon>
-                        <span class="slds-text-body_small"> Account: {message.accountName} </span>
+                        <template if:true={message.accountLink}>
+                          <template if:true={message.accountLinkIsSalesforce}>
+                            <span class="slds-text-body_small">
+                              <button
+                                type="button"
+                                class="slds-button slds-button_reset slds-text-link"
+                                data-link={message.accountNavData}
+                                onclick={handleNavigateToRecord}
+                              >
+                                Account: {message.accountName}
+                              </button>
+                            </span>
+                          </template>
+                          <template if:false={message.accountLinkIsSalesforce}>
+                            <span class="slds-text-body_small">
+                              <a href={message.accountLink.href} class="slds-text-link"> Account: {message.accountName} </a>
+                            </span>
+                          </template>
+                        </template>
+                        <template if:false={message.accountLink}>
+                          <span class="slds-text-body_small"> Account: {message.accountName} </span>
+                        </template>
                       </div>
                     </template>
                   </template>

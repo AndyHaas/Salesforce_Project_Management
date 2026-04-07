@@ -20,6 +20,7 @@
             files={pendingComposerFiles}
             show-preview={showPreview}
             show-delete={showDelete}
+            is-experience-cloud={effectiveExperienceCloudForAttachments}
             onfileremove={handleComposerFileRemove}
           >
           </c-portal-file-attachments>
@@ -59,6 +60,7 @@
               files={listVisibleFileRows}
               show-preview={showPreview}
               show-delete={showDelete}
+              is-experience-cloud={effectiveExperienceCloudForAttachments}
             >
             </c-portal-file-attachments>
             <template if:true={showListFileViewMoreFooter}>

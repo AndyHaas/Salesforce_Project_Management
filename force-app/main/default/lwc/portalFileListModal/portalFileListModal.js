@@ -15,6 +15,17 @@ export default class PortalFileListModal extends LightningModal {
   _showPreview = true;
   _showDelete = false;
 
+  /** Forwarded to c-portal-file-attachments for Experience Cloud modal preview. */
+  _isExperienceCloud = true;
+
+  @api
+  get isExperienceCloud() {
+    return this._isExperienceCloud;
+  }
+  set isExperienceCloud(value) {
+    this._isExperienceCloud = value === true || value === "true";
+  }
+
   @api
   get showPreview() {
     return this._showPreview;

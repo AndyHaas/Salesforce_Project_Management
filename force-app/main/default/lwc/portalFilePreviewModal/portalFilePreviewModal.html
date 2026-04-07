@@ -1,0 +1,23 @@
+<template>
+  <lightning-modal-header label={headerLabel}></lightning-modal-header>
+  <lightning-modal-body>
+    <template if:true={hasSrc}>
+      <iframe src={iframeSrc} class="portal-file-preview-iframe" title={headerLabel}></iframe>
+    </template>
+    <template if:false={hasSrc}>
+      <p class="slds-text-body_small slds-text-color_weak">No file is available to preview.</p>
+    </template>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <lightning-button
+      class="slds-m-right_x-small"
+      variant="neutral"
+      label="Open in new tab"
+      title="Open in new tab"
+      onclick={handleOpenNewTab}
+      disabled={openInNewTabDisabled}
+    >
+    </lightning-button>
+    <lightning-button variant="brand" label="Close" title="Close" onclick={handleClose}> </lightning-button>
+  </lightning-modal-footer>
+</template>

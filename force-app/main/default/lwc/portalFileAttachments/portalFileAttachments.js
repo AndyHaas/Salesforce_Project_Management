@@ -2,6 +2,7 @@ import { LightningElement, api } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
 import getContentDocumentIdForVersionId from "@salesforce/apex/MessageFilesSupport.getContentDocumentIdForVersionId";
 import { ensureSitePath, formatDateTime } from "c/portalCommon";
+import PortalFilePreviewModal from "c/portalFilePreviewModal";
 import { getFileIconName, formatFileSize } from "./portalFileAttachmentsUtils";
 
 /**
@@ -50,6 +51,21 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
   _showPreview = true;
   _showDelete = false;
 
+  /**
+   * When true, open file preview in c-portal-file-preview-modal (Experience Cloud).
+   * When false, use Lightning filePreview navigation (LEX only — not supported on Experience sites).
+   * Omit to infer from URL (/s/) like {@link #isExperienceCloudRuntime}.
+   */
+  _isExperienceCloudApi;
+
+  @api
+  get isExperienceCloud() {
+    return this._isExperienceCloudApi;
+  }
+  set isExperienceCloud(value) {
+    this._isExperienceCloudApi = value;
+  }
+
   @api
   get showPreview() {
     return this._showPreview;
@@ -79,6 +95,19 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
     }
     this._experienceCloud = false;
     return false;
+  }
+
+  /**
+   * Use in-modal shepherd iframe preview (portal). LEX uses standard filePreview navigation instead.
+   */
+  get usePortalFilePreviewModal() {
+    if (this._isExperienceCloudApi === true || this._isExperienceCloudApi === "true") {
+      return true;
+    }
+    if (this._isExperienceCloudApi === false || this._isExperienceCloudApi === "false") {
+      return false;
+    }
+    return this.isExperienceCloudRuntime;
   }
 
   get hasFiles() {
@@ -116,16 +145,19 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
   }
 
   handlePreviewClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
     const docIdEarly = (event.currentTarget.dataset.documentId || "").trim();
     const versionId = (event.currentTarget.dataset.versionId || "").trim();
+    const previewTitle = (event.currentTarget.dataset.previewTitle || "").trim() || "File preview";
 
-    // LEX: navigation and sync window.open must run in the same turn as the click (no await before them),
-    // or pop-up blockers block new tabs — especially noticeable inside Lightning modals (compose upload list).
-    if (docIdEarly && this.isExperienceCloudRuntime) {
-      this.openDocumentUrl(docIdEarly, null);
+    if (this.usePortalFilePreviewModal) {
+      void this.openPreviewForExperienceCloud(docIdEarly, versionId, previewTitle);
       return;
     }
-    if (docIdEarly && !this.isExperienceCloudRuntime) {
+
+    if (docIdEarly) {
       try {
         this[NavigationMixin.Navigate]({
           type: "standard__namedPage",
@@ -133,6 +165,7 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
             pageName: "filePreview"
           },
           state: {
+            recordIds: docIdEarly,
             selectedRecordId: docIdEarly
           }
         });
@@ -142,45 +175,7 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
       return;
     }
 
-    if (!docIdEarly && versionId) {
-      if (this.isExperienceCloudRuntime) {
-        const tab =
-          typeof window !== "undefined"
-            ? window.open("about:blank", "_blank", "noopener,noreferrer")
-            : null;
-        if (tab) {
-          try {
-            tab.opener = null;
-          } catch {
-            // ignore
-          }
-        }
-        void this.resolveDocumentIdForOpen("", versionId)
-          .then((docId) => {
-            if (!tab || tab.closed) {
-              return;
-            }
-            const pathname = typeof window !== "undefined" ? window.location.pathname || "" : "";
-            if (docId) {
-              const url = ensureSitePath(`/sfc/servlet.shepherd/document/download/${docId}`, {
-                currentPathname: pathname
-              });
-              tab.location.assign(url);
-              return;
-            }
-            const url = ensureSitePath(`/sfc/servlet.shepherd/version/download/${versionId}`, {
-              currentPathname: pathname
-            });
-            tab.location.assign(url);
-          })
-          .catch((e) => {
-            console.error("portalFileAttachments: preview after resolve failed", e);
-            if (tab && !tab.closed) {
-              tab.close();
-            }
-          });
-        return;
-      }
+    if (versionId) {
       void this.resolveDocumentIdForOpen("", versionId)
         .then((docId) => {
           if (docId) {
@@ -191,6 +186,7 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
                   pageName: "filePreview"
                 },
                 state: {
+                  recordIds: docId,
                   selectedRecordId: docId
                 }
               });
@@ -204,7 +200,30 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
         .catch((e) => {
           console.error("portalFileAttachments: preview resolve failed", e);
         });
+    }
+  }
+
+  /**
+   * Experience Cloud: standard__namedPage filePreview is not supported — use modal + shepherd URL.
+   */
+  async openPreviewForExperienceCloud(docIdEarly, versionId, previewTitle) {
+    let doc = docIdEarly;
+    if (!doc && versionId) {
+      doc = (await this.resolveDocumentIdForOpen("", versionId)) || "";
+    }
+    if (!doc && !versionId) {
       return;
+    }
+    try {
+      await PortalFilePreviewModal.open({
+        size: "large",
+        headerLabel: previewTitle,
+        contentDocumentId: doc || undefined,
+        contentVersionId: !doc && versionId ? versionId : undefined
+      });
+    } catch (e) {
+      console.error("portalFileAttachments: preview modal failed", e);
+      this.openDocumentUrl(doc || null, doc ? null : versionId);
     }
   }
 

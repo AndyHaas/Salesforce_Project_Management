@@ -1,4 +1,5 @@
 import { LightningElement, api, track, wire } from "lwc";
+import { CurrentPageReference } from "lightning/navigation";
 import { refreshApex } from "@salesforce/apex";
 import getFilesForLinkedRecord from "@salesforce/apex/TaskContextController.getFilesForLinkedRecord";
 import { splitFileNameForPortalRow } from "c/portalCommon";
@@ -161,6 +162,27 @@ export default class FileManager extends LightningElement {
     this._showDelete = value === true || value === "true";
   }
 
+  /**
+   * When set, overrides Experience Cloud detection for file preview (modal vs LEX filePreview).
+   * c-portal-messaging / compose modal pass this explicitly; record pages infer from page reference or URL.
+   */
+  _isExperienceCloudInput;
+
+  @api
+  get isExperienceCloud() {
+    return this._isExperienceCloudInput;
+  }
+  set isExperienceCloud(value) {
+    this._isExperienceCloudInput = value;
+  }
+
+  _currentPageReference;
+
+  @wire(CurrentPageReference)
+  wiredCurrentPageReference(pageRef) {
+    this._currentPageReference = pageRef;
+  }
+
   @api acceptedFormats = ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png,.gif,.zip,.rar";
 
   @api uploadHelpText;
@@ -205,6 +227,33 @@ export default class FileManager extends LightningElement {
 
   get listSpacingClass() {
     return this.showRecordUpload ? "slds-m-top_small" : "";
+  }
+
+  /**
+   * Experience Cloud file preview must use a modal; LEX uses standard filePreview navigation.
+   */
+  get effectiveExperienceCloudForAttachments() {
+    const v = this._isExperienceCloudInput;
+    if (v === true || v === "true") {
+      return true;
+    }
+    if (v === false || v === "false") {
+      return false;
+    }
+    const pr = this._currentPageReference;
+    if (pr && pr.type && String(pr.type).startsWith("comm__")) {
+      return true;
+    }
+    if (typeof window !== "undefined" && window.location) {
+      const pathname = window.location.pathname || "";
+      if (pathname.startsWith("/s/") || pathname.includes("/s/")) {
+        return true;
+      }
+      if (pathname.includes("/lightning/")) {
+        return false;
+      }
+    }
+    return true;
   }
 
   get wiredRowsMapped() {
@@ -286,7 +335,8 @@ export default class FileManager extends LightningElement {
         headerLabel: this.listOverflowModalTitle || "All attachments",
         fileRows: Array.isArray(this.displayFileRows) ? [...this.displayFileRows] : [],
         showPreview: this.showPreview,
-        showDelete: this.showDelete
+        showDelete: this.showDelete,
+        isExperienceCloud: this.effectiveExperienceCloudForAttachments
       });
     } catch (e) {
       console.error("fileManager file list modal:", JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
