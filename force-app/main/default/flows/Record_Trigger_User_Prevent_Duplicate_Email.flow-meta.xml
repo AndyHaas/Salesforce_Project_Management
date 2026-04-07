@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <customErrors>
+        <name>Error_Duplicate_User_Email</name>
+        <label>Error Duplicate User Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <customErrorMessages>
+            <errorMessage>This email address is already assigned to another Salesforce user.</errorMessage>
+            <fieldSelection>Email</fieldSelection>
+            <isFieldError>true</isFieldError>
+        </customErrorMessages>
+    </customErrors>
+    <customErrors>
+        <name>Error_User_Email_Lookup_Failed</name>
+        <label>Error User Email Lookup Failed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <customErrorMessages>
+            <errorMessage>We could not validate email uniqueness. Try again or contact your administrator.</errorMessage>
+            <isFieldError>false</isFieldError>
+        </customErrorMessages>
+    </customErrors>
+    <decisions>
+        <name>Is_duplicate_user_on_insert</name>
+        <label>Duplicate user on insert?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No duplicate</defaultConnectorLabel>
+        <rules>
+            <name>Duplicate_found_on_insert</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_User_By_Normalized_Email_New</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Error_Duplicate_User_Email</targetReference>
+            </connector>
+            <label>Duplicate found on insert</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_duplicate_user_on_update</name>
+        <label>Duplicate user on update?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No duplicate</defaultConnectorLabel>
+        <rules>
+            <name>Duplicate_found_on_update</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_User_Duplicate_By_Email_Update</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Error_Duplicate_User_Email</targetReference>
+            </connector>
+            <label>Duplicate found on update</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_record_new</name>
+        <label>Is record new?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_User_Duplicate_By_Email_Update</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Record is update</defaultConnectorLabel>
+        <rules>
+            <name>Record_is_new</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Id</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_User_By_Normalized_Email_New</targetReference>
+            </connector>
+            <label>Record is new</label>
+        </rules>
+    </decisions>
+    <description
+  >Before save on User: blocks create/update when another user has the same email. Compares using LOWER(TRIM($Record.Email)) to the User.Email field (case-insensitive match is typical in Salesforce; leading/trailing spaces on existing users may not match). Fault path returns a generic error if the duplicate lookup fails.</description>
+    <formulas>
+        <name>form_txt_NormalizedEmail</name>
+        <dataType>String</dataType>
+        <expression>LOWER(TRIM({!$Record.Email}))</expression>
+    </formulas>
+    <interviewLabel>Record Trigger - User - Prevent Duplicate Email {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Record Trigger - User - Prevent Duplicate Email</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_User_By_Normalized_Email_New</name>
+        <label>Get User By Normalized Email New</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Is_duplicate_user_on_insert</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Error_User_Email_Lookup_Failed</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Email</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>form_txt_NormalizedEmail</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
+        <sortField>Id</sortField>
+        <sortOrder>Asc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_User_Duplicate_By_Email_Update</name>
+        <label>Get User Duplicate By Email Update</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Is_duplicate_user_on_update</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Error_User_Email_Lookup_Failed</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Email</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>form_txt_NormalizedEmail</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Id</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
+        <sortField>Id</sortField>
+        <sortOrder>Asc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Is_record_new</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Email</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Email</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>User</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Draft</status>
+</Flow>
