@@ -278,8 +278,7 @@ export default class TaskContextPanel extends NavigationMixin(
       const notifyChangeIds = new NotifyChangeRecordIds([this.recordId]);
       getRecordNotifyChange(notifyChangeIds)
         .then(() => {
-          // Notification sent - the wired services will automatically refresh
-          console.log("Record change notification sent for:", this.recordId);
+          // Wired services refresh after LDS notification
         })
         .catch((error) => {
           console.error("Error notifying record change:", error);
@@ -949,13 +948,6 @@ export default class TaskContextPanel extends NavigationMixin(
       // Portal URL format: /project-task/:recordId
       const taskUrl = `/project-task/${taskId}`;
       const targetUrl = ensureSitePath(taskUrl, {
-        currentPathname: window.location.pathname
-      });
-
-      console.log("Navigating to task:", {
-        taskId,
-        taskUrl,
-        targetUrl,
         currentPathname: window.location.pathname
       });
 

@@ -94,8 +94,7 @@ export default class SalesforceMessaging extends LightningElement {
     // Ensure core component is ready
     setTimeout(() => {
       if (this.coreComponent) {
-        // Core component will handle its own initialization
-        console.log("Salesforce Messaging wrapper initialized");
+        // Core component handles its own initialization
       }
     }, 100);
   }

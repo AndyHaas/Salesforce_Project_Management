@@ -267,15 +267,15 @@
                               </span>
                             </span>
                           </div>
-                          <a
-                            href="javascript:void(0);"
-                            class="slds-text-link"
+                          <button
+                            type="button"
+                            class="slds-button slds-button_reset slds-text-link"
                             data-message-id={message.replyToMessageId}
                             onclick={handleNavigateToOriginalMessage}
                             title="Go to original message"
                           >
                             View original
-                          </a>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -338,14 +338,14 @@
                         <template if:true={message.projectLink}>
                           <template if:true={message.projectLinkIsSalesforce}>
                             <span class="slds-text-body_small">
-                              <a
-                                href="javascript:void(0);"
-                                class="slds-text-link"
+                              <button
+                                type="button"
+                                class="slds-button slds-button_reset slds-text-link"
                                 data-link={message.projectNavData}
                                 onclick={handleNavigateToRecord}
                               >
                                 Project: {message.relatedProjectName}
-                              </a>
+                              </button>
                             </span>
                           </template>
                           <template if:false={message.projectLinkIsSalesforce}>
@@ -371,14 +371,14 @@
                           <template if:true={message.taskLink}>
                             <template if:true={message.taskLinkIsSalesforce}>
                               <span class="slds-text-body_small">
-                                <a
-                                  href="javascript:void(0);"
-                                  class="slds-text-link"
+                                <button
+                                  type="button"
+                                  class="slds-button slds-button_reset slds-text-link"
                                   data-link={message.taskNavData}
                                   onclick={handleNavigateToRecord}
                                 >
                                   Task: {message.relatedTaskName}
-                                </a>
+                                </button>
                               </span>
                             </template>
                             <template if:false={message.taskLinkIsSalesforce}>

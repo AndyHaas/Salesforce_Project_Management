@@ -195,7 +195,7 @@ private class MessagingControllerTest {
     );
     Test.stopTest();
 
-    // Verify Contact was created
+    // Verify Contact was created and linked on User (no ambiguous email match)
     List<Contact> createdContacts = [
       SELECT Id, FirstName, LastName, Email
       FROM Contact
@@ -203,7 +203,17 @@ private class MessagingControllerTest {
     ];
     System.assert(!createdContacts.isEmpty(), 'Contact should be created for Milestone team member');
 
-    // Verify message uses the created Contact
+    User userAfter = [
+      SELECT Messaging_Sender_Contact__c
+      FROM User
+      WHERE Id = :currentUser.Id
+    ];
+    System.assertEquals(
+      createdContacts[0].Id,
+      userAfter.Messaging_Sender_Contact__c,
+      'User should store Messaging_Sender_Contact__c after first send'
+    );
+
     Message__c message = [SELECT Id, Sender__c FROM Message__c WHERE Id = :messageId];
     System.assertEquals(createdContacts[0].Id, message.Sender__c, 'Message should use created Contact');
   }
@@ -1592,5 +1602,113 @@ private class MessagingControllerTest {
       );
     }
     Test.stopTest();
+  }
+
+  @isTest
+  static void testSendMessage_PortalUser_RejectsOtherAccountTask() {
+    User currentUser = [SELECT Id, AccountId FROM User WHERE Id = :UserInfo.getUserId()];
+    if (currentUser.AccountId == null) {
+      return;
+    }
+
+    Account otherAccount = new Account(Name = 'Other Client Account');
+    insert otherAccount;
+
+    Project__c otherProject = new Project__c(Name = 'Other Project', Account__c = otherAccount.Id);
+    insert otherProject;
+
+    Project_Task__c otherTask = new Project_Task__c(
+      Name = 'Other Task',
+      Project__c = otherProject.Id,
+      Account__c = otherAccount.Id
+    );
+    insert otherTask;
+
+    Test.startTest();
+    try {
+      MessagingController.sendMessage(
+        'Cross-tenant attempt',
+        'Milestone Team',
+        null,
+        null,
+        otherTask.Id,
+        null,
+        true,
+        null
+      );
+      System.assert(false, 'Expected AuraHandledException for other account task');
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('account context'),
+        'Expected account context error: ' + e.getMessage()
+      );
+    }
+    Test.stopTest();
+  }
+
+  @isTest
+  static void testSendMessage_RejectsInvalidTaskId() {
+    Account testAccount = [SELECT Id FROM Account LIMIT 1];
+
+    Test.startTest();
+    try {
+      MessagingController.sendMessage(
+        'Invalid task',
+        'Client',
+        null,
+        null,
+        testAccount.Id,
+        null,
+        true,
+        null
+      );
+      System.assert(false, 'Expected AuraHandledException for invalid task Id');
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('not found') || e.getMessage().contains('not available'),
+        'Expected task not found error: ' + e.getMessage()
+      );
+    }
+    Test.stopTest();
+  }
+
+  @isTest
+  static void testSendMessage_FiltersMentionsNotMentionable() {
+    Account testAccount = [SELECT Id FROM Account LIMIT 1];
+    Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
+    Project_Task__c testTask = [SELECT Id FROM Project_Task__c LIMIT 1];
+
+    Contact notMentionable = new Contact(
+      FirstName = 'No',
+      LastName = 'PortalFlag',
+      Email = 'noportalmention@test.com',
+      AccountId = testAccount.Id,
+      Portal_Access_Enabled__c = false
+    );
+    insert notMentionable;
+
+    Test.startTest();
+    String messageId = MessagingController.sendMessage(
+      'Hello with bad mention only',
+      'Client',
+      testAccount.Id,
+      testProject.Id,
+      testTask.Id,
+      new List<String>{ notMentionable.Id },
+      true,
+      null
+    );
+    Test.stopTest();
+
+    Message__c inserted = [
+      SELECT Mentioned_Contacts__c
+      FROM Message__c
+      WHERE Id = :messageId
+    ];
+    System.assert(
+      String.isBlank(inserted.Mentioned_Contacts__c) ||
+        !inserted.Mentioned_Contacts__c.contains(String.valueOf(notMentionable.Id)),
+      'Non-mentionable contact should be filtered out'
+    );
   }
 }

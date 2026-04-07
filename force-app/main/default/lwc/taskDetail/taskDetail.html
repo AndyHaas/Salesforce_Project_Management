@@ -11,13 +11,13 @@
               <template if:true={task.Project__c}>
                 <p class="meta">
                   Project:
-                  <a
-                    href="javascript:void(0);"
+                  <button
+                    type="button"
+                    class="slds-button slds-button_reset slds-text-link project-link"
                     onclick={handleProjectClick}
-                    class="project-link"
                   >
                     {displayProject}
-                  </a>
+                  </button>
                 </p>
               </template>
             </div>

@@ -52,7 +52,6 @@ export default class TaskStatusBreakdown extends NavigationMixin(
    * @private
    */
   handleAccountFilterChange(message) {
-    console.log("StatusBreakdown received LMS message:", message);
     if (message) {
       if (message.accountIds !== undefined) {
         // New multi-select format
@@ -63,10 +62,6 @@ export default class TaskStatusBreakdown extends NavigationMixin(
         // Backward compatibility - single account ID
         this._filteredAccountIds = message.accountId ? [message.accountId] : [];
       }
-      console.log(
-        "StatusBreakdown filteredAccountIds:",
-        this._filteredAccountIds
-      );
     }
   }
 

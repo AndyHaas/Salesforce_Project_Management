@@ -125,21 +125,6 @@ export default class TaskReviewStatusMetrics extends NavigationMixin(
   wiredReviewStatusMetrics({ error, data }) {
     if (data) {
       this.reviewData = data;
-      // Debug logging
-      console.log("Review Status Metrics Data:", JSON.stringify(data, null, 2));
-      console.log("In Review Total:", data.inReviewTotal);
-      console.log(
-        "PM Approved:",
-        data.pmApprovedCount,
-        "PM Pending:",
-        data.pmPendingCount
-      );
-      console.log(
-        "Client Approved:",
-        data.clientCompletionApprovedCount,
-        "Client Pending:",
-        data.clientCompletionPendingCount
-      );
       // Wait for next render cycle to ensure canvas elements are in DOM
       setTimeout(() => {
         this.renderCharts();

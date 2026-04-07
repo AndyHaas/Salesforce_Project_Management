@@ -94,11 +94,75 @@ public without sharing class MessagingController {
    */
   private static User getCurrentUserWithContactFields() {
     return [
-      SELECT Id, ContactId, AccountId, Name, Email
+      SELECT Id, ContactId, AccountId, Name, Email, Messaging_Sender_Contact__c
       FROM User
       WHERE Id = :UserInfo.getUserId()
       LIMIT 1
     ];
+  }
+
+  /**
+   * Portal users may only send messages tied to their own Account__c (closes IDOR on related Ids).
+   */
+  private static void assertPortalUserMessageContext(Message__c message, Id portalUserAccountId) {
+    if (portalUserAccountId == null) {
+      return;
+    }
+    if (message.Account__c == null || message.Account__c != portalUserAccountId) {
+      throw new AuraHandledException('You can only send messages in your account context.');
+    }
+  }
+
+  /**
+   * Same eligibility rules as getMentionableContacts: only these Ids may be stored and notified.
+   *
+   * @param candidateIds Raw mention Ids from the client (may be empty or invalid).
+   * @param currentUser User row with AccountId (portal vs internal).
+   * @return Validated Ids in stable order (query order).
+   */
+  private static List<String> filterToMentionableContactIds(List<String> candidateIds, User currentUser) {
+    if (candidateIds == null || candidateIds.isEmpty()) {
+      return new List<String>();
+    }
+    Set<Id> idSet = new Set<Id>();
+    for (String s : candidateIds) {
+      if (String.isBlank(s)) {
+        continue;
+      }
+      try {
+        idSet.add((Id) s.trim());
+      } catch (Exception ignore) {
+        // Non-Id strings ignored
+      }
+    }
+    if (idSet.isEmpty()) {
+      return new List<String>();
+    }
+    List<Contact> contacts;
+    if (currentUser.AccountId != null) {
+      Id currentUserAccountId = currentUser.AccountId;
+      contacts = [
+        SELECT Id
+        FROM Contact
+        WHERE
+          Id IN :idSet
+          AND Portal_Access_Enabled__c = TRUE
+          AND (AccountId = :currentUserAccountId OR AccountId = NULL)
+        ORDER BY Name
+      ];
+    } else {
+      contacts = [
+        SELECT Id
+        FROM Contact
+        WHERE Id IN :idSet AND Portal_Access_Enabled__c = TRUE
+        ORDER BY Name
+      ];
+    }
+    List<String> out = new List<String>();
+    for (Contact c : contacts) {
+      out.add(String.valueOf(c.Id));
+    }
+    return out;
   }
 
   /**
@@ -162,21 +226,23 @@ public without sharing class MessagingController {
       // Priority: Task > Project > Account
       if (String.isNotBlank(relatedTaskId)) {
         message.Related_Task__c = relatedTaskId;
-        // Get project and account from task
         List<Project_Task__c> tasks = [
-          SELECT Project__c, Project__r.Account__c
+          SELECT Account__c, Project__c, Project__r.Account__c
           FROM Project_Task__c
           WHERE Id = :relatedTaskId
           LIMIT 1
         ];
-        if (!tasks.isEmpty()) {
-          Project_Task__c task = tasks[0];
-          if (task.Project__c != null) {
-            message.Related_Project__c = task.Project__c;
-          }
-          if (task.Project__r?.Account__c != null) {
-            message.Account__c = task.Project__r.Account__c;
-          }
+        if (tasks.isEmpty()) {
+          throw new AuraHandledException('The related task was not found or is not available.');
+        }
+        Project_Task__c task = tasks[0];
+        if (task.Project__c != null) {
+          message.Related_Project__c = task.Project__c;
+        }
+        if (task.Account__c != null) {
+          message.Account__c = task.Account__c;
+        } else if (task.Project__r?.Account__c != null) {
+          message.Account__c = task.Project__r.Account__c;
         }
       } else if (String.isNotBlank(relatedProjectId)) {
         message.Related_Project__c = relatedProjectId;
@@ -195,11 +261,6 @@ public without sharing class MessagingController {
       } else if (currentUser.AccountId != null) {
         // Fallback to user's account if no specific context provided
         message.Account__c = currentUser.AccountId;
-      }
-
-      // Store mentioned contact IDs as comma-separated string
-      if (mentionedContactIds != null && !mentionedContactIds.isEmpty()) {
-        message.Mentioned_Contacts__c = String.join(mentionedContactIds, ',');
       }
 
       // Set visibility to client (default true, only Milestone team can set to false)
@@ -238,7 +299,7 @@ public without sharing class MessagingController {
               message.Related_Task__c = replyToMessage.Related_Task__c;
               // Populate project and account from the inherited task (same logic as when task is provided as parameter)
               List<Project_Task__c> tasks = [
-                SELECT Project__c, Project__r.Account__c
+                SELECT Account__c, Project__c, Project__r.Account__c
                 FROM Project_Task__c
                 WHERE Id = :replyToMessage.Related_Task__c
                 LIMIT 1
@@ -248,7 +309,9 @@ public without sharing class MessagingController {
                 if (task.Project__c != null) {
                   message.Related_Project__c = task.Project__c;
                 }
-                if (task.Project__r?.Account__c != null) {
+                if (task.Account__c != null) {
+                  message.Account__c = task.Account__c;
+                } else if (task.Project__r?.Account__c != null) {
                   message.Account__c = task.Project__r.Account__c;
                 }
               }
@@ -276,11 +339,19 @@ public without sharing class MessagingController {
         }
       }
 
+      List<String> mentionIdsForSave = filterToMentionableContactIds(mentionedContactIds, currentUser);
+      if (!mentionIdsForSave.isEmpty()) {
+        message.Mentioned_Contacts__c = String.join(mentionIdsForSave, ',');
+      } else {
+        message.Mentioned_Contacts__c = null;
+      }
+
+      assertPortalUserMessageContext(message, currentUserAccountId);
+
       insert message;
 
-      // Send notifications to mentioned contacts
-      if (mentionedContactIds != null && !mentionedContactIds.isEmpty()) {
-        sendMentionNotifications(message.Id, mentionedContactIds, messageBody);
+      if (!mentionIdsForSave.isEmpty()) {
+        sendMentionNotifications(message.Id, mentionIdsForSave, messageBody);
       }
 
       return message.Id;
@@ -309,50 +380,44 @@ public without sharing class MessagingController {
   }
 
   /**
-   * @description Get or create a Contact record for a User
-   * Since Sender__c field requires Contact (not User), we need to create/find a Contact
-   * for Milestone team members who don't have ContactId
-   * @param user The User record
-   * @return Contact ID
+   * @description Resolve Contact for Message__c.Sender__c: portal users use ContactId; internal users use
+   * Messaging_Sender_Contact__c when set, otherwise create a Contact and store its Id on the User.
+   * @param user User row including ContactId and Messaging_Sender_Contact__c
+   * @return Contact Id to use as sender
    */
   private static Id getOrCreateContactForUser(User user) {
-    // If user already has ContactId, use it (portal users)
     if (user.ContactId != null) {
       return user.ContactId;
     }
 
-    // For Milestone team members without ContactId, find or create a Contact
-    // Try to find existing Contact by email first
-    if (String.isNotBlank(user.Email)) {
-      List<Contact> existingContacts = [
+    if (user.Messaging_Sender_Contact__c != null) {
+      List<Contact> linked = [
         SELECT Id
         FROM Contact
-        WHERE Email = :user.Email
+        WHERE Id = :user.Messaging_Sender_Contact__c
         LIMIT 1
       ];
-      if (!existingContacts.isEmpty()) {
-        return existingContacts[0].Id;
+      if (!linked.isEmpty()) {
+        return linked[0].Id;
       }
     }
 
-    // Create a new Contact for the Milestone team member
     Contact newContact = new Contact();
 
-    // Parse name - LastName is required
-    if (user.Name.contains(' ')) {
+    if (user.Name != null && user.Name.contains(' ')) {
       List<String> nameParts = user.Name.split(' ', 2);
       newContact.FirstName = nameParts[0];
       newContact.LastName = nameParts.size() > 1 ? nameParts[1] : nameParts[0];
     } else {
-      // If no space, use entire name as LastName (required field)
       newContact.LastName = String.isNotBlank(user.Name) ? user.Name : 'Milestone Team Member';
     }
 
     newContact.Email = user.Email;
-    // Note: AccountId is not required for Contact
-    // For Milestone team members, we'll leave AccountId blank
 
     insert newContact;
+
+    update new User(Id = user.Id, Messaging_Sender_Contact__c = newContact.Id);
+
     return newContact.Id;
   }
 
@@ -378,10 +443,9 @@ public without sharing class MessagingController {
 
   /**
    * @description Check if current user is a Milestone Consulting team member
-   * Note: In the portal context, all users are clients (they have AccountId).
-   * Milestone Consulting team members do not use the portal - they access Salesforce internally.
-   * This method returns false for all portal users since they are all clients.
-   * @return Boolean indicating if user is Milestone team member (always false for portal users)
+   * Discriminator: User.AccountId == null is treated as internal/Milestone team; portal clients have AccountId set.
+   * If your org assigns AccountId to some internal users, use a permission set or custom flag instead.
+   * @return True when AccountId is null (internal); false for Experience Cloud client users
    */
   @AuraEnabled(cacheable=true)
   public static Boolean isMilestoneTeamMember() {
@@ -821,7 +885,7 @@ public without sharing class MessagingController {
     try {
       // User / Message queries omit WITH SECURITY_ENFORCED for portal compatibility (field access varies by profile).
       User currentUser = [
-        SELECT Id, ContactId, AccountId, Name, Email
+        SELECT Id, ContactId, AccountId, Name, Email, Messaging_Sender_Contact__c
         FROM User
         WHERE Id = :UserInfo.getUserId()
         LIMIT 1
@@ -1097,7 +1161,7 @@ public without sharing class MessagingController {
     try {
       // Get current user (need Name and Email for Contact creation if needed)
       User currentUser = [
-        SELECT Id, ContactId, Name, Email
+        SELECT Id, ContactId, Name, Email, Messaging_Sender_Contact__c
         FROM User
         WHERE Id = :UserInfo.getUserId()
         LIMIT 1
@@ -1204,7 +1268,7 @@ public without sharing class MessagingController {
     try {
       // Get current user (need Name and Email for Contact creation if needed)
       User currentUser = [
-        SELECT Id, ContactId, Name, Email
+        SELECT Id, ContactId, Name, Email, Messaging_Sender_Contact__c
         FROM User
         WHERE Id = :UserInfo.getUserId()
         LIMIT 1

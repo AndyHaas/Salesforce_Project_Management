@@ -310,7 +310,7 @@ export function formatNumber(value, emptyValue = "") {
 }
 
 /**
- * Strip HTML tags from a string
+ * Strip HTML tags from a string (plain-text extraction for preview/search; not a sanitizer for untrusted HTML).
  * @param {string} html - HTML string to strip
  * @returns {string} Plain text without HTML tags
  */

@@ -136,7 +136,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     }
 
     if (projectId && projectId !== this._projectId) {
-      console.log("[DEBUG] resolvePageReference - projectId from URL:", projectId);
       this._projectId = projectId;
     }
 
@@ -818,16 +817,7 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
   @wire(getGroupedTasksWithSubtasks, { accountIds: "$effectiveAccountIds" })
   wiredGroupedTasks(result) {
-    // DEBUG: Log when this wire is called
-    console.log(
-      "[DEBUG] wiredGroupedTasks called - useProjectScopedWire:",
-      this.useProjectScopedWire,
-      "hasData:",
-      !!result?.data
-    );
-
     if (this.useProjectScopedWire) {
-      console.log("[DEBUG] wiredGroupedTasks - project-scoped wire active, skipping account-based query");
       return;
     }
     this.wiredGroupedTasksResult = result;
@@ -1033,25 +1023,14 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     projectId: "$projectIdForWire"
   })
   wiredGroupedTasksByProject(result) {
-    // DEBUG: Always log when this wire method is called
-    console.log(
-      "[DEBUG] wiredGroupedTasksByProject called - projectIdForWire:",
-      this.projectIdForWire,
-      "hasData:",
-      !!result?.data,
-      "hasError:",
-      !!result?.error
-    );
-
     if (!this.projectIdForWire) {
-      console.log("[DEBUG] wiredGroupedTasksByProject - No projectIdForWire; leaving list to account/global wire");
       return;
     }
 
     // Validate projectId format (should be 15 or 18 character Salesforce ID)
     const pid = this.projectIdForWire;
     if (typeof pid !== "string" || (pid.length !== 15 && pid.length !== 18)) {
-      console.error("[DEBUG] wiredGroupedTasksByProject - Invalid projectId format:", pid);
+      console.error("wiredGroupedTasksByProject - Invalid projectId format:", pid);
       this.error = { message: "Invalid project ID format" };
       return;
     }
@@ -1061,10 +1040,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     this.isLoading = !data && !error;
     if (data) {
       try {
-        // DEBUG: Log project ID and data received
-        console.log("[DEBUG] wiredGroupedTasksByProject - Project ID:", this.projectIdForWire);
-        console.log("[DEBUG] wiredGroupedTasksByProject - Status groups count:", data.statusGroups?.length || 0);
-
         // Clear any existing statusGroups first to prevent data mixing
         // This ensures we only use project-specific data
         this.statusGroups = [];
@@ -1072,16 +1047,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
         this._resetListFilterStatusSelectionOnNextRebuild = true;
         const statusGroupsData = Array.isArray(data.statusGroups) ? data.statusGroups : [];
 
-        // DEBUG: Log status groups and their tasks
-        console.log(
-          "[DEBUG] wiredGroupedTasksByProject - Status groups (raw):",
-          statusGroupsData.map((sg) => ({
-            status: sg.status,
-            taskCount: sg.tasks?.length || 0,
-            taskNames: sg.tasks?.map((t) => t.name).slice(0, 5) || [],
-            hasTasks: !!(sg.tasks && sg.tasks.length > 0)
-          }))
-        );
         this.summaryFieldDefinitions = Array.isArray(data.summaryFieldDefinitions) ? data.summaryFieldDefinitions : [];
         this.updateSummaryFieldDefinitionMap();
         this.updateSummaryFieldHeaderClasses();
@@ -1246,17 +1211,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
             taskCount: tasks.length
           };
         });
-
-        // DEBUG: Log status groups after processing
-        console.log(
-          "[DEBUG] wiredGroupedTasksByProject - Status groups (processed):",
-          this.statusGroups.map((sg) => ({
-            status: sg.status,
-            taskCount: sg.tasks?.length || 0,
-            taskNames: sg.tasks?.map((t) => t.name).slice(0, 5) || [],
-            hasTasks: !!(sg.tasks && sg.tasks.length > 0)
-          }))
-        );
 
         // List filters (including multi-select status) applied in refreshFilteredStatusGroups
         this.rebuildListViewFilterOptions();
@@ -1737,18 +1691,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
 
     let groups = [...this.statusGroups];
 
-    // DEBUG: Log initial state
-    if (this.resolvedProjectId) {
-      console.log("[DEBUG] refreshFilteredStatusGroups - Project ID:", this.resolvedProjectId);
-      console.log(
-        "[DEBUG] refreshFilteredStatusGroups - Initial groups:",
-        groups.map((sg) => ({
-          status: sg.status,
-          taskCount: sg.tasks?.length || 0
-        }))
-      );
-    }
-
     // Portal "My tasks": restrict to tasks involving the logged-in contact
     if (this.showMyTasksOnly) {
       groups = this.filterGroupsForCurrentUser(groups);
@@ -1757,21 +1699,6 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
     groups = this.filterGroupsForListView(groups);
 
     this.filteredStatusGroups = this.decorateStatusGroupsForDisplay(groups);
-
-    // DEBUG: Log filtered status groups after decoration
-    if (this.resolvedProjectId) {
-      console.log("[DEBUG] refreshFilteredStatusGroups - After decoration:", {
-        filteredGroupsCount: this.filteredStatusGroups.length,
-        groupsWithTasks: this.filteredStatusGroups.filter((g) => g.tasks && g.tasks.length > 0).length,
-        totalTasks: this.filteredStatusGroups.reduce((sum, g) => sum + (g.tasks?.length || 0), 0),
-        hasData: this.hasData,
-        groups: this.filteredStatusGroups.map((g) => ({
-          status: g.status,
-          taskCount: g.tasks?.length || 0,
-          isCollapsed: g.isCollapsed
-        }))
-      });
-    }
   }
 
   filterGroupsForCurrentUser(groups) {
@@ -2301,12 +2228,22 @@ export default class GroupedTaskList extends NavigationMixin(LightningElement) {
       } else if (dataTypeUpper === "DATETIME") {
         // For datetime fields, ensure proper format
         fields[fieldApiName] = fieldValue || null;
-      } else if (dataTypeUpper === "DOUBLE" || dataTypeUpper === "CURRENCY" || dataTypeUpper === "PERCENT") {
-        const numValue = fieldValue ? parseFloat(fieldValue) : null;
-        fields[fieldApiName] = isNaN(numValue) ? null : numValue;
-      } else if (dataTypeUpper === "INTEGER") {
-        const intValue = fieldValue ? parseInt(fieldValue, 10) : null;
-        fields[fieldApiName] = isNaN(intValue) ? null : intValue;
+      } else if (
+        dataTypeUpper === "DOUBLE" ||
+        dataTypeUpper === "CURRENCY" ||
+        dataTypeUpper === "PERCENT" ||
+        dataTypeUpper === "INTEGER"
+      ) {
+        if (fieldValue === "" || fieldValue === null || fieldValue === undefined) {
+          fields[fieldApiName] = null;
+        } else {
+          const numValue = parseFloat(fieldValue);
+          if (isNaN(numValue)) {
+            this.showToast("Error", "Invalid number format", "error");
+            return;
+          }
+          fields[fieldApiName] = numValue;
+        }
       } else if (dataTypeUpper === "BOOLEAN") {
         // Handle boolean values - can be true, false, 'true', 'false', or null
         if (fieldValue === null || fieldValue === undefined || fieldValue === "") {

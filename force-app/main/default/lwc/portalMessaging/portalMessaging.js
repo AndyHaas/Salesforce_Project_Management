@@ -43,7 +43,7 @@ import deleteMessageAndAttachments from "@salesforce/apex/MessageFilesSupport.de
 import pinMessage from "@salesforce/apex/MessagingController.pinMessage";
 import linkFilesToMessageAndContext from "@salesforce/apex/MessageFilesSupport.linkFilesToMessageAndContext";
 import getFilesForMessages from "@salesforce/apex/MessageFilesSupport.getFilesForMessages";
-import { ensureSitePath, formatDateTime } from "c/portalCommon";
+import { ensureSitePath, formatDateTime, stripHtml } from "c/portalCommon";
 import MESSAGE_UPDATE_CHANNEL from "@salesforce/messageChannel/MessageUpdate__c";
 import userId from "@salesforce/user/Id";
 
@@ -303,25 +303,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
 
       this._isLoadingMore = true;
 
-      console.log(
-        "Loading messages with params:",
-        JSON.stringify(
-          {
-            recipientType: recipientTypeForQuery,
-            recipientTypeForSending: this.recipientType,
-            isMilestoneTeamMember: this._isMilestoneTeamMember,
-            relatedAccountId: this.relatedAccountId,
-            relatedProjectId: this.relatedProjectId,
-            relatedTaskId: this.relatedTaskId,
-            offset: this._currentOffset,
-            limit: this._messagesPerPage,
-            append: append
-          },
-          null,
-          2
-        )
-      );
-
       const data = await getMessages({
         recipientType: recipientTypeForQuery,
         relatedAccountId: this.relatedAccountId,
@@ -354,14 +335,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       this._currentOffset += newMessages.length;
 
       this._messagesError = null;
-      console.log(
-        "Messages loaded:",
-        newMessages.length,
-        "Total:",
-        this._messages.length,
-        "Has more:",
-        this._hasMoreMessages
-      );
 
       // Mark unread messages as read (only on initial load)
       if (!append) {
@@ -934,7 +907,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       isEditing: this._editingMessageId === msg.id,
       isReplying: this._replyingToMessageId === msg.id,
       replyToFormattedDate: msg.replyToCreatedDate ? this.formatMessageDate(msg.replyToCreatedDate) : "",
-      replyToPreview: this.stripHtmlPreview(msg.replyToMessageBody || ""),
+      replyToPreview: this.truncatePreview(stripHtml(msg.replyToMessageBody || ""), 100),
       taskLink: taskLink,
       projectLink: projectLink,
       taskLinkIsSalesforce: taskLink && taskLink.type === "standard__recordPage",
@@ -945,7 +918,7 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
       hasAttachments: Array.isArray(msg.files) && msg.files.length > 0,
       isInternalMessage: msg.visibleToClient === false,
-      bodyPreview: this.truncatePreview(this.stripHtmlPreview(msg.body || ""), 140),
+      bodyPreview: this.truncatePreview(stripHtml(msg.body || ""), 140),
       displaySenderName: this.computeDisplaySenderName(msg)
     };
   }
@@ -1046,18 +1019,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     window.setTimeout(() => {
       row.classList.remove("message-item--highlight");
     }, 2200);
-  }
-
-  /**
-   * @description Strip HTML for search purposes (more thorough than preview)
-   */
-  stripHtmlForSearch(html) {
-    if (!html) {
-      return "";
-    }
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
   }
 
   /**
@@ -1564,25 +1525,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       // Extract mentioned contact IDs
       const mentionedContactIds = this.selectedMentions.map((m) => m.id);
 
-      console.log(
-        "Sending message with:",
-        JSON.stringify(
-          {
-            messageBody: currentMessageBody.substring(0, 100) + "...",
-            recipientType: this.recipientType,
-            relatedAccountId: this.relatedAccountId,
-            relatedProjectId: this.relatedProjectId,
-            relatedTaskId: this.relatedTaskId,
-            primaryFileContextRecordId: this.primaryFileContextRecordId,
-            mentionedContactIds: mentionedContactIds,
-            isVisibleToClient: this.visibleToClientForSend,
-            replyToMessageId: this._replyingToMessageId
-          },
-          null,
-          2
-        )
-      );
-
       // Send message
       const messageId = await sendMessage({
         messageBody: currentMessageBody,
@@ -1594,8 +1536,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
         isVisibleToClient: this.visibleToClientForSend,
         replyToMessageId: this._replyingToMessageId
       });
-
-      console.log("Message sent successfully, ID:", messageId);
 
       // Link files if any were uploaded
       if (this._uploadedFileIds && this._uploadedFileIds.length > 0) {
@@ -1644,7 +1584,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       this.publishMessageUpdate("sent");
 
       // Reload messages after sending - reset to show newest at bottom
-      console.log("Reloading messages after send...");
       this._currentOffset = 0;
       this._hasMoreMessages = true;
       await this.loadMessages(false);
@@ -1656,8 +1595,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
           this.scrollToBottom();
         }, 50);
       });
-
-      console.log("Messages reloaded");
 
       this.dispatchEvent(
         new ShowToastEvent({
@@ -1873,23 +1810,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     if (event.target === event.currentTarget) {
       this.handleCloseModal();
     }
-  }
-
-  /**
-   * @description Strip HTML and create preview text
-   */
-  stripHtmlPreview(html) {
-    if (!html) {
-      return "";
-    }
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    let text = tmp.textContent || tmp.innerText || "";
-    // Limit to 100 characters
-    if (text.length > 100) {
-      text = text.substring(0, 100) + "...";
-    }
-    return text;
   }
 
   /**
