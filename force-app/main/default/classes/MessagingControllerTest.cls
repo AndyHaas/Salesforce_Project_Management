@@ -204,14 +204,14 @@ private class MessagingControllerTest {
     System.assert(!createdContacts.isEmpty(), 'Contact should be created for Milestone team member');
 
     User userAfter = [
-      SELECT Messaging_Sender_Contact__c
+      SELECT Messaging_Sender_Contact_Id__c
       FROM User
       WHERE Id = :currentUser.Id
     ];
     System.assertEquals(
-      createdContacts[0].Id,
-      userAfter.Messaging_Sender_Contact__c,
-      'User should store Messaging_Sender_Contact__c after first send'
+      String.valueOf(createdContacts[0].Id),
+      userAfter.Messaging_Sender_Contact_Id__c,
+      'User should store Messaging_Sender_Contact_Id__c after first send'
     );
 
     Message__c message = [SELECT Id, Sender__c FROM Message__c WHERE Id = :messageId];

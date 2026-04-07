@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Messaging_Sender_Contact_Id__c</fullName>
+    <description>18-character Id of the Contact used as Message__c.Sender__c for internal users without User.ContactId. Set automatically on first send.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>System-managed Contact Id for messaging sender linkage.</inlineHelpText>
+    <label>Messaging Sender Contact Id</label>
+    <length>18</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
