@@ -1,7 +1,7 @@
 /**
- * Inserts ContentDocumentLink rows for message attachments without sharing enforcement.
- * Portal users often lack row visibility on Account / Project__c / Project_Task__c for CDL SOQL/DML
- * even when they may create Message__c rows; this worker mirrors typical "system links file" behavior.
+ * Portal file operations without sharing enforcement: ContentDocumentLink DML, version resolution,
+ * and ContentDistribution for in-browser preview. Community users often lack CRUD on linked records
+ * or ContentDistribution; callers must confirm the user may read the file before preview helpers run.
  */
 public without sharing class MessageFilesLinkWorker {
   /**
@@ -228,5 +228,46 @@ public without sharing class MessageFilesLinkWorker {
       }
     }
     return ordered;
+  }
+
+  /**
+   * @description Public distribution URL for iframe preview of a ContentVersion (Experience Cloud).
+   * @see MessageFilesSupport#getFilePreviewUrl
+   * @param contentVersionId Non-null ContentVersion Id.
+   * @return {@link ContentDistribution#DistributionPublicUrl} with view-in-browser enabled.
+   */
+  public static String getDistributionPublicUrlForContentVersion(Id contentVersionId) {
+    if (contentVersionId == null) {
+      throw new AuraHandledException('Content Version ID is required');
+    }
+
+    List<ContentDistribution> existingDistributions = [
+      SELECT DistributionPublicUrl
+      FROM ContentDistribution
+      WHERE ContentVersionId = :contentVersionId AND PreferencesAllowViewInBrowser = TRUE
+      LIMIT 1
+    ];
+
+    if (!existingDistributions.isEmpty()) {
+      return existingDistributions[0].DistributionPublicUrl;
+    }
+
+    ContentDistribution dist = new ContentDistribution();
+    dist.ContentVersionId = contentVersionId;
+    dist.Name = 'Preview Distribution';
+    dist.PreferencesAllowViewInBrowser = true;
+    dist.PreferencesLinkLatestVersion = true;
+    dist.PreferencesAllowOriginalDownload = true;
+
+    insert dist;
+
+    ContentDistribution createdDist = [
+      SELECT DistributionPublicUrl
+      FROM ContentDistribution
+      WHERE Id = :dist.Id
+      LIMIT 1
+    ];
+
+    return createdDist.DistributionPublicUrl;
   }
 }

@@ -233,7 +233,7 @@ public with sharing class MessageFilesSupport {
   /**
    * @description Returns a browser-viewable URL for a ContentVersion using ContentDistribution
    * (Portal Add-On pattern). Confirms the running user can read the version (with sharing), then
-   * creates or reuses a distribution via {@link MessageFilesPreviewWorker} so Experience Cloud users
+   * creates or reuses a distribution via {@link MessageFilesLinkWorker} so Experience Cloud users
    * are not blocked by missing ContentDistribution CRUD on the community profile.
    *
    * @param contentVersionId ContentVersion Id the user can read.
@@ -258,7 +258,7 @@ public with sharing class MessageFilesSupport {
         throw new AuraHandledException('File not found or not accessible.');
       }
 
-      return MessageFilesPreviewWorker.getDistributionPublicUrlForContentVersion(verId);
+      return MessageFilesLinkWorker.getDistributionPublicUrlForContentVersion(verId);
     } catch (AuraHandledException e) {
       throw e;
     } catch (Exception e) {
