@@ -1701,4 +1701,31 @@ private class MessagingControllerTest {
       'Non-mentionable contact should be filtered out'
     );
   }
+
+  @IsTest
+  static void getOrCreateContactForUser_reusesExistingContactWithSameEmail() {
+    String em = 'shared-mail+' + String.valueOf(System.now().getTime()) + '@example.com';
+    Account acc = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+
+    Contact existing = new Contact(
+      FirstName = 'Existing',
+      LastName = 'Contact',
+      Email = em,
+      AccountId = acc.Id
+    );
+    insert existing;
+
+    User stubUser = new User(Email = em, ContactId = null);
+
+    Test.startTest();
+    Id resolved = MessagingController.getOrCreateContactForUserForTest(stubUser);
+    Test.stopTest();
+
+    System.assertEquals(existing.Id, resolved, 'Should reuse Contact with matching Email');
+    System.assertEquals(
+      1,
+      [SELECT COUNT() FROM Contact WHERE Email = :em],
+      'Must not insert a second Contact for the same Email'
+    );
+  }
 }

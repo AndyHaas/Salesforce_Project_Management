@@ -380,13 +380,28 @@ public without sharing class MessagingController {
   }
 
   /**
-   * @description Resolve Contact for Message__c.Sender__c: use User.ContactId when set; otherwise create a Contact.
+   * @description Resolve Contact for Message__c.Sender__c: use User.ContactId when set; otherwise reuse an existing
+   * Contact with the same Email (avoids duplicate-email validation when the User is not linked to that Contact),
+   * or insert a new Contact.
    * @param user User row including ContactId, Name, Email
    * @return Contact Id to use as sender
    */
   private static Id getOrCreateContactForUser(User user) {
     if (user.ContactId != null) {
       return user.ContactId;
+    }
+
+    if (String.isNotBlank(user.Email)) {
+      List<Contact> existingByEmail = [
+        SELECT Id
+        FROM Contact
+        WHERE Email = :user.Email
+        ORDER BY CreatedDate ASC
+        LIMIT 1
+      ];
+      if (!existingByEmail.isEmpty()) {
+        return existingByEmail[0].Id;
+      }
     }
 
     Contact newContact = new Contact();
@@ -401,9 +416,49 @@ public without sharing class MessagingController {
 
     newContact.Email = user.Email;
 
-    insert newContact;
+    try {
+      insert newContact;
+    } catch (DmlException dmx) {
+      // Race or org rule: another row claimed the email between query and insert — reuse it.
+      if (String.isNotBlank(user.Email) && isLikelyDuplicateContactEmailException(dmx)) {
+        List<Contact> retry = [
+          SELECT Id
+          FROM Contact
+          WHERE Email = :user.Email
+          ORDER BY CreatedDate ASC
+          LIMIT 1
+        ];
+        if (!retry.isEmpty()) {
+          return retry[0].Id;
+        }
+      }
+      throw dmx;
+    }
 
     return newContact.Id;
+  }
+
+  /**
+   * @description Test hook for {@link #getOrCreateContactForUser}; accepts an in-memory User row (no insert).
+   */
+  @TestVisible
+  private static Id getOrCreateContactForUserForTest(User user) {
+    return getOrCreateContactForUser(user);
+  }
+
+  /**
+   * @description True when DmlException looks like a unique / validation failure on Contact Email.
+   */
+  private static Boolean isLikelyDuplicateContactEmailException(DmlException dmx) {
+    if (dmx == null || dmx.getNumDml() < 1) {
+      return false;
+    }
+    String msg = dmx.getDmlMessage(0);
+    if (String.isBlank(msg)) {
+      return false;
+    }
+    String lower = msg.toLowerCase();
+    return lower.contains('email') && (lower.contains('duplicate') || lower.contains('already'));
   }
 
   /**
