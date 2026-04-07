@@ -1,6 +1,6 @@
 # Milestone Salesforce Project Management
 
-**Commercial Salesforce solution** for delivery organizations that need **projects**, **tasks**, **dependencies**, **time**, and **review workflows** in **your** Salesforce org. **Optional client-facing Experience Cloud** (OTP login, portal UI, portal messaging) is a separate **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** repository that deploys into the same org after core.
+**Commercial Salesforce solution** for delivery organizations that need **projects**, **tasks**, **dependencies**, **time**, and **review workflows** in **your** Salesforce org. **This core repo includes Experience Cloud–ready file list and in-page preview** (`c-file-manager`, `c-portal-file-attachments`, ContentDistribution-backed modal). **Optional client-facing portal shell** (OTP login, full portal pages, extended UI) still comes from the separate **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** repository deployed into the same org after core.
 
 > This repository contains **unmanaged metadata** (Apex, LWC, flows, objects, permission sets). **Purchased customers** receive rights to deploy and use it per their agreement with **Milestone Consulting**. [Product overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Product-Overview) · [Licensing & support](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Licensing-and-Support) · [Portal Add-On wiki](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/portal-add-on)
 
@@ -22,16 +22,27 @@
 - **Dashboards** — `projectTaskDashboard` and related LWCs; **task list columns** driven by **`Project_Task_Dashboard_Table`** field set (admin-configurable without code).
 - **Time** — `Time_Sheet_Entries__c` for time against projects (integrate with your PSA/billing as needed).
 - **Release tracking** — `Release_Notes__c`, `Release_Tag__c`, `Release_Version__c`.
-- **Messaging data model** — `Message__c` and related metadata in core; **portal/Lightning messaging UI and controllers** ship with the **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** when you need Experience Cloud.
+- **Messaging data model** — `Message__c` and related metadata in core; **portal file attachments + Experience Cloud file preview** (modal + `MessageFilesSupport.getFilePreviewUrl`) live in **this repo**. Additional **portal shell pages, OTP login, and extended controllers** ship with the **[Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** when you need the full Experience Cloud package.
 - **Flows** — Large bundle of Flow definitions for automation (count may change by release).
 
 ## Architecture (source layout)
 
 | Path                     | Role                                                                                                                   |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| `force-app/main/default` | **Default (and only) package directory** in this project: objects, LWCs, Apex, flows, internal permission sets, tests. |
+| `force-app/main/default` | **Default (and only) package directory** in this project: objects, LWCs, Apex, flows, internal permission sets, tests. Includes **portal-oriented LWCs** (`c-file-manager`, `c-portal-messaging`, `c-portal-file-attachments`, `c-portal-file-preview-modal`, etc.) for use on Experience Cloud sites. |
 
-**Optional portal:** clone and deploy **[Salesforce-Project-Management---Portal-Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** as a second Salesforce project after core. See the [deployment overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Deployment-Overview) and [Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/portal-add-on).
+**Optional portal:** clone and deploy **[Salesforce-Project-Management---Portal-Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management---Portal-Add-On)** as a second Salesforce project after core for the full portal experience. See the [deployment overview](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/Deployment-Overview) and [Portal Add-On](https://github.com/Milestone-Consulting/Salesforce-Project-Management/wiki/portal-add-on).
+
+### Experience Cloud file preview (core)
+
+When `c-portal-file-attachments` runs on an **Experience Cloud** site, file name clicks open **`c-portal-file-preview-modal`**, which calls **`MessageFilesSupport.getFilePreviewUrl`**. That method confirms the user can read the **`ContentVersion`**, then **`MessageFilesLinkWorker`** creates or reuses a **`ContentDistribution`** with **view in browser** and returns **`DistributionPublicUrl`** for the iframe (same behavior as the historical Portal Add-On `PortalTaskController` pattern, centralized here under **`MessageFilesSupport`**).
+
+**Setup checklist for portal users**
+
+- Grant the Experience Cloud **member profile** (or guest profile, if applicable) **Apex class access** to **`MessageFilesSupport`** (and any other `@AuraEnabled` classes your page components call). **`MessageFilesLinkWorker`** is server-only (no separate enablement).
+- Prefer file rows that include **`contentVersionId`**; if only **`contentDocumentId`** is present, core resolves the latest version via **`getLatestContentVersionIdsForDocuments`**.
+- **`c-file-manager`** can set **`is-experience-cloud`** when the site URL does not contain `/s/` so preview still uses the modal instead of unsupported LEX **`filePreview`** navigation.
+- Fallback for errors or blocked iframes: **Open in new tab** uses shepherd download URLs via **`portalCommon.openShepherdDownloadInNewTab`**.
 
 **API version:** see `sfdx-project.json` (`sourceApiVersion`).
 
