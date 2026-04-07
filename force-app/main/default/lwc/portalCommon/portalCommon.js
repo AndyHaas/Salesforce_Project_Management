@@ -6,7 +6,7 @@
 export const API_VERSION = {
   major: 0,
   minor: 1,
-  patch: 194
+  patch: 195
 };
 
 export const BRAND_INFO = {
@@ -75,6 +75,44 @@ export function ensureSitePath(path, { currentPathname = "" } = {}) {
   }
 
   return normalized;
+}
+
+/**
+ * Core-relative Salesforce Files shepherd path (before {@link #ensureSitePath}).
+ * Used for “open in new tab” fallback when ContentDistribution preview is unavailable.
+ *
+ * @param {string} [contentDocumentId]
+ * @param {string} [contentVersionId]
+ * @returns {string} path like `/sfc/servlet.shepherd/...` or ""
+ */
+export function shepherdDownloadPath(contentDocumentId, contentVersionId) {
+  const doc = contentDocumentId != null ? String(contentDocumentId).trim() : "";
+  const ver = contentVersionId != null ? String(contentVersionId).trim() : "";
+  if (doc) {
+    return `/sfc/servlet.shepherd/document/download/${doc}`;
+  }
+  if (ver) {
+    return `/sfc/servlet.shepherd/version/download/${ver}`;
+  }
+  return "";
+}
+
+/**
+ * Opens a shepherd file URL in a new browser tab with Experience Cloud site prefixing.
+ *
+ * @param {string} [contentDocumentId]
+ * @param {string} [contentVersionId]
+ */
+export function openShepherdDownloadInNewTab(contentDocumentId, contentVersionId) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const path = shepherdDownloadPath(contentDocumentId, contentVersionId);
+  if (!path) {
+    return;
+  }
+  const url = ensureSitePath(path, { currentPathname: window.location.pathname || "" });
+  window.open(url, "_blank", "noopener,noreferrer");
 }
 
 /**

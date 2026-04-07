@@ -3,6 +3,8 @@ import {
   getVersionLabel,
   getWelcomeLabel,
   ensureSitePath,
+  shepherdDownloadPath,
+  openShepherdDownloadInNewTab,
   splitFileNameForPortalRow,
   getFieldType,
   formatDate,
@@ -45,6 +47,32 @@ describe("portalCommon", () => {
     expect(ensureSitePath("/s/tasks", { currentPathname: "/partners/s/home" })).toBe(
       "/s/tasks"
     );
+  });
+
+  test("shepherdDownloadPath prefers document over version", () => {
+    expect(shepherdDownloadPath("", "")).toBe("");
+    expect(shepherdDownloadPath("069000000000001", "")).toBe(
+      "/sfc/servlet.shepherd/document/download/069000000000001"
+    );
+    expect(shepherdDownloadPath("", "068000000000001")).toBe(
+      "/sfc/servlet.shepherd/version/download/068000000000001"
+    );
+    expect(shepherdDownloadPath("069AAA", "068BBB")).toBe(
+      "/sfc/servlet.shepherd/document/download/069AAA"
+    );
+  });
+
+  test("openShepherdDownloadInNewTab uses ensureSitePath and window.open", () => {
+    const openSpy = jest.spyOn(window, "open").mockImplementation(() => null);
+    delete window.location;
+    window.location = { pathname: "/partners/s/home" };
+    openShepherdDownloadInNewTab("069XX", null);
+    expect(openSpy).toHaveBeenCalledWith(
+      "/partners/s/sfc/servlet.shepherd/document/download/069XX",
+      "_blank",
+      "noopener,noreferrer"
+    );
+    openSpy.mockRestore();
   });
 
   test("splitFileNameForPortalRow matches ContentDocument title + extension shape", () => {
