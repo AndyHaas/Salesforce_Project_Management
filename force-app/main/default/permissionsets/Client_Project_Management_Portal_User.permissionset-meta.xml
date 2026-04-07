@@ -9,6 +9,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>MessagingPinnedSupport</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>MessageFilesSupport</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -32,7 +36,7 @@
         <apexClass>PortalTaskController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>Portal users: messaging, projects, tasks, login, and core file list/preview (MessageFilesSupport, ContentDocument, ContentVersion read; ContentDistribution create/read for getFilePreviewUrl).</description>
+    <description>Portal: projects, tasks, login, messaging (MessagingController, MessagingPinnedSupport), files (MessageFilesSupport; ContentDocument/Version read; ContentDistribution create/read for preview).</description>
     <fieldPermissions>
         <editable>false</editable>
         <field>Account.AP_Email__c</field>
@@ -372,6 +376,16 @@
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>ContentDocument</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ContentDocumentLink</object>
         <viewAllFields>false</viewAllFields>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
