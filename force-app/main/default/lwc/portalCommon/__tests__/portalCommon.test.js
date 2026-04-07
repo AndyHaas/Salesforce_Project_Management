@@ -3,6 +3,7 @@ import {
   getVersionLabel,
   getWelcomeLabel,
   ensureSitePath,
+  splitFileNameForPortalRow,
   getFieldType,
   formatDate,
   formatDateTime,
@@ -36,6 +37,25 @@ describe("portalCommon", () => {
     expect(
       ensureSitePath("tasks", { currentPathname: "/s/home" })
     ).toBe("/s/tasks");
+  });
+
+  test("splitFileNameForPortalRow matches ContentDocument title + extension shape", () => {
+    expect(splitFileNameForPortalRow("Quarterly Report.pdf")).toEqual({
+      title: "Quarterly Report",
+      fileExtension: "pdf"
+    });
+    expect(splitFileNameForPortalRow("noextension")).toEqual({
+      title: "noextension",
+      fileExtension: ""
+    });
+    expect(splitFileNameForPortalRow("")).toEqual({
+      title: "Attachment",
+      fileExtension: ""
+    });
+    expect(splitFileNameForPortalRow("archive.tar.gz")).toEqual({
+      title: "archive.tar",
+      fileExtension: "gz"
+    });
   });
 
   test("getFieldType maps Salesforce and passthrough types", () => {

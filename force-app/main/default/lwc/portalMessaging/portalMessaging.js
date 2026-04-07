@@ -43,7 +43,7 @@ import deleteMessageAndAttachments from "@salesforce/apex/MessageFilesSupport.de
 import pinMessage from "@salesforce/apex/MessagingController.pinMessage";
 import linkFilesToMessageAndContext from "@salesforce/apex/MessageFilesSupport.linkFilesToMessageAndContext";
 import getFilesForMessages from "@salesforce/apex/MessageFilesSupport.getFilesForMessages";
-import { ensureSitePath, formatDateTime, stripHtml } from "c/portalCommon";
+import { ensureSitePath, formatDateTime, stripHtml, splitFileNameForPortalRow } from "c/portalCommon";
 import MESSAGE_UPDATE_CHANNEL from "@salesforce/messageChannel/MessageUpdate__c";
 import userId from "@salesforce/user/Id";
 
@@ -1376,21 +1376,16 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     const newIds = uploadedFiles.map((file) => file.contentVersionId).filter((id) => id);
     this._uploadedFileIds = [...this._uploadedFileIds, ...newIds];
 
-    const newRows = uploadedFiles.map((file) => ({
-      contentDocumentId: file.documentId,
-      contentVersionId: file.contentVersionId,
-      title: file.name || "Attachment",
-      fileExtension: this.extensionFromFileName(file.name)
-    }));
+    const newRows = uploadedFiles.map((file) => {
+      const { title, fileExtension } = splitFileNameForPortalRow(file.name);
+      return {
+        contentDocumentId: file.documentId,
+        contentVersionId: file.contentVersionId,
+        title,
+        fileExtension
+      };
+    });
     this._pendingComposerFiles = [...this._pendingComposerFiles, ...newRows];
-  }
-
-  extensionFromFileName(name) {
-    if (!name || !String(name).includes(".")) {
-      return "";
-    }
-    const parts = String(name).split(".");
-    return parts[parts.length - 1].toLowerCase();
   }
 
   get pendingComposerFiles() {

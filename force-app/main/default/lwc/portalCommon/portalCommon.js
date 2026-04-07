@@ -73,6 +73,27 @@ export function ensureSitePath(path, { currentPathname = "" } = {}) {
 }
 
 /**
+ * Splits a browser / lightning-file-upload file name into title + extension so rows match
+ * ContentDocument Title + FileExtension (same shape as message/task file rows from Apex).
+ *
+ * @param {string} [name] Full file name, often including extension (e.g. "Spec.pdf")
+ * @returns {{ title: string, fileExtension: string }} Extension is lowercase without dot, or ""
+ */
+export function splitFileNameForPortalRow(name) {
+  if (name == null || String(name).trim() === "") {
+    return { title: "Attachment", fileExtension: "" };
+  }
+  const s = String(name).trim();
+  const lastDot = s.lastIndexOf(".");
+  if (lastDot <= 0 || lastDot === s.length - 1) {
+    return { title: s, fileExtension: "" };
+  }
+  const ext = s.slice(lastDot + 1).toLowerCase();
+  const title = s.slice(0, lastDot);
+  return { title: title.length ? title : s, fileExtension: ext || "" };
+}
+
+/**
  * Get normalized field type string from Salesforce DisplayType or type string.
  * This maps Salesforce field types to normalized type strings used across portal components.
  * @param {string} displayType - Salesforce DisplayType string (e.g., 'PERCENT', 'CURRENCY') or normalized type
