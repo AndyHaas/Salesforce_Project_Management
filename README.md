@@ -64,7 +64,6 @@ Custom metadata types include **`Milestone_Task_Notification_Settings__mdt`** an
 
 | API name                         | Typical users                                    |
 | -------------------------------- | ------------------------------------------------ |
-| `Milestone_Experience_Cloud_Portal_Files` | Optional lean set: file preview only (Apex + file/CDL/ContentDistribution perms). |
 | `Client_Project_Management_Portal_User` | Experience Cloud portal users (messaging, tasks, projects, file list/preview). |
 | `Project_Management_User`        | Internal user, limited access.                   |
 | `Project_Management_Team_Member` | Internal delivery team.                          |

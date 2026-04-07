@@ -237,8 +237,7 @@ public with sharing class MessageFilesSupport {
    * the message file list—so Experience Cloud users are not blocked when direct
    * {@code ContentVersion} queries return no rows. When {@code linkedEntityId} is omitted, falls back
    * to a direct ContentVersion visibility check. The running user still needs Create and Read on
-   * ContentDistribution (see Milestone_Experience_Cloud_Portal_Files or
-   * Client_Project_Management_Portal_User).
+   * ContentDistribution (see {@code Client_Project_Management_Portal_User} or equivalent portal perms).
    *
    * @param contentVersionId ContentVersion Id to preview.
    * @param contentDocumentId Optional ContentDocument Id; resolved from the version when omitted but {@code linkedEntityId} is set.
