@@ -632,6 +632,13 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
+   * Top-of-thread scope banner: hidden on Task record pages (thread is already scoped; hierarchy is redundant).
+   */
+  get showContextBanner() {
+    return this._contextInfo && this._contextInfo.contextType !== "Task";
+  }
+
+  /**
    * @description Get context display text
    */
   get contextDisplayText() {
@@ -651,13 +658,6 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
     }
 
     return parts.join(" • ");
-  }
-
-  /**
-   * @description Get context type for display
-   */
-  get contextType() {
-    return this._contextInfo?.contextType || "";
   }
 
   /**
@@ -681,26 +681,42 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
-   * @description Show account context in message list (when viewing at project or task level)
+   * Per-message account link: omitted (on Account pages the account is implicit; on Project/Task we omit to reduce noise).
    */
   get showAccountContext() {
-    return (
-      this._contextInfo && (this._contextInfo.contextType === "Project" || this._contextInfo.contextType === "Task")
-    );
+    return false;
   }
 
   /**
-   * @description Show project context in message list (when viewing at task level)
+   * Per-message project link: only when viewing an Account (messages may span projects).
    */
   get showProjectContext() {
-    return this._contextInfo && this._contextInfo.contextType === "Task";
+    return this._contextInfo && this._contextInfo.contextType === "Account";
   }
 
   /**
-   * @description Show task context in message list (always show if task exists)
+   * Per-message task row: gated by showTaskFooter on Task record pages (same task = hidden).
    */
   get showTaskContext() {
-    return true; // Always show task if it exists in the message
+    return true;
+  }
+
+  /**
+   * Hide redundant "Task: …" when the thread is already scoped to that task.
+   *
+   * @param {object} msg Raw message from Apex
+   * @returns {boolean} Whether to render the task link row
+   */
+  computeShowTaskFooter(msg) {
+    if (
+      this._contextInfo?.contextType === "Task" &&
+      this.relatedTaskId &&
+      msg?.relatedTaskId &&
+      this.salesforceIdsEqual(this.relatedTaskId, msg.relatedTaskId)
+    ) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -860,6 +876,12 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       accountNavData = JSON.stringify(accountLink);
     }
 
+    const showTaskFooter = this.computeShowTaskFooter(msg);
+    const showSourceMeta =
+      (this.showAccountContext && !!msg.accountName) ||
+      (this.showProjectContext && !!msg.relatedProjectName) ||
+      (!!msg.relatedTaskName && showTaskFooter);
+
     return {
       ...msg,
       formattedDate: this.formatMessageDate(msg.createdDate),
@@ -879,7 +901,8 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
       taskNavData: taskNavData,
       projectNavData: projectNavData,
       accountNavData: accountNavData,
-      showTaskFooter: !(this.relatedTaskId && msg.relatedTaskId && this.relatedTaskId === msg.relatedTaskId),
+      showTaskFooter,
+      showSourceMeta,
       attachmentFiles: Array.isArray(msg.files) ? msg.files : [],
       hasAttachments: Array.isArray(msg.files) && msg.files.length > 0,
       isInternalMessage: msg.visibleToClient === false,

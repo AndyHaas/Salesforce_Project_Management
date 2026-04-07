@@ -47,7 +47,7 @@ export default class PortalFilePreviewModal extends LightningElement {
   /**
    * Opens the modal and loads a browser-viewable URL for the ContentVersion.
    *
-   * @param {{ contentVersionId: string, contentDocumentId?: string, title?: string }} config
+   * @param {{ contentVersionId: string, contentDocumentId?: string, linkedEntityId?: string, title?: string }} config
    */
   @api
   async openPreview(config) {
@@ -68,7 +68,15 @@ export default class PortalFilePreviewModal extends LightningElement {
     this._addEscapeListener();
 
     try {
-      const url = await getFilePreviewUrl({ contentVersionId });
+      const linkedEntityId = config?.linkedEntityId != null ? String(config.linkedEntityId).trim() : "";
+      const payload = { contentVersionId };
+      if (doc) {
+        payload.contentDocumentId = doc;
+      }
+      if (linkedEntityId) {
+        payload.linkedEntityId = linkedEntityId;
+      }
+      const url = await getFilePreviewUrl(payload);
       this.previewUrl = url;
     } catch (err) {
       console.error("File preview error:", err);
@@ -126,8 +134,17 @@ export default class PortalFilePreviewModal extends LightningElement {
     if (!err) {
       return "Unknown error";
     }
-    if (err.body && err.body.message) {
-      return err.body.message;
+    const body = err.body;
+    if (body) {
+      if (Array.isArray(body) && body[0] && body[0].message) {
+        return String(body[0].message);
+      }
+      if (typeof body.message === "string" && body.message) {
+        return body.message;
+      }
+      if (body.pageErrors && body.pageErrors[0] && body.pageErrors[0].message) {
+        return String(body.pageErrors[0].message);
+      }
     }
     if (err.message) {
       return err.message;

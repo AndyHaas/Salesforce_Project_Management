@@ -18,6 +18,7 @@
           <div class="slds-text-body_small slds-text-color_weak slds-m-bottom_xx-small">Files to Upload</div>
           <c-portal-file-attachments
             files={pendingComposerFiles}
+            linked-entity-id={effectiveFilePreviewLinkedEntityId}
             show-preview={showPreview}
             show-delete={showDelete}
             is-experience-cloud={effectiveExperienceCloudForAttachments}
@@ -58,6 +59,7 @@
           <div class={listSpacingClass}>
             <c-portal-file-attachments
               files={listVisibleFileRows}
+              linked-entity-id={effectiveFilePreviewLinkedEntityId}
               show-preview={showPreview}
               show-delete={showDelete}
               is-experience-cloud={effectiveExperienceCloudForAttachments}

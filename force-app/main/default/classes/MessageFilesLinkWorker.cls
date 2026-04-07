@@ -231,6 +231,29 @@ public without sharing class MessageFilesLinkWorker {
   }
 
   /**
+   * @description Ensures the ContentVersion belongs to the given ContentDocument (Id integrity).
+   * Call only after {@link MessageFilesSupport} has confirmed the user may access the file via
+   * ContentDocumentLink to a known linked entity.
+   *
+   * @param contentVersionId ContentVersion Id to preview.
+   * @param contentDocumentId Expected parent document Id.
+   */
+  public static void assertContentVersionMatchesDocument(Id contentVersionId, Id contentDocumentId) {
+    if (contentVersionId == null || contentDocumentId == null) {
+      throw new AuraHandledException('File not found or not accessible.');
+    }
+    List<ContentVersion> rows = [
+      SELECT ContentDocumentId
+      FROM ContentVersion
+      WHERE Id = :contentVersionId AND IsDeleted = FALSE
+      LIMIT 1
+    ];
+    if (rows.isEmpty() || rows[0].ContentDocumentId != contentDocumentId) {
+      throw new AuraHandledException('File not found or not accessible.');
+    }
+  }
+
+  /**
    * @description Public distribution URL for iframe preview of a ContentVersion (Experience Cloud).
    * @see MessageFilesSupport#getFilePreviewUrl
    * @param contentVersionId Non-null ContentVersion Id.

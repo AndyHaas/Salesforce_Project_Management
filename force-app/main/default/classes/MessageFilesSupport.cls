@@ -232,17 +232,21 @@ public with sharing class MessageFilesSupport {
 
   /**
    * @description Returns a browser-viewable URL for a ContentVersion using ContentDistribution
-   * (Portal Add-On pattern). Confirms the running user can read the version (with sharing), then
-   * creates or reuses a distribution via {@link MessageFilesLinkWorker}. The worker runs without
-   * sharing for SOQL/DML row visibility, but the running user still needs profile or permission-set
-   * CRUD: Read on ContentVersion, and Create and Read on ContentDistribution (included on
+   * (Portal Add-On pattern). When {@code linkedEntityId} is provided, access is authorized via
+   * {@link ContentDocumentLink} from that record to the document (with sharing)—the same basis as
+   * the message file list—so Experience Cloud users are not blocked when direct
+   * {@code ContentVersion} queries return no rows. When {@code linkedEntityId} is omitted, falls back
+   * to a direct ContentVersion visibility check. The running user still needs Create and Read on
+   * ContentDistribution (see Milestone_Experience_Cloud_Portal_Files or
    * Client_Project_Management_Portal_User).
    *
-   * @param contentVersionId ContentVersion Id the user can read.
+   * @param contentVersionId ContentVersion Id to preview.
+   * @param contentDocumentId Optional ContentDocument Id; resolved from the version when omitted but {@code linkedEntityId} is set.
+   * @param linkedEntityId Optional host record Id (e.g. Message__c, Project__c) with a file link.
    * @return Distribution public URL suitable for iframe or new tab.
    */
   @AuraEnabled(cacheable=false)
-  public static String getFilePreviewUrl(String contentVersionId) {
+  public static String getFilePreviewUrl(String contentVersionId, String contentDocumentId, String linkedEntityId) {
     if (String.isBlank(contentVersionId)) {
       throw new AuraHandledException('Content Version ID is required');
     }
@@ -250,19 +254,36 @@ public with sharing class MessageFilesSupport {
     try {
       Id verId = (Id) contentVersionId.trim();
 
-      List<ContentVersion> visibleToUser = [
-        SELECT Id
-        FROM ContentVersion
-        WHERE Id = :verId AND IsDeleted = FALSE
-        LIMIT 1
-      ];
-      if (visibleToUser.isEmpty()) {
-        throw new AuraHandledException('File not found or not accessible.');
+      Id docId = parseOptionalId(contentDocumentId);
+      Id linkEntityId = parseOptionalId(linkedEntityId);
+
+      if (linkEntityId != null && docId == null) {
+        docId = resolveContentDocumentIdForVersionWithSharing(verId);
+        if (docId == null) {
+          throw new AuraHandledException('File not found or not accessible.');
+        }
+      }
+
+      if (linkEntityId != null && docId != null) {
+        authorizePreviewViaContentDocumentLink(linkEntityId, docId);
+        MessageFilesLinkWorker.assertContentVersionMatchesDocument(verId, docId);
+      } else {
+        List<ContentVersion> visibleToUser = [
+          SELECT Id
+          FROM ContentVersion
+          WHERE Id = :verId AND IsDeleted = FALSE
+          LIMIT 1
+        ];
+        if (visibleToUser.isEmpty()) {
+          throw new AuraHandledException('File not found or not accessible.');
+        }
       }
 
       return MessageFilesLinkWorker.getDistributionPublicUrlForContentVersion(verId);
     } catch (AuraHandledException e) {
       throw e;
+    } catch (QueryException qe) {
+      throw new AuraHandledException(formatQueryExceptionForPreview(qe));
     } catch (Exception e) {
       System.debug(
         LoggingLevel.ERROR,
@@ -275,6 +296,59 @@ public with sharing class MessageFilesSupport {
       );
       throw new AuraHandledException('Unable to open file preview. Please try again.');
     }
+  }
+
+  private static Id parseOptionalId(String value) {
+    if (String.isBlank(value)) {
+      return null;
+    }
+    try {
+      return (Id) value.trim();
+    } catch (Exception ignored) {
+      return null;
+    }
+  }
+
+  /**
+   * @description Resolves ContentDocument Id for a version using the running user's sharing (FLS/CRUD apply).
+   */
+  private static Id resolveContentDocumentIdForVersionWithSharing(Id contentVersionId) {
+    List<ContentVersion> rows = [
+      SELECT ContentDocumentId
+      FROM ContentVersion
+      WHERE Id = :contentVersionId AND IsDeleted = FALSE AND ContentDocumentId != NULL
+      LIMIT 1
+    ];
+    return rows.isEmpty() ? null : rows[0].ContentDocumentId;
+  }
+
+  /**
+   * @description Throws unless the user can see a non-deleted link from the entity to the document.
+   */
+  private static void authorizePreviewViaContentDocumentLink(Id linkedEntityId, Id contentDocumentId) {
+    List<ContentDocumentLink> links = [
+      SELECT Id
+      FROM ContentDocumentLink
+      WHERE
+        LinkedEntityId = :linkedEntityId
+        AND ContentDocumentId = :contentDocumentId
+        AND IsDeleted = FALSE
+      LIMIT 1
+    ];
+    if (links.isEmpty()) {
+      throw new AuraHandledException('File not found or not accessible.');
+    }
+  }
+
+  private static String formatQueryExceptionForPreview(QueryException qe) {
+    String m = qe.getMessage();
+    if (String.isBlank(m)) {
+      return 'You may not have access to this file. Ask your admin to assign Milestone Experience Cloud Portal Files (or equivalent object permissions).';
+    }
+    if (m.contains('INSUFFICIENT_ACCESS') || m.contains('insufficient access')) {
+      return 'You may not have access to this file. Ask your admin to assign Milestone Experience Cloud Portal Files (or equivalent object permissions).';
+    }
+    return m;
   }
 
   /**

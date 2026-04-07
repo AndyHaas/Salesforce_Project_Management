@@ -415,7 +415,7 @@ private class MessageFilesSupportTest {
   static void getFilePreviewUrl_blankThrows() {
     Boolean threw = false;
     try {
-      MessageFilesSupport.getFilePreviewUrl('');
+      MessageFilesSupport.getFilePreviewUrl('', null, null);
     } catch (AuraHandledException expected) {
       threw = true;
     }
@@ -436,10 +436,116 @@ private class MessageFilesSupportTest {
     insert cv;
 
     Test.startTest();
-    String url = MessageFilesSupport.getFilePreviewUrl(String.valueOf(cv.Id));
+    String url = MessageFilesSupport.getFilePreviewUrl(String.valueOf(cv.Id), null, null);
     Test.stopTest();
 
     System.assert(!String.isBlank(url), 'Distribution URL should be returned');
     System.assert(url.startsWith('http'), 'Public URL expected');
+  }
+
+  @IsTest
+  static void getFilePreviewUrl_withLinkedEntityAndDoc_returnsDistributionPublicUrl() {
+    Account acc = new Account(Name = 'Preview CDL Account');
+    insert acc;
+
+    Contact sender = new Contact(FirstName = 'P', LastName = 'Review', AccountId = acc.Id);
+    insert sender;
+
+    Message__c msg = new Message__c(
+      Body__c = 'With file',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+
+    ContentVersion cv = new ContentVersion(
+      Title = 'CDLPreview',
+      PathOnClient = 'CDLPreview.pdf',
+      VersionData = Blob.valueOf('X'),
+      FirstPublishLocationId = msg.Id
+    );
+    insert cv;
+
+    Id docId = [
+      SELECT ContentDocumentId
+      FROM ContentVersion
+      WHERE Id = :cv.Id
+      LIMIT 1
+    ]
+    .ContentDocumentId;
+
+    Test.startTest();
+    String url = MessageFilesSupport.getFilePreviewUrl(
+      String.valueOf(cv.Id),
+      String.valueOf(docId),
+      String.valueOf(msg.Id)
+    );
+    Test.stopTest();
+
+    System.assert(!String.isBlank(url), 'Distribution URL should be returned');
+    System.assert(url.startsWith('http'), 'Public URL expected');
+  }
+
+  @IsTest
+  static void getFilePreviewUrl_wrongLinkedEntityThrows() {
+    Account acc = new Account(Name = 'Preview Wrong LE');
+    insert acc;
+
+    Contact sender = new Contact(FirstName = 'W', LastName = 'Rong', AccountId = acc.Id);
+    insert sender;
+
+    Message__c msg = new Message__c(
+      Body__c = 'Host',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+
+    Message__c otherMsg = new Message__c(
+      Body__c = 'Other',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert otherMsg;
+
+    ContentVersion cv = new ContentVersion(
+      Title = 'OnlyOnFirst',
+      PathOnClient = 'OnlyOnFirst.pdf',
+      VersionData = Blob.valueOf('Z'),
+      FirstPublishLocationId = msg.Id
+    );
+    insert cv;
+
+    Id docId = [
+      SELECT ContentDocumentId
+      FROM ContentVersion
+      WHERE Id = :cv.Id
+      LIMIT 1
+    ]
+    .ContentDocumentId;
+
+    Boolean threw = false;
+    Test.startTest();
+    try {
+      MessageFilesSupport.getFilePreviewUrl(
+        String.valueOf(cv.Id),
+        String.valueOf(docId),
+        String.valueOf(otherMsg.Id)
+      );
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    Test.stopTest();
+
+    System.assertEquals(true, threw, 'No ContentDocumentLink from other message — should throw');
   }
 }

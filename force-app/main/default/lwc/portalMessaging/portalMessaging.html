@@ -56,15 +56,13 @@
       </div>
 
       <div class="slds-card__body slds-card__body_inner">
-        <!-- Context Display -->
-        <template if:true={contextInfo}>
-          <div class="context-display slds-m-bottom_medium">
-            <lightning-icon icon-name={contextIcon} size="small" class="slds-m-right_x-small"> </lightning-icon>
+        <!-- Thread scope (hidden on Task — page title already identifies the task) -->
+        <template if:true={showContextBanner}>
+          <div class="context-display context-display--scoped slds-m-bottom_small" role="status">
+            <lightning-icon icon-name={contextIcon} size="x-small" class="slds-m-right_x-small context-display__icon">
+            </lightning-icon>
             <div class="context-text">
-              <div class="slds-text-heading_small slds-text-color_weak">
-                Viewing: <strong>{contextType} Messages</strong>
-              </div>
-              <div class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">{contextDisplayText}</div>
+              <div class="slds-text-body_small slds-text-color_weak">{contextDisplayText}</div>
             </div>
           </div>
         </template>
@@ -293,6 +291,7 @@
                         <c-file-manager
                           variant="list"
                           file-rows={message.attachmentFiles}
+                          linked-entity-id={message.id}
                           list-max-visible-files="5"
                           list-overflow-modal-title="All attachments"
                           is-experience-cloud={isExperienceCloud}
@@ -324,101 +323,107 @@
 
                   <hr class="message-separator" />
 
-                  <!-- Context hierarchy -->
-                  <template if:true={message.accountName}>
-                    <template if:true={showAccountContext}>
-                      <div class="message-related">
-                        <lightning-icon icon-name="utility:account" size="xx-small"> </lightning-icon>
-                        <template if:true={message.accountLink}>
-                          <template if:true={message.accountLinkIsSalesforce}>
-                            <span class="slds-text-body_small">
-                              <button
-                                type="button"
-                                class="slds-button slds-button_reset slds-text-link"
-                                data-link={message.accountNavData}
-                                onclick={handleNavigateToRecord}
-                              >
-                                Account: {message.accountName}
-                              </button>
-                            </span>
-                          </template>
-                          <template if:false={message.accountLinkIsSalesforce}>
-                            <span class="slds-text-body_small">
-                              <a href={message.accountLink.href} class="slds-text-link"> Account: {message.accountName} </a>
-                            </span>
-                          </template>
-                        </template>
-                        <template if:false={message.accountLink}>
-                          <span class="slds-text-body_small"> Account: {message.accountName} </span>
-                        </template>
-                      </div>
-                    </template>
-                  </template>
-
-                  <template if:true={message.relatedProjectName}>
-                    <template if:true={showProjectContext}>
-                      <div class="message-related">
-                        <lightning-icon icon-name="utility:record" size="xx-small"> </lightning-icon>
-                        <template if:true={message.projectLink}>
-                          <template if:true={message.projectLinkIsSalesforce}>
-                            <span class="slds-text-body_small">
-                              <button
-                                type="button"
-                                class="slds-button slds-button_reset slds-text-link"
-                                data-link={message.projectNavData}
-                                onclick={handleNavigateToRecord}
-                              >
-                                Project: {message.relatedProjectName}
-                              </button>
-                            </span>
-                          </template>
-                          <template if:false={message.projectLinkIsSalesforce}>
-                            <span class="slds-text-body_small">
-                              <a href={message.projectLink.href} class="slds-text-link">
-                                Project: {message.relatedProjectName}
-                              </a>
-                            </span>
-                          </template>
-                        </template>
-                        <template if:false={message.projectLink}>
-                          <span class="slds-text-body_small"> Project: {message.relatedProjectName} </span>
-                        </template>
-                      </div>
-                    </template>
-                  </template>
-
-                  <template if:true={message.relatedTaskName}>
-                    <template if:true={showTaskContext}>
-                      <template if:true={message.showTaskFooter}>
-                        <div class="message-related">
-                          <lightning-icon icon-name="utility:task" size="xx-small"> </lightning-icon>
-                          <template if:true={message.taskLink}>
-                            <template if:true={message.taskLinkIsSalesforce}>
-                              <span class="slds-text-body_small">
-                                <button
-                                  type="button"
-                                  class="slds-button slds-button_reset slds-text-link"
-                                  data-link={message.taskNavData}
-                                  onclick={handleNavigateToRecord}
-                                >
-                                  Task: {message.relatedTaskName}
-                                </button>
-                              </span>
+                  <!-- Source task / project (Account + Project threads only; Task page omits when row matches current task) -->
+                  <template if:true={message.showSourceMeta}>
+                    <div class="message-source-meta">
+                      <template if:true={message.accountName}>
+                        <template if:true={showAccountContext}>
+                          <div class="message-related">
+                            <lightning-icon icon-name="utility:account" size="xx-small"> </lightning-icon>
+                            <template if:true={message.accountLink}>
+                              <template if:true={message.accountLinkIsSalesforce}>
+                                <span class="slds-text-body_small">
+                                  <button
+                                    type="button"
+                                    class="slds-button slds-button_reset slds-text-link"
+                                    data-link={message.accountNavData}
+                                    onclick={handleNavigateToRecord}
+                                  >
+                                    Account: {message.accountName}
+                                  </button>
+                                </span>
+                              </template>
+                              <template if:false={message.accountLinkIsSalesforce}>
+                                <span class="slds-text-body_small">
+                                  <a href={message.accountLink.href} class="slds-text-link">
+                                    Account: {message.accountName}
+                                  </a>
+                                </span>
+                              </template>
                             </template>
-                            <template if:false={message.taskLinkIsSalesforce}>
-                              <span class="slds-text-body_small">
-                                <a href={message.taskLink.href} class="slds-text-link">
-                                  Task: {message.relatedTaskName}
-                                </a>
-                              </span>
+                            <template if:false={message.accountLink}>
+                              <span class="slds-text-body_small"> Account: {message.accountName} </span>
                             </template>
-                          </template>
-                          <template if:false={message.taskLink}>
-                            <span class="slds-text-body_small"> Task: {message.relatedTaskName} </span>
-                          </template>
-                        </div>
+                          </div>
+                        </template>
                       </template>
-                    </template>
+
+                      <template if:true={message.relatedProjectName}>
+                        <template if:true={showProjectContext}>
+                          <div class="message-related">
+                            <lightning-icon icon-name="utility:record" size="xx-small"> </lightning-icon>
+                            <template if:true={message.projectLink}>
+                              <template if:true={message.projectLinkIsSalesforce}>
+                                <span class="slds-text-body_small">
+                                  <button
+                                    type="button"
+                                    class="slds-button slds-button_reset slds-text-link"
+                                    data-link={message.projectNavData}
+                                    onclick={handleNavigateToRecord}
+                                  >
+                                    Project: {message.relatedProjectName}
+                                  </button>
+                                </span>
+                              </template>
+                              <template if:false={message.projectLinkIsSalesforce}>
+                                <span class="slds-text-body_small">
+                                  <a href={message.projectLink.href} class="slds-text-link">
+                                    Project: {message.relatedProjectName}
+                                  </a>
+                                </span>
+                              </template>
+                            </template>
+                            <template if:false={message.projectLink}>
+                              <span class="slds-text-body_small"> Project: {message.relatedProjectName} </span>
+                            </template>
+                          </div>
+                        </template>
+                      </template>
+
+                      <template if:true={message.relatedTaskName}>
+                        <template if:true={showTaskContext}>
+                          <template if:true={message.showTaskFooter}>
+                            <div class="message-related">
+                              <lightning-icon icon-name="utility:task" size="xx-small"> </lightning-icon>
+                              <template if:true={message.taskLink}>
+                                <template if:true={message.taskLinkIsSalesforce}>
+                                  <span class="slds-text-body_small">
+                                    <button
+                                      type="button"
+                                      class="slds-button slds-button_reset slds-text-link"
+                                      data-link={message.taskNavData}
+                                      onclick={handleNavigateToRecord}
+                                    >
+                                      Task: {message.relatedTaskName}
+                                    </button>
+                                  </span>
+                                </template>
+                                <template if:false={message.taskLinkIsSalesforce}>
+                                  <span class="slds-text-body_small">
+                                    <a href={message.taskLink.href} class="slds-text-link">
+                                      Task: {message.relatedTaskName}
+                                    </a>
+                                  </span>
+                                </template>
+                              </template>
+                              <template if:false={message.taskLink}>
+                                <span class="slds-text-body_small"> Task: {message.relatedTaskName} </span>
+                              </template>
+                            </div>
+                          </template>
+                        </template>
+                      </template>
+                    </div>
                   </template>
                 </div>
               </template>

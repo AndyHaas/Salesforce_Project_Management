@@ -2,7 +2,6 @@ import { LightningElement, api, track, wire } from "lwc";
 import { CurrentPageReference } from "lightning/navigation";
 import { refreshApex } from "@salesforce/apex";
 import getFilesForLinkedRecord from "@salesforce/apex/TaskContextController.getFilesForLinkedRecord";
-import { splitFileNameForPortalRow } from "c/portalCommon";
 import PortalFileListModal from "c/portalFileListModal";
 
 /**
@@ -93,6 +92,27 @@ function toPlainComposerPendingRow(row) {
 }
 
 /**
+ * Matches c/portalCommon `splitFileNameForPortalRow`; inlined so composer upload does not depend on
+ * cross-bundle named exports (stale org deploys or Locker can leave the import non-callable).
+ *
+ * @param {string} [name]
+ * @returns {{ title: string, fileExtension: string }}
+ */
+function splitComposerFileNameForRow(name) {
+  if (name == null || String(name).trim() === "") {
+    return { title: "Attachment", fileExtension: "" };
+  }
+  const s = String(name).trim();
+  const lastDot = s.lastIndexOf(".");
+  if (lastDot <= 0 || lastDot === s.length - 1) {
+    return { title: s, fileExtension: "" };
+  }
+  const ext = s.slice(lastDot + 1).toLowerCase();
+  const title = s.slice(0, lastDot);
+  return { title: title.length ? title : s, fileExtension: ext || "" };
+}
+
+/**
  * Unified file list + optional upload.
  *
  * Packaging: Portal Add-On should embed this with variant "record" only (project/task/account files).
@@ -107,6 +127,12 @@ export default class FileManager extends LightningElement {
 
   /** For variant=list: rows like MessageFilesSupport.FileRow */
   @api fileRows;
+
+  /**
+   * Record Id used to authorize Experience Cloud file preview (ContentDocumentLink from this entity).
+   * For message attachments, set to the Message__c Id. For record/composer variants, defaults to recordId when omitted.
+   */
+  @api linkedEntityId;
 
   /**
    * list variant only: show at most this many files inline; remainder via "View more" + modal.
@@ -215,6 +241,21 @@ export default class FileManager extends LightningElement {
 
   get wireRecordId() {
     return this.isRecordVariant && this.recordId ? String(this.recordId) : undefined;
+  }
+
+  /** Passed to c-portal-file-attachments for getFilePreviewUrl(linkedEntityId, …). */
+  get effectiveFilePreviewLinkedEntityId() {
+    const explicit =
+      this.linkedEntityId != null && String(this.linkedEntityId).trim() !== ""
+        ? String(this.linkedEntityId).trim()
+        : "";
+    if (explicit) {
+      return explicit;
+    }
+    if (!this.isListVariant && this.recordId) {
+      return String(this.recordId).trim();
+    }
+    return "";
   }
 
   get wrapperClass() {
@@ -336,7 +377,8 @@ export default class FileManager extends LightningElement {
         fileRows: Array.isArray(this.displayFileRows) ? [...this.displayFileRows] : [],
         showPreview: this.showPreview,
         showDelete: this.showDelete,
-        isExperienceCloud: this.effectiveExperienceCloudForAttachments
+        isExperienceCloud: this.effectiveExperienceCloudForAttachments,
+        linkedEntityId: this.effectiveFilePreviewLinkedEntityId || undefined
       });
     } catch (e) {
       console.error("fileManager file list modal:", JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
@@ -429,7 +471,7 @@ export default class FileManager extends LightningElement {
           continue;
         }
         const safeName = file.name == null ? "" : String(file.name);
-        const { title, fileExtension } = splitFileNameForPortalRow(safeName);
+        const { title, fileExtension } = splitComposerFileNameForRow(safeName);
         newRows.push({
           contentDocumentId: contentDocumentId ? String(contentDocumentId).trim() : undefined,
           contentVersionId: contentVersionId ? String(contentVersionId).trim() : undefined,

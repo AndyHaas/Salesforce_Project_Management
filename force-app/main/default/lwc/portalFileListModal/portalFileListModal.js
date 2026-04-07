@@ -18,6 +18,9 @@ export default class PortalFileListModal extends LightningModal {
   /** Forwarded to c-portal-file-attachments for Experience Cloud modal preview. */
   _isExperienceCloud = true;
 
+  /** Same as c-file-manager linkedEntityId (e.g. Message__c Id for thread attachments). */
+  @api linkedEntityId;
+
   @api
   get isExperienceCloud() {
     return this._isExperienceCloud;

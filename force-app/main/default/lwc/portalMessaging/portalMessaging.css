@@ -13,8 +13,35 @@
   border-left: 3px solid #0176d3;
 }
 
+/* Account / Project thread: lighter scope line (no duplicate “Viewing: … Messages” title) */
+.context-display--scoped {
+  padding: 0.5rem 0.625rem;
+  background-color: #fafaf9;
+  border: 1px solid #e5e5e5;
+  border-left: 3px solid #0176d3;
+  border-radius: 0.25rem;
+  align-items: center;
+}
+
+.context-display--scoped .context-display__icon {
+  --slds-c-icon-color-foreground-default: #706e6b;
+}
+
 .context-text {
   flex: 1;
+}
+
+.message-source-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #ecebea;
+}
+
+.message-source-meta .message-related {
+  margin-top: 0;
 }
 
 .message-compose-button {

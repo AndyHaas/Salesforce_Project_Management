@@ -58,6 +58,13 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
    */
   _isExperienceCloudApi;
 
+  /**
+   * Host record Id for file preview authorization (e.g. Message__c or Project__c). When set on
+   * Experience Cloud, preview calls MessageFilesSupport.getFilePreviewUrl with linkedEntityId so
+   * access follows ContentDocumentLink visibility.
+   */
+  @api linkedEntityId;
+
   @api
   get isExperienceCloud() {
     return this._isExperienceCloudApi;
@@ -83,6 +90,13 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
   }
 
   _experienceCloud;
+
+  get effectivePreviewLinkedEntityId() {
+    if (this.linkedEntityId == null || String(this.linkedEntityId).trim() === "") {
+      return "";
+    }
+    return String(this.linkedEntityId).trim();
+  }
 
   get isExperienceCloudRuntime() {
     if (this._experienceCloud !== undefined) {
@@ -235,9 +249,11 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
     }
 
     try {
+      const le = this.effectivePreviewLinkedEntityId;
       await modal.openPreview({
         contentVersionId: ver,
         contentDocumentId: doc || undefined,
+        linkedEntityId: le || undefined,
         title: previewTitle
       });
     } catch (e) {
