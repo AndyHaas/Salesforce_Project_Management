@@ -1792,23 +1792,12 @@ export default class PortalMessaging extends NavigationMixin(LightningElement) {
   }
 
   /**
-   * SLDS modal class list. In Experience Cloud, default modal z-index (9000) can sit above
-   * lightning-file-upload confirmation overlays; extra classes lower stacking for that shell.
+   * Root wrapper class: compose modal is a sibling of lightning-card (see template) so file-upload
+   * overlays are not stacked under the card slot in Experience Cloud.
    */
-  get modalSectionClass() {
-    let cls = "slds-modal slds-fade-in-open slds-modal_large";
-    if (this.isExperienceCloud) {
-      cls += " portal-messaging-modal--ec";
-    }
-    return cls;
-  }
-
-  get modalBackdropClass() {
-    let cls = "slds-backdrop slds-backdrop_open";
-    if (this.isExperienceCloud) {
-      cls += " portal-messaging-modal-backdrop--ec";
-    }
-    return cls;
+  get portalMessagingRootClass() {
+    const base = "portal-messaging-root";
+    return this.isExperienceCloud ? `${base} portal-messaging-root--ec` : base;
   }
 
   /**
