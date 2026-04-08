@@ -41,8 +41,8 @@
         <name>ApexClass</name>
     </types>
     <types>
-        <members>TaskProjectTests</members>
         <members>Task_Management_ApexTests_Controllers</members>
+        <members>Task_Management_ApexTests_Full</members>
         <members>Task_Management_ApexTests_Messaging</members>
         <members>Task_Management_ApexTests_ProjectTask</members>
         <name>ApexTestSuite</name>
