@@ -32,7 +32,7 @@ private class TaskProgressCalculatorTest {
       new Project_Task__c(
         Parent_Task__c = parent.Id,
         Project__c = parent.Project__c,
-        Status__c = 'Completed',
+        Status__c = 'Completed', Submission_Status__c = 'Project Task Complete',
         Account__c = acc.Id,
         Priority__c = 'Medium',
         Estimated_Hours__c = 10,
@@ -114,7 +114,7 @@ private class TaskProgressCalculatorTest {
     subtasks.add(
       new Project_Task__c(
         Parent_Task__c = parent.Id,
-        Status__c = 'Completed',
+        Status__c = 'Completed', Submission_Status__c = 'Project Task Complete',
         Account__c = acc.Id,
         Project__c = parent.Project__c,
         Priority__c = 'Medium',
@@ -125,7 +125,7 @@ private class TaskProgressCalculatorTest {
     subtasks.add(
       new Project_Task__c(
         Parent_Task__c = parent.Id,
-        Status__c = 'Completed',
+        Status__c = 'Completed', Submission_Status__c = 'Project Task Complete',
         Account__c = acc.Id,
         Project__c = parent.Project__c,
         Priority__c = 'Medium',
@@ -184,7 +184,7 @@ private class TaskProgressCalculatorTest {
     subtasks.add(
       new Project_Task__c(
         Parent_Task__c = parent.Id,
-        Status__c = 'Completed',
+        Status__c = 'Completed', Submission_Status__c = 'Project Task Complete',
         Account__c = acc.Id,
         Project__c = parent.Project__c,
         Priority__c = 'Medium',
@@ -331,7 +331,7 @@ private class TaskProgressCalculatorTest {
     Project_Task__c subtask = new Project_Task__c(
       Parent_Task__c = parent.Id,
       Project__c = parent.Project__c,
-      Status__c = 'Completed',
+      Status__c = 'Completed', Submission_Status__c = 'Project Task Complete',
       Account__c = acc.Id,
       Priority__c = 'Medium',
       Estimated_Hours__c = 10,
@@ -380,7 +380,7 @@ private class TaskProgressCalculatorTest {
     Project_Task__c subtask = new Project_Task__c(
       Parent_Task__c = parent.Id,
       Project__c = parent.Project__c,
-      Status__c = 'Completed',
+      Status__c = 'Completed', Submission_Status__c = 'Project Task Complete',
       Account__c = acc.Id,
       Priority__c = 'Medium',
       Estimated_Hours__c = 10,
@@ -476,7 +476,7 @@ private class TaskProgressCalculatorTest {
     subtasks.add(
       new Project_Task__c(
         Parent_Task__c = parent.Id,
-        Status__c = 'Completed',
+        Status__c = 'Completed', Submission_Status__c = 'Project Task Complete',
         Account__c = acc.Id,
         Project__c = parent.Project__c,
         Priority__c = 'Medium'
@@ -607,7 +607,7 @@ private class TaskProgressCalculatorTest {
     subtasks.add(
       new Project_Task__c(
         Parent_Task__c = parent.Id,
-        Status__c = 'Completed',
+        Status__c = 'Completed', Submission_Status__c = 'Project Task Complete',
         Account__c = acc.Id,
         Project__c = parent.Project__c,
         Priority__c = 'Medium',
@@ -694,7 +694,7 @@ private class TaskProgressCalculatorTest {
     Project_Task__c subtask = new Project_Task__c(
       Name = 'Subtask',
       Parent_Task__c = parent.Id,
-      Status__c = 'Completed',
+      Status__c = 'Completed', Submission_Status__c = 'Project Task Complete',
       Account__c = acc.Id,
       Project__c = parent.Project__c,
       Priority__c = 'Medium',
@@ -738,7 +738,7 @@ private class TaskProgressCalculatorTest {
     subtasks.add(
       new Project_Task__c(
         Parent_Task__c = parent.Id,
-        Status__c = 'Completed',
+        Status__c = 'Completed', Submission_Status__c = 'Project Task Complete',
         Account__c = acc.Id,
         Project__c = parent.Project__c,
         Priority__c = 'Medium',
