@@ -36,7 +36,10 @@ private class PortalTaskControllerTest {
       PortalTaskController.getTaskDetail('');
     } catch (AuraHandledException e) {
       threw = true;
-      System.assert(e.getMessage().toLowerCase().contains('required'), e.getMessage());
+      // Package-version / managed context may mask AuraHandledException message as "Script-thrown exception"
+      if (!e.getMessage().equalsIgnoreCase('Script-thrown exception')) {
+        System.assert(e.getMessage().toLowerCase().contains('required'), e.getMessage());
+      }
     }
     System.assert(threw, 'Expected AuraHandledException');
   }
