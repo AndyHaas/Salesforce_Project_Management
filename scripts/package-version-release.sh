@@ -2,6 +2,13 @@
 # Create a 2GP package version (with code coverage), record Ids + install links in
 # scripts/package-release-state.json, then optionally promote with --no-prompt.
 #
+# Package validation runs in a scratch-shaped org that does not use your Dev Hub's
+# manual Setup toggles. Lightning email template folders (EmailTemplateFolder, nested
+# SFX templates) require Folders and Enhanced Sharing in that validation org—see
+# scratch-defs/package-version-scratch-def.json (not under config/ — that path is
+# gitignored). Add scratch "features" or other settings there only if validation
+# errors point to them (e.g. SharingSet, CDC).
+#
 # Usage:
 #   ./scripts/package-version-release.sh create [--force]
 #   ./scripts/package-version-release.sh promote
@@ -43,6 +50,7 @@ cmd_create() {
     --code-coverage \
     --wait 120 \
     --target-dev-hub "${DEV_HUB}" \
+    --definition-file "${REPO_ROOT}/scratch-defs/package-version-scratch-def.json" \
     2>&1 | tee "${log}"
   local pstat=("${PIPESTATUS[@]}")
   set -e

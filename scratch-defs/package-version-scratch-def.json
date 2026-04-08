@@ -1,0 +1,9 @@
+{
+  "orgName": "Milestone PM Core package version validation",
+  "edition": "Developer",
+  "settings": {
+    "emailTemplateSettings": {
+      "enableTemplateEnhancedFolderPref": true
+    }
+  }
+}
