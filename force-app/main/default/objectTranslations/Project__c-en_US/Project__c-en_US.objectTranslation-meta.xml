@@ -27,14 +27,6 @@
         <label />
         <name>New_Time_Entry</name>
     </quickActions>
-    <quickActions>
-        <label />
-        <name>Send_to_Slack</name>
-    </quickActions>
-    <quickActions>
-        <label />
-        <name>Slack_Alerts</name>
-    </quickActions>
     <startsWith>Consonant</startsWith>
     <validationRules>
         <errorMessage />
@@ -43,13 +35,5 @@
     <webLinks>
         <label />
         <name>Invoice</name>
-    </webLinks>
-    <webLinks>
-        <label />
-        <name>Send_to_Slack</name>
-    </webLinks>
-    <webLinks>
-        <label />
-        <name>Slack_Alerts</name>
     </webLinks>
 </CustomObjectTranslation>
