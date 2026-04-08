@@ -39,11 +39,6 @@
     <description>Portal: projects, tasks, login, messaging (MessagingController, MessagingPinnedSupport), files (MessageFilesSupport; ContentDocument/Version read; ContentDistribution create/read for preview).</description>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Account.AP_Email__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Account.BillingAddress</field>
         <readable>true</readable>
     </fieldPermissions>

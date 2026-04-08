@@ -2,7 +2,7 @@
   "packageDirectories": [
     {
       "versionName": "ver 0.2",
-      "versionNumber": "0.2.1.NEXT",
+      "versionNumber": "0.2.2.NEXT",
       "path": "force-app",
       "default": true,
       "package": "Milestone Project Management Core",

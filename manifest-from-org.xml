@@ -891,7 +891,6 @@
         <members>Record_Trigger_Time_Sheet_Block_If_Project_Closed</members>
         <members>Record_Trigger_Time_Sheet_Calculate_Cost_Rollups</members>
         <members>Timesheet_Entry_New_Entry</members>
-        <members>Timesheet_Entry_Set_End_Time</members>
         <name>Flow</name>
     </types>
     <types>
@@ -908,7 +907,6 @@
         <members>Record_Trigger_Time_Sheet_Block_If_Project_Closed</members>
         <members>Record_Trigger_Time_Sheet_Calculate_Cost_Rollups</members>
         <members>Timesheet_Entry_New_Entry</members>
-        <members>Timesheet_Entry_Set_End_Time</members>
         <name>FlowDefinition</name>
     </types>
     <types>
@@ -1504,7 +1502,6 @@
         <members>Project_Task__c.Reject_PM_Code_Review_Task</members>
         <members>Project_Task__c.Submit_For_Client_Approval</members>
         <members>Project_Task__c.Submit_For_PM_Review</members>
-        <members>Project__c.Complete_Time_Entry</members>
         <members>Project__c.Create_Time_Entry_Record</members>
         <members>Project__c.New_Time_Entry</members>
         <name>QuickAction</name>

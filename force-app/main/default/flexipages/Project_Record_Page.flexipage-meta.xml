@@ -211,9 +211,6 @@
                         <valueListItems>
                             <value>Project__c.New_Time_Entry</value>
                         </valueListItems>
-                        <valueListItems>
-                            <value>Project__c.Complete_Time_Entry</value>
-                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>

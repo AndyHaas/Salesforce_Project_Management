@@ -17,10 +17,6 @@
     </layouts>
     <quickActions>
         <label />
-        <name>Complete_Time_Entry</name>
-    </quickActions>
-    <quickActions>
-        <label />
         <name>Create_Time_Entry_Record</name>
     </quickActions>
     <quickActions>
