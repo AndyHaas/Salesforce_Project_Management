@@ -21,7 +21,9 @@ deploy-options.json
 # Development tools
 .husky/
 .vscode/
-config/
+# Ignore local files under config/ except the versioned 2GP validation scratch def
+config/*
+!config/package-version-scratch-def.json
 
 # LWC VSCode autocomplete
 **/lwc/jsconfig.json
