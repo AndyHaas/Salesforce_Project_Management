@@ -17,7 +17,7 @@ public without sharing class DisplayDensityController {
       // Use the User Interface API to get the active theme
       // Construct the endpoint using OrgDomainUrl (available in API 58.0+)
       String baseUrl = Url.getOrgDomainUrl().toExternalForm();
-      String endpoint = baseUrl + '/services/data/v65.0/ui-api/themes/active';
+      String endpoint = baseUrl + '/services/data/v66.0/ui-api/themes/active';
       request.setEndpoint(endpoint);
       request.setMethod('GET');
       request.setHeader('Authorization', 'Bearer ' + UserInfo.getSessionId());
