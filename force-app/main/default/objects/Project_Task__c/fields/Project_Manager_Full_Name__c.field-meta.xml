@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Project_Manager_Full_Name__c</fullName>
+    <description>Formula field that displays the Project Manager for this task as first name and last name from the Project Manager lookup.</description>
+    <externalId>false</externalId>
+    <formula>Project_Manager__r.FirstName &amp;  &quot;&quot; &amp; Project_Manager__r.LastName</formula>
+    <label>Project Manager Full Name</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
