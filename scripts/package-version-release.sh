@@ -19,6 +19,10 @@
 
 set -euo pipefail
 
+# Long-running `sf package version create --wait` polls Tooling API from Node. On some
+# networks (IPv6 advertised but not routable), Node can fail with EADDRNOTAVAIL; prefer IPv4.
+export NODE_OPTIONS="${NODE_OPTIONS:+${NODE_OPTIONS} }--dns-result-order=ipv4first"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}"
