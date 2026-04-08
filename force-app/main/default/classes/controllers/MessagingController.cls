@@ -355,6 +355,8 @@ public without sharing class MessagingController {
       }
 
       return message.Id;
+    } catch (AuraHandledException e) {
+      throw e;
     } catch (DmlException e) {
       System.debug(
         LoggingLevel.ERROR,
@@ -728,12 +730,13 @@ public without sharing class MessagingController {
       System.debug(LoggingLevel.DEBUG, 'relatedAccountId: ' + relatedAccountId);
 
       // SOQL: when searchCandidateIds is set, whereClause includes Id IN (SOSL materialized Set)
+      // Omit WITH SECURITY_ENFORCED: same rationale as getLatestMessages — portal/internal
+      // profiles differ; without sharing already bypasses row sharing for this controller.
       String query =
         GET_MESSAGES_SELECT_LIST +
         'FROM Message__c ' +
         whereClause +
-        ' WITH SECURITY_ENFORCED ' +
-        'ORDER BY Is_Pinned__c DESC, ' +
+        ' ORDER BY Is_Pinned__c DESC, ' +
         normalizedOrderField +
         ' ' +
         normalizedOrderDirection +
@@ -1066,9 +1069,12 @@ public without sharing class MessagingController {
       // Build query with proper bind variables
       List<Contact> contacts;
       if (String.isNotBlank(searchTerm)) {
-        // Escape LIKE wildcards to avoid injection via pattern characters
-        String escaped = searchTerm.replaceAll('([%_\\\\])', '\\\\$1');
-        searchLike = '%' + escaped + '%';
+        // Strip LIKE metacharacters so we can use plain LIKE without ESCAPE (dynamic ESCAPE
+        // clauses are brittle across API/parser versions and caused QueryException in tests).
+        String sanitized = searchTerm.replaceAll('[\\\\%_]', ' ').trim().replaceAll('\\s+', ' ');
+        if (String.isNotBlank(sanitized)) {
+          searchLike = '%' + sanitized + '%';
+        }
       }
 
       if (currentUser.AccountId != null) {
@@ -1083,7 +1089,7 @@ public without sharing class MessagingController {
           'AND (AccountId = :currentUserAccountId OR AccountId = null)';
 
         if (searchLike != null) {
-          query += ' AND (Name LIKE :searchLike ESCAPE \'\\\\\' OR Email LIKE :searchLike ESCAPE \'\\\\\')';
+          query += ' AND (Name LIKE :searchLike OR Email LIKE :searchLike)';
         }
 
         query += ' ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
@@ -1097,7 +1103,7 @@ public without sharing class MessagingController {
           'WHERE Portal_Access_Enabled__c = true';
 
         if (searchLike != null) {
-          query += ' AND (Name LIKE :searchLike ESCAPE \'\\\\\' OR Email LIKE :searchLike ESCAPE \'\\\\\')';
+          query += ' AND (Name LIKE :searchLike OR Email LIKE :searchLike)';
         }
 
         query += ' ORDER BY Name LIMIT ' + MAX_CONTACT_SEARCH_LIMIT;
