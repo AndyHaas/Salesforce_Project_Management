@@ -7,9 +7,7 @@
   `*.flow-meta.xml` file as `sf project deploy start --source-dir <file>`.
   That deploys only that Flow (see Deploy Options / numberComponentsTotal in the report).
 
-  `sf project deploy report` cannot run from this repo root because unrelated
-  `objectTranslations` fail metadata resolution; after deploy, this script runs
-  the report from `scripts/sf-deploy-report-stub/` (minimal empty project).
+  After a successful deploy, optionally runs `sf project deploy report` from the repo root.
 
 .PARAMETER FlowApiName
   Flow API name (filename without .flow-meta.xml).
@@ -53,8 +51,6 @@ if (-not $TargetOrg) {
     throw 'No target org. Pass -TargetOrg or run: sf config set target-org <alias>'
 }
 
-$reportStub = Resolve-Path (Join-Path $PSScriptRoot 'sf-deploy-report-stub')
-
 function Get-DeployJson {
     param([string[]] $Arguments)
     # Suppress stderr so CLI progress / locale bugs do not corrupt JSON on stdout
@@ -92,17 +88,12 @@ try {
     Write-Host "Deploy job id: $jobId" -ForegroundColor DarkGray
 
     if ($SkipReport) {
-        Write-Host "Skipping report (use stub folder manually): cd scripts/sf-deploy-report-stub" -ForegroundColor DarkYellow
+        Write-Host "Skipping deploy report." -ForegroundColor DarkYellow
         return
     }
 
-    Push-Location $reportStub
-    try {
-        Write-Host "`nDeploy report (from minimal stub project):" -ForegroundColor Cyan
-        sf project deploy report --job-id $jobId
-    } finally {
-        Pop-Location
-    }
+    Write-Host "`nDeploy report:" -ForegroundColor Cyan
+    sf project deploy report --job-id $jobId --target-org $TargetOrg
 } finally {
     Pop-Location
 }
