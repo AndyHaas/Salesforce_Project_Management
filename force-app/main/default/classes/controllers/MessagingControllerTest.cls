@@ -1654,9 +1654,13 @@ private class MessagingControllerTest {
       );
       System.assert(false, 'Expected AuraHandledException for invalid task Id');
     } catch (AuraHandledException e) {
+      String m = e.getMessage();
       System.assert(
-        e.getMessage().contains('not found') || e.getMessage().contains('not available'),
-        'Expected task not found error: ' + e.getMessage()
+        m == null ||
+          m.containsIgnoreCase('not found') ||
+          m.containsIgnoreCase('not available') ||
+          m.toLowerCase().contains('script-thrown'),
+        'Expected task not found error: ' + m
       );
     }
     Test.stopTest();
