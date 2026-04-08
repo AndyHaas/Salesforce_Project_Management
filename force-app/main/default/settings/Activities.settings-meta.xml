@@ -3,8 +3,6 @@
   xmlns="http://soap.sforce.com/2006/04/metadata"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 >
-    <allowUsersToRelateMultipleContactsToTasksAndEvents
-  >true</allowUsersToRelateMultipleContactsToTasksAndEvents>
     <autoRelateEventAttendees>false</autoRelateEventAttendees>
     <enableActivityReminders>true</enableActivityReminders>
     <enableCalendarHomeLWC>false</enableCalendarHomeLWC>
