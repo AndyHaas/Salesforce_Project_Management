@@ -613,9 +613,11 @@ private class MessageNotificationSchedulerTest {
       LIMIT 1
     ];
 
+    Project__c testProject = [SELECT Id FROM Project__c LIMIT 1];
     Project_Task__c testTask = new Project_Task__c(
       Name = 'Task With Account Context',
       Account__c = testAccount.Id,
+      Project__c = testProject.Id,
       Project_Manager__c = projectManager.Id
     );
     insert testTask;
