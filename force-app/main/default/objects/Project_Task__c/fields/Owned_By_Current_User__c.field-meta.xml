@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Owned_By_Current_User__c</fullName>
-    <description>True when the running user owns this record. Used by the My Tasks list view because filterScope Mine cannot be deployed for custom objects via Metadata API.</description>
-    <formula>OwnerId = $User.Id</formula>
+    <description>True when this task is in the running user&apos;s &quot;My Tasks&quot; scope: User assignment fields, Contact match on PM/Developer/Client, or they created the task. Account/Project OwnerId is omitted because cross-object OwnerId is not deployable in this org&apos;s formula validation. Used by the My Tasks list view because filterScope Mine cannot be deployed via Metadata API.</description>
+    <formula>OR(
+  Developer_User__c = $User.Id,
+  PM_Approver_User__c = $User.Id,
+  Client_Approver_User__c = $User.Id,
+  Developer__c = $User.ContactId,
+  Project_Manager__c = $User.ContactId,
+  Client_User__c = $User.ContactId,
+  CreatedById = $User.Id
+)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>Owned By Current User</label>
+    <label>My Tasks (current user)</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>
