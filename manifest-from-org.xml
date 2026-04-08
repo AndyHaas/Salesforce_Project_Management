@@ -884,7 +884,6 @@
         <members>Create_Release_Note_from_Project_Task</members>
         <members>Project_Set_to_invoiced</members>
         <members>RT_AS_Project</members>
-        <members>Record_Project_Alert_Burn_Rate_80</members>
         <members>Record_Trigger_Project_Task_Client_Completion_Approval</members>
         <members>Record_Trigger_Project_Task_PM_Code_Review_Email</members>
         <members>Record_Trigger_Time_Sheet_Block_If_Project_Closed</members>
@@ -899,7 +898,6 @@
         <members>Create_Release_Note_from_Project_Task</members>
         <members>Project_Set_to_invoiced</members>
         <members>RT_AS_Project</members>
-        <members>Record_Project_Alert_Burn_Rate_80</members>
         <members>Record_Trigger_Project_Task_Client_Completion_Approval</members>
         <members>Record_Trigger_Project_Task_PM_Code_Review_Email</members>
         <members>Record_Trigger_Time_Sheet_Block_If_Project_Closed</members>
