@@ -1,4 +1,5 @@
 {
   "org-capitalize-record-types": "true",
-  "target-org": "milestoneDevOrg"
+  "target-org": "milestonedev",
+  "org-instance-url": "true"
 }

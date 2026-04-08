@@ -1203,4 +1203,25 @@ private class ProjectTaskDashboardControllerTest {
     }
     System.assert(threw, 'Null project Id should throw AuraHandledException');
   }
+
+  @IsTest
+  static void getProjectManagerContacts_getAssignedContacts_getStatusColors_callable() {
+    Test.startTest();
+    List<ProjectTaskDashboardController.ContactOption> pms = ProjectTaskDashboardController.getProjectManagerContacts();
+    List<ProjectTaskDashboardController.ContactOption> assigned = ProjectTaskDashboardController.getAssignedContacts();
+    Map<String, String> colors = ProjectTaskDashboardController.getStatusColors();
+    Test.stopTest();
+    System.assertNotEquals(null, pms);
+    System.assertNotEquals(null, assigned);
+    System.assertNotEquals(null, colors);
+    System.assert(!colors.isEmpty());
+  }
+
+  @IsTest
+  static void getCurrentUserContactId_invokesWithoutThrow() {
+    Test.startTest();
+    String cid = ProjectTaskDashboardController.getCurrentUserContactId();
+    Test.stopTest();
+    System.assert(cid == null || cid.length() >= 15);
+  }
 }

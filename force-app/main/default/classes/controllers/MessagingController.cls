@@ -59,6 +59,16 @@ public without sharing class MessagingController {
     return String.isBlank(t) ? null : t;
   }
 
+  @TestVisible
+  private static String normalizeOptionalForTest(String value) {
+    return normalizeOptional(value);
+  }
+
+  @TestVisible
+  private static String normalizeTermForSoslForTest(String term) {
+    return normalizeTermForSosl(term);
+  }
+
   /**
    * Single SOSL call; materializes Message__c Ids into a Set (no SOQL in this method).
    */
@@ -88,6 +98,11 @@ public without sharing class MessagingController {
     return searchCandidateIds;
   }
 
+  @TestVisible
+  private static Set<Id> searchMessageIdsBySoslForTest(String term) {
+    return searchMessageIdsBySosl(term);
+  }
+
   /**
    * @description Get current user with Contact fields needed for messaging
    * @return User record with Id, ContactId, AccountId, Name, Email
@@ -111,6 +126,11 @@ public without sharing class MessagingController {
     if (message.Account__c == null || message.Account__c != portalUserAccountId) {
       throw new AuraHandledException('You can only send messages in your account context.');
     }
+  }
+
+  @TestVisible
+  private static void assertPortalUserMessageContextForTest(Message__c message, Id portalUserAccountId) {
+    assertPortalUserMessageContext(message, portalUserAccountId);
   }
 
   /**
@@ -147,7 +167,8 @@ public without sharing class MessagingController {
         WHERE
           Id IN :idSet
           AND Portal_Access_Enabled__c = TRUE
-          AND (AccountId = :currentUserAccountId OR AccountId = NULL)
+          AND (AccountId = :currentUserAccountId
+          OR AccountId = NULL)
         ORDER BY Name
       ];
     } else {
@@ -163,6 +184,11 @@ public without sharing class MessagingController {
       out.add(String.valueOf(c.Id));
     }
     return out;
+  }
+
+  @TestVisible
+  private static List<String> filterToMentionableContactIdsForTest(List<String> candidateIds, User currentUser) {
+    return filterToMentionableContactIds(candidateIds, currentUser);
   }
 
   /**
@@ -407,14 +433,7 @@ public without sharing class MessagingController {
     }
 
     Contact newContact = new Contact();
-
-    if (user.Name != null && user.Name.contains(' ')) {
-      List<String> nameParts = user.Name.split(' ', 2);
-      newContact.FirstName = nameParts[0];
-      newContact.LastName = nameParts.size() > 1 ? nameParts[1] : nameParts[0];
-    } else {
-      newContact.LastName = String.isNotBlank(user.Name) ? user.Name : 'Milestone Team Member';
-    }
+    applyUserDisplayNameToNewContact(newContact, user.Name);
 
     newContact.Email = user.Email;
 
@@ -440,12 +459,35 @@ public without sharing class MessagingController {
     return newContact.Id;
   }
 
+  private static void applyUserDisplayNameToNewContact(Contact newContact, String userDisplayName) {
+    if (userDisplayName != null && userDisplayName.contains(' ')) {
+      List<String> nameParts = userDisplayName.split(' ', 2);
+      newContact.FirstName = nameParts[0];
+      newContact.LastName = nameParts.size() > 1 ? nameParts[1] : nameParts[0];
+    } else {
+      newContact.LastName = String.isNotBlank(userDisplayName) ? userDisplayName : 'Milestone Team Member';
+    }
+  }
+
+  @TestVisible
+  private static void applyUserDisplayNameToNewContactForTest(Contact newContact, String userDisplayName) {
+    applyUserDisplayNameToNewContact(newContact, userDisplayName);
+  }
+
   /**
    * @description Test hook for {@link #getOrCreateContactForUser}; accepts an in-memory User row (no insert).
    */
   @TestVisible
   private static Id getOrCreateContactForUserForTest(User user) {
     return getOrCreateContactForUser(user);
+  }
+
+  private static Boolean isDuplicateEmailFailureMessage(String message) {
+    if (String.isBlank(message)) {
+      return false;
+    }
+    String lower = message.toLowerCase();
+    return lower.contains('email') && (lower.contains('duplicate') || lower.contains('already'));
   }
 
   /**
@@ -455,12 +497,17 @@ public without sharing class MessagingController {
     if (dmx == null || dmx.getNumDml() < 1) {
       return false;
     }
-    String msg = dmx.getDmlMessage(0);
-    if (String.isBlank(msg)) {
-      return false;
-    }
-    String lower = msg.toLowerCase();
-    return lower.contains('email') && (lower.contains('duplicate') || lower.contains('already'));
+    return isDuplicateEmailFailureMessage(dmx.getDmlMessage(0));
+  }
+
+  @TestVisible
+  private static Boolean isLikelyDuplicateContactEmailExceptionForTest(DmlException dmx) {
+    return isLikelyDuplicateContactEmailException(dmx);
+  }
+
+  @TestVisible
+  private static Boolean isDuplicateEmailFailureMessageForTest(String message) {
+    return isDuplicateEmailFailureMessage(message);
   }
 
   /**
@@ -787,9 +834,7 @@ public without sharing class MessagingController {
           flsError += 'Reply_To__c, Reply_To__r fields, Is_Pinned__c.';
           throw new QueryException(flsError);
         }
-        throw new QueryException(
-          'Query error: ' + qeMsg + ' | Query: ' + query + ' | searchTerm: ' + searchTerm
-        );
+        throw new QueryException('Query error: ' + qeMsg + ' | Query: ' + query + ' | searchTerm: ' + searchTerm);
       }
 
       if (Test.isRunningTest() || LoggingLevel.DEBUG == LoggingLevel.DEBUG) {
@@ -798,9 +843,7 @@ public without sharing class MessagingController {
 
       // Convert to MessageInfo
       List<MessageInfo> messageInfos = new List<MessageInfo>();
-      String currentUserContactIdStr = currentUserContactId == null
-        ? null
-        : String.valueOf(currentUserContactId);
+      String currentUserContactIdStr = currentUserContactId == null ? null : String.valueOf(currentUserContactId);
       for (Message__c msg : messages) {
         MessageInfo info = new MessageInfo();
         info.id = msg.Id == null ? null : String.valueOf(msg.Id);
@@ -811,9 +854,7 @@ public without sharing class MessagingController {
         info.senderName = senderRel == null ? null : senderRel.Name;
         info.senderEmail = senderRel == null ? null : senderRel.Email;
         info.recipientType = msg.Recipient_Type__c;
-        info.relatedProjectId = msg.Related_Project__c == null
-          ? null
-          : String.valueOf(msg.Related_Project__c);
+        info.relatedProjectId = msg.Related_Project__c == null ? null : String.valueOf(msg.Related_Project__c);
         Project__c projRel = msg.Related_Project__r;
         info.relatedProjectName = projRel == null ? null : projRel.Name;
         info.relatedTaskId = msg.Related_Task__c == null ? null : String.valueOf(msg.Related_Task__c);
@@ -849,9 +890,7 @@ public without sharing class MessagingController {
           Contact replySender = replyTo.Sender__r;
           info.replyToSenderName = replySender == null ? null : replySender.Name;
           info.replyToCreatedDate = replyTo.CreatedDate;
-          info.replyToTaskId = replyTo.Related_Task__c == null
-            ? null
-            : String.valueOf(replyTo.Related_Task__c);
+          info.replyToTaskId = replyTo.Related_Task__c == null ? null : String.valueOf(replyTo.Related_Task__c);
         }
 
         // Check if current user is mentioned

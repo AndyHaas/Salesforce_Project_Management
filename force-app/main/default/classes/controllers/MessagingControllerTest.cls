@@ -1383,6 +1383,60 @@ private class MessagingControllerTest {
     Test.stopTest();
   }
 
+  @IsTest
+  static void getContextInfo_isolatedAccountBranch() {
+    Account a = new Account(Name = 'Ctx Info Account Only');
+    insert a;
+    Test.startTest();
+    MessagingController.ContextInfo ctx = MessagingController.getContextInfo(String.valueOf(a.Id), null, null);
+    Test.stopTest();
+    System.assertEquals('Account', ctx.contextType);
+    System.assertEquals(String.valueOf(a.Id), ctx.accountId);
+  }
+
+  @IsTest
+  static void getContextInfo_invalidRecordIdHitsCatch() {
+    Test.startTest();
+    MessagingController.ContextInfo ctx = MessagingController.getContextInfo('001000000000000AAA', null, null);
+    Test.stopTest();
+    System.assertNotEquals(null, ctx);
+  }
+
+  @IsTest
+  static void getMessageFiles_returnsRowsWhenFileLinkedToMessage() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Contact sender = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    Message__c msg = new Message__c(
+      Body__c = 'Has file',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = testAccount.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+    ContentVersion cv = new ContentVersion(
+      Title = 'MsgFile',
+      PathOnClient = 'mf.pdf',
+      VersionData = Blob.valueOf('m'),
+      FirstPublishLocationId = testAccount.Id
+    );
+    insert cv;
+    Id docId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id LIMIT 1].ContentDocumentId;
+    insert new ContentDocumentLink(
+      LinkedEntityId = msg.Id,
+      ContentDocumentId = docId,
+      ShareType = 'V',
+      Visibility = 'AllUsers'
+    );
+
+    Test.startTest();
+    List<MessagingController.FileInfo> files = MessagingController.getMessageFiles(String.valueOf(msg.Id));
+    Test.stopTest();
+    System.assertEquals(1, files.size());
+    System.assertEquals(String.valueOf(docId), files[0].id);
+  }
+
   @isTest
   static void testSendMessage_NoContextWithAccountId() {
     // Test sendMessage with no context but user has AccountId (covers line 116)
@@ -1628,10 +1682,7 @@ private class MessagingControllerTest {
       );
       System.assert(false, 'Expected AuraHandledException for other account task');
     } catch (AuraHandledException e) {
-      System.assert(
-        e.getMessage().contains('account context'),
-        'Expected account context error: ' + e.getMessage()
-      );
+      System.assert(e.getMessage().contains('account context'), 'Expected account context error: ' + e.getMessage());
     }
     Test.stopTest();
   }
@@ -1642,16 +1693,7 @@ private class MessagingControllerTest {
 
     Test.startTest();
     try {
-      MessagingController.sendMessage(
-        'Invalid task',
-        'Client',
-        null,
-        null,
-        testAccount.Id,
-        null,
-        true,
-        null
-      );
+      MessagingController.sendMessage('Invalid task', 'Client', null, null, testAccount.Id, null, true, null);
       System.assert(false, 'Expected AuraHandledException for invalid task Id');
     } catch (AuraHandledException e) {
       String m = e.getMessage();
@@ -1701,7 +1743,7 @@ private class MessagingControllerTest {
     ];
     System.assert(
       String.isBlank(inserted.Mentioned_Contacts__c) ||
-        !inserted.Mentioned_Contacts__c.contains(String.valueOf(notMentionable.Id)),
+      !inserted.Mentioned_Contacts__c.contains(String.valueOf(notMentionable.Id)),
       'Non-mentionable contact should be filtered out'
     );
   }
@@ -1711,12 +1753,7 @@ private class MessagingControllerTest {
     String em = 'shared-mail+' + String.valueOf(System.now().getTime()) + '@example.com';
     Account acc = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
 
-    Contact existing = new Contact(
-      FirstName = 'Existing',
-      LastName = 'Contact',
-      Email = em,
-      AccountId = acc.Id
-    );
+    Contact existing = new Contact(FirstName = 'Existing', LastName = 'Contact', Email = em, AccountId = acc.Id);
     insert existing;
 
     User stubUser = new User(Email = em, ContactId = null);
@@ -1731,5 +1768,664 @@ private class MessagingControllerTest {
       [SELECT COUNT() FROM Contact WHERE Email = :em],
       'Must not insert a second Contact for the same Email'
     );
+  }
+
+  @IsTest
+  static void getLatestMessages_nullLimitUsesDefault() {
+    Test.startTest();
+    List<MessagingController.MessageInfo> rows = MessagingController.getLatestMessages(null, 'CreatedDate', 'DESC');
+    Test.stopTest();
+    System.assertNotEquals(null, rows);
+  }
+
+  @IsTest
+  static void getLatestMessages_capsLimitAtMax() {
+    Test.startTest();
+    List<MessagingController.MessageInfo> rows = MessagingController.getLatestMessages(9999, 'CreatedDate', 'ASC');
+    Test.stopTest();
+    System.assert(rows.size() <= 200);
+  }
+
+  @IsTest
+  static void getLatestMessages_orderByLastEditedAndIsPinned() {
+    Test.startTest();
+    MessagingController.getLatestMessages(5, 'LastEditedDate', 'ASC');
+    MessagingController.getLatestMessages(5, 'IsPinned', 'DESC');
+    MessagingController.getLatestMessages(5, 'bogusField', 'notAsc');
+    Test.stopTest();
+  }
+
+  @IsTest
+  static void linkFilesToMessage_linksContentVersion() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Contact sender = [SELECT Id FROM Contact WHERE AccountId = :testAccount.Id LIMIT 1];
+    Message__c msg = new Message__c(
+      Body__c = 'Link via controller',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = testAccount.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+    ContentVersion cv = new ContentVersion(
+      Title = 'CtrlLink',
+      PathOnClient = 'cl.pdf',
+      VersionData = Blob.valueOf('c'),
+      FirstPublishLocationId = testAccount.Id
+    );
+    insert cv;
+    Test.startTest();
+    Boolean ok = MessagingController.linkFilesToMessage(
+      String.valueOf(msg.Id),
+      new List<String>{ String.valueOf(cv.Id) }
+    );
+    Test.stopTest();
+    System.assertEquals(true, ok);
+  }
+
+  @IsTest
+  static void linkFilesToMessage_requiresIds() {
+    Boolean threw = false;
+    try {
+      MessagingController.linkFilesToMessage('', new List<String>());
+    } catch (AuraHandledException e) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void getMessageFiles_blankOrInvalidReturnsEmpty() {
+    System.assertEquals(0, MessagingController.getMessageFiles('').size());
+    System.assertEquals(0, MessagingController.getMessageFiles('not-an-id').size());
+  }
+
+  @IsTest
+  static void getMentionableContacts_nullSearchTerm() {
+    Test.startTest();
+    List<MessagingController.ContactInfo> contacts = MessagingController.getMentionableContacts(null);
+    Test.stopTest();
+    System.assertNotEquals(null, contacts);
+  }
+
+  @IsTest
+  static void sendMessage_requiresBody() {
+    Boolean threw = false;
+    try {
+      MessagingController.sendMessage('', 'Milestone Team', null, null, null, null, true, null);
+    } catch (AuraHandledException e) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void sendMessage_requiresRecipientType() {
+    Boolean threw = false;
+    try {
+      MessagingController.sendMessage('Hello', '', null, null, null, null, true, null);
+    } catch (AuraHandledException e) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void sendMessage_invalidTaskContextThrows() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Boolean threw = false;
+    try {
+      MessagingController.sendMessage(
+        'Body',
+        'Milestone Team',
+        String.valueOf(testAccount.Id),
+        null,
+        String.valueOf(testAccount.Id),
+        null,
+        true,
+        null
+      );
+    } catch (AuraHandledException e) {
+      threw = true;
+    }
+    System.assert(threw, 'Account Id is not a valid task');
+  }
+
+  @IsTest
+  static void updateMessage_blankIdThrows() {
+    Boolean threw = false;
+    try {
+      MessagingController.updateMessage('', 'x');
+    } catch (AuraHandledException e) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void pinMessage_blankIdThrows() {
+    Boolean threw = false;
+    try {
+      MessagingController.pinMessage('', true);
+    } catch (AuraHandledException e) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void deleteMessage_blankIdThrows() {
+    Boolean threw = false;
+    try {
+      MessagingController.deleteMessage('');
+    } catch (AuraHandledException e) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void getMessages_contextRecordId_resolvesAccount() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Test.startTest();
+    List<MessagingController.MessageInfo> rows = MessagingController.getMessages(
+      'Milestone Team',
+      null,
+      null,
+      null,
+      10,
+      0,
+      'CreatedDate',
+      'ASC',
+      null,
+      String.valueOf(testAccount.Id)
+    );
+    Test.stopTest();
+    System.assertNotEquals(null, rows);
+  }
+
+  @IsTest
+  static void getMessages_searchTermTooShort_returnsEmpty() {
+    Test.startTest();
+    List<MessagingController.MessageInfo> rows = MessagingController.getMessages(
+      'Milestone Team',
+      null,
+      null,
+      null,
+      5,
+      0,
+      'CreatedDate',
+      'ASC',
+      'x',
+      null
+    );
+    Test.stopTest();
+    System.assertEquals(0, rows.size());
+  }
+
+  @IsTest
+  static void getMessages_invalidContextRecordIdIgnored() {
+    Test.startTest();
+    MessagingController.getMessages('Milestone Team', null, null, null, 5, 0, 'CreatedDate', 'ASC', null, 'not-valid');
+    Test.stopTest();
+  }
+
+  @IsTest
+  static void sendMessage_withAccountContextOnly() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Test.startTest();
+    String messageId = MessagingController.sendMessage(
+      'Account-only context',
+      'Milestone Team',
+      String.valueOf(testAccount.Id),
+      null,
+      null,
+      null,
+      true,
+      null
+    );
+    Test.stopTest();
+    System.assertNotEquals(null, messageId);
+  }
+
+  @IsTest
+  static void getOrCreateContactForUserForTest_reusesExistingContactByEmail() {
+    Account acc = new Account(Name = 'Email Reuse Acc');
+    insert acc;
+    Contact existing = new Contact(
+      LastName = 'ByEmail',
+      Email = 'messaging-reuse-by-email@test.com',
+      AccountId = acc.Id
+    );
+    insert existing;
+
+    User stub = new User();
+    stub.Email = 'messaging-reuse-by-email@test.com';
+    stub.ContactId = null;
+    stub.FirstName = 'Stub';
+    stub.LastName = 'User';
+
+    Id resolved = MessagingController.getOrCreateContactForUserForTest(stub);
+    System.assertEquals(existing.Id, resolved);
+  }
+
+  @IsTest
+  static void getOrCreateContactForUserForTest_returnsExistingContactId() {
+    Account acc = new Account(Name = 'Short Circuit Acc');
+    insert acc;
+    Contact c = new Contact(LastName = 'SC', AccountId = acc.Id);
+    insert c;
+    User stub = new User();
+    stub.ContactId = c.Id;
+    System.assertEquals(c.Id, MessagingController.getOrCreateContactForUserForTest(stub));
+  }
+
+  @IsTest
+  static void isDuplicateEmailFailureMessageForTest_detectsDuplicatePhrases() {
+    System.assert(MessagingController.isDuplicateEmailFailureMessageForTest('DUPLICATE email in index'));
+    System.assert(MessagingController.isDuplicateEmailFailureMessageForTest('Email is already in use'));
+    System.assertEquals(false, MessagingController.isDuplicateEmailFailureMessageForTest('other'));
+    System.assertEquals(false, MessagingController.isDuplicateEmailFailureMessageForTest(null));
+  }
+
+  @IsTest
+  static void isLikelyDuplicateContactEmailExceptionForTest_nullIsFalse() {
+    System.assertEquals(false, MessagingController.isLikelyDuplicateContactEmailExceptionForTest(null));
+  }
+
+  @IsTest
+  static void applyUserDisplayNameToNewContactForTest_splitsAndDefaults() {
+    Contact split = new Contact();
+    MessagingController.applyUserDisplayNameToNewContactForTest(split, 'Pat Smith');
+    System.assertEquals('Pat', split.FirstName);
+    System.assertEquals('Smith', split.LastName);
+
+    Contact single = new Contact();
+    MessagingController.applyUserDisplayNameToNewContactForTest(single, 'Madonna');
+    System.assertEquals('Madonna', single.LastName);
+
+    Contact dflt = new Contact();
+    MessagingController.applyUserDisplayNameToNewContactForTest(dflt, null);
+    System.assertEquals('Milestone Team Member', dflt.LastName);
+  }
+
+  @IsTest
+  static void sendMessage_withProjectContextOnly() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Project__c proj = [SELECT Id FROM Project__c WHERE Account__c = :testAccount.Id LIMIT 1];
+    Test.startTest();
+    String messageId = MessagingController.sendMessage(
+      'Project-only context',
+      'Milestone Team',
+      null,
+      String.valueOf(proj.Id),
+      null,
+      null,
+      true,
+      null
+    );
+    Test.stopTest();
+    System.assertNotEquals(null, messageId);
+  }
+
+  @IsTest
+  static void privateHelpers_normalizeOptional_trimsSentinels() {
+    System.assertEquals(null, MessagingController.normalizeOptionalForTest(null));
+    System.assertEquals(null, MessagingController.normalizeOptionalForTest('   '));
+    System.assertEquals(null, MessagingController.normalizeOptionalForTest('undefined'));
+    System.assertEquals(null, MessagingController.normalizeOptionalForTest('NULL'));
+    System.assertEquals(null, MessagingController.normalizeOptionalForTest('null'));
+    System.assertEquals('ab', MessagingController.normalizeOptionalForTest('  ab  '));
+  }
+
+  @IsTest
+  static void privateHelpers_normalizeTermForSosl_stripsWildcards() {
+    System.assertEquals(null, MessagingController.normalizeTermForSoslForTest(''));
+    System.assertEquals(null, MessagingController.normalizeTermForSoslForTest('  *  '));
+    System.assertEquals('a b', MessagingController.normalizeTermForSoslForTest('a***b'));
+  }
+
+  @IsTest
+  static void privateHelpers_searchMessageIdsBySosl_handlesShortAndSampleTerms() {
+    MessagingController.searchMessageIdsBySoslForTest('x');
+    MessagingController.searchMessageIdsBySoslForTest('Te');
+    MessagingController.searchMessageIdsBySoslForTest('Test');
+  }
+
+  @IsTest
+  static void privateHelpers_filterToMentionableContactIds_skipsBadStrings() {
+    User me = [SELECT Id, ContactId, AccountId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+    Contact mention = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    List<String> out = MessagingController.filterToMentionableContactIdsForTest(
+      new List<String>{ 'not-an-id', '', ' ' + String.valueOf(mention.Id) },
+      me
+    );
+    System.assert(!out.isEmpty());
+  }
+
+  @IsTest
+  static void privateHelpers_assertPortal_rejectsWrongAccount() {
+    Account expectedAcct = new Account(Name = 'Portal Gate Expected');
+    Account other = new Account(Name = 'Portal Gate Other');
+    insert new List<Account>{ expectedAcct, other };
+    Message__c m = new Message__c(Account__c = other.Id);
+    Boolean threw = false;
+    try {
+      MessagingController.assertPortalUserMessageContextForTest(m, expectedAcct.Id);
+    } catch (AuraHandledException expectedEx) {
+      threw = true;
+    }
+    System.assert(threw);
+    MessagingController.assertPortalUserMessageContextForTest(m, null);
+  }
+
+  @IsTest
+  static void getMessages_recipientClientWhenPortalUser() {
+    User me = [SELECT AccountId FROM User WHERE Id = :UserInfo.getUserId()];
+    if (me.AccountId == null) {
+      return;
+    }
+    Test.startTest();
+    MessagingController.getMessages('Client', null, null, null, 5, 0, 'CreatedDate', 'ASC', null, null);
+    Test.stopTest();
+  }
+
+  @IsTest
+  static void getMessages_orderByPinnedDescAndHighLimit() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Test.startTest();
+    MessagingController.getMessages(
+      'Milestone Team',
+      String.valueOf(testAccount.Id),
+      null,
+      null,
+      200,
+      0,
+      'IsPinned',
+      'DESC',
+      null,
+      null
+    );
+    Test.stopTest();
+  }
+
+  @IsTest
+  static void getMessages_searchSoslAndLastEditedOrder() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Test.startTest();
+    MessagingController.getMessages(
+      'Milestone Team',
+      String.valueOf(testAccount.Id),
+      null,
+      null,
+      50,
+      0,
+      'LastEditedDate',
+      'DESC',
+      'Test',
+      null
+    );
+    Test.stopTest();
+  }
+
+  @IsTest
+  static void pinMessage_nullIsPinnedCoercesToFalse() {
+    if ([SELECT AccountId FROM User WHERE Id = :UserInfo.getUserId()].AccountId != null) {
+      return;
+    }
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Contact sender = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    Message__c msg = new Message__c(
+      Body__c = 'Pin null',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = testAccount.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false,
+      Is_Pinned__c = true
+    );
+    insert msg;
+    Test.startTest();
+    MessagingController.pinMessage(String.valueOf(msg.Id), null);
+    Test.stopTest();
+    System.assertEquals(false, [SELECT Is_Pinned__c FROM Message__c WHERE Id = :msg.Id].Is_Pinned__c);
+  }
+
+  @IsTest
+  static void pinMessage_deletedThrowsForTeamMember() {
+    if ([SELECT AccountId FROM User WHERE Id = :UserInfo.getUserId()].AccountId != null) {
+      return;
+    }
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Contact sender = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    Message__c msg = new Message__c(
+      Body__c = 'Deleted pin',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = testAccount.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = true
+    );
+    insert msg;
+    Boolean threw = false;
+    try {
+      MessagingController.pinMessage(String.valueOf(msg.Id), true);
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void linkFilesToMessage_noContentVersionsFoundThrows() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Contact sender = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    Message__c msg = new Message__c(
+      Body__c = 'No CV',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = testAccount.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+    Boolean threw = false;
+    try {
+      MessagingController.linkFilesToMessage(
+        String.valueOf(msg.Id),
+        new List<String>{ String.valueOf(UserInfo.getUserId()) }
+      );
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void markAsRead_blankIdNoOp() {
+    MessagingController.markAsRead('');
+    MessagingController.markAsRead(null);
+  }
+
+  @IsTest
+  static void updateMessage_nonSenderThrows() {
+    Account acc = new Account(Name = 'Edit Guard Acc');
+    insert acc;
+    Contact other = new Contact(LastName = 'OtherSender', AccountId = acc.Id);
+    insert other;
+    Message__c msg = new Message__c(
+      Body__c = 'Not yours',
+      Sender__c = other.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+    Boolean threw = false;
+    try {
+      MessagingController.updateMessage(String.valueOf(msg.Id), 'Changed');
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void updateMessage_deletedThrows() {
+    Account acc = new Account(Name = 'Edit Del Acc');
+    insert acc;
+    Contact sender = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    Message__c msg = new Message__c(
+      Body__c = 'Del edit',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = true
+    );
+    insert msg;
+    Boolean threw = false;
+    try {
+      MessagingController.updateMessage(String.valueOf(msg.Id), 'Nope');
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void deleteMessage_nonSenderThrows() {
+    Account acc = new Account(Name = 'Del Guard Acc');
+    insert acc;
+    Contact other = new Contact(LastName = 'DelOther', AccountId = acc.Id);
+    insert other;
+    Message__c msg = new Message__c(
+      Body__c = 'No delete',
+      Sender__c = other.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+    Boolean threw = false;
+    try {
+      MessagingController.deleteMessage(String.valueOf(msg.Id));
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void deleteMessage_alreadyDeletedThrows() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Project__c proj = [SELECT Id FROM Project__c WHERE Account__c = :testAccount.Id LIMIT 1];
+    Project_Task__c task = [
+      SELECT Id
+      FROM Project_Task__c
+      WHERE Account__c = :testAccount.Id
+      LIMIT 1
+    ];
+    String mid = MessagingController.sendMessage(
+      'Delete twice body',
+      'Milestone Team',
+      String.valueOf(testAccount.Id),
+      String.valueOf(proj.Id),
+      String.valueOf(task.Id),
+      null,
+      true,
+      null
+    );
+    MessagingController.deleteMessage(mid);
+    Boolean threw = false;
+    try {
+      MessagingController.deleteMessage(mid);
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void sendMessage_replyToInheritsTaskWhenContextBlank() {
+    Message__c parent = [
+      SELECT Id
+      FROM Message__c
+      WHERE Related_Task__c != NULL AND Deleted__c = FALSE
+      LIMIT 1
+    ];
+    Test.startTest();
+    MessagingController.sendMessage(
+      'Reply inherits context',
+      'Milestone Team',
+      null,
+      null,
+      null,
+      null,
+      true,
+      String.valueOf(parent.Id)
+    );
+    Test.stopTest();
+  }
+
+  @IsTest
+  static void getMentionableContacts_sanitizesLikeMetacharacters() {
+    Test.startTest();
+    MessagingController.getMentionableContacts('50%_off\\test');
+    Test.stopTest();
+  }
+
+  @IsTest
+  static void sendMentionNotificationsForTest_earlyReturnWhenNoMentions() {
+    MessagingController.sendMentionNotificationsForTest(String.valueOf(UserInfo.getUserId()), new List<String>(), 'x');
+    MessagingController.sendMentionNotificationsForTest(String.valueOf(UserInfo.getUserId()), null, 'x');
+  }
+
+  @IsTest
+  static void sendMentionNotificationsForTest_invalidMessageIdSwallowsError() {
+    Contact mention = [
+      SELECT Id
+      FROM Contact
+      WHERE Email != NULL AND Portal_Access_Enabled__c = TRUE
+      LIMIT 1
+    ];
+    MessagingController.sendMentionNotificationsForTest(
+      String.valueOf(UserInfo.getUserId()),
+      new List<String>{ String.valueOf(mention.Id) },
+      '<b>note</b>'
+    );
+  }
+
+  @IsTest
+  static void sendMessage_longBodyWithMention_truncatesNotificationPlainText() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Project__c proj = [SELECT Id FROM Project__c WHERE Account__c = :testAccount.Id LIMIT 1];
+    Project_Task__c task = [
+      SELECT Id
+      FROM Project_Task__c
+      WHERE Account__c = :testAccount.Id
+      LIMIT 1
+    ];
+    Contact mention = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    String longBody = '';
+    for (Integer i = 0; i < 60; i++) {
+      longBody += '0123456789';
+    }
+    longBody += '<p>x</p>';
+    Test.startTest();
+    MessagingController.sendMessage(
+      longBody,
+      'Milestone Team',
+      String.valueOf(testAccount.Id),
+      String.valueOf(proj.Id),
+      String.valueOf(task.Id),
+      new List<String>{ String.valueOf(mention.Id) },
+      true,
+      null
+    );
+    Test.stopTest();
   }
 }

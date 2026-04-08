@@ -31,6 +31,9 @@ config/*
 # LWC Jest coverage reports
 coverage/
 
+# Local `sf apex run test --output-dir` artifacts (large JSON; not versioned)
+.apex-test-results/
+
 # Logs
 logs
 *.log

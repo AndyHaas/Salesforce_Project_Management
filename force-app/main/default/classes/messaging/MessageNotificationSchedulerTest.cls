@@ -28,10 +28,7 @@ private class MessageNotificationSchedulerTest {
     insert clientContact;
 
     // Create test Project
-    Project__c testProject = new Project__c(
-      Name = 'Test Project',
-      Account__c = testAccount.Id
-    );
+    Project__c testProject = new Project__c(Name = 'Test Project', Account__c = testAccount.Id);
     insert testProject;
 
     // Create test Task with Project Manager
@@ -113,10 +110,7 @@ private class MessageNotificationSchedulerTest {
     );
     insert alreadyNotifiedMessage;
     // Set created date to 6 minutes ago
-    Test.setCreatedDate(
-      alreadyNotifiedMessage.Id,
-      DateTime.now().addMinutes(-6)
-    );
+    Test.setCreatedDate(alreadyNotifiedMessage.Id, DateTime.now().addMinutes(-6));
   }
 
   @isTest
@@ -127,11 +121,7 @@ private class MessageNotificationSchedulerTest {
 
     // Get all messages and verify by CreatedDate
     List<Message__c> allMessages = [
-      SELECT
-        Id,
-        PM_Notification_Sent__c,
-        CreatedDate,
-        Is_Read_By_Milestone_Team__c
+      SELECT Id, PM_Notification_Sent__c, CreatedDate, Is_Read_By_Milestone_Team__c
       FROM Message__c
       ORDER BY CreatedDate DESC
     ];
@@ -191,11 +181,7 @@ private class MessageNotificationSchedulerTest {
   static void testScheduledExecution() {
     Test.startTest();
     MessageNotificationScheduler scheduler = new MessageNotificationScheduler();
-    String jobId = System.schedule(
-      'Test Message Notification',
-      '0 0 * * * ?',
-      scheduler
-    );
+    String jobId = System.schedule('Test Message Notification', '0 0 * * * ?', scheduler);
     Test.stopTest();
 
     // Verify job was scheduled
@@ -207,11 +193,7 @@ private class MessageNotificationSchedulerTest {
       FROM CronTrigger
       WHERE Id = :jobId
     ];
-    System.assertEquals(
-      '0 0 * * * ?',
-      ct.CronExpression,
-      'Cron expression should match'
-    );
+    System.assertEquals('0 0 * * * ?', ct.CronExpression, 'Cron expression should match');
   }
 
   @isTest
@@ -325,11 +307,7 @@ private class MessageNotificationSchedulerTest {
       FROM Message__c
       WHERE Id = :unreadClientMessage.Id
     ];
-    System.assertEquals(
-      1,
-      beforeMessages.size(),
-      'Message should exist before test'
-    );
+    System.assertEquals(1, beforeMessages.size(), 'Message should exist before test');
 
     Test.startTest();
     MessageNotificationScheduler.checkAndSendNotifications();
@@ -337,11 +315,7 @@ private class MessageNotificationSchedulerTest {
 
     // Verify message was marked as notification sent
     Message__c updatedMessage = [
-      SELECT
-        Id,
-        Client_Notification_Sent__c,
-        Client_Notification_Sent_Date__c,
-        CreatedDate
+      SELECT Id, Client_Notification_Sent__c, Client_Notification_Sent_Date__c, CreatedDate
       FROM Message__c
       WHERE Id = :unreadClientMessage.Id
     ];
@@ -349,8 +323,7 @@ private class MessageNotificationSchedulerTest {
     // The message should be marked as sent if it meets the criteria
     // If it's not marked, it might be because CreatedDate wasn't set correctly in test context
     System.assert(
-      updatedMessage.Client_Notification_Sent__c == true ||
-        updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
+      updatedMessage.Client_Notification_Sent__c == true || updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
       'Client message should be marked as notification sent if old enough. CreatedDate: ' +
         updatedMessage.CreatedDate +
         ', Now: ' +
@@ -394,10 +367,7 @@ private class MessageNotificationSchedulerTest {
     );
     insert messageWithoutClientUser;
     // Set created date to 6 minutes ago
-    Test.setCreatedDate(
-      messageWithoutClientUser.Id,
-      DateTime.now().addMinutes(-6)
-    );
+    Test.setCreatedDate(messageWithoutClientUser.Id, DateTime.now().addMinutes(-6));
 
     // Verify message exists and is old enough
     List<Message__c> beforeMessages = [
@@ -405,11 +375,7 @@ private class MessageNotificationSchedulerTest {
       FROM Message__c
       WHERE Id = :messageWithoutClientUser.Id
     ];
-    System.assertEquals(
-      1,
-      beforeMessages.size(),
-      'Message should exist before test'
-    );
+    System.assertEquals(1, beforeMessages.size(), 'Message should exist before test');
 
     Test.startTest();
     MessageNotificationScheduler.checkAndSendNotifications();
@@ -417,21 +383,15 @@ private class MessageNotificationSchedulerTest {
 
     // Verify message was marked as sent (to avoid checking repeatedly) even though no email was sent
     Message__c updatedMessage = [
-      SELECT
-        Id,
-        Client_Notification_Sent__c,
-        Client_Notification_Sent_Date__c,
-        CreatedDate
+      SELECT Id, Client_Notification_Sent__c, Client_Notification_Sent_Date__c, CreatedDate
       FROM Message__c
       WHERE Id = :messageWithoutClientUser.Id
     ];
 
     // The message should be marked as sent if it meets the criteria
     System.assert(
-      updatedMessage.Client_Notification_Sent__c == true ||
-        updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
-      'Message without client user should be marked as sent. CreatedDate: ' +
-      updatedMessage.CreatedDate
+      updatedMessage.Client_Notification_Sent__c == true || updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
+      'Message without client user should be marked as sent. CreatedDate: ' + updatedMessage.CreatedDate
     );
   }
 
@@ -480,10 +440,7 @@ private class MessageNotificationSchedulerTest {
     );
     insert messageWithClientNoEmail;
     // Set created date to 6 minutes ago
-    Test.setCreatedDate(
-      messageWithClientNoEmail.Id,
-      DateTime.now().addMinutes(-6)
-    );
+    Test.setCreatedDate(messageWithClientNoEmail.Id, DateTime.now().addMinutes(-6));
 
     // Verify message exists and is old enough
     List<Message__c> beforeMessages = [
@@ -491,11 +448,7 @@ private class MessageNotificationSchedulerTest {
       FROM Message__c
       WHERE Id = :messageWithClientNoEmail.Id
     ];
-    System.assertEquals(
-      1,
-      beforeMessages.size(),
-      'Message should exist before test'
-    );
+    System.assertEquals(1, beforeMessages.size(), 'Message should exist before test');
 
     Test.startTest();
     MessageNotificationScheduler.checkAndSendNotifications();
@@ -503,21 +456,15 @@ private class MessageNotificationSchedulerTest {
 
     // Verify message was marked as sent (to avoid checking repeatedly) even though no email was sent
     Message__c updatedMessage = [
-      SELECT
-        Id,
-        Client_Notification_Sent__c,
-        Client_Notification_Sent_Date__c,
-        CreatedDate
+      SELECT Id, Client_Notification_Sent__c, Client_Notification_Sent_Date__c, CreatedDate
       FROM Message__c
       WHERE Id = :messageWithClientNoEmail.Id
     ];
 
     // The message should be marked as sent if it meets the criteria
     System.assert(
-      updatedMessage.Client_Notification_Sent__c == true ||
-        updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
-      'Message with client user without email should be marked as sent. CreatedDate: ' +
-      updatedMessage.CreatedDate
+      updatedMessage.Client_Notification_Sent__c == true || updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
+      'Message with client user without email should be marked as sent. CreatedDate: ' + updatedMessage.CreatedDate
     );
   }
 
@@ -568,32 +515,22 @@ private class MessageNotificationSchedulerTest {
       FROM Message__c
       WHERE Id = :messageWithProject.Id
     ];
-    System.assertEquals(
-      1,
-      beforeMessages.size(),
-      'Message should exist before test'
-    );
+    System.assertEquals(1, beforeMessages.size(), 'Message should exist before test');
 
     Test.startTest();
     MessageNotificationScheduler.checkAndSendNotifications();
     Test.stopTest();
 
     Message__c updatedMessage = [
-      SELECT
-        Id,
-        PM_Notification_Sent__c,
-        PM_Notification_Sent_Date__c,
-        CreatedDate
+      SELECT Id, PM_Notification_Sent__c, PM_Notification_Sent_Date__c, CreatedDate
       FROM Message__c
       WHERE Id = :messageWithProject.Id
     ];
 
     // The message should be marked as sent if it meets the criteria
     System.assert(
-      updatedMessage.PM_Notification_Sent__c == true ||
-        updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
-      'Message with project context should be marked as notification sent. CreatedDate: ' +
-      updatedMessage.CreatedDate
+      updatedMessage.PM_Notification_Sent__c == true || updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
+      'Message with project context should be marked as notification sent. CreatedDate: ' + updatedMessage.CreatedDate
     );
   }
 
@@ -643,32 +580,22 @@ private class MessageNotificationSchedulerTest {
       FROM Message__c
       WHERE Id = :messageWithAccount.Id
     ];
-    System.assertEquals(
-      1,
-      beforeMessages.size(),
-      'Message should exist before test'
-    );
+    System.assertEquals(1, beforeMessages.size(), 'Message should exist before test');
 
     Test.startTest();
     MessageNotificationScheduler.checkAndSendNotifications();
     Test.stopTest();
 
     Message__c updatedMessage = [
-      SELECT
-        Id,
-        PM_Notification_Sent__c,
-        PM_Notification_Sent_Date__c,
-        CreatedDate
+      SELECT Id, PM_Notification_Sent__c, PM_Notification_Sent_Date__c, CreatedDate
       FROM Message__c
       WHERE Id = :messageWithAccount.Id
     ];
 
     // The message should be marked as sent if it meets the criteria
     System.assert(
-      updatedMessage.PM_Notification_Sent__c == true ||
-        updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
-      'Message with account context should be marked as notification sent. CreatedDate: ' +
-      updatedMessage.CreatedDate
+      updatedMessage.PM_Notification_Sent__c == true || updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
+      'Message with account context should be marked as notification sent. CreatedDate: ' + updatedMessage.CreatedDate
     );
   }
 
@@ -721,32 +648,22 @@ private class MessageNotificationSchedulerTest {
       FROM Message__c
       WHERE Id = :messageWithLongBody.Id
     ];
-    System.assertEquals(
-      1,
-      beforeMessages.size(),
-      'Message should exist before test'
-    );
+    System.assertEquals(1, beforeMessages.size(), 'Message should exist before test');
 
     Test.startTest();
     MessageNotificationScheduler.checkAndSendNotifications();
     Test.stopTest();
 
     Message__c updatedMessage = [
-      SELECT
-        Id,
-        PM_Notification_Sent__c,
-        PM_Notification_Sent_Date__c,
-        CreatedDate
+      SELECT Id, PM_Notification_Sent__c, PM_Notification_Sent_Date__c, CreatedDate
       FROM Message__c
       WHERE Id = :messageWithLongBody.Id
     ];
 
     // The message should be marked as sent if it meets the criteria
     System.assert(
-      updatedMessage.PM_Notification_Sent__c == true ||
-        updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
-      'Message with long body should be marked as notification sent. CreatedDate: ' +
-      updatedMessage.CreatedDate
+      updatedMessage.PM_Notification_Sent__c == true || updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
+      'Message with long body should be marked as notification sent. CreatedDate: ' + updatedMessage.CreatedDate
     );
   }
 
@@ -826,32 +743,110 @@ private class MessageNotificationSchedulerTest {
       FROM Message__c
       WHERE Id = :messageWithPMNoEmail.Id
     ];
-    System.assertEquals(
-      1,
-      beforeMessages.size(),
-      'Message should exist before test'
-    );
+    System.assertEquals(1, beforeMessages.size(), 'Message should exist before test');
 
     Test.startTest();
     MessageNotificationScheduler.checkAndSendNotifications();
     Test.stopTest();
 
     Message__c updatedMessage = [
-      SELECT
-        Id,
-        PM_Notification_Sent__c,
-        PM_Notification_Sent_Date__c,
-        CreatedDate
+      SELECT Id, PM_Notification_Sent__c, PM_Notification_Sent_Date__c, CreatedDate
       FROM Message__c
       WHERE Id = :messageWithPMNoEmail.Id
     ];
 
     // The message should be marked as sent if it meets the criteria
     System.assert(
-      updatedMessage.PM_Notification_Sent__c == true ||
-        updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
-      'Message with PM without email should be marked as sent. CreatedDate: ' +
-      updatedMessage.CreatedDate
+      updatedMessage.PM_Notification_Sent__c == true || updatedMessage.CreatedDate >= DateTime.now().addMinutes(-5),
+      'Message with PM without email should be marked as sent. CreatedDate: ' + updatedMessage.CreatedDate
     );
+  }
+
+  @IsTest
+  static void checkAndSendNotifications_processesClientRecipientPath() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Contact projectManager = [SELECT Id FROM Contact WHERE Email = 'pm@test.com' LIMIT 1];
+    Contact clientContact = [SELECT Id FROM Contact WHERE Email = 'client@test.com' LIMIT 1];
+    Project__c testProject = [SELECT Id FROM Project__c WHERE Name = 'Test Project' LIMIT 1];
+    Project_Task__c testTask = [
+      SELECT Id, Client_User__c
+      FROM Project_Task__c
+      WHERE Name = 'Test Task'
+      LIMIT 1
+    ];
+    testTask.Client_User__c = clientContact.Id;
+    update testTask;
+
+    String longPlain = '';
+    for (Integer i = 0; i < 600; i++) {
+      longPlain += 'x';
+    }
+    Message__c toClient = new Message__c(
+      Body__c = '<p>Unread for client with long html</p>' + longPlain,
+      Sender__c = projectManager.Id,
+      Recipient_Type__c = 'Client',
+      Related_Task__c = testTask.Id,
+      Related_Project__c = testProject.Id,
+      Account__c = testAccount.Id,
+      Is_Read_By_Client__c = false,
+      Is_Read_By_Milestone_Team__c = true,
+      Visible_To_Client__c = true,
+      Deleted__c = false,
+      Client_Notification_Sent__c = false
+    );
+    insert toClient;
+    Test.setCreatedDate(toClient.Id, DateTime.now().addMinutes(-6));
+
+    Test.startTest();
+    MessageNotificationScheduler.checkAndSendNotifications();
+    Test.stopTest();
+
+    Message__c after = [
+      SELECT Client_Notification_Sent__c
+      FROM Message__c
+      WHERE Id = :toClient.Id
+    ];
+    System.assertEquals(true, after.Client_Notification_Sent__c);
+  }
+
+  @IsTest
+  static void scheduler_execute_delegatesToCheck() {
+    Test.startTest();
+    new MessageNotificationScheduler().execute(null);
+    Test.stopTest();
+  }
+
+  @IsTest
+  static void checkAndSendPMNotifications_usesHourScaleTimeAgo() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Contact projectManager = [SELECT Id FROM Contact WHERE Email = 'pm@test.com' LIMIT 1];
+    Contact clientContact = [SELECT Id FROM Contact WHERE Email = 'client@test.com' LIMIT 1];
+    Project__c testProject = [SELECT Id FROM Project__c WHERE Name = 'Test Project' LIMIT 1];
+    Project_Task__c testTask = [
+      SELECT Id
+      FROM Project_Task__c
+      WHERE Name = 'Test Task'
+      LIMIT 1
+    ];
+
+    Message__c oldBody = new Message__c(
+      Body__c = null,
+      Sender__c = clientContact.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Related_Task__c = testTask.Id,
+      Related_Project__c = testProject.Id,
+      Account__c = testAccount.Id,
+      Is_Read_By_Client__c = true,
+      Is_Read_By_Milestone_Team__c = false,
+      Visible_To_Client__c = true,
+      Deleted__c = false,
+      PM_Notification_Sent__c = false
+    );
+    insert oldBody;
+    Test.setCreatedDate(oldBody.Id, DateTime.now().addHours(-3));
+
+    Test.startTest();
+    MessageNotificationScheduler.checkAndSendNotifications();
+    Test.stopTest();
   }
 }

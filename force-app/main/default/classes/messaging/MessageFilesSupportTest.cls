@@ -536,16 +536,152 @@ private class MessageFilesSupportTest {
     Boolean threw = false;
     Test.startTest();
     try {
-      MessageFilesSupport.getFilePreviewUrl(
-        String.valueOf(cv.Id),
-        String.valueOf(docId),
-        String.valueOf(otherMsg.Id)
-      );
+      MessageFilesSupport.getFilePreviewUrl(String.valueOf(cv.Id), String.valueOf(docId), String.valueOf(otherMsg.Id));
     } catch (AuraHandledException expected) {
       threw = true;
     }
     Test.stopTest();
 
     System.assertEquals(true, threw, 'No ContentDocumentLink from other message — should throw');
+  }
+
+  @IsTest
+  static void getFilesForMessages_skipsNonIdStrings() {
+    System.assertEquals(
+      0,
+      MessageFilesSupport.getFilesForMessages(new List<String>{ 'not-a-valid-salesforce-id' }).size()
+    );
+  }
+
+  @IsTest
+  static void getContentDocumentIdForVersionId_invalidReturnsNull() {
+    System.assertEquals(null, MessageFilesSupport.getContentDocumentIdForVersionId('not-a-valid-id'));
+    System.assertEquals(null, MessageFilesSupport.getContentDocumentIdForVersionId(''));
+  }
+
+  @IsTest
+  static void getContentDocumentIdForVersionId_missingVersionReturnsNull() {
+    System.assertEquals(null, MessageFilesSupport.getContentDocumentIdForVersionId('068000000000000AAA'));
+  }
+
+  @IsTest
+  static void getFilePreviewUrl_resolvesDocumentWhenLinkedEntityProvidedWithoutDocId() {
+    Account acc = new Account(Name = 'Preview Resolve Acc');
+    insert acc;
+    Contact sender = new Contact(LastName = 'PV', AccountId = acc.Id);
+    insert sender;
+    Message__c msg = new Message__c(
+      Body__c = 'P',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+    ContentVersion cv = new ContentVersion(
+      Title = 'PreviewR',
+      PathOnClient = 'pr.pdf',
+      VersionData = Blob.valueOf('p'),
+      FirstPublishLocationId = acc.Id
+    );
+    insert cv;
+    Id docId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id LIMIT 1].ContentDocumentId;
+    insert new ContentDocumentLink(
+      LinkedEntityId = msg.Id,
+      ContentDocumentId = docId,
+      ShareType = 'V',
+      Visibility = 'AllUsers'
+    );
+
+    Test.startTest();
+    String url = MessageFilesSupport.getFilePreviewUrl(String.valueOf(cv.Id), null, String.valueOf(msg.Id));
+    Test.stopTest();
+    System.assert(!String.isBlank(url));
+  }
+
+  @IsTest
+  static void getFilePreviewUrl_whenLinkedEntitySetButVersionUnknown_throws() {
+    Account acc = new Account(Name = 'Bad Ver Acc');
+    insert acc;
+    Contact sender = new Contact(LastName = 'BV', AccountId = acc.Id);
+    insert sender;
+    Message__c msg = new Message__c(
+      Body__c = 'B',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+    Boolean threw = false;
+    try {
+      MessageFilesSupport.getFilePreviewUrl('068000000000000AAA', null, String.valueOf(msg.Id));
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void getFilePreviewUrl_invalidVersionIdThrowsGenericHandledMessage() {
+    Boolean threw = false;
+    try {
+      MessageFilesSupport.getFilePreviewUrl('not-a-valid-version-id', null, null);
+    } catch (AuraHandledException e) {
+      threw = true;
+    }
+    System.assert(threw, 'Invalid version Id should surface AuraHandledException');
+  }
+
+  @IsTest
+  static void deleteMessageAndAttachments_allowedWhenRunningUserIsCreatedByButNotSender() {
+    Account acc = new Account(Name = 'Delete Creator Row');
+    insert acc;
+    Contact otherSender = new Contact(LastName = 'NotRunner', AccountId = acc.Id);
+    insert otherSender;
+    Message__c msg = new Message__c(
+      Body__c = 'Creator delete path',
+      Sender__c = otherSender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+
+    Test.startTest();
+    MessageFilesSupport.deleteMessageAndAttachments(String.valueOf(msg.Id));
+    Test.stopTest();
+
+    System.assertEquals(true, [SELECT Deleted__c FROM Message__c WHERE Id = :msg.Id].Deleted__c);
+  }
+
+  @IsTest
+  static void deleteMessageAndAttachments_secondInvocationThrowsNotFound() {
+    Account acc = new Account(Name = 'Double Delete Acc');
+    insert acc;
+    Contact otherSender = new Contact(LastName = 'DD', AccountId = acc.Id);
+    insert otherSender;
+    Message__c msg = new Message__c(
+      Body__c = 'Twice',
+      Sender__c = otherSender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+
+    MessageFilesSupport.deleteMessageAndAttachments(String.valueOf(msg.Id));
+
+    Boolean threw = false;
+    try {
+      MessageFilesSupport.deleteMessageAndAttachments(String.valueOf(msg.Id));
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assert(threw);
   }
 }

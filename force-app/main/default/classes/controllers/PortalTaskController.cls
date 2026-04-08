@@ -5,6 +5,13 @@
  */
 public without sharing class PortalTaskController {
   /**
+   * When set in tests, merged with the running user's AccountId for portal task SOQL scope
+   * (internal test users usually have no AccountId; Experience Cloud users do).
+   */
+  @TestVisible
+  private static Set<Id> testPortalAccountIds;
+
+  /**
    * @description Get task detail with all related information
    * @param taskId The Project Task ID
    * @return TaskDetailData wrapper with task and related information
@@ -28,6 +35,9 @@ public without sharing class PortalTaskController {
     Set<Id> accountIds = new Set<Id>();
     if (currentUser.AccountId != null) {
       accountIds.add(currentUser.AccountId);
+    }
+    if (Test.isRunningTest() && testPortalAccountIds != null && !testPortalAccountIds.isEmpty()) {
+      accountIds.addAll(testPortalAccountIds);
     }
 
     // Query task with all necessary fields
@@ -77,10 +87,7 @@ public without sharing class PortalTaskController {
         Approved_by_PM_Code_Reviewer__c,
         CreatedDate
       FROM Project_Task__c
-      WHERE
-        Id = :taskId
-        AND (Project__r.Account__c IN :accountIds
-        OR Account__c IN :accountIds)
+      WHERE Id = :taskId AND (Project__r.Account__c IN :accountIds OR Account__c IN :accountIds)
       LIMIT 1
     ];
 
@@ -112,14 +119,14 @@ public without sharing class PortalTaskController {
     if (currentUser.AccountId != null) {
       accountIds.add(currentUser.AccountId);
     }
+    if (Test.isRunningTest() && testPortalAccountIds != null && !testPortalAccountIds.isEmpty()) {
+      accountIds.addAll(testPortalAccountIds);
+    }
 
     List<Project_Task__c> tasks = [
       SELECT Id
       FROM Project_Task__c
-      WHERE
-        Id = :taskId
-        AND (Project__r.Account__c IN :accountIds
-        OR Account__c IN :accountIds)
+      WHERE Id = :taskId AND (Project__r.Account__c IN :accountIds OR Account__c IN :accountIds)
       LIMIT 1
     ];
 
@@ -146,10 +153,8 @@ public without sharing class PortalTaskController {
    * and set Most_Recent_Project_Task_Submission__c (last flow element). Resolves submission Id from that lookup,
    * else falls back to the latest child by CreatedDate. Best-effort: errors are logged; no throw.
    */
-  private static void applyCommentsToSubmissionAfterTaskTransition(
-    Id projectTaskId,
-    String comments
-  ) {
+  @TestVisible
+  private static void applyCommentsToSubmissionAfterTaskTransition(Id projectTaskId, String comments) {
     try {
       String v = comments == null ? null : comments.trim();
       if (String.isBlank(v)) {
@@ -164,10 +169,7 @@ public without sharing class PortalTaskController {
         WHERE Id = :projectTaskId
         LIMIT 1
       ];
-      if (
-        !tasks.isEmpty() &&
-        tasks[0].Most_Recent_Project_Task_Submission__c != null
-      ) {
+      if (!tasks.isEmpty() && tasks[0].Most_Recent_Project_Task_Submission__c != null) {
         submissionId = tasks[0].Most_Recent_Project_Task_Submission__c;
       }
 
@@ -192,32 +194,17 @@ public without sharing class PortalTaskController {
     } catch (Exception e) {
       System.debug(
         LoggingLevel.WARN,
-        'PortalTaskController.applyCommentsToSubmissionAfterTaskTransition skipped: ' +
-        e.getMessage()
+        'PortalTaskController.applyCommentsToSubmissionAfterTaskTransition skipped: ' + e.getMessage()
       );
     }
   }
 
   /**
-   * @description Applies a portal task workflow action (field updates) after access check.
-   * @param taskId Project Task Id
-   * @param actionKey LWC action key (e.g. submitClientApproval, approveClientBacklog)
-   * @param comments Optional; for client review approve/reject actions only, written to Project_Task_Submission__c.Comments__c
-   * after the task update (flow-created submission; Id from Most_Recent_Project_Task_Submission__c when set).
+   * Maps portal action key to fields on an in-memory {@link Project_Task__c} (no DML).
+   * Used by {@link #applyPortalTaskAction} and by tests to cover branches without firing org automation on task update.
    */
-  @AuraEnabled
-  public static void applyPortalTaskAction(
-    String taskId,
-    String actionKey,
-    String comments
-  ) {
-    Id tid = requirePortalTaskAccess(taskId);
-    if (String.isBlank(actionKey)) {
-      throw new AuraHandledException('Action is required');
-    }
-
-    Project_Task__c u = new Project_Task__c(Id = tid);
-
+  @TestVisible
+  private static void assignPortalActionFields(Project_Task__c u, String actionKey) {
     if (actionKey == 'submitClientApproval') {
       u.Status__c = 'Backlog';
       u.Submission_Status__c = 'Project Manager Submits for Client Approval';
@@ -248,6 +235,24 @@ public without sharing class PortalTaskController {
     } else {
       throw new AuraHandledException('Unknown action: ' + actionKey);
     }
+  }
+
+  /**
+   * @description Applies a portal task workflow action (field updates) after access check.
+   * @param taskId Project Task Id
+   * @param actionKey LWC action key (e.g. submitClientApproval, approveClientBacklog)
+   * @param comments Optional; for client review approve/reject actions only, written to Project_Task_Submission__c.Comments__c
+   * after the task update (flow-created submission; Id from Most_Recent_Project_Task_Submission__c when set).
+   */
+  @AuraEnabled
+  public static void applyPortalTaskAction(String taskId, String actionKey, String comments) {
+    Id tid = requirePortalTaskAccess(taskId);
+    if (String.isBlank(actionKey)) {
+      throw new AuraHandledException('Action is required');
+    }
+
+    Project_Task__c u = new Project_Task__c(Id = tid);
+    assignPortalActionFields(u, actionKey);
 
     update u;
 
@@ -273,9 +278,7 @@ public without sharing class PortalTaskController {
       List<ContentDistribution> existingDistributions = [
         SELECT DistributionPublicUrl
         FROM ContentDistribution
-        WHERE
-          ContentVersionId = :contentVersionId
-          AND PreferencesAllowViewInBrowser = TRUE
+        WHERE ContentVersionId = :contentVersionId AND PreferencesAllowViewInBrowser = TRUE
         LIMIT 1
       ];
 
@@ -305,16 +308,9 @@ public without sharing class PortalTaskController {
     } catch (Exception e) {
       System.debug(
         LoggingLevel.ERROR,
-        'getFilePreviewUrl: ' +
-          e.getMessage() +
-          ' Type: ' +
-          e.getTypeName() +
-          ' Stack: ' +
-          e.getStackTraceString()
+        'getFilePreviewUrl: ' + e.getMessage() + ' Type: ' + e.getTypeName() + ' Stack: ' + e.getStackTraceString()
       );
-      throw new AuraHandledException(
-        'Unable to open file preview. Please try again.'
-      );
+      throw new AuraHandledException('Unable to open file preview. Please try again.');
     }
   }
 
