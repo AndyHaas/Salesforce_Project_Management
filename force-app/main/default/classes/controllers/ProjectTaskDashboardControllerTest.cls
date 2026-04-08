@@ -118,6 +118,7 @@ private class ProjectTaskDashboardControllerTest {
       new Project_Task__c(
         Name = 'Task 5 - Completed',
         Status__c = 'Completed',
+        Submission_Status__c = 'Project Task Complete',
         Account__c = testAccount.Id,
         Project__c = testProject.Id,
         Developer__c = devContactId,
@@ -637,6 +638,7 @@ private class ProjectTaskDashboardControllerTest {
       new Project_Task__c(
         Name = 'Task 100%',
         Status__c = 'Completed',
+        Submission_Status__c = 'Project Task Complete',
         Account__c = testAccount.Id,
         Project__c = testProjectId,
         Priority__c = 'Medium',
@@ -1055,15 +1057,17 @@ private class ProjectTaskDashboardControllerTest {
 
     List<Project_Task__c> tasks = new List<Project_Task__c>();
     for (String status : statuses) {
-      tasks.add(
-        new Project_Task__c(
-          Name = 'Task - ' + status,
-          Status__c = status,
-          Account__c = testAccount.Id,
-          Project__c = testProjectId,
-          Priority__c = 'High'
-        )
+      Project_Task__c row = new Project_Task__c(
+        Name = 'Task - ' + status,
+        Status__c = status,
+        Account__c = testAccount.Id,
+        Project__c = testProjectId,
+        Priority__c = 'High'
       );
+      if (status == 'Completed') {
+        row.Submission_Status__c = 'Project Task Complete';
+      }
+      tasks.add(row);
     }
     insert tasks;
 
