@@ -5,10 +5,18 @@ private class CreateReleaseNoteQAControllerTest {
     Account account = new Account(Name = 'Test Account');
     insert account;
 
+    Project__c project = new Project__c(
+      Name = 'Test Project',
+      Account__c = account.Id,
+      Status__c = 'Not Started'
+    );
+    insert project;
+
     Project_Task__c task = new Project_Task__c(
       Name = 'Parent Task',
       Status__c = 'Backlog',
-      Account__c = account.Id
+      Account__c = account.Id,
+      Project__c = project.Id
     );
     insert task;
 
