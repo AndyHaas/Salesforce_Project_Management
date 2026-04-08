@@ -117,6 +117,7 @@ private class TaskContextControllerTest {
     Project_Task__c subtask = new Project_Task__c(
       Name = 'Subtask for Dependency Test',
       Status__c = 'Completed',
+      Submission_Status__c = 'Project Task Complete',
       Account__c = testAccount.Id,
       Project__c = getTestProjectId(),
       Priority__c = 'Low',
@@ -291,6 +292,7 @@ private class TaskContextControllerTest {
       new Project_Task__c(
         Name = 'Completed Subtask',
         Status__c = 'Completed',
+        Submission_Status__c = 'Project Task Complete',
         Parent_Task__c = parentTask.Id,
         Account__c = testAccount.Id,
         Project__c = getTestProjectId(),
