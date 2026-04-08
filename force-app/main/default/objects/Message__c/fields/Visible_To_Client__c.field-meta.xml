@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Visible_To_Client__c</fullName>
     <defaultValue>true</defaultValue>
-    <description
-  >If false, this message does not appear to portal clients. For internal senders this follows Recipient Type (Client = visible on the portal; Milestone Team = team-only). Portal senders are always visible to themselves on the portal.</description>
+    <description>If false, this message does not appear to portal clients. For internal senders this follows Recipient Type (Client = visible on the portal; Milestone Team = team-only). Portal senders are always visible to themselves on the portal.</description>
     <label>Visible to Client</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
