@@ -735,6 +735,7 @@ private class TaskSubtaskHelperTest {
       new Project_Task__c(
         Parent_Task__c = parent.Id,
         Status__c = 'Completed',
+        Submission_Status__c = 'Project Task Complete',
         Account__c = acc.Id,
         Project__c = proj.Id,
         Priority__c = 'High'
@@ -744,6 +745,7 @@ private class TaskSubtaskHelperTest {
       new Project_Task__c(
         Parent_Task__c = parent.Id,
         Status__c = 'Completed',
+        Submission_Status__c = 'Project Task Complete',
         Account__c = acc.Id,
         Project__c = proj.Id,
         Priority__c = 'High'
@@ -929,7 +931,9 @@ private class TaskSubtaskHelperTest {
 
   @isTest
   static void testValidateParentCanBeClosed_Integration() {
-    // Integration test - verify trigger validation works
+    // Exercise the same validation the trigger calls without DML on parent status:
+    // updating parent to Closed/Completed in tests can fire record-triggered submission
+    // flows that fail in test context (missing email recipient).
     Account acc = new Account(Name = 'Test');
     insert acc;
     Project__c proj = new Project__c(
@@ -956,24 +960,23 @@ private class TaskSubtaskHelperTest {
     );
     insert subtask;
 
-    Test.startTest();
-    // Note: 'Closed' status may not be available in picklist
-    // This test verifies the integration works - validation for 'Closed' status
-    // would be tested if 'Closed' were available
-    parent.Status__c = 'Completed';
-    update parent; // Triggers trigger → calls helper
-    Test.stopTest();
-
-    // Verify parent was updated (validation only applies to 'Closed' status)
-    Project_Task__c updatedParent = [
-      SELECT Status__c
+    parent = [
+      SELECT Id, Status__c, Parent_Task__c
       FROM Project_Task__c
       WHERE Id = :parent.Id
     ];
-    System.assertEquals(
-      'Completed',
-      updatedParent.Status__c,
-      'Integration: Parent status should be updated through trigger'
+
+    Test.startTest();
+    Project_Task__c parentAsTriggerNew = parent.clone(true, true, true, true);
+    parentAsTriggerNew.Status__c = 'Closed';
+    TaskSubtaskHelper.validateParentCanBeClosed(
+      new List<Project_Task__c>{ parentAsTriggerNew }
+    );
+    Test.stopTest();
+
+    System.assert(
+      parentAsTriggerNew.hasErrors(),
+      'Integration: Closing parent with an open subtask should add a validation error'
     );
   }
 }
