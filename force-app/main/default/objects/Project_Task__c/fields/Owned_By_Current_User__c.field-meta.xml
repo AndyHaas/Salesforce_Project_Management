@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Owned_By_Current_User__c</fullName>
+    <description>True when the running user owns this record. Used by the My Tasks list view because filterScope Mine cannot be deployed for custom objects via Metadata API.</description>
+    <formula>OwnerId = $User.Id</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Owned By Current User</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

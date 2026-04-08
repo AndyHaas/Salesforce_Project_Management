@@ -10,6 +10,11 @@
     <columns>Progress_Percentage__c</columns>
     <columns>Estimated_Hours__c</columns>
     <columns>Actual_Hours__c</columns>
-    <filterScope>Mine</filterScope>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Owned_By_Current_User__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
     <label>My Tasks</label>
 </ListView>
