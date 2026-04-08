@@ -1507,8 +1507,6 @@
         <members>Project__c.Complete_Time_Entry</members>
         <members>Project__c.Create_Time_Entry_Record</members>
         <members>Project__c.New_Time_Entry</members>
-        <members>Project__c.Send_to_Slack</members>
-        <members>Project__c.Slack_Alerts</members>
         <name>QuickAction</name>
     </types>
     <types>
@@ -1798,8 +1796,6 @@
         <members>Lead.GoogleNews</members>
         <members>Lead.GoogleSearch</members>
         <members>Project__c.Invoice</members>
-        <members>Project__c.Send_to_Slack</members>
-        <members>Project__c.Slack_Alerts</members>
         <name>WebLink</name>
     </types>
     <types>
