@@ -70,7 +70,6 @@ public without sharing class MessageNotificationScheduler implements Schedulable
           AND CreatedDate < :cutoffTime
           AND PM_Notification_Sent__c = FALSE
           AND Related_Task__c != NULL // Must have task to get project manager
-        WITH SECURITY_ENFORCED
         LIMIT 200
       ];
 
@@ -115,6 +114,7 @@ public without sharing class MessageNotificationScheduler implements Schedulable
           );
           // Mark as sent anyway to avoid checking repeatedly
           msg.PM_Notification_Sent__c = true;
+          msg.PM_Notification_Sent_Date__c = DateTime.now();
           messagesToUpdate.add(msg);
           continue;
         }
@@ -127,6 +127,7 @@ public without sharing class MessageNotificationScheduler implements Schedulable
           );
           // Mark as sent anyway to avoid checking repeatedly
           msg.PM_Notification_Sent__c = true;
+          msg.PM_Notification_Sent_Date__c = DateTime.now();
           messagesToUpdate.add(msg);
           continue;
         }
@@ -286,7 +287,6 @@ public without sharing class MessageNotificationScheduler implements Schedulable
           AND CreatedDate < :cutoffTime
           AND Client_Notification_Sent__c = FALSE
           AND Related_Task__c != NULL // Must have task to get client user
-        WITH SECURITY_ENFORCED
         LIMIT 200
       ];
 
