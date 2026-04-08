@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Project Manager Submits for Client Approval</fullName>
+        <default>false</default>
+        <label>Project Manager Submits for Client Approval</label>
+    </customValue>
+    <customValue>
+        <fullName>Client Rejects Backlog Task</fullName>
+        <default>false</default>
+        <label>Client Rejects Backlog Task</label>
+    </customValue>
+    <customValue>
+        <fullName>Client Approves Pending</fullName>
+        <default>false</default>
+        <label>Client Approves Pending</label>
+    </customValue>
+    <customValue>
+        <fullName>Developer Assigned to Pending</fullName>
+        <default>false</default>
+        <label>Developer Assigned to Pending</label>
+    </customValue>
+    <customValue>
+        <fullName>Developer Working</fullName>
+        <default>false</default>
+        <label>Developer Working</label>
+    </customValue>
+    <customValue>
+        <fullName>Developer Completes Work/Testing</fullName>
+        <default>false</default>
+        <label>Developer Completes Work/Testing</label>
+    </customValue>
+    <customValue>
+        <fullName>Developer Submits for Approval to Project Manager</fullName>
+        <default>false</default>
+        <label>Developer Submits for Approval to Project Manager</label>
+    </customValue>
+    <customValue>
+        <fullName>Project Manager Reviews and QA&apos;s Developer Work</fullName>
+        <default>false</default>
+        <label>Project Manager Reviews and QA&apos;s Developer Work</label>
+    </customValue>
+    <customValue>
+        <fullName>Project Manager Rejects In Progress Task</fullName>
+        <default>false</default>
+        <label>Project Manager Rejects In Progress Task</label>
+    </customValue>
+    <customValue>
+        <fullName>Project Manager Accepts In Progress Task</fullName>
+        <default>false</default>
+        <label>Project Manager Accepts In Progress Task</label>
+    </customValue>
+    <customValue>
+        <fullName>Project Manager Submits for Client Review</fullName>
+        <default>false</default>
+        <label>Project Manager Submits for Client Review</label>
+    </customValue>
+    <customValue>
+        <fullName>Client Rejects Completion</fullName>
+        <default>false</default>
+        <label>Client Rejects Completion</label>
+    </customValue>
+    <customValue>
+        <fullName>Client Approves Completion</fullName>
+        <default>false</default>
+        <label>Client Approves Completion</label>
+    </customValue>
+    <customValue>
+        <fullName>Project Task Complete</fullName>
+        <default>false</default>
+        <label>Project Task Complete</label>
+    </customValue>
+    <customValue>
+        <fullName>Release Notes Released</fullName>
+        <default>false</default>
+        <label>Release Notes Released</label>
+    </customValue>
+    <customValue>
+        <fullName>Blocked</fullName>
+        <default>false</default>
+        <label>Blocked</label>
+    </customValue>
+    <customValue>
+        <fullName>Removed</fullName>
+        <default>false</default>
+        <label>Removed</label>
+    </customValue>
+    <masterLabel>Submission Status</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>
