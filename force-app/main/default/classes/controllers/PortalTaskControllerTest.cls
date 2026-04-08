@@ -50,31 +50,31 @@ private class PortalTaskControllerTest {
     insert task;
   }
 
+  /**
+   * Goal: guard rails for getTaskDetail — blank Id and a non-Project_Task__c Id must throw
+   * AuraHandledException (single method to avoid redundant setup).
+   */
   @IsTest
-  static void getTaskDetail_throwsWhenBlankId() {
-    Boolean threw = false;
+  static void getTaskDetail_validationErrors_blankIdAndWrongSobject() {
+    Boolean blankThrew = false;
     try {
       PortalTaskController.getTaskDetail('');
     } catch (AuraHandledException e) {
-      threw = true;
-      // Package-version / managed context may mask AuraHandledException message as "Script-thrown exception"
+      blankThrew = true;
       if (!e.getMessage().equalsIgnoreCase('Script-thrown exception')) {
         System.assert(e.getMessage().toLowerCase().contains('required'), e.getMessage());
       }
     }
-    System.assert(threw, 'Expected AuraHandledException');
-  }
+    System.assert(blankThrew, 'Blank id');
 
-  @IsTest
-  static void getTaskDetail_throwsWhenRecordIsNotProjectTask() {
     Account a = [SELECT Id FROM Account WHERE Name = 'Portal Task Detail Account' LIMIT 1];
-    Boolean threw = false;
+    Boolean wrongTypeThrew = false;
     try {
       PortalTaskController.getTaskDetail(a.Id);
     } catch (AuraHandledException e) {
-      threw = true;
+      wrongTypeThrew = true;
     }
-    System.assert(threw, 'Expected AuraHandledException when Id is not a visible task');
+    System.assert(wrongTypeThrew, 'Non-task Id');
   }
 
   @IsTest
@@ -92,34 +92,34 @@ private class PortalTaskControllerTest {
     }
   }
 
+  /**
+   * Goal: applyPortalTaskAction rejects empty action key and unknown keys while portal scope is set
+   * (one scoped block, shared setup).
+   */
   @IsTest
-  static void applyPortalTaskAction_blankActionThrows() {
+  static void applyPortalTaskAction_blankAndUnknownActionThrow() {
     Project_Task__c t = portalTask();
-    withPortalScope(portalAccountId());
-    Boolean threw = false;
+    Id acc = portalAccountId();
+    withPortalScope(acc);
     try {
-      PortalTaskController.applyPortalTaskAction(t.Id, '', null);
-    } catch (AuraHandledException e) {
-      threw = true;
-    } finally {
-      clearPortalScope();
-    }
-    System.assert(threw, 'Blank action');
-  }
+      Boolean blankThrew = false;
+      try {
+        PortalTaskController.applyPortalTaskAction(t.Id, '', null);
+      } catch (AuraHandledException e) {
+        blankThrew = true;
+      }
+      System.assert(blankThrew, 'Blank action');
 
-  @IsTest
-  static void applyPortalTaskAction_unknownActionThrows() {
-    Project_Task__c t = portalTask();
-    withPortalScope(portalAccountId());
-    Boolean threw = false;
-    try {
-      PortalTaskController.applyPortalTaskAction(t.Id, 'notARealAction', null);
-    } catch (AuraHandledException e) {
-      threw = true;
+      Boolean unknownThrew = false;
+      try {
+        PortalTaskController.applyPortalTaskAction(t.Id, 'notARealAction', null);
+      } catch (AuraHandledException e) {
+        unknownThrew = true;
+      }
+      System.assert(unknownThrew, 'Unknown action');
     } finally {
       clearPortalScope();
     }
-    System.assert(threw, 'Unknown action');
   }
 
   @IsTest
@@ -194,8 +194,11 @@ private class PortalTaskControllerTest {
     }
   }
 
+  /**
+   * Goal: getFilePreviewUrl returns a distribution URL for a scoped portal file, and blank Id throws.
+   */
   @IsTest
-  static void getFilePreviewUrl_returnsDistributionUrl() {
+  static void getFilePreviewUrl_happyPathAndBlankId() {
     Id accId = portalAccountId();
     ContentVersion cv = new ContentVersion(
       Title = 'PortalPreview',
@@ -215,16 +218,13 @@ private class PortalTaskControllerTest {
     } finally {
       clearPortalScope();
     }
-  }
 
-  @IsTest
-  static void getFilePreviewUrl_blankThrows() {
-    Boolean threw = false;
+    Boolean blankThrew = false;
     try {
       PortalTaskController.getFilePreviewUrl('');
     } catch (AuraHandledException e) {
-      threw = true;
+      blankThrew = true;
     }
-    System.assert(threw);
+    System.assert(blankThrew);
   }
 }

@@ -18,30 +18,21 @@ private class DisplayDensityControllerTest {
     }
   }
 
+  /**
+   * Goal: single startTest/stopTest — theme API returns normalized density on 200, defaults to comfy
+   * when density missing in JSON or on non-200 (sequential mocks, no nested startTest).
+   */
   @IsTest
-  static void getDisplayDensity_returnsLowercaseFrom200() {
+  static void getDisplayDensity_handles200NullDensityAndNon200() {
+    Test.startTest();
     Test.setMock(HttpCalloutMock.class, new ThemesActiveMock(200, '{"density":"COMPACT"}'));
-    Test.startTest();
-    String d = DisplayDensityController.getDisplayDensity();
-    Test.stopTest();
-    System.assertEquals('compact', d);
-  }
+    System.assertEquals('compact', DisplayDensityController.getDisplayDensity());
 
-  @IsTest
-  static void getDisplayDensity_defaultsComfyWhenDensityNull() {
     Test.setMock(HttpCalloutMock.class, new ThemesActiveMock(200, '{}'));
-    Test.startTest();
-    String d = DisplayDensityController.getDisplayDensity();
-    Test.stopTest();
-    System.assertEquals('comfy', d);
-  }
+    System.assertEquals('comfy', DisplayDensityController.getDisplayDensity());
 
-  @IsTest
-  static void getDisplayDensity_defaultsComfyOnNon200() {
     Test.setMock(HttpCalloutMock.class, new ThemesActiveMock(500, 'error'));
-    Test.startTest();
-    String d = DisplayDensityController.getDisplayDensity();
+    System.assertEquals('comfy', DisplayDensityController.getDisplayDensity());
     Test.stopTest();
-    System.assertEquals('comfy', d);
   }
 }

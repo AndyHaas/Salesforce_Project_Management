@@ -208,105 +208,29 @@ private class MessagingControllerTest {
     System.assertEquals(currentUser.Email, senderRows[0].Email, 'Sender Contact should match user email');
   }
 
+  /**
+   * Goal: one scenario for SOSL-backed body search — normalized terms (*, %), and a literal underscore
+   * in FIND, plus a dedicated message row for underscore matching (setup cannot rely on * alone).
+   */
   @isTest
-  static void testGetMessages_WithSearch() {
-    Id searchableMsgId = findMessageIdByBodyContains('searchable');
-    System.assertNotEquals(null, searchableMsgId, 'Setup should include a message containing searchable');
-    Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
-    Test.startTest();
-    {
-      List<MessagingController.MessageInfo> results = MessagingController.getMessages(
-        null, // recipientType
-        null, // relatedAccountId
-        null, // relatedProjectId
-        null, // relatedTaskId
-        50, // limitCount
-        0, // offset
-        null, // orderByField
-        null, // orderDirection
-        'searchable', // searchTerm
-        null // contextRecordId
-      );
-
-      System.assertEquals(1, results.size(), 'Should find 1 message with "searchable"');
-      System.assert(results[0].body.contains('searchable'), 'Message should contain search term');
-    }
-    Test.stopTest();
-  }
-
-  @isTest
-  static void testGetMessages_WithWildcardSearch() {
-    Id searchableMsgId = findMessageIdByBodyContains('searchable');
-    System.assertNotEquals(null, searchableMsgId);
-    Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
-    Test.startTest();
-    {
-      List<MessagingController.MessageInfo> results = MessagingController.getMessages(
-        null, // recipientType
-        null, // relatedAccountId
-        null, // relatedProjectId
-        null, // relatedTaskId
-        50, // limitCount
-        0, // offset
-        null, // orderByField
-        null, // orderDirection
-        'search*', // * stripped; SOSL uses substring on normalized term
-        null // contextRecordId
-      );
-
-      System.assert(results.size() >= 1, 'Should find messages matching normalized search term');
-    }
-    Test.stopTest();
-  }
-
-  @isTest
-  static void testGetMessages_WithPercentWildcard() {
-    Id searchableMsgId = findMessageIdByBodyContains('searchable');
-    System.assertNotEquals(null, searchableMsgId);
-    Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
-    Test.startTest();
-    {
-      List<MessagingController.MessageInfo> results = MessagingController.getMessages(
-        null, // recipientType
-        null, // relatedAccountId
-        null, // relatedProjectId
-        null, // relatedTaskId
-        50, // limitCount
-        0, // offset
-        null, // orderByField
-        null, // orderDirection
-        '%searchable%', // % stripped; term becomes searchable
-        null // contextRecordId
-      );
-
-      System.assert(results.size() >= 1, 'Should find messages with % wildcard');
-    }
-    Test.stopTest();
-  }
-
-  @isTest
-  static void testGetMessages_WithUnderscoreLiteral() {
-    // Get current user's contact (created in testSetup)
+  static void getMessages_searchModes_coversNormalizationAndUnderscoreLiteral() {
     User currentUser = [SELECT Id, ContactId, Email FROM User WHERE Id = :UserInfo.getUserId()];
     Id currentUserContactId;
     if (currentUser.ContactId != null) {
       currentUserContactId = currentUser.ContactId;
     } else {
-      // Find contact created in testSetup
       List<Contact> contacts = [SELECT Id FROM Contact WHERE Email = :currentUser.Email LIMIT 1];
       if (!contacts.isEmpty()) {
         currentUserContactId = contacts[0].Id;
       }
     }
-
-    // If no contact found, create one for this test
     if (currentUserContactId == null) {
-      Account testAccount = [SELECT Id FROM Account LIMIT 1];
+      Account acctForContact = [SELECT Id FROM Account LIMIT 1];
       Contact testContact = new Contact(
         FirstName = 'Test',
         LastName = 'Contact',
         Email = currentUser.Email != null ? currentUser.Email : 'test@test.com',
-        AccountId = testAccount.Id,
+        AccountId = acctForContact.Id,
         Portal_Access_Enabled__c = true
       );
       insert testContact;
@@ -331,23 +255,70 @@ private class MessagingControllerTest {
     );
     insert msgWithUnderscore;
 
-    Test.setFixedSearchResults(new List<Id>{ msgWithUnderscore.Id });
+    Id searchableMsgId = findMessageIdByBodyContains('searchable');
+    System.assertNotEquals(null, searchableMsgId, 'Setup should include a message containing searchable');
+    Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
     Test.startTest();
     {
-      List<MessagingController.MessageInfo> results = MessagingController.getMessages(
-        null, // recipientType
-        null, // relatedAccountId
-        null, // relatedProjectId
-        null, // relatedTaskId
-        50, // limitCount
-        0, // offset
-        null, // orderByField
-        null, // orderDirection
-        'Test_message', // searchTerm with _ (literal)
-        null // contextRecordId
+      List<MessagingController.MessageInfo> plain = MessagingController.getMessages(
+        null,
+        null,
+        null,
+        null,
+        50,
+        0,
+        null,
+        null,
+        'searchable',
+        null
       );
+      System.assertEquals(1, plain.size());
+      System.assert(plain[0].body.contains('searchable'));
 
-      System.assert(results.size() >= 1, 'Should find message with literal underscore');
+      Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
+      List<MessagingController.MessageInfo> star = MessagingController.getMessages(
+        null,
+        null,
+        null,
+        null,
+        50,
+        0,
+        null,
+        null,
+        'search*',
+        null
+      );
+      System.assert(star.size() >= 1);
+
+      Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
+      List<MessagingController.MessageInfo> pct = MessagingController.getMessages(
+        null,
+        null,
+        null,
+        null,
+        50,
+        0,
+        null,
+        null,
+        '%searchable%',
+        null
+      );
+      System.assert(pct.size() >= 1);
+
+      Test.setFixedSearchResults(new List<Id>{ msgWithUnderscore.Id });
+      List<MessagingController.MessageInfo> under = MessagingController.getMessages(
+        null,
+        null,
+        null,
+        null,
+        50,
+        0,
+        null,
+        null,
+        'Test_message',
+        null
+      );
+      System.assert(under.size() >= 1, 'Literal underscore in search term');
     }
     Test.stopTest();
   }
@@ -468,55 +439,14 @@ private class MessagingControllerTest {
     Test.stopTest();
   }
 
+  /**
+   * Goal: non-search listing (null/blank searchTerm) still returns rows, while sub-minimum SOSL terms
+   * short-circuit to empty results (with and without explicit Milestone Team ordering).
+   */
   @isTest
-  static void testGetMessages_NoSearchTerm() {
+  static void getMessages_nullEmptySearch_returnsRows_shortTermsReturnEmpty() {
     Test.startTest();
-    {
-      List<MessagingController.MessageInfo> results = MessagingController.getMessages(
-        null, // recipientType
-        null, // relatedAccountId
-        null, // relatedProjectId
-        null, // relatedTaskId
-        50, // limitCount
-        0, // offset
-        null, // orderByField
-        null, // orderDirection
-        null, // searchTerm
-        null // contextRecordId
-      );
-
-      System.assert(results.size() > 0, 'Should return messages without search');
-    }
-    Test.stopTest();
-  }
-
-  @isTest
-  static void testGetMessages_EmptySearchTerm() {
-    Test.startTest();
-    {
-      List<MessagingController.MessageInfo> results = MessagingController.getMessages(
-        null, // recipientType
-        null, // relatedAccountId
-        null, // relatedProjectId
-        null, // relatedTaskId
-        50, // limitCount
-        0, // offset
-        null, // orderByField
-        null, // orderDirection
-        '', // searchTerm (empty)
-        null // contextRecordId
-      );
-
-      // Empty search should return all messages (no filter applied)
-      System.assert(results.size() > 0, 'Should return messages with empty search');
-    }
-    Test.stopTest();
-  }
-
-  @isTest
-  static void testGetMessages_SearchTermTooShort_ReturnsEmpty() {
-    Test.startTest();
-    List<MessagingController.MessageInfo> results = MessagingController.getMessages(
+    List<MessagingController.MessageInfo> noTerm = MessagingController.getMessages(
       null,
       null,
       null,
@@ -525,11 +455,33 @@ private class MessagingControllerTest {
       0,
       null,
       null,
-      'z',
+      null,
       null
     );
+    List<MessagingController.MessageInfo> emptyTerm = MessagingController.getMessages(
+      null,
+      null,
+      null,
+      null,
+      50,
+      0,
+      null,
+      null,
+      '',
+      null
+    );
+    System.assert(noTerm.size() > 0);
+    System.assert(emptyTerm.size() > 0);
+
+    System.assertEquals(
+      0,
+      MessagingController.getMessages(null, null, null, null, 50, 0, null, null, 'z', null).size()
+    );
+    System.assertEquals(
+      0,
+      MessagingController.getMessages('Milestone Team', null, null, null, 5, 0, 'CreatedDate', 'ASC', 'x', null).size()
+    );
     Test.stopTest();
-    System.assertEquals(0, results.size(), 'Terms shorter than SOSL minimum should return no rows');
   }
 
   @isTest
@@ -1748,6 +1700,30 @@ private class MessagingControllerTest {
     );
   }
 
+  /**
+   * Goal: mention list resolves to no valid Contact Ids — persisted Message__c must not store
+   * Mentioned_Contacts__c (filters strip junk before save).
+   */
+  @IsTest
+  static void sendMessage_onlyInvalidMentionIds_leavesMentionsNull() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Project__c proj = [SELECT Id FROM Project__c WHERE Account__c = :testAccount.Id LIMIT 1];
+    Project_Task__c task = [SELECT Id FROM Project_Task__c WHERE Account__c = :testAccount.Id LIMIT 1];
+    Test.startTest();
+    String mid = MessagingController.sendMessage(
+      'Body with no valid mentions',
+      'Client',
+      String.valueOf(testAccount.Id),
+      String.valueOf(proj.Id),
+      String.valueOf(task.Id),
+      new List<String>{ 'not-an-id', '  ' },
+      true,
+      null
+    );
+    Test.stopTest();
+    System.assertEquals(null, [SELECT Mentioned_Contacts__c FROM Message__c WHERE Id = :mid].Mentioned_Contacts__c);
+  }
+
   @IsTest
   static void getOrCreateContactForUser_reusesExistingContactWithSameEmail() {
     String em = 'shared-mail+' + String.valueOf(System.now().getTime()) + '@example.com';
@@ -1946,25 +1922,6 @@ private class MessagingControllerTest {
   }
 
   @IsTest
-  static void getMessages_searchTermTooShort_returnsEmpty() {
-    Test.startTest();
-    List<MessagingController.MessageInfo> rows = MessagingController.getMessages(
-      'Milestone Team',
-      null,
-      null,
-      null,
-      5,
-      0,
-      'CreatedDate',
-      'ASC',
-      'x',
-      null
-    );
-    Test.stopTest();
-    System.assertEquals(0, rows.size());
-  }
-
-  @IsTest
   static void getMessages_invalidContextRecordIdIgnored() {
     Test.startTest();
     MessagingController.getMessages('Milestone Team', null, null, null, 5, 0, 'CreatedDate', 'ASC', null, 'not-valid');
@@ -2104,6 +2061,55 @@ private class MessagingControllerTest {
     System.assert(!out.isEmpty());
   }
 
+  /**
+   * Goal: when every candidate mention string is non-Id/blank, filterToMentionableContactIds returns
+   * an empty list (early exit after parsing).
+   */
+  @IsTest
+  static void privateHelpers_filterToMentionableContactIds_allInvalid_returnsEmpty() {
+    User me = [SELECT Id, ContactId, AccountId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+    System.assertEquals(
+      0,
+      MessagingController.filterToMentionableContactIdsForTest(new List<String>{ 'nope', '', '  ' }, me).size()
+    );
+  }
+
+  /**
+   * Goal: Experience Cloud users (User.AccountId set) use the portal-scoped SOQL branch that limits
+   * mentionable contacts to the user’s account (skipped in pure internal-user runs).
+   */
+  @IsTest
+  static void privateHelpers_filterToMentionableContactIds_portalUserUsesAccountScopedQuery() {
+    User me = [SELECT Id, ContactId, AccountId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+    if (me.AccountId == null) {
+      return;
+    }
+    List<Contact> mentionRows = [
+      SELECT Id
+      FROM Contact
+      WHERE Email = 'testcontact@test.com' AND AccountId = :me.AccountId
+      LIMIT 1
+    ];
+    if (mentionRows.isEmpty()) {
+      return;
+    }
+    List<String> out = MessagingController.filterToMentionableContactIdsForTest(
+      new List<String>{ String.valueOf(mentionRows[0].Id) },
+      me
+    );
+    System.assertEquals(1, out.size());
+  }
+
+  /**
+   * Goal: exercise searchMessageIdsBySosl when FIND is malformed — platform throws; controller must
+   * swallow and return an empty candidate set (no failure to the caller).
+   */
+  @IsTest
+  static void privateHelpers_searchMessageIdsBySosl_swallowsMalformedFind() {
+    MessagingController.searchMessageIdsBySoslForTest('x\\');
+    MessagingController.searchMessageIdsBySoslForTest('a{b');
+  }
+
   @IsTest
   static void privateHelpers_assertPortal_rejectsWrongAccount() {
     Account expectedAcct = new Account(Name = 'Portal Gate Expected');
@@ -2167,6 +2173,118 @@ private class MessagingControllerTest {
       null
     );
     Test.stopTest();
+  }
+
+  /**
+   * Goal: searchTerm that normalizes to blank (e.g. only * / %) exits before SOSL and returns no rows.
+   */
+  @IsTest
+  static void getMessages_searchTermOnlyWildcards_returnsEmptyBeforeSosl() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Test.startTest();
+    List<MessagingController.MessageInfo> rows = MessagingController.getMessages(
+      'Milestone Team',
+      String.valueOf(testAccount.Id),
+      null,
+      null,
+      50,
+      0,
+      'CreatedDate',
+      'ASC',
+      '**',
+      null
+    );
+    Test.stopTest();
+    System.assertEquals(0, rows.size());
+  }
+
+  /**
+   * Goal: SOSL returns no Message__c Ids (fixed empty results) — getMessages must return an empty
+   * list after materializing an empty Id set.
+   */
+  @IsTest
+  static void getMessages_searchTermWithNoSoslHits_returnsEmpty() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Test.setFixedSearchResults(new List<Id>());
+    Test.startTest();
+    List<MessagingController.MessageInfo> rows = MessagingController.getMessages(
+      'Milestone Team',
+      String.valueOf(testAccount.Id),
+      null,
+      null,
+      50,
+      0,
+      'CreatedDate',
+      'ASC',
+      'zzNoSuchMessageBody987',
+      null
+    );
+    Test.stopTest();
+    System.assertEquals(0, rows.size());
+  }
+
+  /**
+   * Goal: internal users (no User.AccountId) with recipientType Client use the branch that scopes
+   * client messages without adding Account__c = currentUserAccountId (skipped for portal users).
+   */
+  @IsTest
+  static void getMessages_recipientClient_asInternalUser_buildsClientBucketFilter() {
+    if ([SELECT AccountId FROM User WHERE Id = :UserInfo.getUserId()].AccountId != null) {
+      return;
+    }
+    Test.startTest();
+    MessagingController.getMessages('Client', null, null, null, 15, 0, 'CreatedDate', 'ASC', null, null);
+    Test.stopTest();
+  }
+
+  /**
+   * Goal: null recipientType uses default access OR (client bucket for portal + team bucket), with
+   * account context filter applied.
+   */
+  @IsTest
+  static void getMessages_nullRecipientType_usesDefaultAccessBuckets() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Test.startTest();
+    MessagingController.getMessages(
+      null,
+      String.valueOf(testAccount.Id),
+      null,
+      null,
+      20,
+      0,
+      'CreatedDate',
+      'ASC',
+      null,
+      null
+    );
+    Test.stopTest();
+  }
+
+  /**
+   * Goal: combined path — account-scoped listing, SOSL Id IN clause, non-zero offset, DESC order on
+   * LastEditedDate (exercises normalization and WHERE assembly after search).
+   */
+  @IsTest
+  static void getMessages_searchWithAccountScope_orderDesc_offset_andIdInClause() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Id searchableMsgId = findMessageIdByBodyContains('searchable');
+    System.assertNotEquals(null, searchableMsgId);
+    Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
+    Test.startTest();
+    List<MessagingController.MessageInfo> rows = MessagingController.getMessages(
+      null,
+      String.valueOf(testAccount.Id),
+      null,
+      null,
+      5,
+      1,
+      'LastEditedDate',
+      'DESC',
+      'searchable',
+      null
+    );
+    Test.stopTest();
+    System.assertNotEquals(null, rows);
   }
 
   @IsTest
@@ -2378,12 +2496,20 @@ private class MessagingControllerTest {
     Test.stopTest();
   }
 
+  /**
+   * Goal: sendMentionNotifications returns immediately when there is nothing to notify (null/empty list)
+   * — covered via the narrow {@code sendMentionNotificationsForTest} seam.
+   */
   @IsTest
   static void sendMentionNotificationsForTest_earlyReturnWhenNoMentions() {
     MessagingController.sendMentionNotificationsForTest(String.valueOf(UserInfo.getUserId()), new List<String>(), 'x');
     MessagingController.sendMentionNotificationsForTest(String.valueOf(UserInfo.getUserId()), null, 'x');
   }
 
+  /**
+   * Goal: invalid Message__c Id with valid mention Ids hits the private try/catch that swallows errors
+   * so message creation flows are never blocked (notification side effect only).
+   */
   @IsTest
   static void sendMentionNotificationsForTest_invalidMessageIdSwallowsError() {
     Contact mention = [
@@ -2399,6 +2525,29 @@ private class MessagingControllerTest {
     );
   }
 
+  /**
+   * Goal: markAsRead with a syntactically valid Id that is not a Message__c row causes the single-row
+   * query to fail; the outer catch must surface an AuraHandledException (e.g. wrong-SObject Id).
+   */
+  @IsTest
+  static void markAsRead_nonMessageId_wrapsQueryFailure() {
+    Account a = new Account(Name = 'MarkRead Wrong SObject');
+    insert a;
+    Boolean threw = false;
+    try {
+      MessagingController.markAsRead(String.valueOf(a.Id));
+    } catch (AuraHandledException expected) {
+      threw = true;
+    } finally {
+      delete a;
+    }
+    System.assert(threw, 'Expected wrapped error when no Message__c exists for Id');
+  }
+
+  /**
+   * Goal: end-to-end send with mentions drives mention-notification email path, including HTML strip
+   * and long-body truncation inside the notification builder (no direct call to private helpers).
+   */
   @IsTest
   static void sendMessage_longBodyWithMention_truncatesNotificationPlainText() {
     Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];

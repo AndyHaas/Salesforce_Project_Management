@@ -1470,6 +1470,20 @@ public without sharing class MessagingController {
   }
 
   /**
+   * Narrow test seam: delegates to {@link #sendMentionNotifications} for early-return and
+   * error-swallow branches without constructing a full sendMessage graph. Prefer calling
+   * {@link #sendMessage} with mentions when exercising happy paths.
+   */
+  @TestVisible
+  private static void sendMentionNotificationsForTest(
+    String messageId,
+    List<String> mentionedContactIds,
+    String messageBody
+  ) {
+    sendMentionNotifications(messageId, mentionedContactIds, messageBody);
+  }
+
+  /**
    * @description Link files to a message
    * @param messageId The message ID
    * @param contentVersionIds List of ContentVersion IDs
