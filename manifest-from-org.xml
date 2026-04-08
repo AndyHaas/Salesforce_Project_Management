@@ -242,9 +242,14 @@
     </types>
     <types>
         <members>ProjectTaskApprovalTemplates</members>
+        <members>ProjectTaskApprovalTemplates/ClientTemplates</members>
         <name>EmailTemplateFolder</name>
     </types>
     <types>
+        <members>ProjectTaskApprovalTemplates/ClientTemplates/Approval_Process_Project_Task_Client_Accepted_Backlog_1774965278395</members>
+        <members>ProjectTaskApprovalTemplates/ClientTemplates/Approval_Process_Project_Task_Client_Rejected_1774899095134</members>
+        <members>ProjectTaskApprovalTemplates/ClientTemplates/Submission_Status_V2_Client_Approves_Completion</members>
+        <members>ProjectTaskApprovalTemplates/ClientTemplates/Submission_Status_V2_Client_Rejects_Completion</members>
         <members>ProjectTaskApprovalTemplates/Approval_Process_Project_Task_Assigned_to_Task_1774891244624</members>
         <members>ProjectTaskApprovalTemplates/Approval_Process_Project_Task_PM_Accepts_1775054551529</members>
         <members>ProjectTaskApprovalTemplates/Approval_Process_Project_Task_PM_Code_Review_Submitted_1774969013837</members>
