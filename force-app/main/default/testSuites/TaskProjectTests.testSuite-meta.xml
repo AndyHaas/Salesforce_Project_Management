@@ -3,6 +3,9 @@
     <testClassName>CreateReleaseNoteQAControllerTest</testClassName>
     <testClassName>MessageFilesSupportTest</testClassName>
     <testClassName>MessageNotificationSchedulerTest</testClassName>
+    <testClassName>MessageVisibilitySupportTest</testClassName>
+    <testClassName>MessagingControllerTest</testClassName>
+    <testClassName>MessagingPinnedSupportTest</testClassName>
     <testClassName>ProjectTaskApproverUserHelperTest</testClassName>
     <testClassName>ProjectTaskContextControllerTest</testClassName>
     <testClassName>ProjectTaskDashboardControllerTest</testClassName>

@@ -102,6 +102,9 @@
     </types>
     <types>
         <members>LoggerCore</members>
+        <members>Milestone_ApexTests_Controllers</members>
+        <members>Milestone_ApexTests_Messaging</members>
+        <members>Milestone_ApexTests_ProjectTask</members>
         <members>TaskProjectTests</members>
         <name>ApexTestSuite</name>
     </types>
