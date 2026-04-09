@@ -8,9 +8,12 @@ import {
   splitFileNameForPortalRow,
   EM_DASH,
   SUBMIT_CLIENT_COMPLETION_STATUSES,
+  PM_SUBMITS_CLIENT_APPROVAL,
+  PM_SUBMITS_FOR_CLIENT_APPROVAL,
   getFieldType,
   formatDate,
   formatDateTime,
+  formatFileSize,
   formatTime,
   formatPhone,
   formatBoolean,
@@ -68,6 +71,20 @@ describe("portalCommon", () => {
     const s = formatDateTime(new Date(2024, 0, 5, 8, 7));
     expect(s).toContain("2024-01-05");
     expect(s).toContain("08:07");
+  });
+
+  test("formatFileSize", () => {
+    expect(formatFileSize(null)).toBe("");
+    expect(formatFileSize(undefined, "—")).toBe("—");
+    expect(formatFileSize("x", "—")).toBe("—");
+    expect(formatFileSize(-1)).toBe("");
+    expect(formatFileSize(0)).toBe("0 B");
+    expect(formatFileSize(512)).toContain("B");
+    expect(formatFileSize(1536)).toContain("KB");
+  });
+
+  test("PM_SUBMITS_CLIENT_* aliases match canonical picklist strings", () => {
+    expect(PM_SUBMITS_CLIENT_APPROVAL).toBe(PM_SUBMITS_FOR_CLIENT_APPROVAL);
   });
 
   test("formatTime from ms since midnight", () => {

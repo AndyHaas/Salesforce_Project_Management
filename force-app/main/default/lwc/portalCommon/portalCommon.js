@@ -6,7 +6,7 @@
 export const API_VERSION = {
   major: 0,
   minor: 1,
-  patch: 244
+  patch: 245
 };
 
 /** @see c/experiencePathUtils — re-exported for portal add-on bundles. */
@@ -29,6 +29,12 @@ export {
   PM_REJECTS_IN_PROGRESS,
   PM_ACCEPTS_IN_PROGRESS,
   SUBMIT_CLIENT_COMPLETION_GATE_STATUSES
+} from "c/taskSubmissionConstants";
+
+/** Legacy names used by Experience Cloud portal shell LWCs (Portal Add-On). */
+export {
+  PM_SUBMITS_FOR_CLIENT_APPROVAL as PM_SUBMITS_CLIENT_APPROVAL,
+  PM_SUBMITS_FOR_CLIENT_REVIEW as PM_SUBMITS_CLIENT_REVIEW
 } from "c/taskSubmissionConstants";
 
 export const BRAND_INFO = {
@@ -193,6 +199,30 @@ export function formatDateTime(value, emptyValue = "") {
   const hh = pad(date.getHours());
   const min = pad(date.getMinutes());
   return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+}
+
+/**
+ * Formats byte length for portal file lists (B through GB).
+ *
+ * @param {number|string|null|undefined} bytes Raw byte count.
+ * @param {string} emptyValue Returned when bytes are missing or not a finite number.
+ * @returns {string} Human-readable size or emptyValue.
+ */
+export function formatFileSize(bytes, emptyValue = "") {
+  if (bytes === undefined || bytes === null || bytes === "") {
+    return emptyValue;
+  }
+  const n = Number(bytes);
+  if (!Number.isFinite(n) || n < 0) {
+    return emptyValue;
+  }
+  if (n === 0) {
+    return "0 B";
+  }
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.min(Math.floor(Math.log(n) / Math.log(k)), sizes.length - 1);
+  return `${Math.round((n / k ** i) * 100) / 100} ${sizes[i]}`;
 }
 
 /**
