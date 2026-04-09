@@ -6,7 +6,7 @@
 export const API_VERSION = {
   major: 0,
   minor: 1,
-  patch: 243
+  patch: 244
 };
 
 /** @see c/experiencePathUtils — re-exported for portal add-on bundles. */
@@ -24,7 +24,11 @@ export {
   PM_SUBMITS_FOR_CLIENT_REVIEW,
   CLIENT_APPROVES_COMPLETION,
   CLIENT_REJECTS_COMPLETION,
-  SUBMIT_CLIENT_COMPLETION_STATUSES
+  SUBMIT_CLIENT_COMPLETION_STATUSES,
+  DEV_SUBMITS_PM,
+  PM_REJECTS_IN_PROGRESS,
+  PM_ACCEPTS_IN_PROGRESS,
+  SUBMIT_CLIENT_COMPLETION_GATE_STATUSES
 } from "c/taskSubmissionConstants";
 
 export const BRAND_INFO = {

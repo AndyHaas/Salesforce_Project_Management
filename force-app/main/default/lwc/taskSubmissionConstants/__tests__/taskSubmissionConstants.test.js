@@ -4,7 +4,11 @@ import {
   PM_SUBMITS_FOR_CLIENT_REVIEW,
   CLIENT_APPROVES_COMPLETION,
   CLIENT_REJECTS_COMPLETION,
-  SUBMIT_CLIENT_COMPLETION_STATUSES
+  SUBMIT_CLIENT_COMPLETION_STATUSES,
+  DEV_SUBMITS_PM,
+  PM_REJECTS_IN_PROGRESS,
+  PM_ACCEPTS_IN_PROGRESS,
+  SUBMIT_CLIENT_COMPLETION_GATE_STATUSES
 } from "c/taskSubmissionConstants";
 
 describe("taskSubmissionConstants", () => {
@@ -28,5 +32,15 @@ describe("taskSubmissionConstants", () => {
       CLIENT_APPROVES_COMPLETION,
       CLIENT_REJECTS_COMPLETION
     ]);
+  });
+
+  test("SUBMIT_CLIENT_COMPLETION_GATE_STATUSES lists in-review completion-submit gate", () => {
+    expect(SUBMIT_CLIENT_COMPLETION_GATE_STATUSES.has(DEV_SUBMITS_PM)).toBe(true);
+    expect(SUBMIT_CLIENT_COMPLETION_GATE_STATUSES.has(PM_REJECTS_IN_PROGRESS)).toBe(
+      true
+    );
+    expect(SUBMIT_CLIENT_COMPLETION_GATE_STATUSES.has(PM_ACCEPTS_IN_PROGRESS)).toBe(
+      true
+    );
   });
 });
