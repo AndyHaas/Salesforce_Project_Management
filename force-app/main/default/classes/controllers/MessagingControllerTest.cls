@@ -2577,4 +2577,378 @@ private class MessagingControllerTest {
     );
     Test.stopTest();
   }
+
+  /**
+   * Goal: exercise {@link MessagingController#searchMessageIdsBySosl} success path (Search.query + row scan)
+   * using {@code Test.setFixedSearchResults}.
+   */
+  @IsTest
+  static void searchMessageIdsBySoslForTest_withFixedResults_returnsIds() {
+    Id searchableMsgId = findMessageIdByBodyContains('searchable');
+    System.assertNotEquals(null, searchableMsgId);
+    Test.setFixedSearchResults(new List<Id>{ searchableMsgId });
+    Set<Id> found = MessagingController.searchMessageIdsBySoslForTest('searchable');
+    System.assert(found.contains(searchableMsgId));
+  }
+
+  /**
+   * Goal: {@link MessagingController#getMessages} maps {@code Reply_To__r} preview fields for the LWC thread UI.
+   */
+  @IsTest
+  static void getMessages_includesReplyToPreviewFields() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Project__c proj = [SELECT Id FROM Project__c WHERE Account__c = :testAccount.Id LIMIT 1];
+    Project_Task__c task = [
+      SELECT Id
+      FROM Project_Task__c
+      WHERE Account__c = :testAccount.Id
+      LIMIT 1
+    ];
+    User me = [SELECT Id, ContactId, Email FROM User WHERE Id = :UserInfo.getUserId()];
+    Id senderId = me.ContactId;
+    if (senderId == null) {
+      List<Contact> rows = [SELECT Id FROM Contact WHERE Email = :me.Email LIMIT 1];
+      senderId = rows.isEmpty() ? null : rows[0].Id;
+    }
+    System.assertNotEquals(null, senderId);
+
+    Message__c parent = new Message__c(
+      Body__c = 'Parent for reply preview',
+      Sender__c = senderId,
+      Recipient_Type__c = 'Milestone Team',
+      Related_Task__c = task.Id,
+      Related_Project__c = proj.Id,
+      Account__c = testAccount.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert parent;
+
+    Message__c child = new Message__c(
+      Body__c = 'Child reply row',
+      Sender__c = senderId,
+      Recipient_Type__c = 'Milestone Team',
+      Related_Task__c = task.Id,
+      Related_Project__c = proj.Id,
+      Account__c = testAccount.Id,
+      Reply_To__c = parent.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert child;
+
+    Test.startTest();
+    List<MessagingController.MessageInfo> rows = MessagingController.getMessages(
+      'Milestone Team',
+      String.valueOf(testAccount.Id),
+      null,
+      null,
+      50,
+      0,
+      'CreatedDate',
+      'ASC',
+      null,
+      null
+    );
+    Test.stopTest();
+
+    Boolean sawReply = false;
+    for (MessagingController.MessageInfo row : rows) {
+      if (row.id == String.valueOf(child.Id)) {
+        System.assertEquals(String.valueOf(parent.Id), row.replyToMessageId);
+        System.assertEquals('Parent for reply preview', row.replyToMessageBody);
+        System.assertNotEquals(null, row.replyToCreatedDate);
+        sawReply = true;
+        break;
+      }
+    }
+    System.assert(sawReply, 'Expected child message with reply preview in result set');
+  }
+
+  /**
+   * Goal: latest feed includes task-scoped rows and evaluates mention flag against the current user contact.
+   */
+  @IsTest
+  static void getLatestMessages_marksIsMentionedWhenContactListed() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Project__c proj = [SELECT Id FROM Project__c WHERE Account__c = :testAccount.Id LIMIT 1];
+    Project_Task__c task = [
+      SELECT Id
+      FROM Project_Task__c
+      WHERE Account__c = :testAccount.Id
+      LIMIT 1
+    ];
+    User runner = [SELECT Id, ContactId, Email FROM User WHERE Id = :UserInfo.getUserId()];
+    Id runnerContactId = runner.ContactId;
+    if (runnerContactId == null) {
+      List<Contact> rc = [SELECT Id FROM Contact WHERE Email = :runner.Email LIMIT 1];
+      runnerContactId = rc.isEmpty() ? null : rc[0].Id;
+    }
+    System.assertNotEquals(null, runnerContactId, 'Test user needs a Contact for mention matching');
+    Contact otherSender = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+
+    Message__c msg = new Message__c(
+      Body__c = 'Mention you in feed',
+      Sender__c = otherSender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Related_Task__c = task.Id,
+      Related_Project__c = proj.Id,
+      Account__c = testAccount.Id,
+      Mentioned_Contacts__c = String.valueOf(runnerContactId),
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+
+    Test.startTest();
+    List<MessagingController.MessageInfo> rows = MessagingController.getLatestMessages(25, 'CreatedDate', 'DESC');
+    Test.stopTest();
+
+    Boolean saw = false;
+    for (MessagingController.MessageInfo row : rows) {
+      if (row.id == String.valueOf(msg.Id)) {
+        System.assertEquals(true, row.isMentioned);
+        saw = true;
+        break;
+      }
+    }
+    System.assert(saw, 'Feed should include inserted message with mention flag');
+  }
+
+  /**
+   * Goal: second link call hits the no-new-links path (all ContentDocumentIds already linked).
+   */
+  @IsTest
+  static void linkFilesToMessage_secondCallStillSucceeds() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Contact sender = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    Message__c msg = new Message__c(
+      Body__c = 'Idempotent link',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = testAccount.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+    ContentVersion cv = new ContentVersion(
+      Title = 'Idempotent',
+      PathOnClient = 'id.pdf',
+      VersionData = Blob.valueOf('i'),
+      FirstPublishLocationId = testAccount.Id
+    );
+    insert cv;
+    List<String> cvIds = new List<String>{ String.valueOf(cv.Id) };
+
+    Test.startTest();
+    System.assertEquals(true, MessagingController.linkFilesToMessage(String.valueOf(msg.Id), cvIds));
+    System.assertEquals(true, MessagingController.linkFilesToMessage(String.valueOf(msg.Id), cvIds));
+    Test.stopTest();
+  }
+
+  /**
+   * Goal: mention notification exits when resolved contacts have no email (nothing to email).
+   */
+  @IsTest
+  static void sendMentionNotificationsForTest_skipsWhenNoEmailOnContacts() {
+    Account acc = new Account(Name = 'No Email Mention Acc');
+    insert acc;
+    Contact noEmail = new Contact(
+      LastName = 'NoEmailMention',
+      Email = null,
+      AccountId = acc.Id,
+      Portal_Access_Enabled__c = true
+    );
+    insert noEmail;
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Project__c proj = [SELECT Id FROM Project__c WHERE Account__c = :testAccount.Id LIMIT 1];
+    Project_Task__c task = [
+      SELECT Id
+      FROM Project_Task__c
+      WHERE Account__c = :testAccount.Id
+      LIMIT 1
+    ];
+    Contact sender = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    Message__c msg = new Message__c(
+      Body__c = 'Notify skip',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Related_Task__c = task.Id,
+      Related_Project__c = proj.Id,
+      Account__c = testAccount.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+
+    MessagingController.sendMentionNotificationsForTest(
+      String.valueOf(msg.Id),
+      new List<String>{ String.valueOf(noEmail.Id) },
+      'Hello'
+    );
+  }
+
+  /**
+   * Goal: internal users (no AccountId) use the org-wide mentionable-contact query branch with a search term.
+   */
+  @IsTest
+  static void getMentionableContacts_internalUser_withSearchTerm() {
+    if ([SELECT AccountId FROM User WHERE Id = :UserInfo.getUserId()].AccountId != null) {
+      return;
+    }
+    Test.startTest();
+    List<MessagingController.ContactInfo> rows = MessagingController.getMentionableContacts('Test');
+    Test.stopTest();
+    System.assertNotEquals(null, rows);
+  }
+
+  /**
+   * Goal: {@link MessagingController#updateMessage} rejects blank body before DML.
+   */
+  @IsTest
+  static void updateMessage_blankBody_throws() {
+    User currentUser = [SELECT Id, ContactId, Email FROM User WHERE Id = :UserInfo.getUserId()];
+    Id senderContactId = currentUser.ContactId;
+    if (senderContactId == null) {
+      List<Contact> rows = [SELECT Id FROM Contact WHERE Email = :currentUser.Email LIMIT 1];
+      senderContactId = rows.isEmpty() ? null : rows[0].Id;
+    }
+    System.assertNotEquals(null, senderContactId);
+
+    Account acc = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Message__c owned = new Message__c(
+      Body__c = 'Owned for blank body guard',
+      Sender__c = senderContactId,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = acc.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert owned;
+
+    Boolean threw = false;
+    try {
+      MessagingController.updateMessage(String.valueOf(owned.Id), '');
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  /**
+   * Goal: reply target Id that is not a non-deleted Message__c row skips inheritance but still sends.
+   */
+  @IsTest
+  static void sendMessage_replyToNonMessageId_skipsReplyInheritance() {
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Project__c proj = [SELECT Id FROM Project__c WHERE Account__c = :testAccount.Id LIMIT 1];
+    Project_Task__c task = [
+      SELECT Id
+      FROM Project_Task__c
+      WHERE Account__c = :testAccount.Id
+      LIMIT 1
+    ];
+    Account decoy = new Account(Name = 'Decoy For Reply Id');
+    insert decoy;
+
+    Test.startTest();
+    String mid = MessagingController.sendMessage(
+      'No inheritance',
+      'Milestone Team',
+      String.valueOf(testAccount.Id),
+      String.valueOf(proj.Id),
+      String.valueOf(task.Id),
+      null,
+      true,
+      String.valueOf(decoy.Id)
+    );
+    Test.stopTest();
+
+    Message__c inserted = [
+      SELECT Reply_To__c, Related_Task__c
+      FROM Message__c
+      WHERE Id = :mid
+    ];
+    System.assertEquals(null, inserted.Reply_To__c);
+    System.assertEquals(task.Id, inserted.Related_Task__c);
+    delete decoy;
+  }
+
+  /**
+   * Goal: {@code normalizeTermForSosl} returns null when the term collapses to whitespace after wildcard stripping.
+   */
+  @IsTest
+  static void normalizeTermForSoslForTest_onlySpacesAfterStrip_returnsNull() {
+    System.assertEquals(null, MessagingController.normalizeTermForSoslForTest('* * *'));
+  }
+
+  /**
+   * Goal: {@link MessagingController#filterToMentionableContactIds} uses the internal-user SOQL branch when User.AccountId is null.
+   */
+  @IsTest
+  static void filterToMentionableContactIds_internalUser_usesOrgWideContactQuery() {
+    User me = [SELECT Id, ContactId, AccountId, Name, Email FROM User WHERE Id = :UserInfo.getUserId()];
+    if (me.AccountId != null) {
+      return;
+    }
+    Contact mention = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    List<String> out = MessagingController.filterToMentionableContactIdsForTest(
+      new List<String>{ String.valueOf(mention.Id) },
+      me
+    );
+    System.assertEquals(1, out.size());
+  }
+
+  /**
+   * Goal: portal users cannot pin; Milestone team members can toggle pin state.
+   */
+  @IsTest
+  static void pinMessage_portalUser_throwsNotTeamMember() {
+    if ([SELECT AccountId FROM User WHERE Id = :UserInfo.getUserId()].AccountId == null) {
+      return;
+    }
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Contact sender = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    Message__c msg = new Message__c(
+      Body__c = 'Portal pin',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = testAccount.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+    Boolean threw = false;
+    try {
+      MessagingController.pinMessage(String.valueOf(msg.Id), true);
+    } catch (AuraHandledException expected) {
+      threw = true;
+    }
+    System.assert(threw);
+  }
+
+  @IsTest
+  static void pinMessage_internalUser_toggles() {
+    if ([SELECT AccountId FROM User WHERE Id = :UserInfo.getUserId()].AccountId != null) {
+      return;
+    }
+    Account testAccount = [SELECT Id FROM Account WHERE Name = 'Test Client Account' LIMIT 1];
+    Contact sender = [SELECT Id FROM Contact WHERE Email = 'testcontact@test.com' LIMIT 1];
+    Message__c msg = new Message__c(
+      Body__c = 'Internal pin toggle',
+      Sender__c = sender.Id,
+      Recipient_Type__c = 'Milestone Team',
+      Account__c = testAccount.Id,
+      Visible_To_Client__c = true,
+      Deleted__c = false
+    );
+    insert msg;
+    Test.startTest();
+    MessagingController.pinMessage(String.valueOf(msg.Id), true);
+    System.assertEquals(true, [SELECT Is_Pinned__c FROM Message__c WHERE Id = :msg.Id].Is_Pinned__c);
+    MessagingController.pinMessage(String.valueOf(msg.Id), false);
+    Test.stopTest();
+    System.assertEquals(false, [SELECT Is_Pinned__c FROM Message__c WHERE Id = :msg.Id].Is_Pinned__c);
+  }
+
 }
