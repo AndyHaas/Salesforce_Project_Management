@@ -243,7 +243,7 @@ export default class FileManager extends LightningElement {
     return this.isRecordVariant && this.recordId ? String(this.recordId) : undefined;
   }
 
-  /** Passed to c-portal-file-attachments for getFilePreviewUrl(linkedEntityId, …). */
+  /** Passed to c-portal-file-attachments as linked-entity-id (context for preview modal; preview URL via c/messageFilesCore). */
   get effectiveFilePreviewLinkedEntityId() {
     const explicit =
       this.linkedEntityId != null && String(this.linkedEntityId).trim() !== ""

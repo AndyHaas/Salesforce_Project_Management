@@ -2,7 +2,8 @@ import { LightningElement, api } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
 import getContentDocumentIdForVersionId from "@salesforce/apex/MessageFilesSupport.getContentDocumentIdForVersionId";
 import getLatestContentVersionIdsForDocuments from "@salesforce/apex/MessageFilesSupport.getLatestContentVersionIdsForDocuments";
-import { formatDateTime, openShepherdDownloadInNewTab } from "c/portalCommon";
+import { openShepherdDownloadInNewTab } from "c/messageFilesCore";
+import { formatDateTime } from "c/portalCommon";
 import { getFileIconName, formatFileSize } from "./portalFileAttachmentsUtils";
 
 /**
@@ -59,9 +60,8 @@ export default class PortalFileAttachments extends NavigationMixin(LightningElem
   _isExperienceCloudApi;
 
   /**
-   * Host record Id for file preview authorization (e.g. Message__c or Project__c). When set on
-   * Experience Cloud, preview calls MessageFilesSupport.getFilePreviewUrl with linkedEntityId so
-   * access follows ContentDocumentLink visibility.
+   * Host record Id passed through to the preview modal (e.g. Message__c for c-file-manager).
+   * Preview URL resolution uses c/messageFilesCore → PortalTaskController.getFilePreviewUrl.
    */
   @api linkedEntityId;
 

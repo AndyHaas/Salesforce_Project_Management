@@ -1,13 +1,12 @@
 import { LightningElement, api, track } from "lwc";
-import getFilePreviewUrl from "@salesforce/apex/MessageFilesSupport.getFilePreviewUrl";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-import { openShepherdDownloadInNewTab } from "c/portalCommon";
+import { getMessageFilePreviewUrl, openShepherdDownloadInNewTab } from "c/messageFilesCore";
 
 let titleIdSequence = 0;
 
 /**
  * Shared modal for in-page file preview in the portal (Portal Add-On pattern).
- * Resolves a ContentDistribution view URL via MessageFilesSupport.getFilePreviewUrl (Experience Cloud–friendly).
+ * Resolves a ContentDistribution view URL via c/messageFilesCore (PortalTaskController.getFilePreviewUrl).
  */
 export default class PortalFilePreviewModal extends LightningElement {
   /** Unique title id per instance so aria-labelledby stays valid if multiple modals exist. */
@@ -46,6 +45,8 @@ export default class PortalFilePreviewModal extends LightningElement {
 
   /**
    * Opens the modal and loads a browser-viewable URL for the ContentVersion.
+   * Optional contentDocumentId / linkedEntityId are kept for callers (e.g. c-portal-file-attachments);
+   * preview resolution uses contentVersionId only via c/messageFilesCore.
    *
    * @param {{ contentVersionId: string, contentDocumentId?: string, linkedEntityId?: string, title?: string }} config
    */
@@ -68,15 +69,7 @@ export default class PortalFilePreviewModal extends LightningElement {
     this._addEscapeListener();
 
     try {
-      const linkedEntityId = config?.linkedEntityId != null ? String(config.linkedEntityId).trim() : "";
-      const payload = { contentVersionId };
-      if (doc) {
-        payload.contentDocumentId = doc;
-      }
-      if (linkedEntityId) {
-        payload.linkedEntityId = linkedEntityId;
-      }
-      const url = await getFilePreviewUrl(payload);
+      const url = await getMessageFilePreviewUrl(contentVersionId);
       this.previewUrl = url;
     } catch (err) {
       console.error("File preview error:", err);

@@ -8,6 +8,10 @@ module.exports = {
   modulePathIgnorePatterns: ["<rootDir>/.localdevserver"],
   moduleNameMapper: {
     "^lightning/actions$": path.join(__dirname, "jest.mocks/lightning-actions.js"),
-    "^lightning/modal$": path.join(__dirname, "jest.mocks/lightning-modal.js")
+    "^lightning/modal$": path.join(__dirname, "jest.mocks/lightning-modal.js"),
+    "^@salesforce/apex/PortalTaskController.getFilePreviewUrl$": path.join(
+      __dirname,
+      "jest.mocks/salesforce-apex-PortalTaskController-getFilePreviewUrl.js"
+    )
   }
 };
