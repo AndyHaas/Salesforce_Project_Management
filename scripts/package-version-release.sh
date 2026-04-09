@@ -36,6 +36,21 @@ usage() {
   exit 1
 }
 
+# `sf package version create` instantiates ScratchOrgSettingsGenerator without passing
+# `capitalizeRecordTypes` from ConfigAggregator (unlike `sf org create scratch`), so the
+# CLI always emits a deprecation warning even when `.sf/config.json` sets
+# `org-capitalize-record-types=true`. Behavior already matches capitalization-on; strip the
+# two-line warning from create output only. Remove this if packaging passes the config.
+filter_spurious_pkg_record_type_warning() {
+  awk '
+    /^Warning: Record types defined in the scratch org definition file will stop being capitalized/ {
+      getline
+      next
+    }
+    { print }
+  '
+}
+
 cmd_create() {
   local force_flag=()
   if [[ "${1:-}" == "--force" ]]; then
@@ -54,7 +69,7 @@ cmd_create() {
     --wait 120 \
     --target-dev-hub "${DEV_HUB}" \
     --definition-file "${REPO_ROOT}/config/package-version-scratch-def.json" \
-    2>&1 | tee "${log}"
+    2>&1 | tee "${log}" | filter_spurious_pkg_record_type_warning
   local pstat=("${PIPESTATUS[@]}")
   set -e
   if [[ "${pstat[0]}" -ne 0 ]]; then
