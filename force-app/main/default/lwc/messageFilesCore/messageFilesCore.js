@@ -1,6 +1,6 @@
 import getFilePreviewUrl from "@salesforce/apex/PortalTaskController.getFilePreviewUrl";
 
-export { openShepherdDownloadInNewTab } from "c/portalCommon";
+export { openShepherdDownloadInNewTab } from "c/experiencePathUtils";
 
 /**
  * Core entry point for portal file preview in messaging / c-file-manager flows:

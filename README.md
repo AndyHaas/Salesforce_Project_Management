@@ -43,7 +43,7 @@ When `c-portal-file-attachments` runs on an **Experience Cloud** site, file name
 - If you use a **custom** portal permission set instead, grant the same **Apex class** and **object permissions**, or mirror them on the Experience Cloud **member** / **guest** profile under **Public Access Settings**.
 - Prefer file rows that include **`contentVersionId`**; if only **`contentDocumentId`** is present, core resolves the latest version via **`getLatestContentVersionIdsForDocuments`**.
 - **`c-file-manager`** can set **`is-experience-cloud`** when the site URL does not contain `/s/` so preview still uses the modal instead of unsupported LEX **`filePreview`** navigation.
-- Fallback for errors or blocked iframes: **Open in new tab** uses shepherd download URLs via **`portalCommon.openShepherdDownloadInNewTab`**.
+- Fallback for errors or blocked iframes: **Open in new tab** uses shepherd download URLs via **`experiencePathUtils.openShepherdDownloadInNewTab`** (also re-exported from **`messageFilesCore`** and **`portalCommon`** for convenience).
 
 **API version:** see `sfdx-project.json` (`sourceApiVersion`).
 

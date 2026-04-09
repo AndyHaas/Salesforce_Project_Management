@@ -1,7 +1,7 @@
 import { createElement } from "lwc";
 import { registerApexTestWireAdapter, registerTestWireAdapter } from "@salesforce/sfdx-lwc-jest";
 import { CurrentPageReference, NavigationMixin } from "lightning/navigation";
-import { ensureSitePath } from "c/portalCommon";
+import { ensureSitePath } from "c/experiencePathUtils";
 import * as messageService from "lightning/messageService";
 import { MessageContext } from "lightning/messageService";
 import getContextInfo from "@salesforce/apex/MessagingController.getContextInfo";
@@ -31,8 +31,11 @@ jest.mock("@salesforce/apex/MessageFilesSupport.deleteMessageAndAttachments", ()
 });
 jest.mock("@salesforce/apex/MessagingController.pinMessage", () => ({ default: jest.fn() }), { virtual: true });
 
+jest.mock("c/experiencePathUtils", () => ({
+  ensureSitePath: jest.fn((path) => `/s/site${path}`)
+}));
+
 jest.mock("c/portalCommon", () => ({
-  ensureSitePath: jest.fn((path) => `/s/site${path}`),
   formatDateTime: jest.fn((v) => `full:${v}`),
   stripHtml: jest.fn((html) => String(html || "").replace(/<[^>]+>/g, ""))
 }));

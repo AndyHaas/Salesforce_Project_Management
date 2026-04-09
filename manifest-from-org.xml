@@ -326,6 +326,7 @@
         <members>createReleaseNoteQuickAction</members>
         <members>dashboardAccountFilterUtils</members>
         <members>experiencePathUtils</members>
+        <members>messageFilesCore</members>
         <members>fieldEditModal</members>
         <members>fileManager</members>
         <members>groupedTaskList</members>
@@ -350,6 +351,7 @@
         <members>taskProgressMetrics</members>
         <members>taskReviewStatusMetrics</members>
         <members>taskStatusBreakdown</members>
+        <members>taskSubmissionConstants</members>
         <name>LightningComponentBundle</name>
     </types>
     <types>

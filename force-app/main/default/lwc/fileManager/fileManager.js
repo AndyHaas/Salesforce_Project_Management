@@ -2,6 +2,7 @@ import { LightningElement, api, track, wire } from "lwc";
 import { CurrentPageReference } from "lightning/navigation";
 import { refreshApex } from "@salesforce/apex";
 import getFilesForLinkedRecord from "@salesforce/apex/TaskContextController.getFilesForLinkedRecord";
+import { splitFileNameForPortalRow } from "c/experiencePathUtils";
 import PortalFileListModal from "c/portalFileListModal";
 
 /**
@@ -89,27 +90,6 @@ function toPlainComposerPendingRow(row) {
     out.contentVersionId = String(row.contentVersionId).trim();
   }
   return out;
-}
-
-/**
- * Matches c/portalCommon `splitFileNameForPortalRow`; inlined so composer upload does not depend on
- * cross-bundle named exports (stale org deploys or Locker can leave the import non-callable).
- *
- * @param {string} [name]
- * @returns {{ title: string, fileExtension: string }}
- */
-function splitComposerFileNameForRow(name) {
-  if (name == null || String(name).trim() === "") {
-    return { title: "Attachment", fileExtension: "" };
-  }
-  const s = String(name).trim();
-  const lastDot = s.lastIndexOf(".");
-  if (lastDot <= 0 || lastDot === s.length - 1) {
-    return { title: s, fileExtension: "" };
-  }
-  const ext = s.slice(lastDot + 1).toLowerCase();
-  const title = s.slice(0, lastDot);
-  return { title: title.length ? title : s, fileExtension: ext || "" };
 }
 
 /**
@@ -471,7 +451,7 @@ export default class FileManager extends LightningElement {
           continue;
         }
         const safeName = file.name == null ? "" : String(file.name);
-        const { title, fileExtension } = splitComposerFileNameForRow(safeName);
+        const { title, fileExtension } = splitFileNameForPortalRow(safeName);
         newRows.push({
           contentDocumentId: contentDocumentId ? String(contentDocumentId).trim() : undefined,
           contentVersionId: contentVersionId ? String(contentVersionId).trim() : undefined,

@@ -6,6 +6,8 @@ import {
   shepherdDownloadPath,
   openShepherdDownloadInNewTab,
   splitFileNameForPortalRow,
+  EM_DASH,
+  SUBMIT_CLIENT_COMPLETION_STATUSES,
   getFieldType,
   formatDate,
   formatDateTime,
@@ -33,65 +35,18 @@ describe("portalCommon", () => {
     expect(getWelcomeLabel("Jane")).toBe("Welcome Jane");
   });
 
-  test("ensureSitePath matches experiencePathUtils behavior", () => {
-    expect(ensureSitePath("")).toBe("/");
-    expect(ensureSitePath("tasks")).toBe("/tasks");
-    expect(
-      ensureSitePath("tasks", { currentPathname: "/s/home" })
-    ).toBe("/s/tasks");
-    expect(
-      ensureSitePath("/sfc/servlet.shepherd/document/download/069xx", {
-        currentPathname: "/partners/s/home"
-      })
-    ).toBe("/partners/s/sfc/servlet.shepherd/document/download/069xx");
-    expect(ensureSitePath("/s/tasks", { currentPathname: "/partners/s/home" })).toBe(
-      "/s/tasks"
-    );
-  });
-
-  test("shepherdDownloadPath prefers document over version", () => {
-    expect(shepherdDownloadPath("", "")).toBe("");
-    expect(shepherdDownloadPath("069000000000001", "")).toBe(
-      "/sfc/servlet.shepherd/document/download/069000000000001"
-    );
-    expect(shepherdDownloadPath("", "068000000000001")).toBe(
-      "/sfc/servlet.shepherd/version/download/068000000000001"
-    );
-    expect(shepherdDownloadPath("069AAA", "068BBB")).toBe(
-      "/sfc/servlet.shepherd/document/download/069AAA"
-    );
-  });
-
-  test("openShepherdDownloadInNewTab uses ensureSitePath and window.open", () => {
+  test("re-exports core path, shepherd, file-name, and submission helpers", () => {
+    expect(ensureSitePath("tasks", { currentPathname: "/s/home" })).toBe("/s/tasks");
+    expect(shepherdDownloadPath("069X", "")).toContain("069X");
+    expect(splitFileNameForPortalRow("a.b").fileExtension).toBe("b");
+    expect(EM_DASH).toBe("\u2014");
+    expect(SUBMIT_CLIENT_COMPLETION_STATUSES.length).toBe(3);
     const openSpy = jest.spyOn(window, "open").mockImplementation(() => null);
     delete window.location;
-    window.location = { pathname: "/partners/s/home" };
-    openShepherdDownloadInNewTab("069XX", null);
-    expect(openSpy).toHaveBeenCalledWith(
-      "/partners/s/sfc/servlet.shepherd/document/download/069XX",
-      "_blank",
-      "noopener,noreferrer"
-    );
+    window.location = { pathname: "/s/home" };
+    openShepherdDownloadInNewTab("069Z", null);
+    expect(openSpy).toHaveBeenCalled();
     openSpy.mockRestore();
-  });
-
-  test("splitFileNameForPortalRow matches ContentDocument title + extension shape", () => {
-    expect(splitFileNameForPortalRow("Quarterly Report.pdf")).toEqual({
-      title: "Quarterly Report",
-      fileExtension: "pdf"
-    });
-    expect(splitFileNameForPortalRow("noextension")).toEqual({
-      title: "noextension",
-      fileExtension: ""
-    });
-    expect(splitFileNameForPortalRow("")).toEqual({
-      title: "Attachment",
-      fileExtension: ""
-    });
-    expect(splitFileNameForPortalRow("archive.tar.gz")).toEqual({
-      title: "archive.tar",
-      fileExtension: "gz"
-    });
   });
 
   test("getFieldType maps Salesforce and passthrough types", () => {
