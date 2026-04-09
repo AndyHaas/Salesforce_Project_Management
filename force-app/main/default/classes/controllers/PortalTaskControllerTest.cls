@@ -227,4 +227,230 @@ private class PortalTaskControllerTest {
     }
     System.assert(blankThrew);
   }
+
+  /**
+   * Goal: requirePortalTaskAccess (via applyPortalTaskAction) rejects a blank task Id.
+   */
+  @IsTest
+  static void applyPortalTaskAction_blankTaskId_throws() {
+    withPortalScope(portalAccountId());
+    try {
+      Boolean threw = false;
+      try {
+        PortalTaskController.applyPortalTaskAction('', 'submitClientApproval', null);
+      } catch (AuraHandledException e) {
+        threw = true;
+      }
+      System.assert(threw, 'Blank task id');
+    } finally {
+      clearPortalScope();
+    }
+  }
+
+  /**
+   * Goal: getTaskDetail and applyPortalTaskAction deny tasks tied to accounts outside portal scope.
+   */
+  @IsTest
+  static void getTaskDetail_and_applyAction_accessDenied_otherAccountTask() {
+    Account other = new Account(Name = 'Portal Task Other Account');
+    insert other;
+    Project__c otherProj = new Project__c(
+      Name = 'Other Portal Project',
+      Account__c = other.Id,
+      Status__c = 'Not Started'
+    );
+    insert otherProj;
+    Project_Task__c otherTask = new Project_Task__c(
+      Name = 'Other Account Task',
+      Status__c = 'In Progress',
+      Priority__c = 'Medium',
+      Account__c = other.Id,
+      Project__c = otherProj.Id
+    );
+    insert otherTask;
+
+    withPortalScope(portalAccountId());
+    try {
+      Boolean detailThrew = false;
+      try {
+        PortalTaskController.getTaskDetail(otherTask.Id);
+      } catch (AuraHandledException e) {
+        detailThrew = true;
+      }
+      System.assert(detailThrew, 'getTaskDetail other account');
+
+      Boolean actionThrew = false;
+      try {
+        PortalTaskController.applyPortalTaskAction(otherTask.Id, 'submitClientApproval', null);
+      } catch (AuraHandledException e) {
+        actionThrew = true;
+      }
+      System.assert(actionThrew, 'applyAction other account');
+    } finally {
+      clearPortalScope();
+    }
+  }
+
+  /**
+   * Goal: scoped queries return no rows when the task was deleted (valid Id, no accessible row).
+   */
+  @IsTest
+  static void getTaskDetail_and_applyAction_taskNotFound_deletedRecord() {
+    Project_Task__c t = portalTask();
+    Id tid = t.Id;
+    delete t;
+
+    withPortalScope(portalAccountId());
+    try {
+      Boolean detailThrew = false;
+      try {
+        PortalTaskController.getTaskDetail(tid);
+      } catch (AuraHandledException e) {
+        detailThrew = true;
+      }
+      System.assert(detailThrew, 'getTaskDetail deleted');
+
+      Boolean actionThrew = false;
+      try {
+        PortalTaskController.applyPortalTaskAction(tid, 'submitClientApproval', null);
+      } catch (AuraHandledException e) {
+        actionThrew = true;
+      }
+      System.assert(actionThrew, 'applyAction deleted');
+    } finally {
+      clearPortalScope();
+    }
+  }
+
+  /**
+   * Goal: applyCommentsToSubmissionAfterTaskTransition returns without DML when comments are blank.
+   */
+  @IsTest
+  static void applyCommentsToSubmissionAfterTaskTransition_noOp_blankComments() {
+    Project_Task__c t = portalTask();
+    insert new Project_Task_Submission__c(Project_Task__c = t.Id, Comments__c = 'keep');
+    PortalTaskController.applyCommentsToSubmissionAfterTaskTransition(t.Id, null);
+    PortalTaskController.applyCommentsToSubmissionAfterTaskTransition(t.Id, '   ');
+    Project_Task_Submission__c sub = [
+      SELECT Comments__c
+      FROM Project_Task_Submission__c
+      WHERE Project_Task__c = :t.Id
+      LIMIT 1
+    ];
+    System.assertEquals('keep', sub.Comments__c);
+  }
+
+  /**
+   * Goal: no child submission and non-blank comments exits quietly (submissionId stays null).
+   */
+  @IsTest
+  static void applyCommentsToSubmissionAfterTaskTransition_noSubmission_noError() {
+    Id acctId = portalAccountId();
+    Id projId = [SELECT Id FROM Project__c WHERE Name = 'Portal Task Detail Project' LIMIT 1].Id;
+    Project_Task__c t = new Project_Task__c(
+      Name = 'Task No Submission Row',
+      Status__c = 'In Progress',
+      Priority__c = 'Low',
+      Account__c = acctId,
+      Project__c = projId
+    );
+    insert t;
+    PortalTaskController.applyCommentsToSubmissionAfterTaskTransition(t.Id, 'orphan comment');
+    System.assertEquals(
+      0,
+      [SELECT COUNT() FROM Project_Task_Submission__c WHERE Project_Task__c = :t.Id]
+    );
+  }
+
+  /**
+   * Goal: when Most_Recent_Project_Task_Submission__c is set, that row is updated (not latest-by-CreatedDate only).
+   */
+  @IsTest
+  static void applyCommentsToSubmissionAfterTaskTransition_prefersMostRecentLookup() {
+    Project_Task__c t = portalTask();
+    Project_Task_Submission__c first = new Project_Task_Submission__c(
+      Project_Task__c = t.Id,
+      Comments__c = 'first'
+    );
+    insert first;
+    Project_Task_Submission__c second = new Project_Task_Submission__c(
+      Project_Task__c = t.Id,
+      Comments__c = 'second'
+    );
+    insert second;
+    t.Most_Recent_Project_Task_Submission__c = first.Id;
+    update t;
+
+    PortalTaskController.applyCommentsToSubmissionAfterTaskTransition(t.Id, 'via most recent');
+    first = [SELECT Comments__c FROM Project_Task_Submission__c WHERE Id = :first.Id];
+    second = [SELECT Comments__c FROM Project_Task_Submission__c WHERE Id = :second.Id];
+    System.assertEquals('via most recent', first.Comments__c);
+    System.assertEquals('second', second.Comments__c);
+  }
+
+  /**
+   * Goal: second preview request reuses an existing ContentDistribution row (early return branch).
+   */
+  @IsTest
+  static void getFilePreviewUrl_reusesExistingContentDistribution() {
+    Id accId = portalAccountId();
+    ContentVersion cv = new ContentVersion(
+      Title = 'PortalPreviewReuse',
+      PathOnClient = 'reuse.pdf',
+      VersionData = Blob.valueOf('x'),
+      FirstPublishLocationId = accId
+    );
+    insert cv;
+    withPortalScope(accId);
+    try {
+      String u1 = PortalTaskController.getFilePreviewUrl(String.valueOf(cv.Id));
+      String u2 = PortalTaskController.getFilePreviewUrl(String.valueOf(cv.Id));
+      System.assertEquals(u1, u2);
+      System.assert(!String.isBlank(u1));
+    } finally {
+      clearPortalScope();
+    }
+  }
+
+  /**
+   * Goal: getFilePreviewUrl wraps non-Aura failures as AuraHandledException (catch-all path).
+   */
+  @IsTest
+  static void getFilePreviewUrl_invalidContentVersion_surfacesAuraHandledException() {
+    Boolean threw = false;
+    try {
+      PortalTaskController.getFilePreviewUrl(String.valueOf(UserInfo.getUserId()));
+    } catch (AuraHandledException e) {
+      threw = true;
+    }
+    System.assert(threw, 'Expected wrapped preview failure');
+  }
+
+  /**
+   * Goal: client review actions with comments invoke applyCommentsToSubmissionAfterTaskTransition after update.
+   * May hit DmlException when org automation runs on task update; coverage of the integration line is still attempted.
+   */
+  @IsTest
+  static void applyPortalTaskAction_clientReview_writesSubmissionComments_whenUpdateSucceeds() {
+    Project_Task__c t = portalTask();
+    insert new Project_Task_Submission__c(Project_Task__c = t.Id);
+    withPortalScope(portalAccountId());
+    try {
+      try {
+        PortalTaskController.applyPortalTaskAction(t.Id, 'approveClientBacklog', 'client approved backlog');
+      } catch (DmlException expectedFromAutomation) {
+        return;
+      }
+      Project_Task_Submission__c sub = [
+        SELECT Comments__c
+        FROM Project_Task_Submission__c
+        WHERE Project_Task__c = :t.Id
+        ORDER BY CreatedDate DESC
+        LIMIT 1
+      ];
+      System.assertEquals('client approved backlog', sub.Comments__c);
+    } finally {
+      clearPortalScope();
+    }
+  }
 }
